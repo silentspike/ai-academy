@@ -35,6 +35,14 @@ function determinismusSkript(jetzt) {
     let s = 42;
     Math.random = () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; };
 
+    // window.print() opens a modal print dialog that blocks the page. Chromium
+    // headless quietly ignores it; Firefox does not, and the run stalled for four
+    // minutes on the certificate's print button. What is under test is that the
+    // button can be operated, not that a printer dialog appears.
+    let gedruckt = 0;
+    window.print = () => { gedruckt++; };
+    Object.defineProperty(window, '__druckAufrufe', { get: () => gedruckt });
+
     const stil = document.createElement('style');
     stil.textContent = '*,*::before,*::after{animation-duration:0s!important;animation-delay:0s!important;' +
       'transition-duration:0s!important;transition-delay:0s!important;scroll-behavior:auto!important}';
@@ -47,9 +55,14 @@ function determinismusSkript(jetzt) {
 export const FIXTURES = {
   leer: () => ({}),
 
+  // Fixtures other than `leer` describe someone who has been using the app for a
+  // while: hero and the Article 50 notice were acknowledged long ago. Leaving
+  // aiNoticeAck unset put a modal in front of every view and turned the sweep's
+  // reachability check into a list of false alarms.
   nachPlacement: () => ({
     profile: basisProfil(),
     heroSeen: JETZT - 3600_000,
+    aiNoticeAck: JETZT - 3600_000,
     aiNoticeSeen: JETZT - 3600_000,
     placement: { done: true, at: JETZT - 3600_000 },
     xp: 40, level: 1, events: [], cards: [], dayStats: {},
@@ -58,6 +71,7 @@ export const FIXTURES = {
   mittenInPhase3: () => ({
     profile: basisProfil(),
     heroSeen: JETZT - 7 * 86400_000,
+    aiNoticeAck: JETZT - 7 * 86400_000,
     aiNoticeSeen: JETZT - 7 * 86400_000,
     placement: { done: true, at: JETZT - 7 * 86400_000 },
     xp: 640, level: 2,
@@ -71,6 +85,7 @@ export const FIXTURES = {
     const st = {
       profile: basisProfil(),
       heroSeen: JETZT - 40 * 86400_000,
+      aiNoticeAck: JETZT - 40 * 86400_000,
       aiNoticeSeen: JETZT - 40 * 86400_000,
       placement: { done: true, at: JETZT - 40 * 86400_000 },
       xp: 4200, level: 4,
@@ -93,7 +108,14 @@ export const FIXTURES = {
 
   abgeschlossen: () => {
     const st = FIXTURES.examensreif();
-    st.examAttempts = [{ passed: true, at: JETZT - 86400_000, scoreA: 0.88, scoreB: 0.84, regime: 'r1' }];
+    const tag = new Date(JETZT - 86400_000);
+    const tagKey = `${tag.getFullYear()}-${String(tag.getMonth() + 1).padStart(2, '0')}-${String(tag.getDate()).padStart(2, '0')}`;
+    st.examAttempts = [{ passed: true, day: tagKey, at: JETZT - 86400_000, scoreA: 0.88, scoreB: 0.84, regime: 'r1' }];
+    // The record reads the score series, not the attempts. Without them the
+    // fixture claimed a finished course while the certificate said "no exam
+    // passed yet" — a state a real learner can never be in, and every test built
+    // on it would have been testing nothing.
+    st.scoreSeries = { '2026-07-27|c1|1.2.0|claude-opus-4-8': { runs: [{ pct: 0.86 }, { pct: 0.88 }] } };
     st.xp = 6100; st.level = 5;
     return st;
   },
@@ -222,9 +244,20 @@ export const test = base.extend({
  * is exactly what happened while building this suite.
  */
 export async function warteAufAnsicht(page, timeout = 20_000) {
-  await page.waitForFunction(
-    () => (document.getElementById('view')?.children.length ?? 0) > 0,
-    { timeout });
+  // Polled here rather than via waitForFunction: that call gets its budget
+  // trimmed by the remaining test time and then reports "10000ms exceeded" for a
+  // view that simply needed two seconds — which reads like a hanging application
+  // and is not one.
+  const ende = Date.now() + timeout;
+  for (;;) {
+    const da = await page.evaluate(
+      () => (document.getElementById('view')?.children.length ?? 0) > 0).catch(() => false);
+    if (da) return;
+    if (Date.now() > ende) {
+      throw new Error(`the view stayed empty for ${timeout} ms at ${await page.evaluate(() => location.hash)}`);
+    }
+    await page.waitForTimeout(150);
+  }
 }
 
 /**
@@ -235,6 +268,13 @@ export async function warteAufAnsicht(page, timeout = 20_000) {
  * closed the way a user closes them — by clicking their button.
  */
 export async function schliesseOverlays(page) {
+  // Cheap check first: without it this ran sixteen locator calls per navigation
+  // even when nothing was on screen, and the sweep navigates hundreds of times.
+  const offen = await page.evaluate(() =>
+    !!document.querySelector('.hero-overlay, .ai-notice-overlay, .intro-skip, .stage-ceremony'))
+    .catch(() => true);
+  if (!offen) return;
+
   const SELEKTOREN = ['.hero-overlay button', '.ai-notice-overlay button', '.intro-skip',
                       '.stage-ceremony button'];
   // Several rounds on purpose: the overlays appear one after another and some

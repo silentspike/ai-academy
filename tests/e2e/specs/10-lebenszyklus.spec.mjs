@@ -7,6 +7,10 @@ import { erfasse, klicke } from '../coverage.mjs';
 // broken — that is what this spec covers.
 
 test.describe('lifecycle', () => {
+  // Several of these walk through multiple states, each with a reload. The
+  // default budget runs out mid-wait and reports it as a hanging view.
+  test.describe.configure({ timeout: 120_000 });
+
   test('a first launch leads into onboarding, not into an empty view', async ({ page, zustand }) => {
     await zustand(FIXTURES.leer());
     await page.goto('/', { waitUntil: 'load' });
@@ -120,6 +124,51 @@ test.describe('lifecycle', () => {
     const knopf = page.locator('#view button').first();
     await expect(knopf, 'the wrap-up offers no button').toBeVisible();
     await erfasse(page, '#/wrapup');
+  });
+
+  test('the record is reachable from an empty start, and looks right', async ({ page, zustand }) => {
+
+    // One pass through the whole arc: empty state → onboarding → learning →
+    // passed → record. Time travel replaces the weeks in between; what is being
+    // checked is that the sequence connects at all and that the finished
+    // document is presentable.
+    await zustand(FIXTURES.leer());
+    await page.goto('/', { waitUntil: 'load' });
+    await schliesseOverlays(page);
+    await page.waitForTimeout(300);
+    expect(await page.evaluate(() => location.hash), 'an empty start does not begin at onboarding')
+      .toMatch(/onboarding/);
+
+    // Jump forward: the same states a learner reaches over weeks.
+    await zustand('mittenInPhase3');
+    await page.goto('/#/lernen', { waitUntil: 'load' });
+    await schliesseOverlays(page);
+    await warteAufAnsicht(page, 30_000);
+
+    await zustand('examensreif');
+    await page.goto('/#/examen', { waitUntil: 'load' });
+    await schliesseOverlays(page);
+    await warteAufAnsicht(page, 30_000);
+    await expect(page.locator('#view button:has-text("Examen starten")').first(),
+      'the exam does not open even when everything is in place').toBeVisible();
+
+    await zustand('abgeschlossen');
+    await page.goto('/#/lernnachweis', { waitUntil: 'load' });
+    await schliesseOverlays(page);
+    await warteAufAnsicht(page);
+
+    const text = await page.evaluate(() => document.getElementById('view').innerText);
+    expect(text, 'the record does not name the legal baseline').toMatch(/2026-07-27/);
+    expect(text, 'the record carries no disclaimer').toMatch(/unbeaufsichtigt/i);
+    // A finished course must show a result. "No exam passed yet" next to 9/9
+    // chapter tests is a state no learner can actually reach.
+    expect(text, 'the finished record shows no exam result')
+      .not.toMatch(/noch kein bestandenes Examen/i);
+    expect(text, 'the record shows no score').toMatch(/8[0-9]\s*%|0\.8[0-9]/);
+
+    // The record is a document people print and show. It is captured so the
+    // result can be looked at, not only asserted about.
+    await page.screenshot({ path: 'test-results/lernnachweis.png', fullPage: true });
   });
 
   test('settings can be changed and the change sticks', async ({ page, zustand }) => {
