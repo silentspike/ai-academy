@@ -72,6 +72,8 @@ function layoutBefunde(bild) {
   for (const g of d.gekuerzteTexte ?? []) raus.push({ art: 'Text gekürzt', hinweis: g });
   for (const n of d.nullflaechen ?? []) raus.push({ art: 'Bedienelement ohne Fläche', hinweis: n });
   for (const k of d.konsolenfehler ?? []) raus.push({ art: 'Konsolenfehler', hinweis: k });
+  for (const s of d.schwacherKontrast ?? []) raus.push({ art: 'Kontrast unter Norm', hinweis: s });
+  for (const s of d.platzhalter ?? []) raus.push({ art: 'Platzhalter sichtbar', hinweis: s });
   if ((d.textLaenge ?? 0) < 40) raus.push({ art: 'kaum Text', hinweis: `${d.textLaenge} Zeichen` });
   return raus;
 }

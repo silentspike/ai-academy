@@ -439,7 +439,7 @@ route('lernen', async (view, ctx, [phaseFilter]) => {
     }
     const test = st.chapterTests?.[p];
     if (phaseFilter || true) list.insertAdjacentHTML('beforeend',
-      `<div class="lern-test">${test?.passed ? `Kapiteltest bestanden (${(test.pct * 100).toFixed(0)} %)` : 'Kapiteltest offen'} — <a href="#/test/${p}">${test?.passed ? 'erneut antreten' : 'zum Kapiteltest'}</a></div>`);
+      `<div class="lern-test">${test?.passed ? `Kapiteltest bestanden${Number.isFinite(test.pct) ? ` (${(test.pct * 100).toFixed(0)} %)` : ''}` : 'Kapiteltest offen'} — <a href="#/test/${p}">${test?.passed ? 'erneut antreten' : 'zum Kapiteltest'}</a></div>`);
   }
 });
 
