@@ -30,15 +30,15 @@ jobs:
         language: [javascript-typescript, actions]
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
-      - uses: github/codeql-action/init@v3
+      - uses: github/codeql-action/init@4187e74d05793876e9989daffde9c3e66b4acd07 # v3
         with:
           languages: ${{ matrix.language }}
           # Neben den Standardregeln auch die Qualitätsregeln — das Projekt hat
           # keinen Bauvorgang, die zusätzliche Laufzeit fällt nicht ins Gewicht.
           queries: security-and-quality
 
-      - uses: github/codeql-action/analyze@v3
+      - uses: github/codeql-action/analyze@4187e74d05793876e9989daffde9c3e66b4acd07 # v3
         with:
           category: "/language:${{ matrix.language }}"

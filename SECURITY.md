@@ -15,7 +15,8 @@ there are no backports to earlier states.
 
 Please do **not** open a public issue. Use GitHub's private reporting instead:
 
-**Repository → Security → Report a vulnerability**
+**[Report a vulnerability](https://github.com/silentspike/ai-academy/security/advisories/new)**
+(Repository → Security → Report a vulnerability)
 
 Include: affected version or commit, operating mode (bridge serving directly, or
 behind a web server), reproduction steps, and the impact you see. A minimal
