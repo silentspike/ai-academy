@@ -144,12 +144,6 @@ jobs:
   e2e:
     name: e2e (chromium ${{ matrix.shard }}/8)
     runs-on: ubuntu-latest
-    # The browsers come with the image. Installing them per job cost about twenty
-    # seconds each, and font rendering is identical across runs — which matters
-    # for the captures.
-    container:
-      image: mcr.microsoft.com/playwright:v1.62.0-noble
-      options: --user 1001
     strategy:
       fail-fast: false
       matrix:
@@ -159,6 +153,8 @@ jobs:
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with: { node-version: 22, cache: npm }
       - run: npm ci --prefer-offline --no-audit --no-fund
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
       - name: Run shard
         # Never the sweep: it has its own job. Sharding splits by test count, not
         # by duration, so the sweep's slow tests all landed in one shard and that
@@ -214,11 +210,6 @@ jobs:
   views:
     name: views (contact sheets)
     runs-on: ubuntu-latest
-    # Same image as the test jobs: identical font rendering across runs is what
-    # makes the capture comparison meaningful in the first place.
-    container:
-      image: mcr.microsoft.com/playwright:v1.62.0-noble
-      options: --user 0
     # Captures and sheets on main only: on a pull request they would double the
     # wait for a result that nobody looks at until the change has landed.
     if: github.event_name != 'pull_request'
@@ -227,9 +218,11 @@ jobs:
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with: { node-version: 22, cache: npm }
       - run: npm ci --prefer-offline --no-audit --no-fund
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
       - name: Install ImageMagick
-        # Not part of the Playwright image — the sheets are assembled with it.
-        run: apt-get update -qq && apt-get install -y -qq imagemagick
+        # Not preinstalled on ubuntu-latest — the sheets are assembled with it.
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq imagemagick
       - name: Capture the views
         run: npx playwright test --project=visual
       - name: Fetch the previous captures for comparison
@@ -272,12 +265,6 @@ jobs:
   sweep:
     name: sweep ${{ matrix.shard }}/4
     runs-on: ubuntu-latest
-    # The browsers come with the image. Installing them per job cost about twenty
-    # seconds each, and font rendering is identical across runs — which matters
-    # for the captures.
-    container:
-      image: mcr.microsoft.com/playwright:v1.62.0-noble
-      options: --user 1001
     if: github.event_name != 'pull_request'
     strategy:
       fail-fast: false
@@ -288,6 +275,8 @@ jobs:
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with: { node-version: 22, cache: npm }
       - run: npm ci --prefer-offline --no-audit --no-fund
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
       - name: Run
         run: npx playwright test --project=chromium --grep "@sweep" --shard=${{ matrix.shard }}/4
       - name: Move the click coverage where the uploader can see it
@@ -317,17 +306,13 @@ jobs:
   e2e-firefox:
     name: e2e (firefox)
     runs-on: ubuntu-latest
-    # The browsers come with the image. Installing them per job cost about twenty
-    # seconds each, and font rendering is identical across runs — which matters
-    # for the captures.
-    container:
-      image: mcr.microsoft.com/playwright:v1.62.0-noble
-      options: --user 1001
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with: { node-version: 22, cache: npm }
       - run: npm ci --prefer-offline --no-audit --no-fund
+      - name: Install Firefox
+        run: npx playwright install --with-deps firefox
       - name: Run
         run: npx playwright test --project=firefox
       - name: Keep the report on failure
