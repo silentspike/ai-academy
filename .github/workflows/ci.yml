@@ -1,53 +1,76 @@
-name: checks
+name: ci
+
+# Runs on GitHub-hosted runners only.
+#
+# Gate structure (see TESTING.md):
+#   lint      — syntax, hygiene, hidden-character check    (seconds)
+#   content   — schema, citations, figures and dates       (seconds)
+#   unit      — engine, gamification, exam, onboarding     (seconds)
+#   ci-pass   — aggregate, the single required check
+#
+# The aggregate exists so that branch protection does not have to be touched
+# every time a job is added or renamed.
 
 on:
   push:
     branches: [main]
   pull_request:
 
-# Läuft ausschließlich auf GitHub-hosted Runnern.
+permissions:
+  contents: read
+
 concurrency:
-  group: checks-${{ github.ref }}
+  group: ci-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  gates:
-    name: Gates (Syntax, Schema, Hygiene)
+  lint:
+    name: lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with: { node-version: 22 }
 
-      - name: Syntax-Check (parallel)
+      - name: Syntax check (parallel)
         run: |
           find bridge tutor tools app scripts -name '*.mjs' -o -name '*.js' \
             | xargs -P "$(nproc)" -I{} node --check {}
 
-      - name: Content-Schema-Validierung
-        run: node tools/validate-content.mjs
+      - name: Hidden Unicode / bidi characters
+        # CVE-2021-42574: invisible direction marks can make source read
+        # differently from how it executes.
+        run: |
+          if grep -rPl '[\x{200B}-\x{200F}\x{202A}-\x{202E}\x{2066}-\x{2069}]' \
+            --include='*.js' --include='*.mjs' --include='*.json' \
+            --include='*.yml' --include='*.md' --include='*.html' \
+            --include='*.css' --include='*.sh' \
+            app/ public/ content/ bridge/ tutor/ tools/ scripts/ .github/ 2>/dev/null; then
+            echo "::error::Hidden Unicode/bidi characters found in the files listed above."
+            exit 1
+          fi
+          echo "clean"
 
-      - name: Fragen-Skript-Abgleich
-        run: node tools/check-questions.mjs
-
-      - name: Struktur-Hygiene (ohne Begriffe — verrät nichts)
+      - name: Repository hygiene
+        # Structural check without naming anything — a public log must not leak
+        # what it protects.
         run: |
           fail=0
-          for verboten in data legal; do
-            if git ls-files --error-unmatch "$verboten" > /dev/null 2>&1; then
-              echo "FEHLER: '$verboten/' ist versioniert — gehört nie ins öffentliche Repo."
+          for forbidden in data legal; do
+            if git ls-files --error-unmatch "$forbidden" > /dev/null 2>&1; then
+              echo "::error::'$forbidden/' is versioned — it must never enter a public repository."
               fail=1
             fi
           done
           if git ls-files | grep -qE '(^|/)\.(env|private-terms)$|\.(key|pem)$'; then
-            echo "FEHLER: Secret-artige Datei ist versioniert."
+            echo "::error::A secret-like file is versioned."
             fail=1
           fi
           exit $fail
 
-      - name: Verbotene Key-Umgebungsnamen
-        # Das Produkt nutzt ausschließlich Abo/OAuth über die CLI. Ein API-Key-Pfad
-        # darf nicht zurückkehren. Diese Regel ist selbst kein Geheimnis.
+      - name: Forbidden API key environment names
+        # Access runs through the vendor CLI sign-in only. A key path must not
+        # return. This rule is itself no secret.
         run: |
           ! grep -RniE "ANTHROPIC_API_KEY|OPENAI_API_KEY|GEMINI_API_KEY" \
             --include="*.json" --include="*.js" --include="*.mjs" --include="*.html" \
@@ -55,22 +78,60 @@ jobs:
             --exclude=build-release.mjs \
             app/ public/ content/ bridge/ tutor/ tools/ scripts/ 2>/dev/null
 
-      - name: Private Begriffe (Muster aus Secret, nicht aus dem Repo)
+      - name: Protected terms (pattern from secret, not from the repository)
         env:
           PRIVATE_TERMS_REGEX: ${{ secrets.PRIVATE_TERMS_REGEX }}
         run: |
           if [ -z "$PRIVATE_TERMS_REGEX" ]; then
-            echo "::notice::PRIVATE_TERMS_REGEX nicht gesetzt — Schritt übersprungen."
+            echo "::notice::PRIVATE_TERMS_REGEX not set — step skipped."
             exit 0
           fi
-          # Nur Fundstellen ausgeben, nie die Zeile: das Protokoll ist öffentlich.
+          # Report locations only, never the line: this log is public.
           if grep -RniE "$PRIVATE_TERMS_REGEX" \
                --include="*.json" --include="*.js" --include="*.mjs" --include="*.html" \
                --include="*.md" --include="*.yml" --include="*.service" --include="*.sh" \
                app/ public/ content/ bridge/ tutor/ tools/ scripts/ docs/ *.md 2>/dev/null \
-               | cut -d: -f1,2 > /tmp/treffer; then
-            echo "FEHLER: private Begriffe gefunden (Fundstellen, Inhalt bewusst nicht protokolliert):"
-            head -20 /tmp/treffer
+               | cut -d: -f1,2 > /tmp/hits; then
+            echo "::error::Protected terms found (locations only, content deliberately not logged):"
+            head -20 /tmp/hits
             exit 1
           fi
-          echo "sauber"
+          echo "clean"
+
+  content:
+    name: content
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with: { node-version: 22 }
+      - name: Schema and mandatory fields
+        run: node tools/validate-content.mjs
+      - name: Figures, dates and citations
+        run: node tools/check-questions.mjs
+
+  unit:
+    name: unit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with: { node-version: 22 }
+      - name: Unit tests
+        run: npm run test:unit
+
+  ci-pass:
+    name: ci-pass
+    runs-on: ubuntu-latest
+    needs: [lint, content, unit]
+    if: always()
+    steps:
+      - name: Verify all gates passed
+        run: |
+          results='${{ toJSON(needs) }}'
+          echo "$results"
+          if echo "$results" | grep -q '"result": *"\(failure\|cancelled\)"'; then
+            echo "::error::At least one gate did not pass."
+            exit 1
+          fi
+          echo "All gates passed."

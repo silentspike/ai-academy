@@ -1,23 +1,47 @@
 name: release
+
 on:
   push:
-    tags: ['v*']
+    tags: ["v*"]
+
+# Least privilege at workflow level; the job widens only what it needs.
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions: { contents: write }
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with: { node-version: 22 }
-      - name: Gates + Paket bauen (Schema, legal-audit, Privat-Begriffe-Scan)
+
+      - name: Build package (schema, legal audit, protected-term scan)
+        env:
+          PRIVATE_TERMS_REGEX: ${{ secrets.PRIVATE_TERMS_REGEX }}
         run: node tools/build-release.mjs --version "${GITHUB_REF_NAME}" --out dist
-      - name: Release-ZIP anhängen
-        uses: softprops/action-gh-release@v3
+
+      - name: Extract changelog section for this version
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          awk "/^## \[${VERSION}\]/{flag=1; next} /^## \[/{flag=0} flag" CHANGELOG.md > release_notes.md
+          if [ ! -s release_notes.md ]; then
+            echo "No changelog section for ${VERSION}; using a generic note." >&2
+            printf 'Release %s. See CHANGELOG.md for details.\n' "${GITHUB_REF_NAME}" > release_notes.md
+          fi
+
+      - name: Attach release package
+        # Pinned to a full commit SHA. A moving tag on a third-party action is a
+        # supply-chain risk — CodeQL flags it as actions/unpinned-tag.
+        uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3
         with:
-          files: dist/ai-act-akademie-*.zip
-          body: |
-            AI-Act-Akademie ${{ github.ref_name }} — Release-Paket (App + Bridge + Content + Doku).
-            Setup: ZIP entpacken → `node bridge/bridge.mjs` (Details: SETUP-AGENT.md).
-            Rechtsstand: siehe Topbar/README; Checkliste gemäß Plan §5.7 durchlaufen.
+          files: dist/*.zip
+          body_path: release_notes.md
+          draft: false
+          prerelease: false

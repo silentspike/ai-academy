@@ -1,39 +1,40 @@
 # AI-Academy
 
-> Interaktives Lerntraining zum EU AI Act (Verordnung (EU) 2024/1689 in der Fassung
-> der Verordnung (EU) 2026/1744) mit Tutor auf Basis eines Sprachmodells.
-> Läuft vollständig örtlich. Zweckbestimmung und Grenzen: docs/INTENDED-PURPOSE.md.
+> Interactive training on the EU AI Act (Regulation (EU) 2024/1689 as amended by
+> Regulation (EU) 2026/1744) with a language-model tutor. Runs entirely locally.
+> The learning content is in German; code and documentation are English.
+> Intended purpose and limits: docs/INTENDED-PURPOSE.md.
 
-## Zuerst lesen
-- [README](README.md): Was es ist, wie man es startet
-- [CLAUDE.md](CLAUDE.md): verbindlicher Arbeitsrahmen — Grundsätze, Aufbau, Regeln
-- [docs/INTENDED-PURPOSE.md](docs/INTENDED-PURPOSE.md): Zweckbestimmung, ausgeschlossene Verwendungen
+## Read first
+- [README](README.md): what it is, how to start it
+- [AGENTS.md](AGENTS.md): binding working rules — principles, layout, conventions
+- [docs/INTENDED-PURPOSE.md](docs/INTENDED-PURPOSE.md): intended purpose, excluded uses
 
-## Aufbau
-- [content/SCHEMA.md](content/SCHEMA.md): Schema der Lerninhalte, Pflichtfelder
-- [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md): Gestaltungsreferenz — Farben, Typografie, Bewegung
-- [TESTING.md](TESTING.md): Prüfebenen, Befehle, was als Nachweis gilt
+## Structure
+- [content/SCHEMA.md](content/SCHEMA.md): content schema, mandatory fields
+- [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md): design reference — colour, type, motion
+- [TESTING.md](TESTING.md): test levels, commands, what counts as evidence
 
-## Betrieb und Pflege
-- [SETUP-AGENT.md](SETUP-AGENT.md): Einrichtungsauftrag samt prüfbarer Abnahmeliste
-- [TROUBLESHOOT-AGENT.md](TROUBLESHOOT-AGENT.md): Vorgehen im Störungsfall
-- [UPDATE-PROZESS.md](UPDATE-PROZESS.md): Ablauf bei Rechtsänderungen — verbindlich
+## Operation and maintenance
+- [SETUP-AGENT.md](SETUP-AGENT.md): setup contract with a machine-checkable acceptance list
+- [TROUBLESHOOT-AGENT.md](TROUBLESHOOT-AGENT.md): procedure when something breaks
+- [UPDATE-PROZESS.md](UPDATE-PROZESS.md): procedure for legal changes — binding
 
-## Beurteilung und Risiken
-- [docs/PRUEFPROZESS.md](docs/PRUEFPROZESS.md): wie die Inhalte geprüft wurden, inklusive der Grenzen des Verfahrens
-- [docs/CUT-SCORE-BLUEPRINT.md](docs/CUT-SCORE-BLUEPRINT.md): Herleitung der Bestehensgrenze
-- [docs/CRITICAL-ERRORS.md](docs/CRITICAL-ERRORS.md): Fehler, die unabhängig von der Punktzahl zum Nichtbestehen führen
-- [docs/RISIKOREGISTER.md](docs/RISIKOREGISTER.md): bewusst getragene Risiken
-- [docs/THREAT-MODEL.md](docs/THREAT-MODEL.md): Bedrohungsmodell der Bridge
-- [docs/DATENSCHUTZ-ROLLENMATRIX.md](docs/DATENSCHUTZ-ROLLENMATRIX.md): Rollen je Betriebsart
+## Assessment and risk
+- [docs/REVIEW-PROCESS.md](docs/REVIEW-PROCESS.md): how the content was reviewed, including the limits of the procedure
+- [docs/CUT-SCORE-BLUEPRINT.md](docs/CUT-SCORE-BLUEPRINT.md): derivation of the pass mark
+- [docs/CRITICAL-ERRORS.md](docs/CRITICAL-ERRORS.md): errors that fail an exam regardless of score
+- [docs/RISIKOREGISTER.md](docs/RISIKOREGISTER.md): deliberately accepted risks
+- [docs/THREAT-MODEL.md](docs/THREAT-MODEL.md): threat model of the bridge
+- [docs/DATENSCHUTZ-ROLLENMATRIX.md](docs/DATENSCHUTZ-ROLLENMATRIX.md): data-protection roles per operating mode
 
-## Mitwirken
-- [CONTRIBUTING.md](CONTRIBUTING.md): Regeln, besonders für Inhalte
-- [SECURITY.md](SECURITY.md): Meldeweg für Schwachstellen
-- [CHANGELOG.md](CHANGELOG.md): Änderungen, Rechtsstand gesondert ausgewiesen
+## Contributing
+- [CONTRIBUTING.md](CONTRIBUTING.md): rules, stricter for content than for code
+- [SECURITY.md](SECURITY.md): how to report a vulnerability
+- [CHANGELOG.md](CHANGELOG.md): changes, legal baseline listed separately
 
-## Grundsätzliches
-Der Programmcode kommt zur Laufzeit ohne Abhängigkeiten aus. Das Sprachmodell ist
-Erklärer und Bewerter auf Basis mitgelieferter Quellen — **niemals selbst
-Rechtsquelle**. Der Zugang läuft ausschließlich über die Anmeldung der jeweiligen
-Kommandozeilenanwendung; Schlüssel für Programmierschnittstellen sind ausgeschlossen.
+## Fundamentals
+The code has no runtime dependencies. The language model is an explainer and
+grader **on the basis of supplied sources — never a legal source itself**. Access
+runs exclusively through the sign-in of the respective command-line tool; API keys
+are ruled out.

@@ -2,7 +2,7 @@
 
 > Verbindlich für ALLE Dateien unter `content/`. Maschinell geprüft durch
 > `tools/validate-content.mjs` (CI-Gate: Content ohne Rechtsquelle failt).
-> Rechtsstand aller Inhalte: **Arbeitskonsolidierung 27.7.2026** (siehe docs/PRUEFPROZESS.md).
+> Rechtsstand aller Inhalte: **Arbeitskonsolidierung 27.7.2026** (siehe docs/REVIEW-PROCESS.md).
 
 ## Gemeinsame Pflichtfelder (jedes Content-Objekt)
 
@@ -46,7 +46,7 @@
 - `status` (Statusprozess #15): `agent_generated → source_linked → reviewed → approved_summative`
   (oder `retired_or_revised`). **Summative Verwendung NUR bei `approved_summative`.**
 - `reviewed` erfordert BEIDE Eigenprüfungs-Durchgänge (getrennt, protokolliert in
-  Protokoll `eigenpruefung#<anker>`, siehe docs/PRUEFPROZESS.md): (i) Skript-Abgleich prüfbarer Angaben, (ii) Volltext-Zweitdurchsicht.
+  Protokoll `eigenpruefung#<anker>`, siehe docs/REVIEW-PROCESS.md): (i) Skript-Abgleich prüfbarer Angaben, (ii) Volltext-Zweitdurchsicht.
 - `trap` (Fangfrage): `{ is_trap: true, note }` — Quote pro summativem Test ≤15 % (#13)
 - `critical_error`: `{ option_ids[], reason, requires_complete_facts: true }` — eng gefasst (#16a)
 - mc/case: **genau 1** `correct:true`; multi: ≥2; „Für eine belastbare Einstufung fehlen

@@ -1,30 +1,30 @@
-name: Inhaltlichen oder rechtlichen Fehler melden
-description: Eine Aussage im Lernstoff ist falsch, veraltet oder unbelegt
+name: Content or legal error
+description: A statement in the learning material is wrong, outdated or unsourced
 labels: ["type:content", "priority:high", "status:triage"]
 body:
   - type: markdown
     attributes:
       value: |
-        Fehler im Rechtsstoff haben Vorrang. Eine falsche Aussage kann dazu führen,
-        dass jemand im Beruf falsch berät — bitte so genau wie möglich.
+        Errors in the legal material take precedence. A wrong statement can lead
+        someone to give wrong advice at work — please be as precise as you can.
   - type: input
-    id: fundstelle
+    id: location
     attributes:
-      label: Wo steht die Aussage
-      placeholder: "Einheit, Fragen-Kennung oder Bildschirmbereich"
+      label: Where the statement appears
+      placeholder: "unit, question identifier or screen area"
     validations:
       required: true
   - type: textarea
-    id: falsch
+    id: wrong
     attributes:
-      label: Was ist falsch
+      label: What is wrong
     validations:
       required: true
   - type: textarea
-    id: beleg
+    id: source
     attributes:
-      label: Beleg
-      description: Fundstelle im Amtsblatt mit Artikel und Absatz, möglichst mit Fassung.
-      placeholder: "Art. 111 Abs. 2 Satz 2 in der Fassung der Verordnung (EU) 2026/1744"
+      label: Source
+      description: Citation from the Official Journal with article and paragraph, ideally with the version.
+      placeholder: "Art. 111(2) second sentence as amended by Regulation (EU) 2026/1744"
     validations:
       required: true

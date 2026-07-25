@@ -1,68 +1,73 @@
-# Sicherheit
+# Security Policy
 
-## Schwachstellen melden
+## Supported Versions
 
-Melden Sie vermutete Schwachstellen **nicht über öffentliche Issues**, sondern über
-die private Meldefunktion von GitHub:
+| Version | Supported |
+|---------|-----------|
+| `main`  | :white_check_mark: |
+
+This is a privately maintained project. Only the main branch receives fixes;
+there are no backports to earlier states.
+
+---
+
+## Reporting a Vulnerability
+
+Please do **not** open a public issue. Use GitHub's private reporting instead:
 
 **Repository → Security → Report a vulnerability**
 
-Bitte geben Sie an: betroffene Version oder Commit, Betriebsart (Bridge direkt oder
-hinter einem Webserver), Schritte zur Reproduktion und die aus Ihrer Sicht mögliche
-Auswirkung. Ein Nachweis in Form eines minimalen Reproduktionsfalls hilft sehr.
+Include: affected version or commit, operating mode (bridge serving directly, or
+behind a web server), reproduction steps, and the impact you see. A minimal
+reproduction helps a lot.
 
-### Reaktionszeiten
+### Response times
 
-| Schritt | Zusage |
-|---|---|
-| Eingangsbestätigung | innerhalb von 5 Werktagen |
-| Erste Einschätzung | innerhalb von 10 Werktagen |
-| Behebung oder Zeitplan | abhängig vom Schweregrad, Rückmeldung in jedem Fall |
+| Step | Commitment |
+|------|-----------|
+| Acknowledgement | within 5 business days |
+| Initial assessment | within 10 business days |
+| Fix or timeline | depends on severity, but you will hear back |
 
-Dies ist ein privat gepflegtes Projekt ohne Servicevertrag. Die Zusagen sind ernst
-gemeint, aber es gibt keine Rufbereitschaft.
+These commitments are meant seriously, but this project has no on-call rotation
+and no service agreement.
 
-## Was in den Geltungsbereich fällt
+---
 
-Das Programm läuft vollständig auf dem Rechner der Nutzerin oder des Nutzers. Es gibt
-keinen betriebenen Dienst, kein Nutzerkonto und keine zentrale Datenhaltung. Relevant
-sind daher vor allem:
+## In scope
 
-- **Die Bridge** (`bridge/bridge.mjs`) — bindet ausschließlich an die lokale
-  Rückschleife, verlangt ein beim Start erzeugtes Kopplungsmerkmal, prüft die
-  Herkunft jeder Anfrage exakt, begrenzt Größe, Dauer und Rate und ruft ausschließlich
-  fest hinterlegte ausführbare Dateien mit fest hinterlegten Argumenten auf. Es gibt
-  keine Auswertung durch eine Shell.
-- **Behandlung der Modellantworten** — Ausgaben des Sprachmodells gelten als nicht
-  vertrauenswürdige Daten und werden nie ungeprüft als Markup eingefügt.
-- **Trennung von Daten und Auslieferung** — Lernstände, Profile und Protokolle liegen
-  strukturell außerhalb des ausgelieferten Verzeichnisses und sind über HTTP nicht
-  erreichbar.
-- **Protokolle** — werden bereinigt geschrieben; Antworttexte erscheinen nicht im
-  Klartext, und der Zustandsbericht enthält kein Geheimnis.
+The application runs entirely on the user's machine. There is no hosted service,
+no account, and no central data store. What matters therefore is:
 
-## Was nicht in den Geltungsbereich fällt
+- **The bridge** (`bridge/bridge.mjs`) — binds to loopback only, requires a
+  pairing token generated at startup, checks the origin of every request exactly,
+  enforces size, time and rate limits, and spawns only a fixed list of executables
+  with fixed arguments. No shell interpolation anywhere.
+- **Handling of model output** — treated as untrusted data, never inserted as
+  markup without sanitising.
+- **Separation of data and served content** — learning state, profiles and logs
+  live structurally outside the served directory and are not reachable over HTTP.
+- **Logs** — written redacted; answer texts never appear in clear text, and the
+  health endpoint contains no secret.
 
-- Schwachstellen in den verwendeten Kommandozeilenwerkzeugen oder beim Anbieter des
-  Sprachmodells — bitte dort melden.
-- Angriffe, die vollen Zugriff auf das Benutzerkonto voraussetzen: Wer lokal
-  Dateien schreiben kann, kann das Programm ohnehin verändern.
-- Der Umstand, dass Freitexte an den Anbieter des verbundenen Modells übertragen
-  werden. Das ist die bewusste Bauweise; die Oberfläche weist an jedem Freitextfeld
-  darauf hin.
-- Fehler in Lerninhalten. Die gehören in ein reguläres Issue, nicht in eine
-  Sicherheitsmeldung.
+## Out of scope
 
-## Zugangsdaten
+- Vulnerabilities in the command-line tools used, or at the model provider —
+  please report those to the respective project.
+- Attacks that presuppose full access to the user account: anyone who can write
+  files locally can modify the application anyway.
+- The fact that free-text answers are transmitted to the provider of the connected
+  model. That is the deliberate design; the interface says so at every free-text
+  field.
+- Errors in learning content. Those belong in a regular issue, not a security
+  report — please use the *Content or legal error* template.
 
-Das Programm verarbeitet **keine Schlüssel für Programmierschnittstellen**. Der Zugang
-zum Sprachmodell läuft ausschließlich über die Anmeldung der jeweiligen
-Kommandozeilenanwendung. Ein Eingabefeld für Schlüssel existiert nicht, und die
-Prüfstrecke lehnt die Wiedereinführung entsprechender Umgebungsvariablen ab.
+## Credentials
 
-Sollten Sie dennoch irgendwo ein Geheimnis in diesem Repository finden, ist das ein
-Fehler — bitte melden Sie ihn über den oben genannten Weg.
+The application handles **no API keys**. Access to the language model runs
+exclusively through the sign-in of the respective command-line tool. There is no
+input field for keys, and the pipeline rejects the reintroduction of the
+corresponding environment variables.
 
-## Unterstützte Versionen
-
-Gepflegt wird jeweils der Hauptzweig. Es gibt keine Rückportierung in ältere Stände.
+If you nevertheless find a secret anywhere in this repository, that is a bug —
+please report it through the channel above.

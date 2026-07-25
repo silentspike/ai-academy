@@ -1,29 +1,29 @@
-## Worum geht es
+## What this changes
 
-<!-- Eine bis drei Sätze. Was ändert sich, und warum? -->
+<!-- One to three sentences. What changes, and why? -->
 
-Betrifft: #
+Closes: #
 
-## Nachweis
+## Evidence
 
-<!-- Ausgeführte Befehle mit dem tatsächlichen Ergebnis. Nicht „getestet",
-     sondern der Befehl und was er ausgegeben hat. -->
+<!-- Commands you ran, with the actual output. Not "tested", but the command and
+     what it printed. -->
 
 ```
 $
 ```
 
-## Prüfliste
+## Checklist
 
-- [ ] Prüfstrecke lokal grün (`npm run test:all`)
-- [ ] Bei Änderungen an Oberfläche oder Engine: betroffene Bildschirmaufnahmen gesichtet
-- [ ] Bei Änderungen an Inhalten: Schema-Prüfung grün, jede rechtliche Aussage mit Fundstelle
-- [ ] Bei rechtlichen Änderungen: `UPDATE-PROZESS.md` befolgt, betroffene Fragen verlieren ihren Prüfstatus
-- [ ] Keine Zugangsdaten, keine personen- oder organisationsbezogenen Bezüge
-- [ ] Dokumentation angepasst, falls sich das Verhalten ändert
-- [ ] `CHANGELOG.md` ergänzt
+- [ ] Test suite green locally (`npm run test:all`)
+- [ ] Interface or engine changed: affected screenshots reviewed at 1920 × 1026
+- [ ] Content changed: schema validation green, every legal statement sourced
+- [ ] Legal baseline changed: `UPDATE-PROZESS.md` followed, affected questions lose summative status
+- [ ] No credentials, no personal or organisational references
+- [ ] Documentation updated if behaviour changed
+- [ ] `CHANGELOG.md` updated
 
-## Bricht etwas
+## Breaking change
 
-- [ ] Nein
-- [ ] Ja — was und wie umzustellen ist:
+- [ ] No
+- [ ] Yes — what breaks and how to migrate:

@@ -1,17 +1,21 @@
-# Mitwirken
+# Contributing
 
-Danke für Ihr Interesse. Dieses Projekt ist ein Lernwerkzeug für ein Rechtsgebiet —
-deshalb gelten für Inhalte strengere Regeln als für Code.
+Thank you for your interest. This is a learning tool for a field of law, so the
+rules for content are stricter than the rules for code.
 
-## Einstieg
+**Note on language:** The learning content is German — the AI Act text, the
+Austrian enforcement chapter and the legal terminology all are. Code, comments,
+commit messages and this documentation are English.
+
+## Getting started
 
 ```bash
 git clone https://github.com/silentspike/ai-academy.git
 cd ai-academy
-node bridge/bridge.mjs --no-llm      # Anwendung ausliefern, ohne Modellanbindung
+node bridge/bridge.mjs --no-llm      # serve the app without a model connection
 ```
 
-Für die Prüfstrecke zusätzlich:
+For the test suite:
 
 ```bash
 npm ci
@@ -19,94 +23,96 @@ npx playwright install chromium firefox
 npm run test:all
 ```
 
-Die Anwendung selbst kommt ohne Abhängigkeiten aus. `npm ci` installiert
-ausschließlich Werkzeuge für die Prüfstrecke; ausgeliefert wird davon nichts.
+The application itself has no runtime dependencies. `npm ci` installs test
+tooling only; none of it ships.
 
-## Was besonders willkommen ist
+## Especially welcome
 
-- **Belegte Korrekturen am Rechtsstoff.** Das ist der wertvollste Beitrag.
-- **Weitere Ländermodule.** Phase 9 ist bewusst austauschbar aufgebaut.
-- **Fehler in der Bedienung**, besonders solche, die nur an bestimmten
-  Fenstergrößen oder in bestimmten Browsern auftreten.
-- **Verbesserungen an der Barrierefreiheit.** Die erste Fassung erhebt bewusst
-  keinen Konformitätsanspruch; Tastaturbedienung und eine Alternative zum Ziehen
-  und Ablegen sind offene Punkte.
+- **Sourced corrections to the legal material.** This is the most valuable
+  contribution by far.
+- **Additional country modules.** Phase 9 is built to be swapped out.
+- **Interaction bugs**, particularly those that only appear at certain window
+  sizes or in specific browsers.
+- **Accessibility improvements.** Version 1 deliberately makes no conformance
+  claim; full keyboard operation and a drag-and-drop alternative are open items.
 
-## Regeln für Inhalte
+## Rules for content
 
-Jede rechtliche Aussage braucht eine Fundstelle. Ohne die Felder `legal_basis` und
-`legal_status` kommt ein Inhalt nicht durch die Schema-Prüfung — das ist keine
-Konvention, sondern erzwungen.
+Every legal statement needs a source. Without the fields `legal_basis` and
+`legal_status` a content object does not pass schema validation — that is
+enforced, not merely conventional.
 
-- **Fundstelle bis zum Absatz**, mit Angabe der Fassung. „Art. 6" genügt nicht;
-  „Art. 6 Abs. 3 in der Fassung der Verordnung (EU) 2026/1744" genügt.
-- **Rangfolge der Quellen beachten**: Amtsblatt vor delegierten Rechtsakten vor
-  nationalem Recht vor Behördenakten vor unverbindlichen Leitlinien vor Entwürfen
-  vor Sekundärliteratur. Die Ausgabe eines Sprachmodells ist niemals eine
-  Rechtsquelle.
-- **Zeitbezug angeben.** Fast jede Aussage im AI Act hat ein „ab wann", oft mehrere
-  je nach Anhang, Altbestand und Verwender. Prüfungsfälle nennen ein Datum, sonst
-  ist „nicht abschließend bestimmbar" die richtige Lösung.
-- **Keine echten Organisationen.** Beispiele und Szenarien verwenden erfundene
-  Einrichtungen. Das gilt auch für Fälle, die einer realen Organisation nur ähneln.
-- **Fragen für Prüfungen** durchlaufen einen eigenen Freigabeweg. Ein Beitrag kann
-  eine Frage vorschlagen; den Prüfstatus vergibt der Betreuer nach eigener Prüfung
-  gegen die Primärquelle.
+- **Cite down to the paragraph**, including the version. "Art. 6" is not enough;
+  "Art. 6(3) as amended by Regulation (EU) 2026/1744" is.
+- **Respect the source hierarchy**: Official Journal, then delegated and
+  implementing acts, then national law, then binding authority decisions, then
+  official non-binding guidance, then drafts, then secondary literature. The
+  output of a language model is never a legal source.
+- **State the temporal dimension.** Almost every statement in the AI Act has an
+  "applicable from", often several depending on annex, legacy status and deployer.
+  Exam cases name a date; otherwise "cannot be determined conclusively" is the
+  correct answer.
+- **No real organisations.** Examples and scenarios use fictitious entities. This
+  also applies to cases that merely resemble a real organisation.
+- **Exam questions** go through a separate release path. A contribution may
+  propose a question; the summative status is granted by the maintainer after
+  their own check against the primary source. See
+  [docs/REVIEW-PROCESS.md](docs/REVIEW-PROCESS.md).
 
-## Regeln für Code
+## Rules for code
 
-- **Keine Abhängigkeiten zur Laufzeit.** Wer eine braucht, begründet sie im Pull
-  Request. Die Bewahrung dieser Eigenschaft hat Vorrang vor Bequemlichkeit.
-- **Nachweis statt Behauptung.** In den Pull Request gehört der ausgeführte Befehl
-  mit seiner Ausgabe. „Getestet" ohne Ausgabe zählt nicht.
-- **Bei Änderungen an der Oberfläche** gehört eine Bildschirmaufnahme dazu — bei
-  1920 × 1026, der Größe, für die die Prüfstrecke ausgelegt ist.
-- **Deutsche Sprache** in Kommentaren, Dokumentation und Commit-Texten, mit
-  Umlauten. Kennungen im Code bleiben englisch, wo das der umgebende Code so hält.
+- **No runtime dependencies.** Anyone who needs one justifies it in the pull
+  request. Preserving this property takes precedence over convenience.
+- **Evidence, not assertion.** The pull request contains the command that was run
+  and its actual output. "Tested" without output does not count.
+- **For interface changes**, include a screenshot — at 1920 × 1026, the size the
+  test suite is built around. See [TESTING.md](TESTING.md).
+- **English** in code, comments and documentation. German only in the learning
+  content itself.
 
-## Commit-Texte
+## Commit messages
 
-Vorsilbe nach der verbreiteten Konvention, Beschreibung auf Deutsch:
-
-```
-feat:     neue Funktion
-fix:      Fehlerbehebung
-docs:     nur Dokumentation
-style:    Formatierung ohne Verhaltensänderung
-refactor: Umbau ohne Verhaltensänderung
-perf:     Leistungsverbesserung
-test:     Prüfstrecke
-build:    Bauvorgang oder Abhängigkeiten
-ci:       Arbeitsabläufe
-chore:    Sonstiges
-revert:   Rücknahme
-deps:     Abhängigkeiten
-security: Sicherheitsbehebung
-content:  Lerninhalte
-legal:    Rechtsstand und Fundstellen
-```
-
-Beispiel:
+Conventional Commits, with an optional scope:
 
 ```
-fix: Beschriftungen der Fristen-Ansicht überlagerten sich
-
-Im dichten Bereich 2026–2027 waren sie unlesbar. Breite wird jetzt nach dem
-Einhängen ins Dokument gemessen statt geschätzt.
+feat:     new functionality
+fix:      bug fix
+docs:     documentation only
+style:    formatting, no behaviour change
+refactor: restructuring, no behaviour change
+perf:     performance
+test:     test suite
+build:    build process or dependencies
+ci:       workflows
+chore:    everything else
+revert:   revert
+deps:     dependency updates
+security: security fix
+content:  learning content
+legal:    legal baseline and citations
 ```
 
-## Zweige
+Example:
 
 ```
-feat/kurze-beschreibung
-fix/kurze-beschreibung
-content/kurze-beschreibung
-legal/kurze-beschreibung
+fix(timeline): stop milestone labels from overlapping
+
+They were unreadable in the dense 2026–2027 range. Label width is now measured
+after insertion into the document instead of estimated.
 ```
 
-Der Hauptzweig ist geschützt. Änderungen laufen über Pull Requests; die Prüfstrecke
-muss grün sein.
+## Branches
 
-## Verhalten
+```
+feat/short-description
+fix/short-description
+content/short-description
+legal/short-description
+```
 
-Es gilt der [Verhaltenskodex](CODE_OF_CONDUCT.md).
+`main` is protected. Changes go through pull requests, and the required checks
+must pass.
+
+## Conduct
+
+See the [Code of Conduct](CODE_OF_CONDUCT.md).

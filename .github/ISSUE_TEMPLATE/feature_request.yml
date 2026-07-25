@@ -1,36 +1,36 @@
-name: Verbesserung vorschlagen
-description: Eine Idee für Funktion, Inhalt oder Didaktik
+name: Feature request
+description: An idea for functionality, content or didactics
 labels: ["type:feature", "status:triage"]
 body:
   - type: textarea
     id: problem
     attributes:
-      label: Welches Problem soll gelöst werden
-      description: Bitte das Problem beschreiben, nicht die Lösung.
+      label: What problem should be solved
+      description: Please describe the problem, not the solution.
     validations:
       required: true
   - type: textarea
-    id: vorschlag
+    id: proposal
     attributes:
-      label: Vorschlag
+      label: Proposal
     validations:
       required: true
   - type: dropdown
-    id: bereich
+    id: area
     attributes:
-      label: Bereich
+      label: Area
       options:
-        - Lerninhalte
-        - Didaktik oder Prüfungslogik
-        - Oberfläche und Bedienung
-        - Bridge oder Anbindung des Modells
-        - Prüfstrecke und Arbeitsabläufe
-        - Dokumentation
+        - Learning content
+        - Didactics or exam logic
+        - Interface and interaction
+        - Bridge or model connection
+        - Test suite and workflows
+        - Documentation
     validations:
       required: true
   - type: checkboxes
-    id: rechtsbezug
+    id: legal
     attributes:
-      label: Rechtsbezug
+      label: Legal relevance
       options:
-        - label: Der Vorschlag betrifft eine rechtliche Aussage. Mir ist bewusst, dass dafür eine Fundstelle im Amtsblatt nötig ist.
+        - label: This concerns a legal statement. I understand that a citation from the Official Journal is required.
