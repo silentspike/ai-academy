@@ -16,7 +16,9 @@ const ROUTEN = [
   '#/examen', '#/placement', '#/einstellungen', '#/lernnachweis', '#/wrapup',
   '#/boss', '#/onboarding',
   ...phasen().map(p => `#/lernen/${p}`),
-  ...einheiten().slice(0, 6).map(u => `#/einheit/${u.id}`),
+  // All units, not a sample: the passive capture flags controls inside units it
+  // cannot judge, and only an attempted click settles whether they are usable.
+  ...einheiten().map(u => `#/einheit/${u.id}`),
 ];
 
 /** Controls that would end the run rather than test it. */
