@@ -164,6 +164,39 @@ if (gl) {
   }
   counts.gloss_markup = geprueft;
 }
+// Annex III master data and the drag-and-drop tasks: both feed widgets that were
+// dead until now, so they get the same scrutiny as the rest of the content.
+const ax = load('anhang3.json');
+if (ax) {
+  const nummern = (ax.areas ?? []).map(a => a.nr);
+  if (nummern.length !== 8) err('anhang3', `Anhang III hat 8 Bereiche, gefunden: ${nummern.length}`);
+  for (let n = 1; n <= 8; n++) if (!nummern.includes(n)) err('anhang3', `Bereich Nr. ${n} fehlt`);
+  for (const a of ax.areas ?? []) {
+    if (!a.title || !a.simple) err('anhang3', `Nr. ${a.nr}: Titel oder Erklärung fehlt`);
+    if (!/Anhang III Nr\.? ?\d/.test(a.legal_basis ?? '')) err('anhang3', `Nr. ${a.nr}: legal_basis ohne Fundstelle`);
+  }
+  counts.anhang3 = nummern.length;
+}
+
+const dnd = load('dnd-tasks.json');
+if (dnd) {
+  for (const t of dnd.tasks ?? []) {
+    checkCommon('dnd-tasks', t, { needLevel: true });
+    const zonen = new Set((t.zones ?? []).map(z => z.id));
+    if (zonen.size < 2) err('dnd-tasks', `${t.id}: weniger als zwei Zonen`);
+    if ((t.items ?? []).length < 4) err('dnd-tasks', `${t.id}: zu wenige Elemente für eine Zuordnung`);
+    for (const it of t.items ?? []) {
+      if (!zonen.has(it.zone)) err('dnd-tasks', `${t.id}/${it.id}: Zielzone „${it.zone}" gibt es nicht`);
+      // Without a reason the exercise only says "wrong" — that teaches nothing.
+      if (!it.why) err('dnd-tasks', `${t.id}/${it.id}: keine Begründung hinterlegt`);
+    }
+    // Every zone must be used, otherwise it is a decoy that cannot be judged.
+    const belegt = new Set((t.items ?? []).map(i => i.zone));
+    for (const z of zonen) if (!belegt.has(z)) err('dnd-tasks', `${t.id}: Zone „${z}" hat kein Element`);
+  }
+  counts.dnd_tasks = (dnd.tasks ?? []).length;
+}
+
 const fc = load('flashcards.json');
 if (fc) { for (const c of fc.cards ?? []) checkCommon('flashcards', c); counts.flashcards = (fc.cards ?? []).length; }
 const sc = load('scenarios.json');
