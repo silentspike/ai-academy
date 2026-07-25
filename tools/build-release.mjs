@@ -4,7 +4,7 @@
 //   1. Schema-Validierung  2. legal-audit-Lauf  3. Privat-Begriffe-Scan
 // The scan runs OVER THE PACKAGE CONTENT, not the repository — what ships is what was checked.
 // Aufruf: node tools/build-release.mjs [--version vX.Y.Z] [--out dist/]
-import { execSync } from 'node:child_process';
+import { execSync, execFileSync } from 'node:child_process';
 import { readFileSync, mkdirSync, rmSync, cpSync, writeFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 const ROOT = new URL('..', import.meta.url).pathname;
@@ -86,7 +86,9 @@ if (!PRIVATE_TERMS) {
 // ZIP
 const zip = join(OUT, `ai-act-akademie-${VERSION}.zip`);
 rmSync(zip, { force: true });
-execSync(`cd ${JSON.stringify(OUT)} && zip -qr ${JSON.stringify(zip)} ${JSON.stringify(`ai-act-akademie-${VERSION}`)}`, { shell: '/bin/bash' });
+// No shell, no assembled command line: the arguments go to the binary directly,
+// so a version string can never become part of a command.
+execFileSync('zip', ['-qr', zip, `ai-act-akademie-${VERSION}`], { cwd: OUT, stdio: 'inherit' });
 const mb = (statSync(zip).size / 1048576).toFixed(1);
 console.log(`Paket: ${zip} (${mb} MB)`);
 console.log('Release-Checkliste (manuell, Plan §5.7): ZIP in leerem Verzeichnis entpacken → node bridge/bridge.mjs → Self-Check grün in Chrome UND Firefox.');
