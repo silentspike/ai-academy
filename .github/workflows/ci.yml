@@ -150,6 +150,11 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Run shard
         run: npx playwright test --project=chromium --shard=${{ matrix.shard }}/4
+      - name: Time budget
+        # A spec that quietly grows until it dominates the run is how the sweep
+        # got to ten minutes before anyone looked at the clock.
+        if: always()
+        run: node tools/budget-gate.mjs
       - name: Move the click coverage where the uploader can see it
         # The recording directory starts with a dot, and the artifact globber
         # skips hidden paths — the upload found nothing and reported it only as a
