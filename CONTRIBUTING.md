@@ -6,7 +6,7 @@ deshalb gelten für Inhalte strengere Regeln als für Code.
 ## Einstieg
 
 ```bash
-git clone https://github.com/obtFusi/ai-academy.git
+git clone https://github.com/silentspike/ai-academy.git
 cd ai-academy
 node bridge/bridge.mjs --no-llm      # Anwendung ausliefern, ohne Modellanbindung
 ```
