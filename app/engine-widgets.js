@@ -194,6 +194,7 @@ export function renderAnnexExplorer(mount, areas, opts = {}) {
  * steps: [{id, q, yes:'stepId'|'RESULT:…', no:'stepId'|'RESULT:…', legal_basis}]
  */
 export function walkRoleSwitch(steps, answers /* Map stepId→bool */) {
+  if (!Array.isArray(steps) || steps.length === 0) return { done: false, at: null, path: [], leer: true };
   const byId = new Map(steps.map(s => [s.id, s]));
   let cur = steps[0], path = [];
   while (cur) {
@@ -209,6 +210,18 @@ export function walkRoleSwitch(steps, answers /* Map stepId→bool */) {
 
 export function renderRoleSwitch(mount, steps, opts = {}) {
   const doc = mount.ownerDocument;
+  // Accept a bare array as well as { steps: [...] }, and survive an empty payload.
+  // A widget without data used to throw and took the whole unit down with it —
+  // the learner saw an almost blank page with no indication of what went wrong.
+  const liste = Array.isArray(steps) ? steps : (Array.isArray(steps?.steps) ? steps.steps : []);
+  if (liste.length === 0) {
+    const hinweis = doc.createElement('p');
+    hinweis.className = 'dim';
+    hinweis.textContent = 'Für dieses Element liegen noch keine Entscheidungsschritte vor.';
+    mount.appendChild(hinweis);
+    return null;
+  }
+  steps = liste;
   const answers = new Map();
   const wrap = doc.createElement('div');
   wrap.className = 'rolesw';

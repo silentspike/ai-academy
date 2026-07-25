@@ -113,7 +113,7 @@ export function buildCoachPrompt({ topic, unitContext, userMessage, notes, journ
 }
 
 /** Render objects and arrays readably into the prompt. A persona card used to arrive as "[object Object]". */
-function asText(v) {
+export function asText(v) {
   if (v == null) return '';
   if (typeof v === 'string') return v;
   if (Array.isArray(v)) return v.map(x => '- ' + asText(x)).join('\n');

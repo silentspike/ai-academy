@@ -15,6 +15,20 @@ const Q_STATUS = ['agent_generated', 'source_linked', 'reviewed', 'approved_summ
 const COMPETENCIES = new Set(
   JSON.parse(readFileSync(C('competencies.json'), 'utf8')).kompetenzen.map(k => k.id));
 
+/** Every content file as raw text — for checks on embedded markup. */
+function alleRohtexte() {
+  const out = [];
+  const walk = dir => {
+    for (const e of readdirSync(dir, { withFileTypes: true })) {
+      const p = join(dir, e.name);
+      if (e.isDirectory()) walk(p);
+      else if (e.name.endsWith('.json')) out.push([p.slice(ROOT.length), readFileSync(p, 'utf8')]);
+    }
+  };
+  walk(join(ROOT, 'content'));
+  return out;
+}
+
 function checkCommon(f, o, { needLevel = true } = {}) {
   if (!o.id) err(f, `Objekt ohne id: ${JSON.stringify(o).slice(0, 60)}`);
   if (!Array.isArray(o.legal_basis) || o.legal_basis.length === 0)
@@ -127,7 +141,29 @@ if (fd) {
 
 // ---------- glossary / flashcards / scenarios / archetypes / blueprints / goldset ----------
 const gl = load('glossary.json');
-if (gl) { for (const g of gl) { if (!g.term || !g.simple) err('glossary', `Eintrag unvollständig: ${g.term}`); } counts.glossary = gl.length; }
+if (gl) {
+  for (const g of gl) { if (!g.term || !g.simple) err('glossary', `Eintrag unvollständig: ${g.term}`); }
+  counts.glossary = gl.length;
+
+  // Hand-written <span class="gloss"> markup in unit content only works if the
+  // word actually exists in the glossary — otherwise the tooltip stays empty and
+  // the underline promises an explanation that never comes.
+  const bekannt = new Set();
+  for (const g of gl) {
+    bekannt.add(String(g.term).toLowerCase());
+    for (const a of g.aliases ?? []) bekannt.add(String(a).toLowerCase());
+  }
+  let geprueft = 0;
+  for (const [datei, roh] of alleRohtexte()) {
+    // Raw JSON keeps the quotes escaped: <span class=\"gloss\">…
+    for (const m of roh.matchAll(/<span class=\\?"gloss\\?"[^>]*>(.*?)<\\?\/span>/g)) {
+      geprueft++;
+      const wort = m[1].trim().toLowerCase();
+      if (!bekannt.has(wort)) err('glossary', `${datei}: markierter Begriff "${m[1].trim()}" steht nicht im Glossar`);
+    }
+  }
+  counts.gloss_markup = geprueft;
+}
 const fc = load('flashcards.json');
 if (fc) { for (const c of fc.cards ?? []) checkCommon('flashcards', c); counts.flashcards = (fc.cards ?? []).length; }
 const sc = load('scenarios.json');

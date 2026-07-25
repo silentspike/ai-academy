@@ -3,7 +3,7 @@
 // the status bar (points, level, weekly goal, target date, legal baseline) and the phase tree.
 
 import { StorageAdapter } from './storage-adapter.js';
-import { loadGlossary, decorate, attachTooltip } from './glossary.js';
+import { loadGlossary, decorate, beobachte, attachTooltip } from './glossary.js';
 
 export const LEGAL_STATE = 'Rechtsstand 27.7.2026';
 
@@ -99,9 +99,11 @@ export async function startApp({ mountId = 'view' } = {}) {
     void view.offsetWidth;                 // Reveal-Animation neu triggern
     view.classList.add('reveal');
     fn?.(view, ctx, args);
-    decorate(view);
+    decorate(view);       // synchronous routes are marked up immediately …
     markActiveNav(path);
   };
+  // … everything a route adds later is picked up by the observer.
+  beobachte(document.getElementById(mountId));
   window.addEventListener('hashchange', render);
   render();
   paintTopbar(state);
@@ -109,13 +111,41 @@ export async function startApp({ mountId = 'view' } = {}) {
   return ctx;
 }
 
-async function loadState(storage) {
-  const s = await storage.get('state');
-  return s ?? {
+/** Every field the application relies on, with a safe starting value. */
+function leererZustand() {
+  return {
     xp: 0, level: 1, week: { goalDays: 5, doneDays: [] },
     milestones: [], cards: [], events: [], phase_progress: {},
-    created: Date.now()
+    units_done: [], chapterTests: {}, examAttempts: [], dayStats: {}, notes: {},
+    created: Date.now(),
   };
+}
+
+/**
+ * Loads the learning state and fills in whatever is missing.
+ *
+ * Defaults used to apply only when no state existed at all. Any incomplete state
+ * — an import from an older version, a partially written record — then reached
+ * the views with fields missing, and the first access to one of them took the
+ * whole route down with it. A learning tool must not lose a day's work to a
+ * missing key.
+ */
+async function loadState(storage) {
+  const gespeichert = await storage.get('state');
+  const basis = leererZustand();
+  if (!gespeichert || typeof gespeichert !== 'object') return basis;
+
+  const s = { ...basis, ...gespeichert };
+  // The weekly goal is a nested object; a shallow merge would keep an incomplete one.
+  s.week = { ...basis.week, ...(gespeichert.week ?? {}) };
+  if (!Array.isArray(s.week.doneDays)) s.week.doneDays = [];
+  for (const feld of ['milestones', 'cards', 'events', 'units_done', 'examAttempts']) {
+    if (!Array.isArray(s[feld])) s[feld] = [];
+  }
+  for (const feld of ['phase_progress', 'chapterTests', 'dayStats', 'notes']) {
+    if (!s[feld] || typeof s[feld] !== 'object') s[feld] = {};
+  }
+  return s;
 }
 
 /**

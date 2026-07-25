@@ -22,7 +22,7 @@ import {
   PRUEFER_SYSTEM, COACH_SYSTEM, PROMPTS_VERSION,
   buildSummativeGradingPrompt, buildAppealPrompt, buildCoachPrompt,
   buildBossPersonaPrompt, buildBossJudgePrompt, buildGeneratePrompt, buildPersonalizationPrompt,
-  buildDiagnosePrompt, extractJson,
+  buildDiagnosePrompt, extractJson, asText,
 } from '../tutor/prompts.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -83,16 +83,34 @@ function storeWrite(name, obj) {
   const p = storePath(name);
   const tmp = `${p}.${process.pid}.${randomUUID().slice(0, 8)}.tmp`;
   try {
-    writeFileSync(tmp, JSON.stringify(obj, null, 1));
-    renameSync(tmp, p);                                     // atomar (T9)
+    schreibeAtomar(tmp, p, obj);
   } catch (e) {
-    try { rmSync(tmp, { force: true }); } catch { /* Temp-Rest ignorieren */ }
-    throw e;
+    try { rmSync(tmp, { force: true }); } catch { /* leftover temp file, ignore */ }
+    // The store directory can disappear underneath a running process — a stale
+    // path, a cleaned temporary directory, an unmounted share. Recreate it once
+    // and retry rather than answering 500 and losing the write.
+    if (e?.code !== 'ENOENT') throw e;
+    mkdirSync(join(STORE, 'store'), { recursive: true });
+    schreibeAtomar(tmp, p, obj);
   }
+}
+function schreibeAtomar(tmp, ziel, obj) {
+  writeFileSync(tmp, JSON.stringify(obj, null, 1));
+  renameSync(tmp, ziel);                                    // atomic (T9)
 }
 function logLine(kind, obj) {
   const entry = { ts: new Date().toISOString(), kind, ...obj };
-  appendFileSync(join(STORE, 'log', 'bridge-log.jsonl'), JSON.stringify(entry) + '\n');
+  // Create the directory on demand. On a fresh store it does not exist yet, and
+  // an append would abort the process on the very first request — which is
+  // exactly what a first-time user gets.
+  const datei = join(STORE, 'log', 'bridge-log.jsonl');
+  try {
+    appendFileSync(datei, JSON.stringify(entry) + '\n');
+  } catch (e) {
+    if (e?.code !== 'ENOENT') throw e;
+    mkdirSync(join(STORE, 'log'), { recursive: true });
+    appendFileSync(datei, JSON.stringify(entry) + '\n');
+  }
 }
 
 // ---------------------------------------------------------------- pairing token (T1/T2)
@@ -208,6 +226,23 @@ function requireUnlocked(kind) {
   }
 }
 
+/**
+ * Checks required request fields before any work starts.
+ * Throws with code BAD_FIELD, which the error handler maps to 400.
+ */
+function pruefeFelder(body, erwartet) {
+  const fehlend = [];
+  for (const [feld, typ] of Object.entries(erwartet)) {
+    const v = body?.[feld];
+    if (v === undefined || v === null || typeof v !== typ || (typ === 'string' && v === '')) {
+      fehlend.push(`${feld} (${typ})`);
+    }
+  }
+  if (fehlend.length) {
+    throw Object.assign(new Error('missing or invalid fields: ' + fehlend.join(', ')), { code: 'BAD_FIELD' });
+  }
+}
+
 async function gradeSummative({ question, rubric, modelAnswer, answer, sources, txKind, existingTxId = null }) {
   requireUnlocked(txKind);
   const txId = existingTxId || txBegin(txKind, { question: question.slice(0, 200), answerLen: answer.length, full: { question, rubric, modelAnswer, answer } });
@@ -294,7 +329,17 @@ const server = http.createServer(async (req, res) => {
       }
       if (seg === 'grade' && req.method === 'POST') {
         const b = await readBody(req);
-        const out = await gradeSummative({ question: b.question, rubric: b.rubric, modelAnswer: b.modelAnswer || '', answer: b.answer, sources: b.sources || '', txKind: b.kind || 'exercise' });
+        // Validate before doing anything. A missing field used to reach the
+        // grading path and fail there, which surfaced as "internal" with a
+        // stack-trace message — a public product must answer 400 for bad input.
+        pruefeFelder(b, { question: 'string', answer: 'string' });
+        if (b.rubric === undefined || b.rubric === null || b.rubric === '') {
+          throw Object.assign(new Error('missing or invalid fields: rubric'), { code: 'BAD_FIELD' });
+        }
+        // The rubric may arrive as a string or as a structure — the application
+        // sends both, depending on where the question came from. Normalise here
+        // rather than making every caller stringify.
+        const out = await gradeSummative({ question: b.question, rubric: asText(b.rubric), modelAnswer: asText(b.modelAnswer || ''), answer: b.answer, sources: asText(b.sources || ''), txKind: b.kind || 'exercise' });
         return send(res, 200, out);
       }
       if (seg === 'grade/retry' && req.method === 'POST') {
@@ -348,6 +393,7 @@ const server = http.createServer(async (req, res) => {
       }
       if (seg === 'appeal' && req.method === 'POST') {
         const b = await readBody(req);
+        pruefeFelder(b, { question: 'string', answer: 'string' });
         requireUnlocked('appeal');
         const prompt = buildAppealPrompt({ question: b.question, rubric: b.rubric, modelAnswer: b.modelAnswer || '', answer: b.answer, appealReason: b.appealReason, sources: b.sources || '' });
         logPrompt('summative', prompt);
@@ -369,6 +415,7 @@ const server = http.createServer(async (req, res) => {
       }
       if (seg === 'diagnose' && req.method === 'POST') {
         const b = await readBody(req);
+        pruefeFelder(b, { errors: 'object' });
         const prompt = buildDiagnosePrompt({ errorHistoryJson: JSON.stringify(b.errorHistory || []), competenciesJson: JSON.stringify(b.competencies || []) });
         logPrompt('diagnose', prompt);
         return send(res, 200, await llmJson({ system: PRUEFER_SYSTEM, prompt, isolate: true }));
@@ -413,7 +460,14 @@ const server = http.createServer(async (req, res) => {
     }
     return send(res, 200, data, MIME[extname(fp)] || 'application/octet-stream');
   } catch (e) {
-    const code = e.code === 'TOO_LARGE' ? 413 : e.code === 'BAD_JSON' ? 400 : e.code === 'QUEUE_FULL' ? 429 : e.code === 'NO_LLM' ? 503 : e.code === 'GOLDSET_LOCK' ? 423 : 500;
+    // A prompt builder rejecting an incomplete payload is a client error, not an
+    // internal one. Without this mapping the caller sees 500 "internal" and has
+    // no way to tell a bug from a malformed request. Must run before the status
+    // code is derived.
+    if (!e.code && /^(summative|appeal|coach|boss|generate|diagnose) prompt:/.test(String(e.message))) {
+      e.code = 'BAD_FIELD';
+    }
+    const code = e.code === 'TOO_LARGE' ? 413 : e.code === 'BAD_JSON' || e.code === 'BAD_FIELD' ? 400 : e.code === 'QUEUE_FULL' ? 429 : e.code === 'NO_LLM' ? 503 : e.code === 'GOLDSET_LOCK' ? 423 : 500;
     logLine('error', { code: e.code || 'ERR', msg: String(e.message).slice(0, 200) });
     return send(res, code, { error: e.code || 'internal', message: String(e.message).slice(0, 200) });
   }

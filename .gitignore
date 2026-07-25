@@ -38,3 +38,6 @@ tests/e2e/__screenshots__/*/diff/
 .DS_Store
 *.swp
 *~
+
+# Test tooling
+.tmp-e2e-bin/

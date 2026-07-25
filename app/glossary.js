@@ -20,6 +20,17 @@ export function loadGlossary(entries) {
 export function decorate(root) {
   if (!TERMS.size) return 0;
   const doc = root.ownerDocument;
+
+  // Content may ship hand-written <span class="gloss"> markup. Those carry no
+  // data-term and are not focusable, so the tooltip would silently stay empty.
+  // Adopt them first — the term is simply what the span says.
+  for (const s of root.querySelectorAll('.gloss:not([data-term])')) {
+    const wort = (s.textContent || '').trim().toLowerCase();
+    if (!TERMS.has(wort)) continue;
+    s.dataset.term = wort;
+    if (!s.hasAttribute('tabindex')) s.tabIndex = 0;
+  }
+
   const walker = doc.createTreeWalker(root, 4 /* NodeFilter.SHOW_TEXT */);
   const pattern = new RegExp(`\\b(${[...TERMS.keys()].map(rxEscape).join('|')})\\b`, 'gi');
   const targets = [];
@@ -48,6 +59,30 @@ export function decorate(root) {
     n.replaceWith(frag);
   }
   return count;
+}
+
+/**
+ * Keeps a container decorated while it fills up.
+ *
+ * Routes that fetch their content render asynchronously: a single decorate()
+ * right after the route function runs sees an empty container, and everything
+ * that arrives afterwards never gets marked up. Watching the subtree covers
+ * every render path — synchronous, awaited, or streamed in later.
+ */
+export function beobachte(root) {
+  let laeuft = false;
+  const lauf = () => {
+    if (laeuft) return;                 // decorate() mutates the tree itself
+    laeuft = true;
+    try { decorate(root); } finally { laeuft = false; }
+  };
+  const beobachter = new MutationObserver(() => {
+    if (laeuft) return;
+    queueMicrotask(lauf);               // batch a burst of insertions into one pass
+  });
+  beobachter.observe(root, { childList: true, subtree: true });
+  lauf();
+  return beobachter;
 }
 
 /** A single global tooltip; opens on hover AND click or Enter, closes on Escape or blur. */
