@@ -1,12 +1,11 @@
 import { test, expect, FIXTURES, schliesseOverlays, warteAufAnsicht } from '../harness.mjs';
 
-// The two specs that talk to the real bridge — its file store and its hardening.
+// The bridge's own file store — the only spec that writes to it.
 //
-// They live in one file on purpose. Everything else answers the store endpoints
-// per test, so fixtures cannot collide; these two share the one store the bridge
-// actually keeps. Split across files they land on different workers, and an
-// export round-trip then reads what a neighbour just wrote — which is exactly
-// how this failed in the full run while passing on its own.
+// Chromium only, and serial: every other spec answers the store endpoints per
+// test, so fixtures cannot collide. This one uses the real store, and two
+// browsers running it at once meant an export round-trip read what the other had
+// just written.
 test.use({ echterStore: true });
 test.describe.configure({ mode: 'serial' });
 
@@ -89,6 +88,29 @@ test.describe('persistence', () => {
     expect(vorgang.body.label?.rubricVersion, 'the grade does not name the rubric version').toBeTruthy();
   });
 
+  test('a large progress document is stored, not truncated', async ({ page }) => {
+    // Regression: a proxy in front of the bridge once capped request bodies at
+    // 8 KB, and every save above that vanished — silently, because the write
+    // reported success. A learning state with notes and cards passes 8 KB
+    // quickly, so this is the size that actually matters.
+    const ergebnis = await page.evaluate(async () => {
+      const { StorageAdapter } = await import('./app/storage-adapter.js');
+      const s = StorageAdapter.bridgeStore({});
+      const notiz = 'Zweckbestimmung, Rolle, Fundstelle — '.repeat(400);   // ≈ 15 KB
+      const gross = { xp: 99, notes: { 'p1-e01-ki-system-rollen': notiz },
+                      cards: Array.from({ length: 120 }, (_, i) => ({ id: 'c' + i, box: 2, competency: 'K02' })) };
+      const bytes = new TextEncoder().encode(JSON.stringify(gross)).length;
+      await s.set('state', gross);
+      const zurueck = await s.get('state');
+      return { bytes, xp: zurueck?.xp, notizLaenge: (zurueck?.notes?.['p1-e01-ki-system-rollen'] ?? '').length,
+               karten: (zurueck?.cards ?? []).length };
+    });
+    expect(ergebnis.bytes, 'the test payload is below the size under test').toBeGreaterThan(8 * 1024);
+    expect(ergebnis.xp, 'the large document did not arrive').toBe(99);
+    expect(ergebnis.notizLaenge, 'the note was truncated').toBeGreaterThan(8 * 1024);
+    expect(ergebnis.karten, 'cards were lost').toBe(120);
+  });
+
   test('the store recovers when its directory disappears underneath it', async ({ page }) => {
     // Seen in practice: a cleaned temporary directory turned every save into a
     // 500 and silently lost the day's work.
@@ -105,89 +127,3 @@ test.describe('persistence', () => {
   });
 });
 
-test.describe('hardening', () => {
-  test('health reveals no secret', async ({ page }) => {
-    const h = await page.evaluate(async () => {
-      const { apiPrefix } = await import('./app/llm-adapter.js');
-      const r = await fetch(apiPrefix() + 'health');
-      return { status: r.status, text: await r.text() };
-    });
-    expect(h.status).toBe(200);
-    // T6: the pairing token must never appear in an unauthenticated answer.
-    const token = await page.evaluate(() => window.BRIDGE_TOKEN || '');
-    expect(token.length, 'no pairing token in the page at all').toBeGreaterThan(8);
-    expect(h.text, 'the health endpoint leaks the pairing token').not.toContain(token);
-    expect(h.text, 'the health endpoint leaks a key').not.toMatch(/sk-|api[_-]?key|secret/i);
-  });
-
-  test('a request without a token is refused', async ({ page }) => {
-    // T1/T2: the token is what separates this page from any other local document.
-    const antwort = await page.evaluate(async () => {
-      const { apiPrefix } = await import('./app/llm-adapter.js');
-      const r = await fetch(apiPrefix() + 'progress', { headers: { 'X-Bridge-Token': 'falsch' } });
-      return { status: r.status, body: await r.text() };
-    });
-    expect(antwort.status, 'the store answers despite an invalid token').toBe(403);
-    expect(antwort.body, 'the refusal leaks the expected token').not.toMatch(/[A-Za-z0-9_-]{24,}/);
-  });
-
-  test('an oversized body is refused, not swallowed', async ({ page }) => {
-    // T4: without a limit a local page could exhaust memory.
-    const antwort = await page.evaluate(async () => {
-      const { apiPrefix } = await import('./app/llm-adapter.js');
-      const r = await fetch(apiPrefix() + 'grade', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Bridge-Token': window.BRIDGE_TOKEN || '' },
-        body: JSON.stringify({ question: 'x'.repeat(6 * 1024 * 1024), rubric: 'r', answer: 'a' }),
-      });
-      return r.status;
-    });
-    expect([413, 400], `oversized body answered with ${antwort}`).toContain(antwort);
-  });
-
-  test('the store is not reachable over the static path', async ({ page }) => {
-    // §5.7/T3: learning state, notes and logs live outside the web root. In the
-    // earlier layout they were readable over HTTP.
-    for (const pfad of ['data/', 'data/store/progress.json', '.tmp-e2e-store/store/progress.json',
-                        'bridge/bridge.mjs', '../package.json', 'tests/e2e/harness.mjs']) {
-      const status = await page.evaluate(async (p) => {
-        const r = await fetch(p, { method: 'GET' });
-        return r.status;
-      }, pfad);
-      expect([403, 404], `${pfad} is served over HTTP (status ${status})`).toContain(status);
-    }
-  });
-
-  test('a path traversal attempt does not escape the web root', async ({ page }) => {
-    for (const pfad of ['../../etc/passwd', '..%2f..%2fetc%2fpasswd', '/../bridge/bridge.mjs']) {
-      const ergebnis = await page.evaluate(async (p) => {
-        const r = await fetch(p);
-        return { status: r.status, text: (await r.text()).slice(0, 80) };
-      }, pfad);
-      expect(ergebnis.text, `${pfad} returned system content`).not.toMatch(/root:x:|#!\/usr\/bin\/env node/);
-    }
-  });
-
-  test('the page carries a content security policy', async ({ page }) => {
-    const antwort = await page.request.get(new URL('/', page.url()).href);
-    const csp = antwort.headers()['content-security-policy'];
-    expect(csp, 'no content security policy is sent').toBeTruthy();
-    expect(csp, 'the policy allows any connection target').not.toMatch(/connect-src[^;]*\*/);
-    expect(antwort.headers()['x-content-type-options'], 'MIME sniffing is not switched off').toBe('nosniff');
-  });
-
-  test('no provider key path exists in the shipped code', async ({ page }) => {
-    // §5.4: model access runs exclusively through the CLI sign-in. A key field
-    // in the browser would be readable by any script on the page.
-    const treffer = await page.evaluate(async () => {
-      const dateien = ['app/llm-adapter.js', 'app/onboarding.js', 'app/selfcheck.js', 'app/app.js'];
-      const gefunden = [];
-      for (const d of dateien) {
-        const t = await fetch(d).then(r => r.ok ? r.text() : '').catch(() => '');
-        if (/ANTHROPIC_API_KEY|OPENAI_API_KEY|apiKey\s*[:=]\s*['"]/i.test(t)) gefunden.push(d);
-      }
-      return gefunden;
-    });
-    expect(treffer, `provider key handling found in: ${treffer.join(', ')}`).toEqual([]);
-  });
-});

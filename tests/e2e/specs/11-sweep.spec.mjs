@@ -1,5 +1,5 @@
 import { test, expect, einheiten, phasen, schliesseOverlays, warteAufAnsicht } from '../harness.mjs';
-import { erfasse, klicke, kennung, INTERAKTIV } from '../coverage.mjs';
+import { erfasse, klicke, INTERAKTIV } from '../coverage.mjs';
 
 // The systematic pass: every route, every operable element, actually operated.
 //
@@ -37,7 +37,13 @@ test.describe('sweep', () => {
         await warteAufAnsicht(page).catch(() => {});
         await page.waitForTimeout(200);
       };
+      const zustandJetzt = () => page.evaluate(() => ({
+        hash: location.hash,
+        groesse: document.getElementById('view')?.innerHTML.length ?? 0,
+      })).catch(() => ({ hash: '', groesse: 0 }));
+
       await oeffne();
+      let ausgang = await zustandJetzt();
       const gefunden = await erfasse(page, route);
       expect(gefunden.length, `${route} offers nothing to operate`).toBeGreaterThan(0);
 
@@ -64,7 +70,18 @@ test.describe('sweep', () => {
           probleme.push(`${kandidat.id} — ${e.message.replace(/^Element is not clickable: /, '')}`);
         }
         await page.waitForTimeout(120);
-        await oeffne();
+
+        // Reload only when the click actually changed something. Many controls
+        // just toggle a state; reopening the route for each of them tripled the
+        // runtime without testing anything more.
+        const jetzt = await page.evaluate(() => ({
+          hash: location.hash,
+          groesse: document.getElementById('view')?.innerHTML.length ?? 0,
+        })).catch(() => null);
+        if (!jetzt || jetzt.hash !== ausgang.hash || Math.abs(jetzt.groesse - ausgang.groesse) > 40) {
+          await oeffne();
+          ausgang = await zustandJetzt();
+        }
       }
 
       // Unreachable controls are a defect, always: something covers a control the
@@ -75,15 +92,38 @@ test.describe('sweep', () => {
   }
 });
 
-/** The next visible control that has not been operated yet, with its index. */
+/**
+ * The next visible, enabled control that has not been operated yet.
+ *
+ * Determined in a single round trip. Walking the list from Node — visible?
+ * disabled? identity? — meant three calls per element on every iteration, and
+ * the iteration runs once per control: quadratic in the size of the view.
+ */
 async function naechster(page, erledigt) {
-  const alle = await page.locator(INTERAKTIV).all();
-  for (let i = 0; i < alle.length; i++) {
-    if (!await alle[i].isVisible().catch(() => false)) continue;
-    if (await alle[i].isDisabled().catch(() => false)) continue;
-    const id = await kennung(alle[i]).catch(() => null);
-    if (!id || erledigt.has(id)) continue;
-    return { id, index: i };
-  }
-  return null;
+  return page.evaluate(({ sel, fertig }) => {
+    const kennungVon = (n) => {
+      const teil = [n.tagName.toLowerCase()];
+      if (n.id) teil.push('#' + n.id);
+      if (n.dataset && Object.keys(n.dataset).length) {
+        teil.push('[' + Object.entries(n.dataset).slice(0, 2).map(([k, v]) => `${k}=${v}`).join(',') + ']');
+      }
+      const klasse = (n.className && typeof n.className === 'string')
+        ? n.className.split(/\s+/).filter(Boolean).slice(0, 2).join('.') : '';
+      if (klasse) teil.push('.' + klasse);
+      const text = (n.innerText || n.value || n.getAttribute('aria-label') || '').trim().slice(0, 28);
+      if (text) teil.push(`"${text}"`);
+      return teil.join(' ');
+    };
+    const erledigtSet = new Set(fertig);
+    const alle = [...document.querySelectorAll(sel)];
+    for (let i = 0; i < alle.length; i++) {
+      const n = alle[i];
+      if (n.offsetParent === null && getComputedStyle(n).position !== 'fixed') continue;
+      if (n.disabled) continue;
+      const id = kennungVon(n);
+      if (erledigtSet.has(id)) continue;
+      return { id, index: i };
+    }
+    return null;
+  }, { sel: INTERAKTIV, fertig: [...erledigt] });
 }

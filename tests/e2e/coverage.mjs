@@ -10,13 +10,21 @@
 // be impossible to click because something overlaps it — that class of defect has
 // occurred twice in this project and no unit test can see it.
 
-import { mkdirSync, writeFileSync, readFileSync, existsSync } from 'node:fs';
+import { mkdirSync, writeFileSync, readFileSync, existsSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
 
 // Deliberately NOT under test-results/: Playwright wipes that directory when a
 // run starts, so a single-spec run would erase what previous specs recorded and
 // the evaluation would report an empty inventory as a pass. globalSetup clears
-// this file instead, once per run.
-const DATEI = '.tmp-coverage/clicks.json';
+// this directory instead, once per run.
+//
+// One file per process, merged at evaluation time. A single shared file meant
+// read-modify-write from every worker, and with more workers the updates started
+// overwriting each other — a run reported 11 operated controls where the same
+// suite had recorded 119. Losing measurements is worse than having none, because
+// the number still looks like an answer.
+const VERZEICHNIS = '.tmp-coverage';
+const DATEI = `${VERZEICHNIS}/clicks-${process.pid}.json`;
 
 /** Selectors for anything a user can operate. */
 export const INTERAKTIV = [
@@ -58,18 +66,45 @@ export async function kennung(el) {
  * matters — is something lying on top of them — and reported separately.
  */
 export async function erfasse(page, route) {
-  const elemente = await page.locator(INTERAKTIV).all();
-  const gefunden = [], geprueft = [], unerreichbar = [];
-  for (const el of elemente) {
-    if (!await el.isVisible().catch(() => false)) continue;
-    const id = await kennung(el);
-    gefunden.push(id);
-    const r = await erreichbarkeit(page, el);
-    if (r.ok) geprueft.push(id);
-    else if (r.grund !== 'outside the viewport') unerreichbar.push(`${id} — ${r.grund}`);
-  }
-  merke(route, { gefunden, geprueft, unerreichbar });
-  return gefunden;
+  // One round trip for the whole view. Asking per element — visible? identity?
+  // reachable? — cost three calls each and dominated the run time; a view with
+  // thirty controls made ninety.
+  const ergebnis = await page.evaluate((sel) => {
+    const kennungVon = (n) => {
+      const teil = [n.tagName.toLowerCase()];
+      if (n.id) teil.push('#' + n.id);
+      if (n.dataset && Object.keys(n.dataset).length) {
+        teil.push('[' + Object.entries(n.dataset).slice(0, 2).map(([k, v]) => `${k}=${v}`).join(',') + ']');
+      }
+      const klasse = (n.className && typeof n.className === 'string')
+        ? n.className.split(/\s+/).filter(Boolean).slice(0, 2).join('.') : '';
+      if (klasse) teil.push('.' + klasse);
+      const text = (n.innerText || n.value || n.getAttribute('aria-label') || '').trim().slice(0, 28);
+      if (text) teil.push(`"${text}"`);
+      return teil.join(' ');
+    };
+    const gefunden = [], geprueft = [], unerreichbar = [];
+    for (const n of document.querySelectorAll(sel)) {
+      if (n.offsetParent === null && getComputedStyle(n).position !== 'fixed') continue;
+      const id = kennungVon(n);
+      gefunden.push(id);
+      const r = n.getBoundingClientRect();
+      if (r.width === 0 || r.height === 0) { unerreichbar.push(`${id} — zero size`); continue; }
+      const x = r.left + r.width / 2, y = r.top + r.height / 2;
+      if (x < 0 || y < 0 || x > innerWidth || y > innerHeight) continue;   // scroll position, not an overlay
+      const oben = document.elementFromPoint(x, y);
+      if (!oben) { unerreichbar.push(`${id} — nothing at the click point`); continue; }
+      if (oben !== n && !n.contains(oben) && !oben.contains(n)) {
+        unerreichbar.push(`${id} — covered by ` + oben.tagName.toLowerCase() +
+          (oben.className && typeof oben.className === 'string' ? '.' + oben.className.split(/\s+/)[0] : ''));
+        continue;
+      }
+      geprueft.push(id);
+    }
+    return { gefunden, geprueft, unerreichbar };
+  }, INTERAKTIV);
+  merke(route, ergebnis);
+  return ergebnis.gefunden;
 }
 
 /** Is anything lying on top of this control? Scrolls it into view first. */
@@ -138,7 +173,7 @@ export async function klicke(page, locator, route, { erwarteNavigation = false }
 
 /** Merges into the coverage file; workers run in parallel, so read-modify-write each time. */
 function merke(route, teil) {
-  mkdirSync('.tmp-coverage', { recursive: true });
+  mkdirSync(VERZEICHNIS, { recursive: true });
   let daten = {};
   if (existsSync(DATEI)) {
     try { daten = JSON.parse(readFileSync(DATEI, 'utf8')); } catch { daten = {}; }
@@ -162,9 +197,22 @@ const NICHT_WERTEN = new Set(['#/negativtest']);
  * operated — and where it lives, for the report.
  */
 export function auswertung() {
-  const leer = { routen: 0, gefunden: 0, betaetigt: 0, offen: [], unerreichbar: [] };
-  if (!existsSync(DATEI)) return leer;
-  const daten = JSON.parse(readFileSync(DATEI, 'utf8'));
+  const leer = { routen: 0, gefunden: 0, betaetigt: 0, nurGeprueft: [], offen: [], unerreichbar: [] };
+  if (!existsSync(VERZEICHNIS)) return leer;
+
+  // Merge every worker's file.
+  const daten = {};
+  for (const f of readdirSync(VERZEICHNIS).filter(n => n.startsWith('clicks-') && n.endsWith('.json'))) {
+    let teil;
+    try { teil = JSON.parse(readFileSync(join(VERZEICHNIS, f), 'utf8')); } catch { continue; }
+    for (const [route, r] of Object.entries(teil)) {
+      const z = daten[route] ??= { gefunden: [], betaetigt: [], geprueft: [], unerreichbar: [] };
+      for (const k of ['gefunden', 'betaetigt', 'geprueft', 'unerreichbar']) {
+        z[k] = [...new Set([...z[k], ...(r[k] ?? [])])];
+      }
+    }
+  }
+  if (!Object.keys(daten).length) return leer;
 
   const wo = new Map();            // control → first route it was seen on
   const jeBetaetigt = new Set(), jeGeprueft = new Set();

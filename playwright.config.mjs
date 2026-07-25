@@ -68,16 +68,34 @@ export default defineConfig({
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'], viewport: VIEWPORT },
+      testIgnore: /99-coverage\.spec\.mjs/,
     },
+    // Firefox covers what a second engine can actually differ in: layout,
+    // storage, focus and date handling. The domain logic is engine-independent,
+    // so running the full sweep here would double the wall clock without finding
+    // more. Measured once against the complete suite before narrowing it down —
+    // the two differences it found (a blocking print dialog, an aborted oversized
+    // request) are both in this selection.
     {
       name: 'firefox',
       use: { ...devices['Desktop Firefox'], viewport: VIEWPORT },
+      testMatch: /(00-smoke|02-navigation|06-widgets|09-haertung)\.spec\.mjs/,
     },
     // Visual comparison runs in one browser only: a second engine renders text
     // differently and would produce diffs that say nothing about the product.
     {
       name: 'visual',
       testMatch: /.*\.visual\.spec\.mjs/,
+      use: { ...devices['Desktop Chrome'], viewport: VIEWPORT },
+    },
+    // The click-coverage evaluation, as its own project with dependencies: it
+    // must not be scheduled among the recording specs. In a run across several
+    // projects it landed mid-list and judged an inventory that was still being
+    // filled — reporting "no coverage recorded" for a suite that was working.
+    {
+      name: 'coverage',
+      testMatch: /99-coverage\.spec\.mjs/,
+      dependencies: ['chromium', 'firefox', 'visual', 'breakpoints'],
       use: { ...devices['Desktop Chrome'], viewport: VIEWPORT },
     },
     // Other window sizes. The share version runs on machines we do not control,

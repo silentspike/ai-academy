@@ -228,8 +228,19 @@ function paintSeries(view, series) {
   const keys = Object.keys(series || {});
   if (!keys.length) return;
   view.appendChild(card(`<h4>Examens-Historie (je Bewertungsregime getrennt, #17)</h4>` + keys.map(k => {
-    const s = series[k];
-    return `<p class="dim mono" style="font-size:.72rem">${k}</p><p>first ${(s.first.pct * 100).toFixed(0)} % · latest ${(s.latest.pct * 100).toFixed(0)} % · best ${(s.best.pct * 100).toFixed(0)} % (${s.runs.length} Antritte)</p>`;
+    const s = series[k] ?? {};
+    // first/latest/best are maintained as attempts come in, but a series that
+    // arrived through an import — or from an older version — carries only its
+    // runs. Deriving them keeps the record readable instead of taking the whole
+    // page down with an undefined, which is what a learner would see as a blank
+    // certificate after restoring a backup.
+    const runs = Array.isArray(s.runs) ? s.runs.filter(r => typeof r?.pct === 'number') : [];
+    if (!runs.length && !s.first) return `<p class="dim mono" style="font-size:.72rem">${k}</p><p class="dim">keine auswertbaren Antritte</p>`;
+    const first = s.first ?? runs[0];
+    const latest = s.latest ?? runs[runs.length - 1];
+    const best = s.best ?? runs.reduce((a, b) => (b.pct > a.pct ? b : a), runs[0]);
+    const pz = v => `${((v?.pct ?? 0) * 100).toFixed(0)} %`;
+    return `<p class="dim mono" style="font-size:.72rem">${k}</p><p>first ${pz(first)} · latest ${pz(latest)} · best ${pz(best)} (${runs.length || s.runs?.length || 0} Antritte)</p>`;
   }).join('<hr>')));
 }
 
@@ -294,7 +305,21 @@ route('challenge', async (view, ctx, [unitId]) => {
 route('lernnachweis', async (view, ctx) => {
   const st = ctx.state;
   const series = st.scoreSeries ?? {};
-  const bestAll = Object.values(series).map(s => s.best).filter(Boolean).sort((a, b) => b.pct - a.pct)[0];
+  // Series maintain first/latest/best as attempts come in, but an imported or
+  // older series carries only its runs. Normalising here keeps the record
+  // printable — the alternative was a blank page after restoring a backup.
+  const abgeleitet = Object.fromEntries(Object.entries(series).map(([k, s]) => {
+    const runs = (Array.isArray(s?.runs) ? s.runs : []).filter(r => typeof r?.pct === 'number');
+    if (!runs.length) return [k, s ?? {}];
+    return [k, {
+      ...s,
+      first: s?.first ?? runs[0],
+      latest: s?.latest ?? runs[runs.length - 1],
+      best: s?.best ?? runs.reduce((a, b) => (b.pct > a.pct ? b : a), runs[0]),
+    }];
+  }));
+  const bestAll = Object.values(abgeleitet).map(s => s.best).filter(b => typeof b?.pct === 'number')
+    .sort((a, b) => b.pct - a.pct)[0];
   const llm = new LlmAdapter({});
   let model = '—', pv = '—';
   try { const h = await llm.refreshHealth(); model = h.model; pv = h.promptsVersion; } catch { /* offline druckbar */ }
@@ -305,12 +330,12 @@ route('lernnachweis', async (view, ctx) => {
       <p class="nachweis-disclaimer"><b>Persönlicher, unbeaufsichtigter Lernnachweis.</b> Identität und Prüfungsbedingungen
       wurden nicht durch eine unabhängige Stelle verifiziert. Teile der Bewertung sind KI-unterstützt.
       Kein akkreditiertes Zertifikat; nicht für Personal- oder Zulassungsentscheidungen bestimmt.</p>
-      <p><b>Bestes Examensergebnis:</b> ${bestAll ? `${(bestAll.pct * 100).toFixed(0)} % (A ${(bestAll.a * 100).toFixed(0)} % / B ${(bestAll.b * 100).toFixed(0)} %) am ${bestAll.day}` : 'noch kein bestandenes Examen'}</p>
+      <p><b>Bestes Examensergebnis:</b> ${bestAll ? `${(bestAll.pct * 100).toFixed(0)} %${typeof bestAll.a === 'number' && typeof bestAll.b === 'number' ? ` (A ${(bestAll.a * 100).toFixed(0)} % / B ${(bestAll.b * 100).toFixed(0)} %)` : ''}${bestAll.day ? ` am ${bestAll.day}` : ''}` : 'noch kein bestandenes Examen'}</p>
       <p><b>Level:</b> ${st.level ?? 1} · <b>XP:</b> ${st.xp ?? 0} (Aktivität, nicht Kompetenz — strikt getrennt, #28)</p>
       <p><b>Rechtsstand:</b> ${RECHTSSTAND} (VO 2024/1689 idF 2026/1744) · <b>Content:</b> c1 · <b>Bewertung:</b> ${model} / Rubrik ${pv}</p>
       <hr>
       <h3>Transparenz-Rückseite</h3>
-      <p class="dim">Score-Serien (first/latest/best je Regime): ${Object.values(series).map(s => `${(s.first.pct * 100).toFixed(0)}/${(s.latest.pct * 100).toFixed(0)}/${(s.best.pct * 100).toFixed(0)} %`).join(' · ') || '—'}<br>
+      <p class="dim">Score-Serien (first/latest/best je Regime): ${Object.values(abgeleitet).filter(s => typeof s.first?.pct === 'number').map(s => `${(s.first.pct * 100).toFixed(0)}/${(s.latest.pct * 100).toFixed(0)}/${(s.best.pct * 100).toFixed(0)} %`).join(' · ') || '—'}<br>
       Einspruchsquote: ${einspruchQuote} · Kapiteltests bestanden: ${Object.values(st.chapterTests ?? {}).filter(t => t.passed).length}/9</p>
     </div>
     <button class="btn" onclick="window.print()">Drucken</button>`));
