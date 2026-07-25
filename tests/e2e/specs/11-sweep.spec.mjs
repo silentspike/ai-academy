@@ -30,7 +30,7 @@ test.describe('sweep', () => {
   test.describe.configure({ timeout: 240_000 });
 
   for (const route of ROUTEN) {
-    test(`every control on ${route} can be operated`, async ({ page, zustand }) => {
+    test(`@sweep every control on ${route} can be operated`, async ({ page, zustand }) => {
       await zustand('mittenInPhase3');
 
       const oeffne = async () => {
