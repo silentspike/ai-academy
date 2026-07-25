@@ -1,0 +1,113 @@
+{
+ "titel": "Fristen- und Übergangsmatrix — VO (EU) 2024/1689 idF VO (EU) 2026/1744",
+ "hinweis": "Redaktionelle Auswertung, Stand 24.7.2026. Rechtsgrundlagen: Art. 113 Abs. 3 (idF Befehl 40) + Art. 111 (idF Befehl 39) + Art. 113 Stammfassung.",
+ "geltungsstufen": [
+  {
+   "id": "g1",
+   "was": "Kapitel I und II (Allgemeines + VERBOTE Art. 5 Stammfassung)",
+   "applies_from": "2025-02-02",
+   "basis": "Art. 113 Abs. 3 lit. a",
+   "status": "in Geltung"
+  },
+  {
+   "id": "g2",
+   "was": "NEUE Art.-5-Tatbestände: Abs. 1 UAbs. 1 lit. ba (intime Deepfakes) + bb (CSAM) + Abs. 1a/1b",
+   "applies_from": "2026-12-02",
+   "basis": "Art. 113 Abs. 3 lit. a idF 2026/1744",
+   "status": "beschlossen, noch nicht anwendbar"
+  },
+  {
+   "id": "g3",
+   "was": "Governance-Kapitel, GPAI-Regeln, Sanktionen, Art. 50 u.a. (allgemeiner Geltungsbeginn)",
+   "applies_from": "2026-08-02",
+   "basis": "Art. 113 UAbs. 2 (Stammfassung)",
+   "status": "anwendbar ab 2.8.2026"
+  },
+  {
+   "id": "g4",
+   "was": "Kapitel III Abschnitte 1–3 (Hochrisiko-Anforderungen+Pflichten, AUSSER Art. 6 Abs. 5) für ANHANG-III-Systeme (Art. 6 Abs. 2)",
+   "applies_from": "2027-12-02",
+   "basis": "Art. 113 Abs. 3 lit. c i) idF 2026/1744",
+   "status": "beschlossen, verschoben (vorher: 2.8.2026)"
+  },
+  {
+   "id": "g5",
+   "was": "Kapitel III Abschnitte 1–3 für ANHANG-I-Systeme (Art. 6 Abs. 1)",
+   "applies_from": "2028-08-02",
+   "basis": "Art. 113 Abs. 3 lit. c ii) idF 2026/1744",
+   "status": "beschlossen, verschoben (vorher: 2.8.2027)"
+  },
+  {
+   "id": "g6",
+   "was": "Art. 6 Abs. 5 (Leitlinien-Pflicht der Kommission zur Hochrisiko-Einstufung)",
+   "applies_from": "2026-02-02",
+   "basis": "Art. 113 Abs. 3 lit. c (Ausnahme) + Stammfassung",
+   "status": "in Geltung"
+  },
+  {
+   "id": "g7",
+   "was": "Art. 102–110 (Änderungen sektoraler Rechtsakte)",
+   "applies_from": "2026-07-27",
+   "basis": "Art. 113 Abs. 3 lit. d (neu)",
+   "status": "anwendbar"
+  },
+  {
+   "id": "g8",
+   "was": "Art. 4a (Bias-Rechtsgrundlage)",
+   "applies_from": "2026-07-27",
+   "basis": "Inkrafttreten Änderungs-VO (Art. 4 der VO 2026/1744); ErwG 9 (Vorbereitung Hochrisiko-Pflichten)",
+   "status": "anwendbar"
+  },
+  {
+   "id": "g9",
+   "was": "Art. 6 Abs. 6/7, Art. 7 (Anhang-III-Änderungsbefugnisse), Art. 112 Evaluierungen",
+   "applies_from": "2026-08-02",
+   "basis": "Art. 113 (Stammfassung)",
+   "status": "anwendbar ab 2.8.2026"
+  }
+ ],
+ "uebergangsregeln": [
+  {
+   "id": "u1",
+   "was": "GPAI-Modelle, die VOR dem 2.8.2025 in Verkehr gebracht wurden",
+   "regel": "Anbieter treffen Maßnahmen zur Pflichterfüllung bis 2.8.2027",
+   "basis": "Art. 111 Abs. 3 (Stammfassung)"
+  },
+  {
+   "id": "u2",
+   "was": "Hochrisiko-ALTSYSTEME (vor Kap.-III-Geltungsbeginn in Verkehr/Betrieb; außer Abs.-1-Großsysteme)",
+   "regel": "VO gilt NUR bei erheblicher Konzeptionsänderung ('significant change trigger')",
+   "basis": "Art. 111 Abs. 2 S. 1 idF 2026/1744"
+  },
+  {
+   "id": "u3",
+   "was": "Hochrisiko-Systeme, die BESTIMMUNGSGEMÄSS VON BEHÖRDEN verwendet werden sollen (Alt-Bestand)",
+   "regel": "Anbieter+Betreiber erfüllen Anforderungen/Pflichten bis 2.8.2030 — auch OHNE Konzeptionsänderung",
+   "basis": "Art. 111 Abs. 2 S. 2 idF 2026/1744",
+   "org_relevanz": "HOCH: betrifft Bestandssysteme der Sozialversicherung"
+  },
+  {
+   "id": "u4",
+   "was": "Generative KI-Systeme (inkl. GPAI-Systeme), die VOR dem 2.8.2026 in Verkehr gebracht wurden",
+   "regel": "Art.-50(2)-Maschinenlesbarkeits-Kennzeichnung bis 2.12.2026 nachrüsten",
+   "basis": "Art. 111 Abs. 4 (neu) idF 2026/1744"
+  },
+  {
+   "id": "u5",
+   "was": "Großsysteme der Freiheit/Sicherheit/Recht (Anhang X), vor 2.8.2027 in Verkehr",
+   "regel": "Konformität bis 31.12.2030",
+   "basis": "Art. 111 Abs. 1 (Stammfassung)"
+  }
+ ],
+ "pruef_dimensionen": [
+  "in_kraft_oder_nur_beschlossen",
+  "applies_from",
+  "alt_oder_neusystem",
+  "stichtag_inverkehrbringen",
+  "wesentliche_aenderung",
+  "fuer_behoerde_bestimmt",
+  "anhang_I_oder_III",
+  "sonder_uebergangsregel"
+ ],
+ "generated_from": "legal/fristen-uebergangsmatrix.json (SSOT, Gate 0) — bei Rechtsänderung dort pflegen und neu kopieren"
+}

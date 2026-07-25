@@ -1,0 +1,217 @@
+{
+ "id": "p1-e03-pruefschema",
+ "phase": "p1",
+ "title": "Das Prüfschema: In 10 Schritten zur belastbaren Einstufung",
+ "competency": "K01",
+ "level": "B",
+ "legal_status": "konsolidiert-2026-07-27",
+ "legal_basis": [
+  {
+   "ref": "Art. 3 Nr. 12",
+   "instrument": "VO 2024/1689 idF 2026/1744",
+   "verified": "eigenpruefung-2026-07-24"
+  },
+  {
+   "ref": "Art. 5",
+   "instrument": "VO 2024/1689 idF 2026/1744",
+   "verified": "eigenpruefung-2026-07-24"
+  },
+  {
+   "ref": "Art. 6",
+   "instrument": "VO 2024/1689 idF 2026/1744",
+   "verified": "eigenpruefung-2026-07-24"
+  },
+  {
+   "ref": "Art. 25",
+   "instrument": "VO 2024/1689 idF 2026/1744",
+   "verified": "eigenpruefung-2026-07-24"
+  },
+  {
+   "ref": "Art. 113 idF 2026/1744",
+   "instrument": "VO 2024/1689 idF 2026/1744",
+   "verified": "eigenpruefung-2026-07-24"
+  }
+ ],
+ "change_log": [
+  {
+   "date": "2026-07-24",
+   "was": "Ersterstellung",
+   "quelle": "legal/arbeitskonsolidierung.md"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "Auslegungs-Box ErwG 48 ergänzt (Plan #4 Doppelverankerung)"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "Beispiel-Slot slot-3 ergänzt (§5.1: fixer Intent, profilvariable Einkleidung)"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "A-Stufen-Check ergänzt (§3 Mengengerüst 40/40/20)"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "Originaltext-Box auf wörtlichen Amtsblatt-Wortlaut korrigiert (Nacharbeit: war paraphrasiert)"
+  }
+ ],
+ "blocks": [
+  {
+   "type": "problem",
+   "html": "Sie werden ab September täglich Anfragen bekommen wie: „Ist unser neues Tool AI-Act-relevant?“ — mal per E-Mail, mal zwischen Tür und Angel. <b>Mit welchem festen Raster antworten Sie IMMER, egal wie die Frage kommt?</b>",
+   "einsteiger_worked_example": "Das Schema an einem Mini-Fall (Service-Chatbot): 1) Sachverhalt: Was tut das System, für wen? 2) KI-System i.S.d. Art. 3 Nr. 1? Ja. 3) Zweckbestimmung: Versichertenanfragen beantworten. 4) Unsere Rolle: Betreiber. 5) Art. 5? Kein Tatbestand. 6) Anhang I? Nein. Anhang III? Nr. 5a prüfen — nur Auskunft, keine Leistungsentscheidung → nein. 7) Transparenz: Art. 50 Abs. 1 — Kennzeichnung! 8) Zeitachse: Art. 50 gilt seit 2.8.2026. 9) Ergebnis dokumentieren mit Fundstellen. 10) Follow-up: Bei Funktionserweiterung neu prüfen (Art. 25!)."
+  },
+  {
+   "type": "concept",
+   "html": "Das <b>10-Schritte-Prüfschema</b> ist Ihr tragendes Denkmodell (wichtiger als die Pyramide, die nur Einstiegs-Visualisierung ist): <b>1</b> Sachverhalt strukturieren · <b>2</b> KI-System? (Art. 3 Nr. 1) · <b>3</b> Zweckbestimmung klären (Art. 3 Nr. 12) · <b>4</b> Rollen bestimmen (Anbieter/Betreiber/Kipp-Risiko Art. 25) · <b>5</b> Verbote (Art. 5, MIT Zeitschichten) · <b>6</b> Hochrisiko (Anhang I/III, Ausnahmen Art. 6 Abs. 3) · <b>7</b> Transparenz (Art. 50) + GPAI-Bezug · <b>8</b> Anwendungszeitpunkt (Art. 113/111!) · <b>9</b> Ergebnis + Pflichtenprogramm dokumentieren · <b>10</b> Wiedervorlage-Trigger festhalten (Änderung = neue Prüfung). Schritte 5–7 sind <b>kumulativ zu denken</b> — keine exklusiven Schubladen."
+  },
+  {
+   "type": "beispiel",
+   "intent_id": "slot-3",
+   "intent": "zeige den Wert der Reihenfolge im Prüfschema",
+   "generisch": "Wer mit der Frage „ist das Hochrisiko?“ beginnt, übersieht ein Verbot; wer mit dem Verbots-Check beginnt, spart sich die restliche Prüfung."
+  },
+  {
+   "type": "merkbild",
+   "html": "🧠 Merkbild: Das Schema ist Ihre <b>Pre-Flight-Checkliste</b>. Piloten diskutieren nicht, ob man heute mal ohne Checkliste startet — Sie auch nicht."
+  },
+  {
+   "type": "quelle",
+   "ref": "Art. 3 Nr. 12",
+   "changed_by_omnibus": false,
+   "text": "12. „Zweckbestimmung“ die Verwendung, für die ein KI-System laut Anbieter bestimmt ist, einschließlich der besonderen Umstände und Bedingungen für die Verwendung, entsprechend den vom Anbieter bereitgestellten Informationen in den Betriebsanleitungen, im Werbe- oder Verkaufsmaterial und in diesbezüglichen Erklärungen sowie in der technischen Dokumentation;"
+  },
+  {
+   "type": "erwg",
+   "nr": "48",
+   "text": "Erwägungsgrund 48 — Für die Hochrisiko-Einstufung zählt das Ausmaß der nachteiligen Grundrechts-Auswirkungen (Charta) — Würde, Nichtdiskriminierung, Datenschutz, Verfahrensrechte. Einsatz im Gespräch: Als Maßstab, wenn eine Einstufung „am Wortlaut vorbei“ diskutiert wird."
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p1-e03-a1",
+    "type": "mc",
+    "competency": "K01",
+    "level": "A",
+    "legal_status": "konsolidiert-2026-07-27",
+    "legal_basis": [
+     {
+      "ref": "Art. 3 Nr. 1",
+      "instrument": "VO 2024/1689 idF 2026/1744",
+      "verified": "eigenpruefung-a-checks-2026-07-25"
+     }
+    ],
+    "prompt": "Womit beginnt das Prüfschema IMMER?",
+    "options": [
+     {
+      "id": "a",
+      "text": "Mit der Zweckbestimmung und der Frage, ob überhaupt ein KI-System vorliegt.",
+      "correct": true,
+      "rationale": "Ohne System-Qualifikation und Zweck ist jede weitere Prüfung Spekulation.",
+      "source_ref": "Art. 3 Nr. 1, 12"
+     },
+     {
+      "id": "b",
+      "text": "Mit der Hochrisiko-Einstufung.",
+      "correct": false,
+      "rationale": "Zu spät — Verbote und Systembegriff kommen davor.",
+      "source_ref": "Art. 6"
+     },
+     {
+      "id": "c",
+      "text": "Mit der FRIA.",
+      "correct": false,
+      "rationale": "Die setzt die Einstufung voraus.",
+      "source_ref": "Art. 27"
+     },
+     {
+      "id": "d",
+      "text": "Mit der Sanktionshöhe.",
+      "correct": false,
+      "rationale": "Sanktionen sind Folge, nicht Ausgangspunkt.",
+      "source_ref": "Art. 99"
+     }
+    ]
+   }
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p1-e03-c1",
+    "type": "mc",
+    "prompt": "An welcher Stelle des Prüfschemas gehört die Frage „Ab wann gilt diese Pflicht überhaupt?“ hin?",
+    "options": [
+     {
+      "id": "a",
+      "text": "Ganz am Anfang, vor der Zweckbestimmung.",
+      "correct": false,
+      "rationale": "Ohne Einstufung wissen Sie noch nicht, WELCHE Pflicht zeitlich zu prüfen ist.",
+      "source_ref": "Systematik Art. 113"
+     },
+     {
+      "id": "b",
+      "text": "Als eigener Schritt NACH der materiellen Einstufung — jede Aussage braucht die Zeitdimension (Art. 113/111).",
+      "correct": true,
+      "rationale": "Schritt 8: erst wenn feststeht, welches Regime greift, wird dessen Anwendbarkeit (inkl. Übergangsregeln) geprüft.",
+      "source_ref": "Art. 113; Art. 111 idF 2026/1744"
+     },
+     {
+      "id": "c",
+      "text": "Gar nicht — Fristen sind Sache der Rechtsabteilung.",
+      "correct": false,
+      "rationale": "Die Zeitdimension ist seit dem Omnibus Kern der Fachauskunft des KI-Spezialisten.",
+      "source_ref": "Art. 113 idF 2026/1744"
+     },
+     {
+      "id": "d",
+      "text": "Nur im Examen.",
+      "correct": false,
+      "rationale": "Das Schema ist Berufswerkzeug, nicht Prüfungsfolklore.",
+      "source_ref": "Systematik Art. 113"
+     }
+    ],
+    "level": "B"
+   }
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p1-e03-c2",
+    "type": "case",
+    "scenario": "Zwischen Tür und Angel: „Kurze Frage — dürfen wir ChatGPT für Antwortentwürfe an Versicherte nutzen?“",
+    "prompt": "Welche RÜCKFRAGE bringt Sie nach dem Schema am schnellsten voran?",
+    "options": [
+     {
+      "id": "a",
+      "text": "„Welches Abo-Modell habt ihr?“",
+      "correct": false,
+      "rationale": "Kommerzielle Details sind für die Einstufung nachrangig.",
+      "source_ref": "Systematik Art. 3 Nr. 12"
+     },
+     {
+      "id": "b",
+      "text": "„Wofür genau — nur Formulierungshilfe, oder fließen die Entwürfe in Leistungsentscheidungen ein?“",
+      "correct": true,
+      "rationale": "Zweckbestimmung + Entscheidungswirkung (Schritte 3+6) trennen den harmlosen vom hochriskanten Pfad — die effizienteste erste Rückfrage.",
+      "source_ref": "Art. 3 Nr. 12; Anhang III Nr. 5"
+     },
+     {
+      "id": "c",
+      "text": "„Habt ihr das mit dem Betriebsrat besprochen?“",
+      "correct": false,
+      "rationale": "Relevant, aber nicht der erste Einstufungsschritt.",
+      "source_ref": "Systematik Art. 3 Nr. 12"
+     },
+     {
+      "id": "d",
+      "text": "„Welches Modell — GPT-4 oder 5?“",
+      "correct": false,
+      "rationale": "Die Modellversion ändert die Einstufungslogik nicht.",
+      "source_ref": "Systematik Art. 3 Nr. 12"
+     }
+    ],
+    "level": "B"
+   }
+  }
+ ]
+}

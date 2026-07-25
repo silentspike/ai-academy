@@ -1,0 +1,44 @@
+# === Lernstände, Profile, Logs, gewachsener Fragenpool — NIEMALS ins Repo ===
+data/
+
+# === Interne Arbeitsdokumente — gehören nicht in ein öffentliches Repo ===
+# Schutznetz: Falls jemals eines dieser Verzeichnisse hierher kopiert wird,
+# landet es nicht versehentlich in einem Commit.
+legal/
+PROGRESS.md
+*-plan.md
+.private-terms
+
+# === Secrets ===
+.env
+.env.*
+*.key
+*.pem
+credentials*
+
+# === LLM-Arbeits-Logs ===
+llm-*.log
+llm-*.md.tmp
+
+# === Node / Test-Infrastruktur ===
+node_modules/
+test-results/
+playwright-report/
+blob-report/
+.tmp-e2e-store/
+tests/e2e/__screenshots__/*/actual/
+tests/e2e/__screenshots__/*/diff/
+
+# === Werkzeug-Verzeichnisse ===
+.playwright-cli/
+.claude/
+.codex/
+
+# === OS / Editor ===
+.DS_Store
+*.swp
+*~
+
+# TEMPORAER bis Task 14 (Asset-Optimierung 182 MB -> unter 25 MB).
+# Vor dem Commit der Bilder wird dieser Eintrag entfernt.
+assets/

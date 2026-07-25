@@ -1,0 +1,124 @@
+{
+ "generated": "tools/build-unit-index.mjs",
+ "units": [
+  {
+   "id": "p1-e01-ki-system-rollen",
+   "phase": "p1",
+   "title": "Was ist ein KI-System — und wer sind Sie darin?",
+   "level": "A",
+   "competency": "K02"
+  },
+  {
+   "id": "p1-e02-digital-omnibus",
+   "phase": "p1",
+   "title": "Der Digital Omnibus: Was sich am 24.7.2026 geändert hat",
+   "level": "B",
+   "competency": "K06"
+  },
+  {
+   "id": "p1-e03-pruefschema",
+   "phase": "p1",
+   "title": "Das Prüfschema: In 10 Schritten zur belastbaren Einstufung",
+   "level": "B",
+   "competency": "K01"
+  },
+  {
+   "id": "p10-e01-erwg",
+   "phase": "p10",
+   "title": "Auslegung: Mit Erwägungsgründen argumentieren",
+   "level": "C",
+   "competency": "K18"
+  },
+  {
+   "id": "p10-e02-erwg-kompendium",
+   "phase": "p10",
+   "title": "Das ErwG-Kompendium: 40 Erwägungsgründe, die Sie brauchen",
+   "level": "B",
+   "competency": "K17"
+  },
+  {
+   "id": "p2-e01-rote-linien",
+   "phase": "p2",
+   "title": "Die roten Linien: Was Art. 5 verbietet",
+   "level": "B",
+   "competency": "K04"
+  },
+  {
+   "id": "p2-e02-zeitschichten",
+   "phase": "p2",
+   "title": "Zwei Zeitschichten: Die neuen Verbote des Digital Omnibus",
+   "level": "B",
+   "competency": "K06"
+  },
+  {
+   "id": "p2-e03-graubereiche",
+   "phase": "p2",
+   "title": "Graubereiche: Verbot, Hochrisiko oder erlaubt?",
+   "level": "C",
+   "competency": "K04"
+  },
+  {
+   "id": "p3-e01-anhang3",
+   "phase": "p3",
+   "title": "Anhang III: Die Einsatzbereiche-Liste — und Nr. 5 als Ihr Kerngebiet",
+   "level": "B",
+   "competency": "K03"
+  },
+  {
+   "id": "p3-e02-anhang1-und-ausnahmen",
+   "phase": "p3",
+   "title": "Anhang I und die Art.-6-Ausnahmen: Wann Hochrisiko doch nicht greift",
+   "level": "C",
+   "competency": "K03"
+  },
+  {
+   "id": "p4-e01-betreiberpflichten-fria",
+   "phase": "p4",
+   "title": "Betreiberpflichten und FRIA: Was auf die ÖSVA konkret zukommt",
+   "level": "B",
+   "competency": "K08"
+  },
+  {
+   "id": "p4-e02-rollenkipp",
+   "phase": "p4",
+   "title": "Die Art.-25-Falle: Wann der Betreiber zum Anbieter wird",
+   "level": "C",
+   "competency": "K05"
+  },
+  {
+   "id": "p5-e01-transparenz",
+   "phase": "p5",
+   "title": "Art. 50: Chatbots, Deepfakes und die Kennzeichnungs-Pflichten",
+   "level": "B",
+   "competency": "K12"
+  },
+  {
+   "id": "p6-e01-gpai",
+   "phase": "p6",
+   "title": "GPAI: Modelle, systemisches Risiko und die Feintuning-Falle",
+   "level": "B",
+   "competency": "K13"
+  },
+  {
+   "id": "p7-e01-aufsicht",
+   "phase": "p7",
+   "title": "Aufsicht, Vorfälle, Sanktionen: Wer klopft an — und wie teuer wird es?",
+   "level": "B",
+   "competency": "K15"
+  },
+  {
+   "id": "p8-e01-randwissen",
+   "phase": "p8",
+   "title": "Randwissen kompakt: Sektorrecht, Evaluierung, Anhang XIV",
+   "level": "A",
+   "competency": "K15"
+  },
+  {
+   "id": "p9-e01-oesterreich",
+   "phase": "p9",
+   "title": "Österreich: Zuständigkeiten, Behörden-Sanktionen, DSGVO-Schnittstellen",
+   "level": "B",
+   "competency": "K15"
+  }
+ ]
+}

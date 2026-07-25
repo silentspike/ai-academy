@@ -1,0 +1,20 @@
+# AI-Act-Akademie — systemd-User-Unit-VORLAGE (Linux-Beigabe, Plan §6.2).
+# Anpassen: Pfade auf den Installationsort, Token auf einen eigenen Wert setzen.
+# Installation:  cp bridge/ai-act-akademie.service ~/.config/systemd/user/
+#                systemctl --user daemon-reload && systemctl --user enable --now ai-act-akademie
+[Unit]
+Description=AI-Act-Akademie Local Bridge
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/ai-act-akademie
+ExecStart=/usr/bin/env node %h/ai-act-akademie/bridge/bridge.mjs --cli claude --port 8791 --store %h/ai-act-akademie/data
+Restart=always
+RestartSec=3
+# Eigenen Pairing-Token setzen (beliebiger langer Zufallswert):
+Environment=BRIDGE_TOKEN=CHANGE-ME
+NoNewPrivileges=true
+
+[Install]
+WantedBy=default.target

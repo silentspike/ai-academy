@@ -1,0 +1,28 @@
+{
+ "blueprints": [
+  {
+   "id": "bp-frist-variation",
+   "pattern": "Fristen-Frage mit konkretem Fallbezug generieren (Datum im Sachverhalt!)",
+   "constraints": "Nur Fristen aus legal/fristen-uebergangsmatrix.json; Prüfungsfälle nennen Einsatz-/Inverkehrbringungsdatum; 'nicht abschließend bestimmbar' als Option zulassen",
+   "competency": "K07",
+   "level": "B",
+   "summative": false
+  },
+  {
+   "id": "bp-verbots-abgrenzung",
+   "pattern": "Grenzfall zwischen zwei Art.-5-Tatbeständen oder Verbot/Anhang III konstruieren",
+   "constraints": "Kontext (Arbeitsplatz/Bildung/Kunde) muss eindeutig genannt sein; keine erfundenen Tatbestände",
+   "competency": "K02",
+   "level": "C",
+   "summative": false
+  },
+  {
+   "id": "bp-rollen-kipp",
+   "pattern": "Art.-25-Fall: Betreiber verändert System — kippt die Rolle?",
+   "constraints": "Genau eine der drei Kipp-Bedingungen variieren",
+   "competency": "K05",
+   "level": "B",
+   "summative": false
+  }
+ ]
+}

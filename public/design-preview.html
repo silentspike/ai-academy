@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI-Act-Akademie — Design-Preview v4 (Gate 2a)</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23070a10'/%3E%3Cpath d='M8 24 L16 7 L24 24 M11.5 18.5 h9' stroke='%23e1ad58' stroke-width='2.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="app/styles.css">
+<style>
+  /* v4 — Umsetzung des externen Design-Reviews: App-Gehäuse, korrektes Grid,
+     geschlossene Komposition, Materialebenen, Informationsdichte, Typo-Staffelung */
+  html,body { height:100%; }
+  body { padding:0; background:#04060b; overflow:hidden; display:grid; place-items:center; }
+
+  /* §3 App-Shell — P0: vertikale Kompression, Ziel ≤800px Gesamthöhe */
+  .app-shell { margin:0; width:calc(100vw - 24px); height:min(calc(100dvh - 24px), 768px);
+    border-radius:16px; overflow:hidden;
+    background:radial-gradient(circle at 58% 0%,rgba(56,73,111,.10),transparent 38%),
+               linear-gradient(180deg,#0a0f18 0%,#070b12 100%);
+    border:1px solid rgba(159,177,211,.10);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.025), 0 24px 80px rgba(0,0,0,.55);
+    position:relative; }
+  .app-shell .bg-layers { position:absolute; z-index:0; }
+  /* P2: grünliche Farbkante neben der Sidebar zurücknehmen */
+  .app-shell .bg-aurora.a { opacity:.11; left:-24%; }
+  /* §1 Grid */
+  .app { position:relative; z-index:1; display:grid;
+    grid-template-columns:64px 260px minmax(0,1fr);
+    grid-template-rows:58px minmax(0,1fr);
+    height:100%; }
+
+  /* §10 Icon-Rail */
+  .rail { grid-column:1; grid-row:1/3; border-right:1px solid var(--line);
+    display:flex; flex-direction:column; align-items:center; padding:10px 0 12px; gap:6px;
+    background:linear-gradient(180deg,rgba(13,18,28,.6),rgba(8,12,19,.3)); }
+  .rail .logo { width:38px; height:38px; border:1px solid rgba(159,177,211,.14); border-radius:11px;
+    display:grid; place-items:center; margin-bottom:10px;
+    background:linear-gradient(180deg,rgba(255,255,255,.03),transparent); }
+  .rail .logo svg { filter:drop-shadow(0 0 7px rgba(152,124,255,.35)); }
+  .rail-item { width:38px; height:38px; border-radius:10px; display:grid; place-items:center;
+    color:var(--faint); cursor:pointer; position:relative; transition:all 120ms; }
+  .rail-item:hover { background:rgba(151,169,202,.06); color:var(--text); }
+  /* P2: aktiver Rail-Punkt subtil — Linie + violettes Icon + schwacher Halo, kein gefülltes Quadrat */
+  .rail-item.active { color:#b6a5ff; background:rgba(138,112,239,.07);
+    box-shadow:0 0 14px -3px rgba(138,112,239,.4); }
+  .rail-item.active::before { content:''; position:absolute; left:-13px; top:8px; bottom:8px;
+    width:2.5px; border-radius:3px; background:var(--violet);
+    box-shadow:0 0 8px rgba(138,112,239,.7); }
+  .rail-item svg { width:1.13rem; height:1.13rem; }
+  .rail .spacer { flex:1; }
+
+  /* §11 Topbar */
+  .topbar { grid-column:2/4; grid-row:1; display:flex; align-items:center; gap:9px;
+    padding:0 14px 0 16px; border-bottom:1px solid var(--line); }
+  .pill { display:flex; align-items:center; gap:.5rem; height:40px; padding:0 .95rem;
+    flex:1 1 auto; min-width:0; line-height:1;
+    background:var(--grad-card-soft); border:1px solid var(--line); border-radius:10px;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+    font-size:.8rem; color:var(--dim); white-space:nowrap; }
+  /* Grundlinien-Ausgleich Label (Inter .8rem) vs. Wert (Poppins .86rem) bei Flex-Zentrierung */
+  .pill b { color:var(--text); font-family:var(--font-num); font-weight:600; line-height:1;
+    font-variant-numeric:tabular-nums; font-size:.86rem; position:relative; top:.5px; }
+  .pill svg { width:1.02rem; height:1.02rem; }
+  .dots { display:flex; gap:.26rem; margin-left:.15rem; }
+  .dots i { width:.52rem; height:.52rem; border-radius:50%; background:var(--violet);
+    box-shadow:0 0 5px rgba(138,112,239,.5); }
+  .dots i.off { background:transparent; border:1.3px solid var(--line-strong); box-shadow:none; }
+  .pill.mono { font-family:var(--font-mono); font-size:.72rem; letter-spacing:.02em; }
+  /* P0: durchgehendes Instrumentenband — keine Lücke vor dem Rechtsstand */
+  .tb-right { display:flex; gap:8px; align-items:center; }
+  .tb-right .pill { flex:0 0 auto; }
+  .iconbtn { width:38px; height:38px; border-radius:50%;
+    background:var(--grad-card-soft); border:1px solid var(--line);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+    display:grid; place-items:center; color:var(--dim); cursor:pointer; }
+  .iconbtn:hover { border-color:var(--line-strong); color:var(--text); }
+  .iconbtn svg { width:1rem; height:1rem; }
+  .avatar { width:36px; height:36px; border-radius:50%; overflow:hidden;
+    border:1.5px solid rgba(151,169,202,.28); box-shadow:0 0 10px rgba(138,112,239,.18); }
+  .avatar img { width:100%; height:100%; object-fit:cover; }
+
+  /* §10 Sidebar kompakt */
+  .sidebar { grid-column:2; grid-row:2; border-right:1px solid var(--line);
+    padding:14px 12px 12px 14px; overflow-y:auto; position:relative;
+    display:flex; flex-direction:column;
+    background:linear-gradient(180deg,rgba(13,18,28,.35),transparent 30%); }
+  .sidebar > * { flex:0 0 auto; }
+  .sidebar .sep { margin-top:auto; }
+  .sidebar::before { content:''; position:absolute; top:-60px; left:-20px; width:240px; height:150px;
+    background:radial-gradient(ellipse,rgba(152,124,255,.10),rgba(229,180,95,.06) 55%,transparent 75%);
+    pointer-events:none; }
+  .wordmark { font-family:var(--font-brand); font-weight:600; font-size:25px;
+    letter-spacing:-.025em; margin:2px 0 2px 4px; position:relative;
+    background:var(--grad-brand); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .sect { font-size:10px; font-weight:600; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--faint); margin:12px 0 8px 4px; }
+  .ph { display:flex; align-items:center; gap:10px; padding:6px 8px; border-radius:10px;
+    border:1px solid transparent; color:var(--dim); font-size:12.5px; font-weight:450;
+    cursor:pointer; position:relative; }
+  .ph:hover { background:rgba(151,169,202,.05); color:var(--text); }
+  .ph .ring { width:1.25rem; height:1.25rem; border-radius:50%;
+    border:1.4px solid rgba(151,169,202,.16); color:var(--faint);
+    display:grid; place-items:center; flex:none; font-size:.64rem; }
+  .ph .lbl { display:flex; flex-direction:column; gap:2px; min-width:0; }
+  .ph .lbl .u { height:1.5px; border-radius:2px; background:rgba(151,169,202,.06); width:54%; overflow:hidden; }
+  .ph .lbl .u i { display:block; height:100%; background:var(--emerald); opacity:.85; }
+  .ph.done { color:#cfd6e2; }
+  .ph.done .ring { border-color:rgba(101,216,178,.6); color:var(--emerald); }
+  .ph.active { color:var(--text); border-color:rgba(138,112,239,.4);
+    background:linear-gradient(180deg,rgba(138,112,239,.18),rgba(138,112,239,.05));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.05); }
+  .ph.active .ring { border-color:var(--violet); color:#cfc3ff; font-weight:600;
+    box-shadow:0 0 8px -1px rgba(138,112,239,.5), inset 0 0 5px rgba(138,112,239,.3); }
+  .ph.active .lbl .u { background:transparent; }
+  .ph.active .lbl .u i { width:55%; background:var(--violet); }
+  .ph.active::after { content:'›'; margin-left:auto; color:#b6a5ff; font-size:1.05rem; }
+  .ph .count { margin-left:auto; background:rgba(138,112,239,.14); border:1px solid rgba(138,112,239,.28);
+    border-radius:7px; padding:.02rem .5rem; font-size:.7rem; color:#b6a5ff;
+    font-variant-numeric:tabular-nums; }
+  .ph .lock2 { margin-left:auto; color:var(--faint); }
+  .sep { border-top:1px solid var(--line); margin:10px 4px; }
+
+  /* §2 Dashboard: geschlossene Komposition */
+  .dashboard { grid-column:3; grid-row:2; padding:12px; min-height:0;
+    display:grid;
+    grid-template-columns:minmax(0,1.22fr) minmax(350px,1fr);
+    grid-template-rows:minmax(0,1.08fr) minmax(0,.92fr);
+    gap:12px; }
+  .card { display:flex; flex-direction:column; min-height:0; padding:16px 18px; }
+  .right-bottom { display:grid; grid-template-rows:112px minmax(0,1fr); gap:12px; min-height:0; }
+
+  .chead { display:flex; align-items:center; gap:10px; margin-bottom:12px; flex:none; }
+  .chip { width:34px; height:34px; border-radius:50%; background:var(--grad-card-soft);
+    border:1px solid var(--line); box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+    display:grid; place-items:center; flex:none; }
+  .chip svg { width:1.05rem; height:1.05rem; }
+  .chead .t h3 { font-family:var(--font-text); font-size:16px; font-weight:650;
+    letter-spacing:-.012em; line-height:1.2; color:var(--text); }
+  .chead .t .sub { color:rgba(218,226,240,.48); font-size:12px; font-weight:400; }
+  .chead .actions { margin-left:auto; display:flex; gap:5px; align-items:center; }
+  .chead .actions .mini { width:26px; height:26px; border-radius:50%;
+    background:rgba(151,169,202,.05); border:1px solid var(--line);
+    display:grid; place-items:center; color:var(--faint); font-size:.8rem; cursor:pointer; }
+
+  /* §6 Landkarte dicht */
+  .hm-wrap { flex:1; min-height:0; display:flex; flex-direction:column; }
+  /* Sektor-Struktur wie Referenz: 6×3 Distrikte, getrennt durch schmale Gassen-Tracks (4px + 2×4px gap ≈ 12px) */
+  .hm-groups { flex:1; min-height:0; overflow:hidden; display:grid; align-content:center; justify-content:center;
+    grid-template-columns:repeat(5,14px) 4px repeat(4,14px) 4px repeat(5,14px) 4px repeat(5,14px) 4px repeat(4,14px) 4px repeat(4,14px);
+    grid-template-rows:repeat(4,14px) 4px repeat(4,14px) 4px repeat(3,14px);
+    gap:4px; }
+  .hm-groups i { border-radius:3px;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.09), inset 0 -1px 0 rgba(0,0,0,.20), 0 2px 4px rgba(0,0,0,.18); }
+  .legend { display:flex; gap:14px; margin-top:10px; font-size:11px; color:var(--dim); flex-wrap:wrap; flex:none; }
+  .legend i { width:.62rem; height:.62rem; border-radius:3px; display:inline-block;
+    vertical-align:-1px; margin-right:.35rem; box-shadow:inset 0 1px 0 rgba(255,255,255,.15); }
+  .hm-foot { display:flex; justify-content:space-between; margin-top:8px; padding-top:8px;
+    border-top:1px solid var(--line); font-size:11px; color:var(--faint); flex:none;
+    font-variant-numeric:tabular-nums; }
+  .hm-foot .dot { color:var(--violet); }
+
+  /* §7 Radar */
+  .radar-wrap { flex:1; min-height:0; display:grid; place-items:center; }
+  .radar-wrap svg { width:97%; height:97%; }
+  .legend.center { justify-content:center; }
+
+  /* §8 Lernkurve */
+  .curve-wrap { flex:1; min-height:0; }
+  .curve-wrap svg { width:100%; height:100%; }
+
+  /* Fällige Karten — P0: zweistufige Hierarchie (Titel oben, Kennzahlen darunter) */
+  .due { flex-direction:row; align-items:stretch; gap:10px; padding:12px 18px 10px; position:relative; overflow:hidden; }
+  .due-main { flex:1; display:flex; flex-direction:column; min-width:0; }
+  .due-title { display:flex; align-items:center; gap:9px; }
+  .due-title h3 { font-size:15px; font-weight:650; letter-spacing:-.012em; }
+  .num-duo { display:grid; grid-template-columns:1fr 1px 1fr; align-items:center;
+    flex:1; margin-top:2px; max-width:250px; }
+  .num-duo .cell { display:flex; flex-direction:column; align-items:flex-start; padding-left:44px; }
+  .num-duo .cell:first-child { padding-left:10px; }
+  .num-duo .l { color:rgba(218,226,240,.55); font-size:11px; letter-spacing:.02em; }
+  .num-duo .n { font-family:var(--font-num); font-size:1.9rem; font-weight:600; line-height:1.1;
+    font-variant-numeric:tabular-nums; }
+  .num-duo .divider { width:1px; height:40px; background:var(--line); }
+  .cards-deco { opacity:.3; flex:none; align-self:center; margin-right:2px; }
+
+  /* §9 Coach neu komponiert */
+  .coach-card { position:relative; overflow:hidden; padding:14px 16px; }
+  .coach-stage { position:relative; flex:1; min-height:0; }
+  .coach-portrait { position:absolute; left:-8px; bottom:-10px; width:57%; height:128%;
+    object-fit:contain; object-position:bottom left; z-index:1;
+    -webkit-mask-image:linear-gradient(to bottom,black 0%,black 84%,transparent 100%);
+    mask-image:linear-gradient(to bottom,black 0%,black 84%,transparent 100%);
+    filter:drop-shadow(0 12px 18px rgba(0,0,0,.45)) drop-shadow(7px 0 11px rgba(222,132,63,.16))
+           drop-shadow(-4px 0 9px rgba(73,205,177,.11)); }
+  .coach-glow { position:absolute; left:0; bottom:0; width:55%; height:75%; z-index:0;
+    background:radial-gradient(ellipse at 30% 90%,rgba(225,173,88,.15),transparent 65%); }
+  .coach-message { position:absolute; left:44%; right:2px; top:0; bottom:0; z-index:2;
+    border-radius:12px 12px 12px 4px;
+    background:linear-gradient(145deg,rgba(37,45,61,.78),rgba(25,31,43,.66));
+    -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px);
+    border:1px solid rgba(255,255,255,.055);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+    padding:9px 12px 7px; font-size:11px; line-height:1.42; color:var(--text);
+    display:flex; flex-direction:column; }
+  .coach-message .heart { color:var(--emerald); }
+  .coach-message .p2 { margin-top:.35rem; }
+  .coach-message .sig { font-family:var(--font-script); font-size:1.05rem; color:var(--emerald);
+    margin-top:auto; padding-top:.15rem; }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <div class="bg-layers"><div class="bg-aurora a"></div><div class="bg-aurora b"></div><div class="bg-aurora c"></div><div class="bg-grid"></div><div class="bg-noise"></div><div class="bg-vignette"></div></div>
+  <div class="app">
+
+    <nav class="rail">
+      <div class="logo"><svg viewBox="0 0 24 24" width="21" height="21" fill="none">
+        <defs><linearGradient id="lgA" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#987cff"/><stop offset=".55" stop-color="#ba8fd8"/><stop offset="1" stop-color="#e5b45f"/>
+        </linearGradient></defs>
+        <path d="M4.5 20 L12 4.5 L19.5 20" stroke="url(#lgA)" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M8.4 14.6 h7.2" stroke="url(#lgA)" stroke-width="1.5" stroke-linecap="round" opacity=".85"/>
+        <circle cx="12" cy="4.5" r="1.15" fill="#e5b45f"/>
+      </svg></div>
+      <div class="rail-item"><svg><use href="assets/icons/sprite.svg#icon-nav-dashboard"/></svg></div>
+      <div class="rail-item"><svg><use href="assets/icons/sprite.svg#icon-st-ziel"/></svg></div>
+      <div class="rail-item active"><svg><use href="assets/icons/sprite.svg#icon-nav-lernen"/></svg></div>
+      <div class="rail-item"><svg><use href="assets/icons/sprite.svg#icon-fach-heatmap"/></svg></div>
+      <div class="rail-item"><svg><use href="assets/icons/sprite.svg#icon-st-star"/></svg></div>
+      <div class="rail-item"><svg><use href="assets/icons/sprite.svg#icon-fach-rollen"/></svg></div>
+      <div class="rail-item"><svg><use href="assets/icons/sprite.svg#icon-fach-trophy"/></svg></div>
+      <div class="spacer"></div>
+      <div class="rail-item"><svg><use href="assets/icons/sprite.svg#icon-nav-einstellungen"/></svg></div>
+      <div class="rail-item"><svg><use href="assets/icons/sprite.svg#icon-nav-export"/></svg></div>
+    </nav>
+
+    <header class="topbar">
+      <span class="pill"><svg style="color:#b6a5ff"><use href="assets/icons/sprite.svg#icon-st-xp"/></svg> <b style="color:#b6a5ff">2.340 XP</b></span>
+      <span class="pill"><svg style="color:#b6a5ff"><use href="assets/icons/sprite.svg#icon-fach-badge"/></svg> Level <b>4</b> · <b>Anhang-III-Flüsterer</b></span>
+      <span class="pill"><svg><use href="assets/icons/sprite.svg#icon-st-kalender"/></svg> Woche: <b>4/5 Tagen</b> <span class="dots"><i></i><i></i><i></i><i></i><i class="off"></i></span></span>
+      <span class="pill"><svg style="color:var(--gold)"><use href="assets/icons/sprite.svg#icon-st-ziel"/></svg> Ziel: <b style="color:var(--gold)">1.9. in 39 Tagen</b></span>
+      <div class="tb-right">
+        <span class="pill mono">Rechtsstand 27.7.2026</span>
+        <div class="iconbtn"><svg><use href="assets/icons/sprite.svg#icon-act-suche"/></svg></div>
+        <div class="iconbtn"><svg><use href="assets/icons/sprite.svg#icon-st-glocke"/></svg></div>
+        <div class="avatar"><img src="assets/characters/entwuerfe/07-coach-painterly.png" alt=""></div>
+      </div>
+    </header>
+
+    <aside class="sidebar">
+      <div class="wordmark">AI-Act-Akademie</div>
+      <div class="sect">Lernstruktur</div>
+      <div class="ph done"><span class="ring">✓</span><span class="lbl">Phase 1 · Fundament<span class="u"><i></i></span></span></div>
+      <div class="ph done"><span class="ring">✓</span><span class="lbl">Phase 2 · Verbote<span class="u"><i></i></span></span></div>
+      <div class="ph active"><span class="ring">3</span><span class="lbl">Phase 3 · Einstufung<span class="u"><i></i></span></span></div>
+      <div class="ph"><span class="ring"></span><span class="lbl">Phase 4 · Pflichten<span class="u"><i style="width:15%"></i></span></span></div>
+      <div class="ph"><span class="ring"></span><span class="lbl">Phase 5 · Transparenz<span class="u"><i style="width:0"></i></span></span></div>
+      <div class="ph"><span class="ring"></span><span class="lbl">Phase 6 · GPAI<span class="u"><i style="width:0"></i></span></span></div>
+      <div class="ph"><span class="ring"></span><span class="lbl">Phase 7 · Aufsicht<span class="u"><i style="width:0"></i></span></span></div>
+      <div class="ph"><span class="ring"></span><span class="lbl">Phase 8 · Randwissen<span class="u"><i style="width:0"></i></span></span></div>
+      <div class="ph"><span class="ring"></span><span class="lbl">Phase 9 · Österreich<span class="u"><i style="width:0"></i></span></span></div>
+      <div class="ph"><span class="ring"></span><span class="lbl">Phase 10 · Auslegung<span class="u"><i style="width:0"></i></span></span></div>
+      <div class="sep"></div>
+      <div class="ph"><svg class="ico" style="width:1.05rem"><use href="assets/icons/sprite.svg#icon-nav-erhaltung"/></svg> Wiederholung <span class="count">12</span></div>
+      <div class="ph state-locked"><svg class="ico" style="width:1.05rem"><use href="assets/icons/sprite.svg#icon-st-lock"/></svg> Examen <svg class="ico lock2" style="width:.85rem"><use href="assets/icons/sprite.svg#icon-st-lock"/></svg></div>
+    </aside>
+
+    <main class="dashboard">
+      <div class="card">
+        <div class="chead">
+          <span class="chip"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 4 L4 6 V20 L9 18 L15 20 L20 18 V4 L15 6 L9 4 Z"/><path d="M9 4 V18 M15 6 V20"/>
+          </svg></span>
+          <span class="t"><h3>Artikel-Landkarte</h3><span class="sub">Gesamter AI Act im Überblick</span></span>
+          <span class="actions"><span class="mini">ⓘ</span><span class="mini">⋮</span></span>
+        </div>
+        <div class="hm-wrap">
+          <div class="hm-groups" id="hm"></div>
+          <div class="legend">
+            <span><i style="background:#65d8b2"></i>Sehr sicher</span>
+            <span><i style="background:#9dcc9b"></i>Sicher</span>
+            <span><i style="background:#e1ad58"></i>Unsicher</span>
+            <span><i style="background:#d97568"></i>Kritisch</span>
+            <span><i style="background:#414956"></i>Ungelernt</span>
+          </div>
+          <div class="hm-foot"><span>Σ&#8202; 119 Artikel · 14 Anhänge</span><span>Stand: heute <span class="dot">●</span></span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="chead">
+          <span class="chip"><svg style="color:var(--emerald)"><use href="assets/icons/sprite.svg#icon-fach-schild"/></svg></span>
+          <span class="t"><h3>Kompetenzen</h3><span class="sub">Dein Kompetenzprofil</span></span>
+          <span class="actions"><span class="mini">⋮</span></span>
+        </div>
+        <div class="radar-wrap">
+          <svg viewBox="0 0 320 262">
+            <defs>
+              <linearGradient id="rg" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#a9f5dc" stop-opacity=".30"/>
+                <stop offset=".55" stop-color="#65d8b2" stop-opacity=".14"/>
+                <stop offset="1" stop-color="#1d5c46" stop-opacity=".10"/>
+              </linearGradient>
+              <linearGradient id="rs" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#a5ecd2"/><stop offset="1" stop-color="#41a87e"/>
+              </linearGradient>
+              <filter id="soft"><feGaussianBlur stdDeviation="4"/></filter>
+            </defs>
+            <!-- P1: gestaffelte Ringe — außen schwach, innen feiner; Zwischenring ergänzt -->
+            <g fill="none" stroke-width="1">
+              <polygon points="160,26 272,90 272,192 160,244 48,192 48,90" stroke="rgba(151,169,202,.09)"/>
+              <polygon points="160,40 258,96 258,186 160,230 62,186 62,96" stroke="rgba(151,169,202,.06)"/>
+              <polygon points="160,53 244,103 244,179 160,217 76,179 76,103" stroke="rgba(151,169,202,.13)"/>
+              <polygon points="160,80 216,116 216,166 160,190 104,166 104,116" stroke="rgba(151,169,202,.10)"/>
+              <polygon points="160,107 188,129 188,153 160,163 132,153 132,129" stroke="rgba(151,169,202,.07)"/>
+            </g>
+            <g stroke="rgba(151,169,202,.08)" stroke-width="1">
+              <line x1="160" y1="26" x2="160" y2="244"/><line x1="48" y1="90" x2="272" y2="192"/><line x1="272" y1="90" x2="48" y2="192"/>
+            </g>
+            <!-- P1: Soll-Profil sichtbar sekundär -->
+            <polygon points="160,34 262,94 256,186 160,234 58,182 66,98" fill="none"
+              stroke="rgba(170,186,214,.42)" stroke-dasharray="3 4" stroke-width="1.1"/>
+            <polygon points="160,50 240,102 232,176 160,214 84,172 92,106" fill="url(#rg)"/>
+            <polygon points="160,50 240,102 232,176 160,214 84,172 92,106" fill="none"
+              stroke="#65d8b2" stroke-width="7" opacity=".15" filter="url(#soft)"/>
+            <polygon points="160,50 240,102 232,176 160,214 84,172 92,106" fill="none"
+              stroke="url(#rs)" stroke-width="1.5"/>
+            <g fill="rgba(101,216,178,.18)"><circle cx="160" cy="50" r="5.5"/><circle cx="240" cy="102" r="5.5"/><circle cx="232" cy="176" r="5.5"/><circle cx="160" cy="214" r="5.5"/><circle cx="84" cy="172" r="5.5"/><circle cx="92" cy="106" r="5.5"/></g>
+            <g fill="#dcfcee"><circle cx="160" cy="50" r="2.1"/><circle cx="240" cy="102" r="2.1"/><circle cx="232" cy="176" r="2.1"/><circle cx="160" cy="214" r="2.1"/><circle cx="84" cy="172" r="2.1"/><circle cx="92" cy="106" r="2.1"/></g>
+            <g font-family="Inter" font-size="10.5" fill="rgba(218,226,240,.68)" text-anchor="middle">
+              <text x="160" y="14">K1–K3</text><text x="295" y="88">K4–K6</text><text x="295" y="204">K7–K9</text>
+              <text x="160" y="258">K10–K12</text><text x="25" y="204">K13–K15</text><text x="25" y="88">K16–K18</text>
+            </g>
+          </svg>
+        </div>
+        <div class="legend center"><span><i style="background:#65d8b2"></i>Dein Profil</span><span style="color:var(--faint)">···· Soll-Profil</span></div>
+      </div>
+
+      <div class="card">
+        <div class="chead">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--emerald)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="flex:none;filter:drop-shadow(0 0 6px rgba(101,216,178,.35))">
+            <path d="M3 17 L9 11 L13 14 L21 6"/><path d="M15.5 6 H21 V11.5"/>
+          </svg>
+          <span class="t"><h3>Lernkurve vs. Soll</h3></span>
+          <span class="actions"><span class="pill mono" style="height:28px;padding:0 .6rem">Letzte 11 Wochen ▾</span><span class="mini">⋮</span></span>
+        </div>
+        <div class="curve-wrap">
+          <svg viewBox="0 0 620 208" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="lg" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#5dd3ae" stop-opacity=".16"/>
+                <stop offset=".7" stop-color="#5dd3ae" stop-opacity=".03"/>
+                <stop offset="1" stop-color="#5dd3ae" stop-opacity="0"/>
+              </linearGradient>
+              <filter id="csoft"><feGaussianBlur stdDeviation="2"/></filter>
+            </defs>
+            <g stroke="rgba(151,169,202,.07)"><line x1="44" y1="12" x2="608" y2="12"/><line x1="44" y1="57" x2="608" y2="57"/><line x1="44" y1="102" x2="608" y2="102"/><line x1="44" y1="147" x2="608" y2="147"/></g>
+            <g font-family="Inter" font-size="10" fill="rgba(218,226,240,.4)">
+              <text x="6" y="16">100%</text><text x="12" y="61">75%</text><text x="12" y="106">50%</text><text x="12" y="151">25%</text><text x="18" y="196">0%</text>
+              <text x="52" y="205">W-7</text><text x="100" y="205">W-6</text><text x="148" y="205">W-5</text><text x="196" y="205">W-4</text><text x="244" y="205">W-3</text><text x="292" y="205">W-2</text><text x="340" y="205">W-1</text><text x="390" y="205">W&#8202;0</text><text x="436" y="205">W+1</text><text x="484" y="205">W+2</text><text x="532" y="205">W+3</text><text x="578" y="205">W+4</text>
+            </g>
+            <line x1="44" y1="192" x2="608" y2="192" stroke="rgba(151,169,202,.16)"/>
+            <!-- P0: Ist-Kurve endet REAL bei W+4/68% (y = 192 − 1.8·68 ≈ 69.6); Soll endet bei ~90% (y=30) -->
+            <path d="M58 174 C120 158 180 130 250 106 C330 80 440 52 586 30" stroke="rgba(170,186,214,.34)" stroke-width="1.1" stroke-dasharray="3 4" fill="none"/>
+            <path d="M58 177.6 C82 170 130 152 154 141.6 C178 133 226 122 250 120 C274 117 322 105 346 100.2 C370 96 418 90 442 85.8 C466 82 514 77 538 75 C554 73.5 572 71 586 69.6 L586 192 L58 192 Z" fill="url(#lg)"/>
+            <path d="M58 177.6 C82 170 130 152 154 141.6 C178 133 226 122 250 120 C274 117 322 105 346 100.2 C370 96 418 90 442 85.8 C466 82 514 77 538 75 C554 73.5 572 71 586 69.6" stroke="#65d8b2" stroke-width="3.2" opacity=".2" fill="none" filter="url(#csoft)"/>
+            <path d="M58 177.6 C82 170 130 152 154 141.6 C178 133 226 122 250 120 C274 117 322 105 346 100.2 C370 96 418 90 442 85.8 C466 82 514 77 538 75 C554 73.5 572 71 586 69.6" stroke="#6cd9b6" stroke-width="1.4" fill="none"/>
+            <g fill="#0a0f18" stroke="#6cd9b6" stroke-width="1.3">
+              <circle cx="58" cy="177.6" r="2.5"/><circle cx="106" cy="161.4" r="2.5"/><circle cx="154" cy="141.6" r="2.5"/><circle cx="202" cy="129" r="2.5"/><circle cx="250" cy="120" r="2.5"/><circle cx="298" cy="111" r="2.5"/><circle cx="346" cy="100.2" r="2.5"/><circle cx="394" cy="94.8" r="2.5"/><circle cx="442" cy="85.8" r="2.5"/><circle cx="490" cy="78.6" r="2.5"/><circle cx="538" cy="75" r="2.5"/>
+            </g>
+            <circle cx="586" cy="69.6" r="4.2" fill="#6cd9b6" opacity=".22" filter="url(#csoft)"/>
+            <circle cx="586" cy="69.6" r="2.9" fill="#6cd9b6"/>
+            <g><rect x="558" y="42" rx="7" width="46" height="22" fill="rgba(31,38,53,.85)" stroke="rgba(151,169,202,.25)"/><text x="581" y="57" font-family="Poppins" font-size="12" font-weight="600" fill="#6cd9b6" text-anchor="middle">68%</text></g>
+          </svg>
+        </div>
+        <div class="legend"><span><i style="background:#65d8b2"></i>Dein Lernfortschritt</span><span style="color:var(--faint)">···· Soll-Verlauf</span></div>
+      </div>
+
+      <div class="right-bottom">
+        <div class="card due">
+          <div class="due-main">
+            <div class="due-title">
+              <span class="chip" style="width:30px;height:30px"><svg style="color:#b6a5ff;width:.95rem;height:.95rem"><use href="assets/icons/sprite.svg#icon-nav-karten"/></svg></span>
+              <h3>Fällige Karten</h3>
+            </div>
+            <div class="num-duo">
+              <div class="cell"><span class="l">Kern</span><span class="n" style="color:#b6a5ff;text-shadow:0 0 16px rgba(138,112,239,.45)">12</span></div>
+              <div class="divider"></div>
+              <div class="cell"><span class="l">Aufholen</span><span class="n" style="color:var(--gold);text-shadow:0 0 16px rgba(225,173,88,.4)">5</span></div>
+            </div>
+          </div>
+          <svg class="cards-deco" width="112" height="86" viewBox="0 0 112 86" fill="none" stroke="rgba(151,169,202,.4)" stroke-width="1.3">
+            <rect x="52" y="14" width="46" height="62" rx="7" transform="rotate(12 75 45)"/>
+            <rect x="34" y="10" width="46" height="62" rx="7" transform="rotate(3 57 41)" fill="rgba(13,18,28,.55)"/>
+            <rect x="16" y="8" width="46" height="62" rx="7" transform="rotate(-8 39 39)" fill="rgba(17,23,34,.9)"/>
+            <path d="M28 32 h22 M28 42 h16 M28 52 h19" stroke="rgba(151,169,202,.3)" stroke-width="1.2" transform="rotate(-8 39 39)"/>
+          </svg>
+        </div>
+
+        <div class="card coach-card">
+          <div class="chead" style="margin-bottom:4px">
+            <span class="chip"><svg style="color:var(--text)"><use href="assets/icons/sprite.svg#icon-fach-rollen"/></svg></span>
+            <span class="t"><h3>Coach</h3></span>
+            <span class="actions"><span class="mini">⋮</span></span>
+          </div>
+          <div class="coach-stage">
+            <div class="coach-glow"></div>
+            <img class="coach-portrait" src="assets/characters/entwuerfe/07-coach-cutout.png" alt="Coach">
+            <div class="coach-message">
+              <div>Stark dranbleiben! Deine Lernkurve zeigt klare Fortschritte. Fokus in den nächsten Tagen: Pflichten &amp; Aufsicht — du bist auf Kurs! <span class="heart">♥</span></div>
+              <div class="p2">Ich glaube an dich.</div>
+              <div class="sig">— Deine Coach</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script>
+  // §6: Landkarte als DURCHGEHENDES feinkörniges Mosaik (Referenz-Charakter):
+  // ein Grid 27×12, Farbzonen fließen organisch ineinander (Zonen-Seeds + Jitter),
+  // Leerzellen in Clustern als Landkarten-Silhouette, Artikel mit variabler Zellgröße.
+  const COLS = 27, ROWS = 11;
+  // Sektorgrenzen (Zellindex, an dem ein neuer Sektor beginnt) — Spalten [5,4,5,5,4,4], Zeilen [4,4,4]
+  const CB = [5, 9, 14, 19, 23], RB = [4, 8];
+  const shades = {
+    0:[['#6fdcb8','#3fa981'],['#5ecfa9','#379a74']],
+    1:[['#a9cfa4','#7ba377'],['#9cc79a','#6f976e']],
+    2:[['#e6b869','#b98e42'],['#dcae5e','#ad8339']],
+    3:[['#dd8578','#b05a4e'],['#d47b6f','#a55248']],
+    4:[['#4a5160','#343a46'],['#434a58','#2f3540']]
+  };
+  // Zonen-Seeds (col,row,stufe): grün links oben → safe links unten → amber Mitte → rot rechts → grau rechts unten
+  const seeds = [[3,3,0],[7,9,1],[13,4,2],[15,10,2],[21,2,3],[19,8,3],[25,10,4],[26,5,4]];
+  const h = (x, y, s) => ((x * 73856093 ^ y * 19349663 ^ s * 83492791) >>> 0) % 1000 / 1000;
+  const occ = Array.from({length: ROWS}, () => new Array(COLS).fill(false));
+  const free = (c, r, w, hh) => {
+    if (c + w > COLS || r + hh > ROWS) return false;
+    for (let y = r; y < r + hh; y++) for (let x = c; x < c + w; x++) if (occ[y][x]) return false;
+    return true;
+  };
+  let html = '';
+  for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+    if (occ[r][c]) continue;
+    // Leerzellen: dezente Cluster — die Sektor-Gassen liefern die Hauptstruktur bereits
+    const cluster = h(c >> 1, r >> 1, 7) < .07 ? .62 : 0;
+    const gapP = .04 + cluster + (r >= ROWS - 1 ? .12 : 0);
+    if (h(c, r, 1) < gapP) { occ[r][c] = true; continue; }
+    // Zone: nächster Seed nach gestreckter Distanz + Jitter → organische Cluster-Grenzen
+    let best = 0, bd = 1e9;
+    for (const [sx, sy, st] of seeds) {
+      const d = Math.hypot(c - sx, (r - sy) * 1.7) + h(c, r, st + 20) * 3.0;
+      if (d < bd) { bd = d; best = st; }
+    }
+    // P1: kontrollierte Durchmischung — vereinzelte Nachbarstufen-Sprenkel über Zonengrenzen hinweg
+    if (h(c, r, 5) < .10) best = Math.max(0, Math.min(4, best + (h(c, r, 6) > .5 ? 1 : -1)));
+    const [a, b] = shades[best][Math.floor(h(c, r, 2) * 2)];
+    // P1: ~85–90 % einheitliche kleine Zellen; wenige 2×1, sehr wenige 2×2 — nie über Sektorgrenzen
+    const rs = h(c, r, 3);
+    let w = 1, hh = 1;
+    if (rs < .025 && free(c, r, 2, 2) && !CB.includes(c + 1) && !RB.includes(r + 1)) { w = 2; hh = 2; }
+    else if (rs < .12 && free(c, r, 2, 1) && !CB.includes(c + 1)) { w = 2; }
+    for (let y = r; y < r + hh; y++) for (let x = c; x < c + w; x++) occ[y][x] = true;
+    // Zellkoordinate → Grid-Track (Gassen-Tracks überspringen)
+    const gc = c + CB.filter(b => c >= b).length + 1;
+    const gr = r + RB.filter(b => r >= b).length + 1;
+    html += `<i style="grid-area:${gr}/${gc}/span ${hh}/span ${w};` +
+      `background:linear-gradient(145deg,rgba(255,255,255,.08),transparent 38%),linear-gradient(180deg,${a},${b})"></i>`;
+  }
+  document.getElementById('hm').innerHTML = html;
+</script>
+</body>
+</html>

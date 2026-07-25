@@ -1,0 +1,23 @@
+name: release
+on:
+  push:
+    tags: ['v*']
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions: { contents: write }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Gates + Paket bauen (Schema, legal-audit, Privat-Begriffe-Scan)
+        run: node tools/build-release.mjs --version "${GITHUB_REF_NAME}" --out dist
+      - name: Release-ZIP anhängen
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/ai-act-akademie-*.zip
+          body: |
+            AI-Act-Akademie ${{ github.ref_name }} — Release-Paket (App + Bridge + Content + Doku).
+            Setup: ZIP entpacken → `node bridge/bridge.mjs` (Details: SETUP-AGENT.md).
+            Rechtsstand: siehe Topbar/README; Checkliste gemäß Plan §5.7 durchlaufen.

@@ -1,0 +1,211 @@
+{
+ "id": "p2-e01-rote-linien",
+ "phase": "p2",
+ "title": "Die roten Linien: Was Art. 5 verbietet",
+ "competency": "K04",
+ "level": "B",
+ "legal_status": "konsolidiert-2026-07-27",
+ "legal_basis": [
+  {
+   "ref": "Art. 5 Abs. 1 lit. a–h",
+   "instrument": "VO 2024/1689 idF 2026/1744",
+   "applies_from": "2025-02-02",
+   "verified": "eigenpruefung-2026-07-24"
+  }
+ ],
+ "change_log": [
+  {
+   "date": "2026-07-24",
+   "was": "Ersterstellung (Durchstich)",
+   "quelle": "legal/arbeitskonsolidierung.md"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "Beispiel-Slot slot-4 ergänzt (§5.1: fixer Intent, profilvariable Einkleidung)"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "A-Stufen-Check ergänzt (§3 Mengengerüst 40/40/20)"
+  }
+ ],
+ "blocks": [
+  {
+   "type": "problem",
+   "html": "Die Leistungsabteilung schlägt vor, aus den Telefonaten mit Versicherten automatisch die <b>Emotionen der eigenen Mitarbeiter:innen</b> auszuwerten, um „Überlastung früh zu erkennen“. Gut gemeint — was sagen Sie als KI-Spezialist:in <b>als Erstes</b>?",
+   "einsteiger_worked_example": "Ein Beispiel vorab: Ein Callcenter wollte 2025 „Stimmungsanalyse“ für Coaching einführen. Prüfweg: (1) Was tut das System technisch? Emotionserkennung. (2) Wo? Am Arbeitsplatz. (3) Art. 5 Abs. 1 lit. f: Emotionserkennung am Arbeitsplatz ist verboten — außer aus medizinischen oder Sicherheitsgründen. Coaching ist keins von beidem → verboten, Ende der Prüfung."
+  },
+  {
+   "type": "concept",
+   "html": "Art. 5 ist die <b>absolute Grenze</b> des AI Act: Praktiken, die der Gesetzgeber für unvereinbar mit Grundrechten hält — <span class=\"gloss\">Inverkehrbringen</span>, <span class=\"gloss\">Inbetriebnahme</span> UND Verwendung sind verboten. Anders als bei Hochrisiko gibt es hier <b>keine Konformitätsbewertung, die das heilt</b>. IT-Analogie: Das ist kein Audit-Finding, das ist ein <i>Denied by policy</i> auf oberster Firewall-Ebene."
+  },
+  {
+   "type": "beispiel",
+   "intent_id": "slot-4",
+   "intent": "zeige die Einwilligungsfestigkeit eines Verbots",
+   "generisch": "Selbst wenn alle Beschäftigten schriftlich zustimmen: Emotionserkennung am Arbeitsplatz bleibt verboten."
+  },
+  {
+   "type": "concept",
+   "html": "Die <b>Stamm-Tatbestände</b> (seit 2.2.2025, lit. a–h) in Kurzform: <b>a)</b> unterschwellige/manipulative Techniken mit erheblichem Schadenspotenzial · <b>b)</b> Ausnutzen von Schutzbedürftigkeit (Alter, Behinderung, soziale Lage) · <b>c)</b> Social Scoring durch oder für öffentliche Stellen · <b>d)</b> Risikobewertung für Straftaten allein aufgrund von <span class=\"gloss\">Profiling</span> · <b>e)</b> ungezieltes Auslesen von Gesichtsbildern (Scraping) · <b>f)</b> <span class=\"gloss\">Emotionserkennung</span> am Arbeitsplatz und in Bildungseinrichtungen (Ausnahme: medizinische/Sicherheitsgründe) · <b>g)</b> <span class=\"gloss\">biometrische Kategorisierung</span> nach sensiblen Merkmalen · <b>h)</b> Echtzeit-<span class=\"gloss\">Fernidentifizierung</span> im öffentlichen Raum zur Strafverfolgung (enge Ausnahmen)."
+  },
+  {
+   "type": "merkbild",
+   "html": "🧠 Merkbild: Art. 5 = <b>die 8 Stopptafeln + 2 neue ab Dezember 2026</b>. Wer eine Stopptafel „mit Transparenzhinweis“ passieren will, hat die Systematik nicht verstanden — Verbot schlägt alles."
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p2-e01-a1",
+    "type": "mc",
+    "competency": "K04",
+    "level": "A",
+    "legal_status": "konsolidiert-2026-07-27",
+    "legal_basis": [
+     {
+      "ref": "Art. 5 Abs. 1",
+      "instrument": "VO 2024/1689 idF 2026/1744",
+      "verified": "eigenpruefung-a-checks-2026-07-25"
+     }
+    ],
+    "prompt": "Wie viele Verbotstatbestände enthielt Art. 5 Abs. 1 in der Stammfassung?",
+    "options": [
+     {
+      "id": "a",
+      "text": "Acht (lit. a–h)",
+      "correct": true,
+      "rationale": "Der Omnibus ergänzte ba/bb sowie Abs. 1a/1b ab 2.12.2026.",
+      "source_ref": "Art. 5 Abs. 1"
+     },
+     {
+      "id": "b",
+      "text": "Fünf",
+      "correct": false,
+      "rationale": "Zu wenige.",
+      "source_ref": "Art. 5 Abs. 1"
+     },
+     {
+      "id": "c",
+      "text": "Zwölf",
+      "correct": false,
+      "rationale": "Zu viele.",
+      "source_ref": "Art. 5 Abs. 1"
+     },
+     {
+      "id": "d",
+      "text": "Drei",
+      "correct": false,
+      "rationale": "Zu wenige.",
+      "source_ref": "Art. 5 Abs. 1"
+     }
+    ]
+   }
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p2-e01-c1",
+    "type": "mc",
+    "prompt": "Die Fachabteilung will die Mitarbeiter-Emotionserkennung „mit Einwilligung der Betroffenen“ einführen. Was gilt?",
+    "options": [
+     {
+      "id": "a",
+      "text": "Mit Einwilligung zulässig — die DSGVO erlaubt es dann.",
+      "correct": false,
+      "rationale": "Art. 5 ist kein Einwilligungs-Tatbestand: Das Verbot der Emotionserkennung am Arbeitsplatz gilt unabhängig von einer Einwilligung; die DSGVO-Ebene ersetzt die AI-Act-Ebene nicht.",
+      "source_ref": "Art. 5 Abs. 1 lit. f"
+     },
+     {
+      "id": "b",
+      "text": "Verboten — Ausnahmen gibt es nur für medizinische oder Sicherheitsgründe.",
+      "correct": true,
+      "rationale": "Art. 5 Abs. 1 lit. f verbietet Emotionserkennung am Arbeitsplatz; die Ausnahme deckt nur medizinische oder Sicherheitszwecke, nicht Fürsorge- oder Leistungszwecke.",
+      "source_ref": "Art. 5 Abs. 1 lit. f"
+     },
+     {
+      "id": "c",
+      "text": "Zulässig als Hochrisiko-System mit FRIA.",
+      "correct": false,
+      "rationale": "Die FRIA (Art. 27) ist ein Hochrisiko-Instrument — sie kann ein Art.-5-Verbot nicht aufheben; die Prüfreihenfolge beginnt bei Art. 5.",
+      "source_ref": "Art. 5 i.V.m. Art. 27"
+     },
+     {
+      "id": "d",
+      "text": "Für eine belastbare Einstufung fehlen Informationen.",
+      "correct": false,
+      "rationale": "Der Sachverhalt ist vollständig: Emotionserkennung + Arbeitsplatz + Zweck „Überlastung erkennen“ reichen für die Subsumtion.",
+      "source_ref": "Art. 5 Abs. 1 lit. f"
+     }
+    ],
+    "level": "B"
+   }
+  },
+  {
+   "type": "quelle",
+   "ref": "Art. 5 Abs. 1 lit. f",
+   "changed_by_omnibus": false,
+   "text": "…das Inverkehrbringen, die Inbetriebnahme oder die Verwendung von KI-Systemen zur Ableitung von Emotionen einer natürlichen Person am Arbeitsplatz und in Bildungseinrichtungen, es sei denn, die Verwendung des KI-Systems soll aus medizinischen Gründen oder Sicherheitsgründen eingeführt oder auf den Markt gebracht werden…"
+  },
+  {
+   "type": "erwg",
+   "nr": "44",
+   "text": "Erwägungsgrund 44 begründet das Emotionserkennungs-Verbot mit der schwachen wissenschaftlichen Grundlage und dem Machtungleichgewicht in Beschäftigung und Bildung — das ist Ihr Argument, wenn die Fachabteilung „aber die Technik ist doch besser geworden“ einwendet."
+  },
+  {
+   "type": "widget",
+   "widget": "assignment",
+   "payload": {
+    "task_ref": "p2-dnd-pyramide"
+   }
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p2-e01-c2",
+    "type": "case",
+    "scenario": "Ein Anbieter bietet der ÖSVA ein System an, das Versicherte anhand öffentlicher Social-Media-Daten in „Vertrauensklassen“ für die Leistungsabwicklung einteilt. Alle Fakten liegen vor.",
+    "prompt": "Ihre Einstufung?",
+    "trap": {
+     "is_trap": false
+    },
+    "critical_error": {
+     "option_ids": [
+      "c"
+     ],
+     "reason": "Social Scoring durch/für eine öffentliche Stelle als zulässig zu behandeln wäre ein unmittelbarer Art.-5-Verstoß.",
+     "requires_complete_facts": true
+    },
+    "options": [
+     {
+      "id": "a",
+      "text": "Verbotene Praxis: Social Scoring mit Schlechterstellung in einem sachfremden Kontext.",
+      "correct": true,
+      "rationale": "Bewertung des sozialen Verhaltens mit nachteiliger Behandlung in Zusammenhängen, die vom Datenursprung entkoppelt sind — Kernfall des lit. c für öffentliche Stellen.",
+      "source_ref": "Art. 5 Abs. 1 lit. c"
+     },
+     {
+      "id": "b",
+      "text": "Hochrisiko nach Anhang III Nr. 5 lit. a.",
+      "correct": false,
+      "rationale": "Anhang III greift erst, wenn kein Verbot vorliegt — die Prüfreihenfolge ist Verbot vor Hochrisiko.",
+      "source_ref": "Art. 5 vor Art. 6"
+     },
+     {
+      "id": "c",
+      "text": "Zulässig, weil nur öffentliche Daten verarbeitet werden.",
+      "correct": false,
+      "rationale": "Die Herkunft der Daten ist für lit. c unerheblich; entscheidend sind Bewertung sozialen Verhaltens und daran geknüpfte Benachteiligung.",
+      "source_ref": "Art. 5 Abs. 1 lit. c"
+     },
+     {
+      "id": "d",
+      "text": "Für eine belastbare Einstufung fehlen Informationen.",
+      "correct": false,
+      "rationale": "Zweck, Datenbasis und Wirkung sind vollständig beschrieben — die Subsumtion ist möglich.",
+      "source_ref": "Art. 5 Abs. 1 lit. c"
+     }
+    ],
+    "level": "B"
+   }
+  }
+ ]
+}

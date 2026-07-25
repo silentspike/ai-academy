@@ -1,0 +1,209 @@
+{
+ "id": "p1-e01-ki-system-rollen",
+ "phase": "p1",
+ "title": "Was ist ein KI-System — und wer sind Sie darin?",
+ "competency": "K02",
+ "level": "A",
+ "legal_status": "konsolidiert-2026-07-27",
+ "legal_basis": [
+  {
+   "ref": "Art. 3 Nr. 1, 3, 4",
+   "instrument": "VO 2024/1689 idF 2026/1744",
+   "verified": "eigenpruefung-2026-07-24"
+  },
+  {
+   "ref": "Art. 2",
+   "instrument": "VO 2024/1689 idF 2026/1744",
+   "verified": "eigenpruefung-2026-07-24"
+  }
+ ],
+ "change_log": [
+  {
+   "date": "2026-07-24",
+   "was": "Ersterstellung",
+   "quelle": "legal/arbeitskonsolidierung.md"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "Auslegungs-Box ErwG 84 ergänzt (Plan #4 Doppelverankerung)"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "Beispiel-Slot slot-1 ergänzt (§5.1: fixer Intent, profilvariable Einkleidung)"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "A-Stufen-Check ergänzt (§3 Mengengerüst 40/40/20)"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "Originaltext-Box auf wörtlichen Amtsblatt-Wortlaut korrigiert"
+  }
+ ],
+ "blocks": [
+  {
+   "type": "problem",
+   "html": "Die IT-Abteilung sagt: „Unser neues Antrags-Tool ist doch keine KI — das sind nur Wenn-dann-Regeln plus ein bisschen Statistik.“ <b>Woran entscheiden Sie, ob der AI Act überhaupt anwendbar ist?</b>",
+   "einsteiger_worked_example": "Prüfweg: (1) Art. 3 Nr. 1: maschinengestützt, autonomiefähig, LEITET aus Eingaben Ausgaben AB (Vorhersagen/Empfehlungen/Entscheidungen)? (2) Reine starre Regelwerke ohne Ableitungslogik fallen heraus. (3) Statistik-/ML-Komponente mit Einfluss auf Ergebnisse → in aller Regel erfasst. Ergebnis: Die Grenze verläuft bei der Ableitungsfähigkeit, nicht beim Marketing-Etikett."
+  },
+  {
+   "type": "concept",
+   "html": "Der <span class=\"gloss\">KI-System</span>-Begriff (Art. 3 Nr. 1) ist bewusst weit: maschinengestützt, mit unterschiedlichem Grad an Autonomie, ggf. anpassungsfähig, leitet aus Eingaben <b>Ausgaben wie Vorhersagen, Inhalte, Empfehlungen oder Entscheidungen</b> ab, die Umgebungen beeinflussen können. IT-Analogie: Nicht das Betriebssystem ist reguliert, sondern die Entscheidungslogik obendrauf."
+  },
+  {
+   "type": "beispiel",
+   "intent_id": "slot-1",
+   "intent": "zeige den Unterschied zwischen Regel-Software und ableitendem KI-System an einem Alltagsprozess",
+   "generisch": "Ein Antrags-Sortierer, der nach fest programmierten Wenn-Dann-Regeln arbeitet, ist kein KI-System; sobald er aus früheren Fällen ableitet, welche Anträge vorrangig sind, ist er eines."
+  },
+  {
+   "type": "concept",
+   "html": "Die zwei Kernrollen: <span class=\"gloss\">Anbieter</span> (entwickelt/lässt entwickeln und bringt unter eigenem Namen in Verkehr, Art. 3 Nr. 3) und <span class=\"gloss\">Betreiber</span> (verwendet in eigener Verantwortung, Art. 3 Nr. 4). Die ÖSVA ist bei zugekauften Systemen regelmäßig <b>Betreiberin</b> — mit eigenen Pflichten (Art. 26/27). Vorsicht: Die Rolle kann <b>kippen</b> (Art. 25 — eigene Einheit in Phase 4)."
+  },
+  {
+   "type": "merkbild",
+   "html": "🧠 Merkbild: <b>Anbieter = Name am Etikett, Betreiber = Hand am Schalter.</b> Und der AI Act fragt zuerst: Leitet das Ding etwas AB — oder führt es nur aus?"
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p1-e01-a1",
+    "type": "mc",
+    "competency": "K05",
+    "level": "A",
+    "legal_status": "konsolidiert-2026-07-27",
+    "legal_basis": [
+     {
+      "ref": "Art. 3 Nr. 4",
+      "instrument": "VO 2024/1689 idF 2026/1744",
+      "verified": "eigenpruefung-a-checks-2026-07-25"
+     }
+    ],
+    "prompt": "Wer ist „Betreiber“ im Sinne des Art. 3 Nr. 4?",
+    "options": [
+     {
+      "id": "a",
+      "text": "Wer ein KI-System in eigener Verantwortung beruflich verwendet.",
+      "correct": true,
+      "rationale": "Berufliche Nutzung in eigener Verantwortung — private Nutzung ist ausgenommen.",
+      "source_ref": "Art. 3 Nr. 4"
+     },
+     {
+      "id": "b",
+      "text": "Wer das System programmiert hat.",
+      "correct": false,
+      "rationale": "Das ist der Anbieter (Nr. 3).",
+      "source_ref": "Art. 3 Nr. 3"
+     },
+     {
+      "id": "c",
+      "text": "Wer es verkauft.",
+      "correct": false,
+      "rationale": "Das ist Händler bzw. Einführer.",
+      "source_ref": "Art. 3 Nr. 6, 7"
+     },
+     {
+      "id": "d",
+      "text": "Die Aufsichtsbehörde.",
+      "correct": false,
+      "rationale": "Behördliche Aufsicht ist keine Betreiberrolle.",
+      "source_ref": "Art. 3 Nr. 4"
+     }
+    ]
+   }
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p1-e01-c1",
+    "type": "mc",
+    "prompt": "Die ÖSVA kauft ein fertiges KI-Dokumentenanalyse-Tool und setzt es intern ein. Welche Rolle hat sie primär?",
+    "options": [
+     {
+      "id": "a",
+      "text": "Anbieterin, weil sie es bezahlt hat.",
+      "correct": false,
+      "rationale": "Bezahlung ist kein Rollenkriterium; Anbieter ist, wer unter eigenem Namen in Verkehr bringt.",
+      "source_ref": "Art. 3 Nr. 3"
+     },
+     {
+      "id": "b",
+      "text": "Betreiberin — sie verwendet das System in eigener Verantwortung.",
+      "correct": true,
+      "rationale": "Genau die Definition des Art. 3 Nr. 4; daran hängen die Pflichten der Art. 26/27.",
+      "source_ref": "Art. 3 Nr. 4"
+     },
+     {
+      "id": "c",
+      "text": "Keine Rolle, da nur interne Nutzung.",
+      "correct": false,
+      "rationale": "Interne berufliche Nutzung ist der Kernfall des Betreiberbegriffs; ausgenommen ist nur der persönliche, nicht berufliche Bereich.",
+      "source_ref": "Art. 3 Nr. 4"
+     },
+     {
+      "id": "d",
+      "text": "Händlerin.",
+      "correct": false,
+      "rationale": "Händler vertreiben Systeme im Markt — die ÖSVA gibt das Tool nicht weiter.",
+      "source_ref": "Art. 3 Nr. 7"
+     }
+    ],
+    "level": "A"
+   }
+  },
+  {
+   "type": "quelle",
+   "ref": "Art. 3 Nr. 1",
+   "changed_by_omnibus": false,
+   "text": "1. „KI-System“ ein maschinengestütztes System, das für einen in unterschiedlichem Grade autonomen Betrieb ausgelegt ist und das nach seiner Betriebsaufnahme anpassungsfähig sein kann und das aus den erhaltenen Eingaben für explizite oder implizite Ziele ableitet, wie Ausgaben wie etwa Vorhersagen, Inhalte, Empfehlungen oder Entscheidungen erstellt werden, die physische oder virtuelle Umgebungen beeinflussen können;"
+  },
+  {
+   "type": "erwg",
+   "nr": "84",
+   "text": "Erwägungsgrund 84 — Händler, Einführer, Betreiber oder Dritte gelten unter bestimmten Bedingungen als Anbieter und übernehmen dann dessen volle Pflichten. Einsatz im Gespräch: Der ErwG hinter Art. 25 — bei Umbranding, wesentlicher Änderung oder Zweckänderung."
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p1-e01-c2",
+    "type": "mc",
+    "prompt": "Welches System fällt am ehesten NICHT unter den KI-System-Begriff?",
+    "trap": {
+     "is_trap": true,
+     "note": "Achtung Negativfrage: Gesucht ist das System OHNE Ableitungslogik."
+    },
+    "options": [
+     {
+      "id": "a",
+      "text": "Ein fest codiertes Regelwerk, das Anträge nach starren Wenn-dann-Tabellen sortiert.",
+      "correct": true,
+      "rationale": "Ohne Ableitung aus Eingaben (keine Lern-/Inferenzlogik) fehlt das Kernmerkmal des Art. 3 Nr. 1.",
+      "source_ref": "Art. 3 Nr. 1"
+     },
+     {
+      "id": "b",
+      "text": "Ein ML-Modell zur Betrugswahrscheinlichkeit.",
+      "correct": false,
+      "rationale": "Klassischer Fall abgeleiteter Vorhersagen.",
+      "source_ref": "Art. 3 Nr. 1"
+     },
+     {
+      "id": "c",
+      "text": "Ein LLM-Chatbot.",
+      "correct": false,
+      "rationale": "Erzeugt abgeleitete Inhalte — erfasst.",
+      "source_ref": "Art. 3 Nr. 1"
+     },
+     {
+      "id": "d",
+      "text": "Ein Empfehlungssystem für Sachbearbeiter.",
+      "correct": false,
+      "rationale": "Empfehlungen sind ausdrücklich genannte Ausgabeart.",
+      "source_ref": "Art. 3 Nr. 1"
+     }
+    ],
+    "level": "A"
+   }
+  }
+ ]
+}

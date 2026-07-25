@@ -1,0 +1,153 @@
+{
+ "id": "p10-e02-erwg-kompendium",
+ "phase": "p10",
+ "title": "Das ErwG-Kompendium: 40 Erwägungsgründe, die Sie brauchen",
+ "competency": "K17",
+ "level": "B",
+ "legal_status": "konsolidiert-2026-07-27",
+ "legal_basis": [
+  {
+   "ref": "ErwG 1–180",
+   "instrument": "VO 2024/1689 idF 2026/1744",
+   "verified": "eigenpruefung-erwg-2026-07-25"
+  },
+  {
+   "ref": "Systematik VO 2024/1689",
+   "instrument": "VO 2024/1689 idF 2026/1744",
+   "verified": "eigenpruefung-erwg-2026-07-25"
+  }
+ ],
+ "change_log": [
+  {
+   "datum": "2026-07-25",
+   "aenderung": "Neu — Plan #4: „Phase 10 mit den ~40 prüfungsrelevantesten ErwGs als Vertiefung“"
+  }
+ ],
+ "blocks": [
+  {
+   "type": "problem",
+   "html": "In einer Sitzung fällt der Satz: <i>„Wo steht denn, dass wir bei Leistungsentscheidungen so genau hinschauen müssen?“</i> Der Artikel allein überzeugt selten — die <b>Begründung</b> überzeugt. Welchen Erwägungsgrund ziehen Sie für Anhang III Nr. 5?",
+   "einsteiger_worked_example": "Durchgerechnet: Anhang III Nr. 5 lit. a betrifft grundlegende öffentliche Leistungen. Der zugehörige ErwG 58 begründet das damit, dass solche Leistungen für ein menschenwürdiges Leben erforderlich sind und die Betroffenen typischerweise in einer Abhängigkeitslage stehen. Mit ErwG 58 argumentieren Sie also nicht „weil es im Anhang steht“, sondern „weil hier Existenzgrundlagen betroffen sind“."
+  },
+  {
+   "type": "concept",
+   "html": "Dieses Kompendium bündelt die <b>40 Erwägungsgründe</b>, die für die Betreiber-Praxis am häufigsten gebraucht werden — nach Themen gefiltert, jeweils mit <b>Kernaussage</b>, <b>Einsatzzweck im Gespräch</b> und <b>Amtsblatt-Zitat</b>. Nutzen Sie es zweistufig: erst das Thema wählen, dann die Kernaussage lernen; das Zitat ist Ihr Beleg, wenn jemand nachfragt."
+  },
+  {
+   "type": "widget",
+   "widget": "erwg-explorer"
+  },
+  {
+   "type": "merkbild",
+   "html": "🧠 Merkbild: Der <b>Artikel</b> ist das Urteil, der <b>Erwägungsgrund</b> die Urteilsbegründung. Wer nur das Urteil zitiert, gewinnt die Abstimmung; wer die Begründung kennt, gewinnt die Diskussion."
+  },
+  {
+   "type": "quelle",
+   "ref": "Systematik VO 2024/1689",
+   "changed_by_omnibus": false,
+   "text": "Die Erwägungsgründe stehen vor dem verfügenden Teil („HABEN FOLGENDE VERORDNUNG ERLASSEN“) und sind dessen Begründung; die Verordnung selbst beginnt erst mit Artikel 1.",
+   "kind": "einordnung"
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p10-e02-c1",
+    "type": "mc",
+    "competency": "K17",
+    "level": "B",
+    "legal_status": "konsolidiert-2026-07-27",
+    "legal_basis": [
+     {
+      "ref": "ErwG 58",
+      "instrument": "VO 2024/1689 idF 2026/1744",
+      "verified": "eigenpruefung-erwg-2026-07-25"
+     },
+     {
+      "ref": "Anhang III Nr. 5 lit. a",
+      "instrument": "VO 2024/1689 idF 2026/1744",
+      "verified": "eigenpruefung-erwg-2026-07-25"
+     }
+    ],
+    "prompt": "Ihre Leitung fragt, WARUM ausgerechnet Leistungsentscheidungen so streng behandelt werden. Welcher Erwägungsgrund liefert die Begründung — und wie lautet sie?",
+    "options": [
+     {
+      "id": "a",
+      "text": "ErwG 58: Zugang zu grundlegenden öffentlichen Leistungen ist für ein menschenwürdiges Leben erforderlich; Betroffene sind typischerweise abhängig und verletzlich.",
+      "correct": true,
+      "rationale": "Genau das ist die Begründung hinter Anhang III Nr. 5 lit. a — Existenzgrundlagen statt bloßer Verwaltungsvorgänge.",
+      "source_ref": "ErwG 58"
+     },
+     {
+      "id": "b",
+      "text": "ErwG 44: Emotionserkennung ist wissenschaftlich schwach fundiert.",
+      "correct": false,
+      "rationale": "ErwG 44 begründet das lit.-f-Verbot, nicht die Leistungs-Systematik.",
+      "source_ref": "ErwG 44"
+     },
+     {
+      "id": "c",
+      "text": "ErwG 102: Open-Source-Modelle sind privilegiert.",
+      "correct": false,
+      "rationale": "Betrifft GPAI-Erleichterungen, nicht Anhang III.",
+      "source_ref": "ErwG 102"
+     },
+     {
+      "id": "d",
+      "text": "Es gibt keinen Erwägungsgrund dazu — die Liste ist politisch gesetzt.",
+      "correct": false,
+      "rationale": "Jeder Anhang-III-Bereich ist in den Erwägungsgründen begründet.",
+      "source_ref": "Systematik VO 2024/1689"
+     }
+    ]
+   }
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p10-e02-c2",
+    "type": "mc",
+    "competency": "K17",
+    "level": "C",
+    "legal_status": "konsolidiert-2026-07-27",
+    "legal_basis": [
+     {
+      "ref": "ErwG 63",
+      "instrument": "VO 2024/1689 idF 2026/1744",
+      "verified": "eigenpruefung-erwg-2026-07-25"
+     }
+    ],
+    "prompt": "Ein Kollege argumentiert: „Der AI Act stuft es als Hochrisiko ein — also ist der Einsatz erlaubt, wenn wir die Pflichten erfüllen.“ Welcher Erwägungsgrund korrigiert das?",
+    "options": [
+     {
+      "id": "a",
+      "text": "ErwG 63: Die Hochrisiko-Einstufung sagt NICHTS darüber, ob der Einsatz nach anderem Unionsrecht (etwa Datenschutz) zulässig ist — die Rechtsschichten bestehen nebeneinander.",
+      "correct": true,
+      "rationale": "Der klassische Kurzschluss „AI-Act-konform = zulässig“ wird hier ausdrücklich ausgeschlossen.",
+      "source_ref": "ErwG 63"
+     },
+     {
+      "id": "b",
+      "text": "ErwG 46: Anforderungen sind Marktzugangsbedingung.",
+      "correct": false,
+      "rationale": "Richtig, aber es beantwortet die Frage nach ANDEREM Recht nicht.",
+      "source_ref": "ErwG 46"
+     },
+     {
+      "id": "c",
+      "text": "ErwG 179: gestaffelte Anwendbarkeit.",
+      "correct": false,
+      "rationale": "Zeitfrage, nicht Zulässigkeitsfrage.",
+      "source_ref": "ErwG 179"
+     },
+     {
+      "id": "d",
+      "text": "Der Kollege hat recht.",
+      "correct": false,
+      "rationale": "Nein — DSGVO, Fachrecht und Dienstrecht gelten unabhängig weiter.",
+      "source_ref": "ErwG 63"
+     }
+    ]
+   }
+  }
+ ]
+}

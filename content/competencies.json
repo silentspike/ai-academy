@@ -1,0 +1,260 @@
+{
+ "titel": "Kompetenzmodell AI-Act-Akademie — aus Tätigkeiten abgeleitet (Gate-0-Erstentwurf)",
+ "stufen": {
+  "A": "erinnern — Begriff/Norm korrekt wiedergeben und zuordnen",
+  "B": "anwenden — auf einen vollständig beschriebenen Standardfall korrekt anwenden",
+  "C": "Grenzfall — unvollständige/mehrdeutige Fälle, Ausnahmen, Wechselwirkungen; Informationsbedarf erkennen"
+ },
+ "mengengeruest": {
+  "einheiten": "40/40/20 (A/B/C)",
+  "kapiteltests": "25/50/25",
+  "examen": "15/50/35"
+ },
+ "kompetenzen": [
+  {
+   "id": "K01",
+   "name": "Sachverhalt strukturieren",
+   "beschreibung": "Einen KI-Einsatz-Sachverhalt in die prüfrelevanten Merkmale zerlegen (System, Zweckbestimmung, Daten, Betroffene, Entscheidungswirkung, Zeitpunkte)",
+   "artikel": [
+    "Art. 3",
+    "Art. 6",
+    "Anhang III"
+   ],
+   "phasen": [
+    "P1",
+    "P3"
+   ],
+   "kern": false
+  },
+  {
+   "id": "K02",
+   "name": "KI-System-Begriff anwenden",
+   "beschreibung": "Abgrenzen, ob überhaupt ein KI-System bzw. GPAI-Modell im Sinne der VO vorliegt",
+   "artikel": [
+    "Art. 3 Nr. 1",
+    "Art. 3 Nr. 63",
+    "ErwG 12"
+   ],
+   "phasen": [
+    "P1",
+    "P6"
+   ],
+   "kern": false
+  },
+  {
+   "id": "K03",
+   "name": "Hochrisiko-Einstufung durchführen",
+   "beschreibung": "Anhang-I-/Anhang-III-Prüfung inkl. Art.-6(3)-Ausnahmen, Profiling-Rückausnahme und neuer Abs. 1a–1c sicher durchführen",
+   "artikel": [
+    "Art. 6",
+    "Art. 7",
+    "Anhang I",
+    "Anhang III"
+   ],
+   "phasen": [
+    "P3"
+   ],
+   "kern": true
+  },
+  {
+   "id": "K04",
+   "name": "Verbotene Praktiken erkennen",
+   "beschreibung": "Art.-5-Tatbestände (beide Zeitschichten!) erkennen und abgrenzen",
+   "artikel": [
+    "Art. 5",
+    "Anhang II"
+   ],
+   "phasen": [
+    "P2"
+   ],
+   "kern": true
+  },
+  {
+   "id": "K05",
+   "name": "Akteursrollen bestimmen",
+   "beschreibung": "Anbieter/Betreiber/Einführer/Händler zuordnen und Art.-25-Rollenwechsel erkennen",
+   "artikel": [
+    "Art. 3 Nr. 3-8",
+    "Art. 25"
+   ],
+   "phasen": [
+    "P1",
+    "P4"
+   ],
+   "kern": true
+  },
+  {
+   "id": "K06",
+   "name": "Anwendungszeitpunkt bestimmen",
+   "beschreibung": "Fristen- und Übergangslogik anwenden: in Kraft vs. anwendbar, Altsystem-Regeln, Behörden-2030, Art.-5-Staffel, Art.-50-Nachrüstung",
+   "artikel": [
+    "Art. 111",
+    "Art. 113"
+   ],
+   "phasen": [
+    "P1"
+   ],
+   "kern": true
+  },
+  {
+   "id": "K07",
+   "name": "Informationsbedarf erkennen",
+   "beschreibung": "Fehlende Einstufungs-Informationen benennen und die richtigen Rückfragen stellen — 'nicht abschließend bestimmbar' als professionelle Antwort",
+   "artikel": [
+    "Art. 6",
+    "Anhang III",
+    "Art. 3"
+   ],
+   "phasen": [
+    "P1",
+    "P3"
+   ],
+   "kern": false
+  },
+  {
+   "id": "K08",
+   "name": "Betreiberpflichten umsetzen",
+   "beschreibung": "Art.-26-Pflichten in konkrete organisatorische Maßnahmen übersetzen (Aufsicht, Eingabedaten, Logs, Information Beschäftigter)",
+   "artikel": [
+    "Art. 26"
+   ],
+   "phasen": [
+    "P4"
+   ],
+   "kern": true
+  },
+  {
+   "id": "K09",
+   "name": "FRIA durchführen",
+   "beschreibung": "Grundrechte-Folgenabschätzung planen: Pflicht erkennen (Einrichtung öffentlichen Rechts), DSFA-Integration, AI-Office-Muster nutzen",
+   "artikel": [
+    "Art. 27"
+   ],
+   "phasen": [
+    "P4"
+   ],
+   "kern": false
+  },
+  {
+   "id": "K10",
+   "name": "Anbieterpflichten überblicken",
+   "beschreibung": "Kap.-III-Abschn.-2/3-Anforderungen (Risikomanagement, Daten, Doku, Transparenz, Aufsicht, Genauigkeit) und Konformitätspfad einordnen",
+   "artikel": [
+    "Art. 8-21",
+    "Art. 43",
+    "Art. 47-49"
+   ],
+   "phasen": [
+    "P4"
+   ],
+   "kern": false
+  },
+  {
+   "id": "K11",
+   "name": "Bias-Datenverarbeitung prüfen",
+   "beschreibung": "Art.-4a-Prüfschema anwenden: strikte Erforderlichkeit, 6 Bedingungen, keine Pauschal-Erlaubnis",
+   "artikel": [
+    "Art. 4a",
+    "Art. 10"
+   ],
+   "phasen": [
+    "P1",
+    "P4"
+   ],
+   "kern": false
+  },
+  {
+   "id": "K12",
+   "name": "Transparenzpflichten anwenden",
+   "beschreibung": "Art.-50-Fälle (Chatbot, Deepfake, Emotionserkennung, synthetische Inhalte) inkl. Übergangsregel Alt-Systeme",
+   "artikel": [
+    "Art. 50",
+    "Art. 111 Abs. 4"
+   ],
+   "phasen": [
+    "P5"
+   ],
+   "kern": false
+  },
+  {
+   "id": "K13",
+   "name": "GPAI-Regime einordnen",
+   "beschreibung": "GPAI-Modell vs. -System, systemisches Risiko, Fine-tuning-Falle (wann wird man Modell-Anbieter?)",
+   "artikel": [
+    "Art. 51-56",
+    "Anhang XI-XIII"
+   ],
+   "phasen": [
+    "P6"
+   ],
+   "kern": false
+  },
+  {
+   "id": "K14",
+   "name": "KI-Kompetenz-Maßnahmen gestalten",
+   "beschreibung": "Art.-4-Unterstützungspflicht in ein Maßnahmenbündel übersetzen — ohne Niveau-Garantie-Fehlversprechen",
+   "artikel": [
+    "Art. 4"
+   ],
+   "phasen": [
+    "P1"
+   ],
+   "kern": false
+  },
+  {
+   "id": "K15",
+   "name": "Aufsicht & Sanktionen navigieren",
+   "beschreibung": "Zuständigkeiten (national/AI Office), Meldewege für Vorfälle, Sanktionsrahmen inkl. Behörden-Sonderregime",
+   "artikel": [
+    "Art. 57-101",
+    "Art. 99 Abs. 8"
+   ],
+   "phasen": [
+    "P7",
+    "P9"
+   ],
+   "kern": false
+  },
+  {
+   "id": "K16",
+   "name": "Quellen finden und verifizieren",
+   "beschreibung": "Fundstellen im Verordnungstext zuverlässig lokalisieren, Fassung prüfen (Stamm vs. 2026/1744), Quellenhierarchie anwenden",
+   "artikel": [
+    "Art. 113",
+    "gesamter Text"
+   ],
+   "phasen": [
+    "P1",
+    "P10"
+   ],
+   "kern": false
+  },
+  {
+   "id": "K17",
+   "name": "Entscheidung dokumentieren",
+   "beschreibung": "Einstufungs-/Prüfergebnisse nachvollziehbar und mit Einschränkungen dokumentieren",
+   "artikel": [
+    "Art. 11",
+    "Art. 26",
+    "Art. 27"
+   ],
+   "phasen": [
+    "P4"
+   ],
+   "kern": false
+  },
+  {
+   "id": "K18",
+   "name": "Fachlich argumentieren",
+   "beschreibung": "Einstufungen gegenüber Fachbereich, DSB und Personalvertretung vertreten, Einwände parieren, Unsicherheit + Eskalationsbedarf benennen",
+   "artikel": [
+    "gesamter Stoff"
+   ],
+   "phasen": [
+    "P1-P10",
+    "Bosskampf"
+   ],
+   "kern": false
+  }
+ ]
+}

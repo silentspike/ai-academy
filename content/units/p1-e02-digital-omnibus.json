@@ -1,0 +1,216 @@
+{
+ "id": "p1-e02-digital-omnibus",
+ "phase": "p1",
+ "title": "Der Digital Omnibus: Was sich am 24.7.2026 geändert hat",
+ "competency": "K06",
+ "level": "B",
+ "legal_status": "konsolidiert-2026-07-27",
+ "legal_basis": [
+  {
+   "ref": "VO (EU) 2026/1744",
+   "instrument": "VO 2024/1689 idF 2026/1744",
+   "verified": "eigenpruefung-2026-07-24"
+  },
+  {
+   "ref": "Art. 113 idF 2026/1744",
+   "instrument": "VO 2024/1689 idF 2026/1744",
+   "verified": "eigenpruefung-2026-07-24"
+  },
+  {
+   "ref": "Art. 111 idF 2026/1744",
+   "instrument": "VO 2024/1689 idF 2026/1744",
+   "verified": "eigenpruefung-2026-07-24"
+  },
+  {
+   "ref": "Art. 4 idF 2026/1744",
+   "instrument": "VO 2024/1689 idF 2026/1744",
+   "verified": "eigenpruefung-2026-07-24"
+  }
+ ],
+ "change_log": [
+  {
+   "date": "2026-07-24",
+   "was": "Ersterstellung",
+   "quelle": "legal/arbeitskonsolidierung.md"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "Auslegungs-Box ErwG 179 ergänzt (Plan #4 Doppelverankerung)"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "Beispiel-Slot slot-2 ergänzt (§5.1: fixer Intent, profilvariable Einkleidung)"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "A-Stufen-Check ergänzt (§3 Mengengerüst 40/40/20)"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "Originaltext-Box auf wörtlichen Amtsblatt-Wortlaut korrigiert"
+  }
+ ],
+ "blocks": [
+  {
+   "type": "problem",
+   "html": "Ihr erster Arbeitstag ist der 1.9.2026. In der Ablage finden Sie eine AI-Act-Präsentation von Mai 2026: „Ab 2.8.2026 gelten die Hochrisiko-Pflichten — wir müssen JETZT alle Anhang-III-Systeme konform machen!“ <b>Was davon stimmt heute noch?</b>",
+   "einsteiger_worked_example": "Prüfweg: (1) VO 2026/1744 (Amtsblatt 24.7.2026, in Kraft 27.7.2026) prüfen. (2) Art. 113 Abs. 3 lit. c n. F.: Anhang-III-Hochrisiko-Pflichten → 2.12.2027 (statt 2.8.2026). (3) Anhang I → 2.8.2028. (4) Der 2.8.2026 bleibt für den ALLGEMEINEN Geltungsbeginn (Governance, GPAI, Art. 50, Sanktionen). Ergebnis: Die Präsentation ist in ihrem Kernpunkt überholt."
+  },
+  {
+   "type": "concept",
+   "html": "Die <span class=\"gloss\">Digital Omnibus</span>-Verordnung (EU) 2026/1744 ändert die VO 2024/1689 an über 40 Stellen. Die für Betreiber wichtigsten Blöcke: <b>(1) Fristverschiebungen</b> (Anhang III → 2.12.2027, Anhang I → 2.8.2028, neue Art.-5-Verbote → 2.12.2026), <b>(2) Art. 4 neu</b>: KI-Kompetenz als <i>Unterstützungspflicht</i> (Maßnahmen fördern — kein garantiertes Niveau, kein Kursformat vorgeschrieben), <b>(3) Art. 4a neu</b>: eng konditionierte Rechtsgrundlage für besondere Datenkategorien zur Bias-Erkennung — <b>keine Pflicht und keine Pauschal-Erlaubnis</b>, <b>(4) Art. 111 Abs. 2</b>: Behörden-Altsysteme bis <b>2.8.2030</b>, <b>(5) Art. 111 Abs. 4</b>: Alt-Generatoren müssen Art.-50(2)-Kennzeichnung bis 2.12.2026 nachrüsten."
+  },
+  {
+   "type": "beispiel",
+   "intent_id": "slot-2",
+   "intent": "zeige, dass Verschiebung nicht Entwarnung bedeutet",
+   "generisch": "Ein Team stoppt sein Anhang-III-Projekt „bis 2027“ — übersieht dabei aber, dass die Verbote längst gelten und die Transparenzpflichten ab 2.8.2026 greifen."
+  },
+  {
+   "type": "widget",
+   "widget": "timeline",
+   "payload": {}
+  },
+  {
+   "type": "merkbild",
+   "html": "🧠 Merkbild: <b>Der Omnibus hat die Hochrisiko-Haltestellen nach hinten verlegt, aber neue Stopptafeln (Art. 5) dazugebaut.</b> Wer mit dem alten Fahrplan berät, schickt seine Organisation an die falsche Haltestelle."
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p1-e02-a1",
+    "type": "mc",
+    "competency": "K06",
+    "level": "A",
+    "legal_status": "konsolidiert-2026-07-27",
+    "legal_basis": [
+     {
+      "ref": "Art. 113 idF 2026/1744",
+      "instrument": "VO 2024/1689 idF 2026/1744",
+      "verified": "eigenpruefung-a-checks-2026-07-25"
+     }
+    ],
+    "prompt": "Ab wann gelten die Anhang-III-Hochrisiko-Pflichten nach dem Digital Omnibus?",
+    "options": [
+     {
+      "id": "a",
+      "text": "2. Dezember 2027",
+      "correct": true,
+      "rationale": "Verschoben von ursprünglich 2.8.2026.",
+      "source_ref": "Art. 113 idF 2026/1744"
+     },
+     {
+      "id": "b",
+      "text": "2. August 2026",
+      "correct": false,
+      "rationale": "Das war der Stand VOR dem Omnibus.",
+      "source_ref": "Art. 113 idF 2026/1744"
+     },
+     {
+      "id": "c",
+      "text": "2. August 2028",
+      "correct": false,
+      "rationale": "Das ist Anhang I.",
+      "source_ref": "Art. 113 idF 2026/1744"
+     },
+     {
+      "id": "d",
+      "text": "2. Februar 2025",
+      "correct": false,
+      "rationale": "Das sind die Stamm-Verbote.",
+      "source_ref": "Art. 113 Abs. 3 lit. a"
+     }
+    ]
+   }
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p1-e02-c1",
+    "type": "mc",
+    "prompt": "Was gilt am 1.9.2026 (Ihrem Dienstantritt) tatsächlich?",
+    "options": [
+     {
+      "id": "a",
+      "text": "Die Anhang-III-Hochrisiko-Pflichten sind seit 2.8.2026 anwendbar.",
+      "correct": false,
+      "rationale": "Der Omnibus hat diesen Termin auf den 2.12.2027 verschoben.",
+      "source_ref": "Art. 113 Abs. 3 lit. c i) idF 2026/1744"
+     },
+     {
+      "id": "b",
+      "text": "Der allgemeine Geltungsbeginn (u. a. Art. 50, GPAI, Sanktionen) ist eingetreten; die Anhang-III-Pflichten folgen erst am 2.12.2027.",
+      "correct": true,
+      "rationale": "Exakt die Zwei-Ebenen-Lage nach Art. 113 UAbs. 2 (Stammfassung) + Abs. 3 lit. c n. F.",
+      "source_ref": "Art. 113 idF 2026/1744"
+     },
+     {
+      "id": "c",
+      "text": "Gar nichts — der AI Act wurde ausgesetzt.",
+      "correct": false,
+      "rationale": "Der Omnibus verschiebt gezielt, er suspendiert nicht.",
+      "source_ref": "VO 2026/1744"
+     },
+     {
+      "id": "d",
+      "text": "Alle Pflichten gelten erst 2030.",
+      "correct": false,
+      "rationale": "2030 betrifft nur die Behörden-ALTsystem-Übergangsregel des Art. 111 Abs. 2.",
+      "source_ref": "Art. 111 Abs. 2 idF 2026/1744"
+     }
+    ],
+    "level": "B"
+   }
+  },
+  {
+   "type": "quelle",
+   "ref": "Art. 4 (neu gefasst durch VO 2026/1744)",
+   "changed_by_omnibus": true,
+   "text": "(1) Die Anbieter und Betreiber von KI-Systemen ergreifen Maßnahmen, um die Entwicklung der KI-Kompetenz ihres Personals und anderer Personen zu unterstützen, die in ihrem Auftrag mit dem Betrieb und der Nutzung von KI-Systemen befasst sind, wobei ihre technischen Kenntnisse, ihre Erfahrung, ihre Aus- und Fortbildung und der Kontext, in dem die KI-Systeme eingesetzt werden sollen, sowie die Personen oder Personengruppen, bei denen die KI-Systeme eingesetzt werden sollen, zu berücksichtigen sind. Diese Verpflichtung verpflichtet Anbieter oder Betreiber nicht, für irgendeine Person ein bestimmtes Niveau an KI-Kompetenz zu garantieren."
+  },
+  {
+   "type": "erwg",
+   "nr": "179",
+   "text": "Erwägungsgrund 179 — Die gestaffelte Anwendbarkeit folgt dem Risiko: Verbote und allgemeine Bestimmungen greifen früher als die Hochrisiko-Pflichten. Einsatz im Gespräch: Zur Begründung der Zeitschichten-Logik (Omnibus-Verschiebungen inbegriffen)."
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p1-e02-c2",
+    "type": "mc",
+    "prompt": "Die Personalabteilung fragt: „Reicht diese Akademie als Nachweis, dass wir Art. 4 erfüllen?“ Ihre korrekte Antwort?",
+    "options": [
+     {
+      "id": "a",
+      "text": "Ja — ein Kurs ist der geforderte Nachweis.",
+      "correct": false,
+      "rationale": "Art. 4 n. F. schreibt kein Kursformat und keinen Einzel-Nachweis vor; verlangt sind kontextbezogene Unterstützungs-MASSNAHMEN.",
+      "source_ref": "Art. 4 idF 2026/1744"
+     },
+     {
+      "id": "b",
+      "text": "Sie kann ein Baustein eines Maßnahmenbündels sein — Art. 4 verlangt kontextbezogene Unterstützung des Personals, kein bestimmtes Format und kein garantiertes Niveau.",
+      "correct": true,
+      "rationale": "So die Neufassung; ein einzelnes Training ist Beitrag, nicht Vollnachweis.",
+      "source_ref": "Art. 4 idF 2026/1744"
+     },
+     {
+      "id": "c",
+      "text": "Nein, Art. 4 verlangt zertifizierte Prüfungen.",
+      "correct": false,
+      "rationale": "Ein Zertifizierungserfordernis enthält Art. 4 nicht.",
+      "source_ref": "Art. 4 idF 2026/1744"
+     },
+     {
+      "id": "d",
+      "text": "Art. 4 gilt für Betreiber nicht.",
+      "correct": false,
+      "rationale": "Die Norm adressiert Anbieter UND Betreiber ausdrücklich.",
+      "source_ref": "Art. 4 idF 2026/1744"
+     }
+    ],
+    "level": "B"
+   }
+  }
+ ]
+}

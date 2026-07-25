@@ -1,0 +1,12 @@
+{
+  "name": "ai-act-akademie",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Interaktives Lerntraining für den EU AI Act (VO 2024/1689 idF VO 2026/1744) mit LLM-Tutor",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "bridge": "node bridge/bridge.mjs",
+    "check": "node --check bridge/bridge.mjs && node --check tutor/prompts.mjs && for f in tools/*.mjs app/*.js; do node --check \"$f\" || exit 1; done"
+  }
+}

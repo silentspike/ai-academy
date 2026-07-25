@@ -1,0 +1,22 @@
+{
+ "id": "profil-beispielbank",
+ "hinweis": "FIKTIVES Test-Fixture — einziges Profil im Repo (§5.1)",
+ "fachprofil": {
+  "organisation": "Regionalbank Musterland",
+  "rolle_org": [
+   "betreiber"
+  ],
+  "land": "AT",
+  "job_rolle": "KI-Koordinator",
+  "vorwissen": "mittel",
+  "domaene": "Bonitätsdaten, Anhang III Nr. 5 lit. b",
+  "analogie_anker": "Banken-IT"
+ },
+ "lernprofil": {
+  "motiv": "projekt",
+  "zieltermine": [],
+  "minutesPerDay": 30,
+  "daysPerWeek": 4
+ },
+ "level_endtitel": "KI-Kompetenzträger der Bank"
+}

@@ -1,0 +1,212 @@
+{
+ "id": "p7-e01-aufsicht",
+ "phase": "p7",
+ "title": "Aufsicht, Vorfälle, Sanktionen: Wer klopft an — und wie teuer wird es?",
+ "competency": "K15",
+ "level": "B",
+ "legal_status": "konsolidiert-2026-07-27",
+ "legal_basis": [
+  {
+   "ref": "Art. 57",
+   "instrument": "VO 2024/1689 idF 2026/1744",
+   "verified": "eigenpruefung-2026-07-24"
+  },
+  {
+   "ref": "Art. 70",
+   "instrument": "VO 2024/1689 idF 2026/1744",
+   "verified": "eigenpruefung-2026-07-24"
+  },
+  {
+   "ref": "Art. 73",
+   "instrument": "VO 2024/1689 idF 2026/1744",
+   "verified": "eigenpruefung-2026-07-24"
+  },
+  {
+   "ref": "Art. 85",
+   "instrument": "VO 2024/1689 idF 2026/1744",
+   "verified": "eigenpruefung-2026-07-24"
+  },
+  {
+   "ref": "Art. 99",
+   "instrument": "VO 2024/1689 idF 2026/1744",
+   "verified": "eigenpruefung-2026-07-24"
+  }
+ ],
+ "change_log": [
+  {
+   "date": "2026-07-24",
+   "was": "Ersterstellung",
+   "quelle": "legal/arbeitskonsolidierung.md"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "Auslegungs-Box ErwG 170 ergänzt (Plan #4 Doppelverankerung)"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "Beispiel-Slot slot-13 ergänzt (§5.1: fixer Intent, profilvariable Einkleidung)"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "A-Stufen-Check ergänzt (§3 Mengengerüst 40/40/20)"
+  }
+ ],
+ "blocks": [
+  {
+   "type": "problem",
+   "html": "Der Vorstand will für das Risikoregister wissen: „Wer kann uns eigentlich kontrollieren, was müssen wir MELDEN, und was kostet ein Verstoß wirklich?“ <b>Skizzieren Sie das Enforcement-Bild für einen Sozialversicherungsträger.</b>",
+   "einsteiger_worked_example": "Raster: 1) Zuständigkeiten: Mitgliedstaaten benennen Marktüberwachungs-/notifizierende Behörden (Art. 70); EU-Ebene: KI-Büro + KI-Gremium. 2) Melden: Betreiber melden schwerwiegende Vorfälle an Anbieter/Behörden (Art. 26 Abs. 5, Art. 73). 3) Betroffene haben Beschwerderecht (Art. 85). 4) Sanktionen: Art. 99 — bis 35 Mio./7 % (Verbote), bis 15 Mio./3 % (weitere Pflichten); für Behörden/öffentliche Stellen regeln die Mitgliedstaaten eigene Sanktionen (Abs. 8). 5) Innovation: Reallabore (Art. 57) als kontrollierter Testrahmen."
+  },
+  {
+   "type": "concept",
+   "html": "Enforcement-Landkarte: <b>national</b> Marktüberwachung (mit Auskunfts-/Zugriffsrechten) + notifizierende Behörden; <b>EU</b> KI-Büro (v. a. GPAI) + Gremium. <b>Vorfalls-Kette</b> für Betreiber: erkennen → Anbieter informieren → bei schwerwiegenden Vorfällen Meldung binnen der Art.-73-Fristen. <b>Sanktions-Staffel</b> (Art. 99): Verbote 35 Mio./7 %, Kernpflichten 15 Mio./3 %, Falschauskünfte 7,5 Mio./1 % — Behörden-Regime national (Abs. 8), Midcap-Deckel neu (Abs. 6a idF 2026/1744). <b>Reallabore</b> (Art. 57): Testen unter Aufsicht — für ÖSVA-Innovationsprojekte eine echte Option."
+  },
+  {
+   "type": "beispiel",
+   "intent_id": "slot-13",
+   "intent": "zeige den Wert vorbereiteter Meldewege",
+   "generisch": "Wer im Vorfallsfall erst klären muss, wer meldet, verliert genau die Stunden, die die Unverzüglichkeits-Anforderung meint."
+  },
+  {
+   "type": "merkbild",
+   "html": "🧠 Merkbild: <b>Melden ist Pflicht, nicht Beichte.</b> Die Vorfalls-Kette funktioniert wie Incident-Management: Ticket auf, Eskalationspfad, Fristen — nur dass die letzte Eskalationsstufe eine Behörde ist."
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p7-e01-a1",
+    "type": "mc",
+    "competency": "K15",
+    "level": "A",
+    "legal_status": "konsolidiert-2026-07-27",
+    "legal_basis": [
+     {
+      "ref": "Art. 85",
+      "instrument": "VO 2024/1689 idF 2026/1744",
+      "verified": "eigenpruefung-a-checks-2026-07-25"
+     }
+    ],
+    "prompt": "Welcher Artikel gibt jeder Person ein Beschwerderecht bei der Marktüberwachungsbehörde?",
+    "options": [
+     {
+      "id": "a",
+      "text": "Art. 85",
+      "correct": true,
+      "rationale": "Niederschwellig, ohne Anwaltszwang.",
+      "source_ref": "Art. 85"
+     },
+     {
+      "id": "b",
+      "text": "Art. 86",
+      "correct": false,
+      "rationale": "Erläuterungsrecht bei Einzelentscheidungen.",
+      "source_ref": "Art. 86"
+     },
+     {
+      "id": "c",
+      "text": "Art. 73",
+      "correct": false,
+      "rationale": "Meldung schwerwiegender Vorfälle.",
+      "source_ref": "Art. 73"
+     },
+     {
+      "id": "d",
+      "text": "Art. 99",
+      "correct": false,
+      "rationale": "Sanktionen.",
+      "source_ref": "Art. 99"
+     }
+    ]
+   }
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p7-e01-c1",
+    "type": "mc",
+    "prompt": "Ein Hochrisiko-System der ÖSVA verursacht (nach 12/2027) einen schwerwiegenden Vorfall. Was ist die korrekte Melde-Grundlogik des Betreibers?",
+    "options": [
+     {
+      "id": "a",
+      "text": "Nur interne Dokumentation.",
+      "correct": false,
+      "rationale": "Art. 26 Abs. 5/Art. 73 verlangen aktive Meldewege nach außen.",
+      "source_ref": "Art. 26 Abs. 5; Art. 73"
+     },
+     {
+      "id": "b",
+      "text": "Anbieter unverzüglich informieren; schwerwiegende Vorfälle werden fristgebunden an die Behörden gemeldet.",
+      "correct": true,
+      "rationale": "Die zweistufige Kette aus Art. 26 Abs. 5 i. V. m. Art. 73.",
+      "source_ref": "Art. 26 Abs. 5; Art. 73"
+     },
+     {
+      "id": "c",
+      "text": "Meldung nur bei Personenschaden mit Klage.",
+      "correct": false,
+      "rationale": "Die Meldepflicht knüpft an den Vorfall, nicht an eine Klage.",
+      "source_ref": "Art. 73"
+     },
+     {
+      "id": "d",
+      "text": "Meldung an die Datenschutzbehörde genügt immer.",
+      "correct": false,
+      "rationale": "Die DSGVO-Meldung ersetzt die AI-Act-Kette nicht.",
+      "source_ref": "Art. 73"
+     }
+    ],
+    "level": "B"
+   }
+  },
+  {
+   "type": "quelle",
+   "ref": "Art. 99 Abs. 8 (Auszug)",
+   "changed_by_omnibus": false,
+   "text": "Jeder Mitgliedstaat erlässt Vorschriften darüber, in welchem Umfang gegen Behörden und öffentliche Stellen, die in dem betreffenden Mitgliedstaat niedergelassen sind, Geldbußen verhängt werden können."
+  },
+  {
+   "type": "erwg",
+   "nr": "170",
+   "text": "Erwägungsgrund 170 — Bestehende Rechtsbehelfe bleiben unberührt; ergänzend soll jede Person Beschwerde bei der Marktüberwachungsbehörde einlegen können. Einsatz im Gespräch: Warum Compliance-Lücken extern entdeckbar sind."
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p7-e01-c2",
+    "type": "mc",
+    "prompt": "Welche Sanktions-Aussage ist präzise?",
+    "options": [
+     {
+      "id": "a",
+      "text": "Alle Verstöße kosten pauschal 35 Mio. Euro.",
+      "correct": false,
+      "rationale": "Die 35-Mio./7-%-Stufe gilt für Verstöße gegen Art. 5; darunter greifen niedrigere Stufen.",
+      "source_ref": "Art. 99 Abs. 3–5"
+     },
+     {
+      "id": "b",
+      "text": "Art.-5-Verstöße bis 35 Mio./7 % Weltumsatz; die meisten übrigen Pflichtverstöße bis 15 Mio./3 %; Behördenregime national nach Abs. 8.",
+      "correct": true,
+      "rationale": "Exakt die Staffel des Art. 99 samt Behörden-Sonderweg.",
+      "source_ref": "Art. 99 Abs. 3, 4, 8"
+     },
+     {
+      "id": "c",
+      "text": "Sozialversicherungsträger sind sanktionsfrei.",
+      "correct": false,
+      "rationale": "Abs. 8 delegiert die Ausgestaltung, stellt aber nicht frei.",
+      "source_ref": "Art. 99 Abs. 8"
+     },
+     {
+      "id": "d",
+      "text": "Sanktionen gelten erst ab 2.12.2027.",
+      "correct": false,
+      "rationale": "Das Sanktionskapitel gilt seit dem allgemeinen Geltungsbeginn 2.8.2026.",
+      "source_ref": "Art. 113 UAbs. 2"
+     }
+    ],
+    "level": "B"
+   }
+  }
+ ]
+}

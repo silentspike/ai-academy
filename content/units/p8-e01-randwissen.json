@@ -1,0 +1,150 @@
+{
+ "id": "p8-e01-randwissen",
+ "phase": "p8",
+ "title": "Randwissen kompakt: Sektorrecht, Evaluierung, Anhang XIV",
+ "competency": "K15",
+ "level": "A",
+ "legal_status": "konsolidiert-2026-07-27",
+ "legal_basis": [
+  {
+   "ref": "Art. 102–110",
+   "instrument": "VO 2024/1689 idF 2026/1744",
+   "verified": "eigenpruefung-2026-07-24"
+  },
+  {
+   "ref": "Art. 112",
+   "instrument": "VO 2024/1689 idF 2026/1744",
+   "verified": "eigenpruefung-2026-07-24"
+  },
+  {
+   "ref": "Anhang XIV idF 2026/1744",
+   "instrument": "VO 2024/1689 idF 2026/1744",
+   "verified": "eigenpruefung-2026-07-24"
+  }
+ ],
+ "change_log": [
+  {
+   "date": "2026-07-24",
+   "was": "Ersterstellung",
+   "quelle": "legal/arbeitskonsolidierung.md"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "Auslegungs-Box ErwG 63 ergänzt (Plan #4 Doppelverankerung)"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "Beispiel-Slot slot-14 ergänzt (§5.1: fixer Intent, profilvariable Einkleidung)"
+  }
+ ],
+ "blocks": [
+  {
+   "type": "problem",
+   "html": "Warum sollten Sie Artikel kennen, die Sie „nie brauchen“ — etwa die Änderungen sektoraler Rechtsakte (Art. 102 ff.)? <b>Weil im Meeting niemand fragt, was RELEVANT ist — sondern was DRINSTEHT.</b> Ihre Landkarte braucht auch die weißen Flecken.",
+   "einsteiger_worked_example": "Kompakt-Raster: Art. 102–110 ändern Sektorrecht (Fahrzeuge, Luftfahrt, Bahn …) — für Produkthersteller zentral, für die ÖSVA Landkarten-Wissen. Art. 112: Evaluierungs-/Berichtszyklen der Kommission (daher kommen künftige Änderungen!). Anhang XIV (neu 2026/1744): Verzeichnis von Codes/Kategorien/KI-System-Arten, durch die Kommission änderbar — ein Vorbote weiterer Technik-Taxonomie."
+  },
+  {
+   "type": "concept",
+   "html": "Merkregeln für den Kompakt-Bereich: <b>(1)</b> Art. 102 ff. = „der AI Act repariert fremde Gesetze“ — einschlägig NUR, wenn Ihre Organisation solchen Produktregimen unterliegt. <b>(2)</b> Art. 112 = eingebaute Weiterentwicklung: Der Omnibus 2026 war kein Ausrutscher, sondern Systemmerkmal → Update-Prozesse gehören zum Dauerbetrieb. <b>(3)</b> Anhang XIV = Kommissions-gepflegte Taxonomie; bei künftigen Einstufungsfragen einen Blick wert."
+  },
+  {
+   "type": "beispiel",
+   "intent_id": "slot-14",
+   "intent": "zeige, wann Randwissen plötzlich zentral wird",
+   "generisch": "Die Vorschriften zu notifizierten Stellen sind Landkarten-Wissen — bis ein Beschaffungsvorgang genau daran hängt."
+  },
+  {
+   "type": "merkbild",
+   "html": "🧠 Merkbild: Randwissen ist wie die <b>Notausgänge im Kino</b> — man nutzt sie selten, aber man weiß IMMER, wo sie sind."
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p8-e01-c1",
+    "type": "mc",
+    "prompt": "Ein Kollege eines Fahrzeugherstellers erwähnt „AI-Act-Änderungen an der Typgenehmigung“. Wo verorten Sie das sofort?",
+    "options": [
+     {
+      "id": "a",
+      "text": "Anhang III Nr. 2 (kritische Infrastruktur)",
+      "correct": false,
+      "rationale": "Typgenehmigung ist Produkt-Sektorrecht, kein Anhang-III-Einsatzbereich.",
+      "source_ref": "Anhang III Nr. 2"
+     },
+     {
+      "id": "b",
+      "text": "Art. 102 ff. — Änderungen sektoraler Rechtsakte.",
+      "correct": true,
+      "rationale": "Genau deren Regelungsgegenstand; für Behörden-Betreiber Landkarten-Wissen.",
+      "source_ref": "Art. 102–110"
+     },
+     {
+      "id": "c",
+      "text": "Art. 50 (Transparenz)",
+      "correct": false,
+      "rationale": "Kennzeichnungspflichten sind hier nicht der Kern.",
+      "source_ref": "Art. 50"
+     },
+     {
+      "id": "d",
+      "text": "Art. 4a (Bias-Daten)",
+      "correct": false,
+      "rationale": "Ohne Bezug zur Typgenehmigung.",
+      "source_ref": "Art. 4a idF 2026/1744"
+     }
+    ],
+    "level": "A"
+   }
+  },
+  {
+   "type": "quelle",
+   "ref": "Art. 112 Abs. 1 (Auszug)",
+   "changed_by_omnibus": false,
+   "text": "Die Kommission prüft nach Inkrafttreten dieser Verordnung … einmal jährlich, ob eine Änderung der Liste in Anhang III und der Liste der verbotenen Praktiken der KI in Artikel 5 erforderlich ist…"
+  },
+  {
+   "type": "erwg",
+   "nr": "63",
+   "text": "Erwägungsgrund 63 — Die Hochrisiko-Einstufung nach dieser Verordnung sagt nichts darüber, ob der Einsatz nach ANDEREM Unionsrecht zulässig ist — die Rechtsschichten bleiben nebeneinander bestehen. Einsatz im Gespräch: Gegen „AI Act erlaubt es doch“ — DSGVO und Fachrecht gelten weiter."
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p8-e01-c2",
+    "type": "mc",
+    "prompt": "Was folgt aus Art. 112 für Ihre Arbeitsweise als KI-Spezialist?",
+    "options": [
+     {
+      "id": "a",
+      "text": "Nichts — das Gesetz ist final.",
+      "correct": false,
+      "rationale": "Art. 112 institutionalisiert die laufende Überprüfung; Änderungen sind Systemmerkmal.",
+      "source_ref": "Art. 112"
+     },
+     {
+      "id": "b",
+      "text": "Rechtsstands-Pflege ist Dauerprozess: Anhang III und Art. 5 stehen unter jährlicher Revision — Auskünfte brauchen ein Datum.",
+      "correct": true,
+      "rationale": "Genau deshalb trägt jede Auskunft dieser Akademie einen Rechtsstand.",
+      "source_ref": "Art. 112"
+     },
+     {
+      "id": "c",
+      "text": "Nur die Anhänge I und XIV können sich ändern.",
+      "correct": false,
+      "rationale": "Art. 112 nennt ausdrücklich Anhang III und Art. 5 als Prüfgegenstände.",
+      "source_ref": "Art. 112"
+     },
+     {
+      "id": "d",
+      "text": "Änderungen betreffen nur Anbieter.",
+      "correct": false,
+      "rationale": "Fristen- und Listenänderungen treffen Betreiber unmittelbar (siehe Omnibus).",
+      "source_ref": "Art. 112; VO 2026/1744"
+     }
+    ],
+    "level": "A"
+   }
+  }
+ ]
+}

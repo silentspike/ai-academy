@@ -1,0 +1,151 @@
+{
+ "id": "p10-e01-erwg",
+ "phase": "p10",
+ "title": "Auslegung: Mit Erwägungsgründen argumentieren",
+ "competency": "K18",
+ "level": "C",
+ "legal_status": "konsolidiert-2026-07-27",
+ "legal_basis": [
+  {
+   "ref": "ErwG (Auswahl)",
+   "instrument": "VO 2024/1689 idF 2026/1744",
+   "verified": "eigenpruefung-2026-07-24"
+  },
+  {
+   "ref": "Art. 5",
+   "instrument": "VO 2024/1689 idF 2026/1744",
+   "verified": "eigenpruefung-2026-07-24"
+  },
+  {
+   "ref": "Art. 6",
+   "instrument": "VO 2024/1689 idF 2026/1744",
+   "verified": "eigenpruefung-2026-07-24"
+  }
+ ],
+ "change_log": [
+  {
+   "date": "2026-07-24",
+   "was": "Ersterstellung",
+   "quelle": "legal/arbeitskonsolidierung.md"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "Auslegungs-Box ErwG 171 ergänzt (Plan #4 Doppelverankerung)"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "Beispiel-Slot slot-16 ergänzt (§5.1: fixer Intent, profilvariable Einkleidung)"
+  }
+ ],
+ "blocks": [
+  {
+   "type": "problem",
+   "html": "Im Streitgespräch reicht die Artikelnummer oft nicht: „Wo steht denn, WARUM das verboten sein soll?“ <b>Erwägungsgründe sind Ihre Argumentations-Munition — wie setzt man sie korrekt ein, ohne sie mit Normtext zu verwechseln?</b>",
+   "einsteiger_worked_example": "Regeln: 1) ErwGs sind BEGRÜNDUNG, kein verfügender Normtext — sie tragen die Auslegung, ersetzen aber keinen Tatbestand. 2) Zitierweise: „Art. 5 Abs. 1 lit. f, gestützt auf die Wertung des ErwG 44“. 3) Einsatz: bei Auslegungsspielräumen, Zweck-Argumenten, Grenzfällen. 4) Grenze: Gegen den klaren Wortlaut sticht kein ErwG."
+  },
+  {
+   "type": "concept",
+   "html": "Die für Ihr Profil wichtigsten ErwG-Cluster: <b>Verbote</b> (Manipulations-/Scoring-/Emotions-Begründungen — die Argumente hinter Art. 5), <b>Einstufung</b> (Zweckbestimmungs- und Kontextlogik zu Art. 6/Anhang III), <b>Betreiber/FRIA</b> (Grundrechtsschutz-Rationale zu Art. 26/27), <b>Omnibus-ErwGs</b> (Begründung der Fristverschiebungen: verzögerte Normen und Governance-Strukturen — Ihr Argument, wenn jemand die Verschiebung als „Aufweichung“ missversteht). Phase 10 vertieft die ~40 prüfungsrelevantesten ErwGs als Kür."
+  },
+  {
+   "type": "beispiel",
+   "intent_id": "slot-16",
+   "intent": "zeige den Unterschied zwischen Artikel und Begründung",
+   "generisch": "Der Artikel sagt, DASS eine Praxis verboten ist; der Erwägungsgrund sagt, WARUM — und genau das überzeugt im Gespräch."
+  },
+  {
+   "type": "merkbild",
+   "html": "🧠 Merkbild: Artikel sind das <b>WAS</b>, Erwägungsgründe das <b>WARUM</b> — und wer im Meeting das Warum liefert, gewinnt das Wie."
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p10-e01-c1",
+    "type": "mc",
+    "prompt": "Welcher Einsatz eines Erwägungsgrunds ist methodisch KORREKT?",
+    "options": [
+     {
+      "id": "a",
+      "text": "Einen ErwG zitieren, um einen fehlenden Verbots-Tatbestand zu ersetzen.",
+      "correct": false,
+      "rationale": "ErwGs schaffen keine Tatbestände; sie begründen vorhandene.",
+      "source_ref": "Methodik"
+     },
+     {
+      "id": "b",
+      "text": "Bei einem Auslegungsspielraum des Art. 5 lit. f die Wertung des einschlägigen ErwG als Zweck-Argument heranziehen.",
+      "correct": true,
+      "rationale": "Genau die legitime Auslegungsfunktion der Erwägungsgründe.",
+      "source_ref": "Art. 5 Abs. 1 lit. f; ErwG 44"
+     },
+     {
+      "id": "c",
+      "text": "Den ErwG gegen den klaren Wortlaut des Artikels stellen.",
+      "correct": false,
+      "rationale": "Contra-legem-Auslegung trägt nicht.",
+      "source_ref": "Methodik"
+     },
+     {
+      "id": "d",
+      "text": "ErwGs nur im Examen erwähnen.",
+      "correct": false,
+      "rationale": "Ihr Haupteinsatzort ist die berufliche Argumentation.",
+      "source_ref": "Methodik"
+     }
+    ],
+    "level": "C"
+   }
+  },
+  {
+   "type": "quelle",
+   "ref": "Methodik-Hinweis",
+   "changed_by_omnibus": false,
+   "text": "Erwägungsgründe sind Bestandteil des Rechtsakts, aber nicht dessen verfügender Teil; sie dienen der Auslegung der Artikel und Anhänge. (Redaktioneller Hinweis der Akademie, kein Normzitat.)",
+   "kind": "einordnung"
+  },
+  {
+   "type": "erwg",
+   "nr": "171",
+   "text": "Erwägungsgrund 171 — Betroffene sollen eine Erklärung erhalten, wenn eine Entscheidung überwiegend auf der Ausgabe eines Hochrisiko-Systems beruht — Erklärbarkeit als Betroffenenrecht. Einsatz im Gespräch: Der ErwG hinter Art. 86 — Prozesse müssen erklärungsfähig sein."
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p10-e01-c2",
+    "type": "mc",
+    "prompt": "Jemand behauptet: „Die Omnibus-Verschiebung zeigt, dass die EU den AI Act aufweicht.“ Ihre ErwG-gestützte Entgegnung?",
+    "options": [
+     {
+      "id": "a",
+      "text": "Zustimmen — Verschiebung ist Aufweichung.",
+      "correct": false,
+      "rationale": "Die Omnibus-Begründung nennt Praktikabilität (fehlende Normen/Governance), nicht Schutzniveau-Senkung; zudem wurden Verbote ERWEITERT.",
+      "source_ref": "VO 2026/1744 ErwG"
+     },
+     {
+      "id": "b",
+      "text": "Die Omnibus-ErwGs begründen die Verschiebung mit verzögerten Normen und Aufsichtsstrukturen; materiell wurden die Verbote sogar erweitert — das ist Terminlogik, keine Deregulierung.",
+      "correct": true,
+      "rationale": "Beide Fakten (Begründung + Art.-5-Erweiterung) widerlegen die Aufweichungs-These präzise.",
+      "source_ref": "VO 2026/1744 ErwG; Art. 5 idF 2026/1744"
+     },
+     {
+      "id": "c",
+      "text": "ErwGs sind irrelevant, nur Artikel zählen.",
+      "correct": false,
+      "rationale": "Für die WARUM-Frage sind die ErwGs genau die richtige Quelle.",
+      "source_ref": "Methodik"
+     },
+     {
+      "id": "d",
+      "text": "Das ist Politik, dazu sagt man nichts.",
+      "correct": false,
+      "rationale": "Die fachliche Einordnung ist Ihr Job — mit Quellen statt Meinung.",
+      "source_ref": "Methodik"
+     }
+    ],
+    "level": "C"
+   }
+  }
+ ]
+}

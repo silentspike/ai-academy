@@ -1,0 +1,606 @@
+// app/app.js — SPA-Kern (Plan §6.2, #42, §6.3 Erstkontakt):
+// Hash-Router, zentraler State über storage-adapter, Sitzungsstart-Choreografie (~1,5 s, überspringbar),
+// Topbar-Status (XP · Level · Wochenziel · Zieltermin · Rechtsstand) und Sidebar-Phasenbaum.
+
+import { StorageAdapter } from './storage-adapter.js';
+import { loadGlossary, decorate, attachTooltip } from './glossary.js';
+
+export const LEGAL_STATE = 'Rechtsstand 27.7.2026';
+
+import { routes, route } from './router.js';
+export { route };   // Bestands-Kompatibilität
+
+export function navigate(hash) { location.hash = hash; }
+
+export async function startApp({ mountId = 'view' } = {}) {
+  // Backend-Wahl wie Self-Check: Bridge-Store wenn erreichbar, sonst localStorage (Share-Fallback)
+  let storage = StorageAdapter.bridgeStore({});
+  try { await storage.get('state'); } catch { storage = StorageAdapter.localStorage(); }
+  const state = await loadState(storage);
+  // Speicher-Serialisierung: saveState wird aus vielen Stellen (Routen, Ritual, Rewards)
+  // teils gleichzeitig gerufen. Parallele PUTs konnten sich überholen bzw. abgebrochen
+  // werden — dann ging ein Save still verloren (Task-12-Finding: Glossar-Karten).
+  let saveChain = Promise.resolve();
+  let savePending = false;
+  const ctx = { storage, state, saveState: () => {
+    paintTopbar(state);
+    paintSidebar(state);
+    if (savePending) return saveChain;                 // laufender Save deckt den neuen Stand mit ab
+    savePending = true;
+    saveChain = saveChain
+      .catch(() => {})
+      .then(() => { savePending = false; return storage.set('state', state); })
+      .catch(async e => {                              // ein Retry, dann sichtbar scheitern
+        console.warn('saveState-Retry nach Fehler:', e?.message);
+        return storage.set('state', state);
+      });
+    return saveChain;
+  } };
+
+  attachTooltip(document);
+  try {
+    const gl = await fetch('content/glossary.json').then(r => r.ok ? r.json() : []);
+    if (gl.length) loadGlossary(gl);
+  } catch { /* Glossar kommt mit dem Content (Task 8) */ }
+
+  // Profil-Auflösung (§5.1): 1. lokales Kurator-Profil über die Bridge (data/profiles/,
+  // gitignored) · 2. per Onboarding erzeugtes Profil im State · 3. → Onboarding-Wizard.
+  if (!ctx.profile) {
+    try {
+      const { apiPrefix } = await import('./llm-adapter.js');
+      const r = await fetch(apiPrefix() + 'profile', { headers: { 'X-Bridge-Token': window.BRIDGE_TOKEN } });
+      if (r.ok) ctx.profile = await r.json();
+    } catch { /* Share-Betrieb ohne Kurator-Profil */ }
+    if (!ctx.profile && state.profile) ctx.profile = state.profile;
+    if (!ctx.profile && !location.hash.startsWith('#/onboarding')) location.hash = '#/onboarding';
+    // Profil in den Lern-State ausrollen (Task-12-Finding: Kurve/Topbar/Endtitel
+    // blieben leer, obwohl das Kurator-Profil geladen war)
+    if (ctx.profile) {
+      const lp = ctx.profile.lernprofil ?? {};
+      const ziele = lp.zieltermine ?? lp.milestones ?? [];
+      if (!state.milestones?.length && ziele.length) {
+        state.milestones = ziele.map((z, i) => ({ label: z.label ?? (i === 0 ? 'Kernphasen' : 'Alles'), date: z.date ?? z }));
+      }
+      if (ctx.profile.level_endtitel) state.levelEndtitel = ctx.profile.level_endtitel;
+      if (lp.minutesPerDay) state.pace = { minutesPerDay: lp.minutesPerDay, daysPerWeek: lp.daysPerWeek ?? 5 };
+      ctx.saveState();
+    }
+  }
+
+  // Erstkontakt-Hero (§6.3): allererster Start → Artwork + Produktversprechen
+  const { heroOnce } = await import('./rewards.js');
+  if (heroOnce(state, document)) { await ctx.saveState(); }
+
+  // Art.-50-Transparenz im eigenen Produkt (§5.0): einmalig VOR der ersten Tutor-Interaktion.
+  if (!state.aiNoticeAck) {
+    const ov = document.createElement('div');
+    ov.className = 'ai-notice-overlay';
+    ov.innerHTML = `<div class="card ai-notice"><h3>Hinweis zum KI-Tutor (Art. 50)</h3>
+      <p>In dieser Akademie antwortet und bewertet ein <b>KI-System</b> (verbunden über deine Local Bridge;
+      Modell siehe Self-Check). Freitexte gehen an den LLM-Anbieter — keine echten Personendaten oder
+      Organisations-Interna eingeben. LLM-Bewertungen können streuen; jede Bewertung trägt ihr Label
+      (deterministisch / LLM-unterstützt), und gegen jede LLM-Bewertung gibt es einen Einspruch mit
+      frischer Zweitprüfung. Zweckbestimmung: persönliche, nicht formale Weiterbildung
+      (docs/INTENDED-PURPOSE.md).</p>
+      <button class="btn-primary">Verstanden</button></div>`;
+    document.body.appendChild(ov);
+    ov.querySelector('button').onclick = () => { state.aiNoticeAck = Date.now(); ctx.saveState(); ov.remove(); };
+  }
+
+  await introSequence(state);
+
+  const render = () => {
+    const [path, ...args] = (location.hash.replace(/^#\/?/, '') || 'dashboard').split('/');
+    const view = document.getElementById(mountId);
+    const fn = routes.get(path) ?? routes.get('dashboard');
+    view.classList.remove('dash-grid');      // Routen setzen ihr Layout selbst
+    view.innerHTML = '';
+    view.classList.remove('reveal');
+    void view.offsetWidth;                 // Reveal-Animation neu triggern
+    view.classList.add('reveal');
+    fn?.(view, ctx, args);
+    decorate(view);
+    markActiveNav(path);
+  };
+  window.addEventListener('hashchange', render);
+  render();
+  paintTopbar(state);
+  paintSidebar(state);
+  return ctx;
+}
+
+async function loadState(storage) {
+  const s = await storage.get('state');
+  return s ?? {
+    xp: 0, level: 1, week: { goalDays: 5, doneDays: [] },
+    milestones: [], cards: [], events: [], phase_progress: {},
+    created: Date.now()
+  };
+}
+
+/**
+ * Sidebar (#42): Phasen-Baum mit Fortschrittsringen, Review-Badge mit Kern-/Aufhol-Zähler,
+ * Examens-Schloss dynamisch am Gate (#12) — nicht mehr hardcoded.
+ */
+const PHASEN = [
+  ['p1', 'Fundament'], ['p2', 'Verbote'], ['p3', 'Einstufung'], ['p4', 'Pflichten'], ['p5', 'Transparenz'],
+  ['p6', 'GPAI'], ['p7', 'Aufsicht'], ['p8', 'Randwissen'], ['p9', 'Ländermodul AT'], ['p10', 'Auslegung'],
+];
+let UNIT_INDEX = null;                       // phase → [unitId] (einmalig geladen)
+
+export async function paintSidebar(state) {
+  const tree = document.getElementById('phase-tree');
+  if (!tree) return;
+  if (!UNIT_INDEX) {
+    UNIT_INDEX = {};
+    const idx = await fetch('content/units/index.json').then(r => r.ok ? r.json() : null).catch(() => null);
+    for (const u of idx?.units ?? []) (UNIT_INDEX[u.phase] ??= []).push(u);
+  }
+  const done = new Set(state.unit_done ?? []);
+  const skipped = new Set(state.unit_skipped ?? []);
+  tree.innerHTML = PHASEN.map(([pid, label]) => {
+    const units = UNIT_INDEX[pid] ?? [];
+    const fertig = units.filter(u => done.has(u.id) || skipped.has(u.id)).length;
+    const pct = units.length ? fertig / units.length : 0;
+    const test = state.chapterTests?.[pid];
+    const deg = Math.round(pct * 360);
+    return `<a class="ph phase${test?.passed ? ' phase-passed' : ''}" href="#/lernen/${pid}" title="${units.length} Einheiten · ${fertig} erledigt${test?.passed ? ' · Kapiteltest bestanden' : ''}">
+      <span class="pring" style="background:conic-gradient(var(--emerald,#34d399) ${deg}deg, rgba(255,255,255,.08) 0)"><i>${pid.slice(1)}</i></span>
+      <span class="lbl">${label}</span>${test?.passed ? '<span class="pcheck">✓</span>' : ''}</a>`;
+  }).join('');
+
+  const q = splitQueues(state.cards ?? [], Date.now());
+  const aufholToday = planAufhol(q.aufholMeta, { perDay: 15 }).today;
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = String(v); };
+  set('due-count', q.kern.length);
+  set('aufhol-count', aufholToday.length);
+
+  // Examens-Schloss: offen, sobald das Gate (#12) offen ist
+  const nav = document.getElementById('nav-examen');
+  if (nav) {
+    try {
+      const [{ examGate }, comp] = await Promise.all([
+        import('./exam-core.js'),
+        fetch('content/competencies.json').then(r => r.json()),
+      ]);
+      const gate = examGate(state, { kompetenzen: comp.kompetenzen, cards: state.cards ?? [], nowMs: Date.now() });
+      nav.classList.toggle('state-locked', !gate.allowed);
+      nav.title = gate.allowed ? 'Examen freigeschaltet' : gate.reasons.slice(0, 3).join(' · ');
+      const use = nav.querySelector('use');
+      if (use) use.setAttribute('href', `assets/icons/sprite.svg#icon-${gate.allowed ? 'fach-trophy' : 'st-lock'}`);
+    } catch { nav.classList.add('state-locked'); }
+  }
+
+  // Ritual-Fortschritt in der Sidebar
+  try {
+    const { todaySession } = await import('./ritual.js');
+    const { STEPS } = await import('./session.js');
+    const s = todaySession(state);
+    set('ritual-step', `${STEPS.indexOf(s.step) + 1}/4`);
+  } catch { /* Ritual optional */ }
+}
+
+/** Inszenierter Start (§6.3): Wortmarke → Aurora → Kaskade; überspringbar; reduced-motion → sofort. */
+function introSequence(state) {
+  const el = document.getElementById('intro');
+  if (!el) return Promise.resolve();
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { el.remove(); return Promise.resolve(); }
+  const greet = el.querySelector('.intro-greet');
+  if (greet) {
+    const h = new Date().getHours();
+    const wg = h < 11 ? 'Guten Morgen' : h < 18 ? 'Guten Tag' : 'Guten Abend';
+    const due = state.cards.filter(c => c.due <= Date.now()).length;
+    greet.textContent = `${wg} — ${due} Karten fällig.`;
+  }
+  return new Promise(res => {
+    const done = () => { el.classList.add('out'); setTimeout(() => { el.remove(); res(); }, 250); };
+    el.addEventListener('click', done, { once: true });
+    setTimeout(done, 1500);               // harte Grenze ~1,5 s (§6.3)
+  });
+}
+
+export function paintTopbar(state) {
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  set('tb-xp', `${state.xp.toLocaleString('de-AT')} XP`);
+  set('tb-level', String(state.level));
+  set('tb-week', `${state.week.doneDays.length}/${state.week.goalDays} Tagen`);
+  const ms = state.milestones[0];
+  if (ms) {
+    const days = Math.ceil((Date.parse(ms.date) - Date.now()) / 86_400_000);
+    set('tb-goal', `${ms.label} in ${days} Tagen`);
+  }
+  set('tb-legal', LEGAL_STATE);
+}
+
+function markActiveNav(path) {
+  document.querySelectorAll('[data-nav]').forEach(el =>
+    el.classList.toggle('active', el.dataset.nav === path));
+}
+
+// ---------- Routen ----------
+
+import { renderHeatmap, renderRadar, renderCurve, renderXpBars, renderExamHistory } from './dashboard.js';
+import { aggregateCompetencies, radarData } from './competency.js';
+import { splitQueues } from './engine-leitner.js';
+import { ceremony, CEREMONY, levelFor } from './gamification.js';
+
+route('dashboard', async (view, ctx) => {
+  // Erhaltungsmodus (#36): nach bestandenem Examen Tagesdosis + Wochen-Szenario anzeigen
+  try {
+    const { maintenancePlan } = await import('./erhaltung.js');
+    const sc = await fetch('content/scenarios.json').then(r => r.json());
+    const mp = maintenancePlan(ctx.state, sc.scenarios, Date.now());
+    if (mp.active) {
+      const m = document.createElement('div');
+      m.className = 'card maintenance-note';
+      m.innerHTML = `<b>Erhaltungsmodus aktiv</b> — heute ${mp.cards.length} Karten` +
+        (mp.szenarioDue ? ` · <a href="#/boss/${mp.szenarioId}">Wochen-Szenario fällig</a>` : ' · Wochen-Szenario erledigt') +
+        ` <span class="dim">(Wissen ohne Nutzung zerfällt — die Minimal-Dosis dagegen.)</span>`;
+      view.appendChild(m);
+    }
+  } catch { /* Erhaltung ist Zusatz — Dashboard rendert auch ohne */ }
+  view.classList.add('dash-grid');
+  const s = ctx.state;
+  // Machbarkeits-/Drift-Hinweis auch für kuratierte Profile (§5.1) — nicht nur im Onboarding
+  if (s.milestones?.length && s.pace) {
+    try {
+      const { feasibilityCheck } = await import('./pacing.js');
+      const UNITS = 17;
+      const feas = feasibilityCheck({ ...s.pace, milestones: s.milestones },
+        { totalUnits: UNITS, minutesPerUnit: 25, doneUnits: (s.unit_done?.length ?? 0) + (s.unit_skipped?.length ?? 0) }, Date.now());
+      const eng = (Array.isArray(feas) ? feas : [feas]).filter(f => f && f.feasible === false);
+      if (eng.length) {
+        const w = document.createElement('div');
+        w.className = 'card feas-note';
+        w.innerHTML = `<b>Ehrliche Rechnung:</b> Für „${eng[0].label ?? 'dein Ziel'}" bräuchtest du ~${eng[0].neededMinutesPerDay ?? '?'} min/Tag (geplant: ${s.pace.minutesPerDay}). <a href="#/einstellungen">Ziel oder Pensum anpassen</a> — ein Plan, der rechnerisch nicht aufgeht, erzeugt nur Schuldgefühle (§5.1).`;
+        view.appendChild(w);
+      }
+    } catch { /* Pacing ist Zusatz */ }
+  }
+  // ECHTE Daten (Task-12-Finding: Demo-Bindung war Task-8-Restschuld).
+  const [factsDb, compDef] = await Promise.all([
+    fetch('content/facts-db.json').then(r => r.json()),
+    fetch('content/competencies.json').then(r => r.json()),
+  ]);
+  const agg = aggregateCompetencies(s.events ?? []);
+  // Kategorien → Kompetenzen: Artikel-Score = Kompetenz-Score seiner Kategorie-Kompetenzen
+  const KAT2K = { fundament: ['K01', 'K02'], verbote: ['K04'], einstufung: ['K03'], fristen: ['K06'],
+    rollen: ['K05'], pflichten: ['K08', 'K09', 'K10'], daten: ['K11'], transparenz: ['K12'],
+    gpai: ['K13'], aufsicht: ['K15', 'K14'], sanktionen: ['K15'], innovation: ['K15'],
+    verfahren: ['K10', 'K16'], anhang: ['K03', 'K16'], rand: ['K16'] };
+  // Profil-Overrides (§5.1): das Onboarding/Kurator-Profil verschiebt Relevanz-Stufen —
+  // sie steuern Priorisierung und Hervorhebung in der Landkarte.
+  const overrides = new Map((ctx.profile?.personalisierung?.relevanz_overrides ?? []).map(o => [o.ref, o.stufe]));
+  const articles = factsDb.relevanz_matrix.artikel.map(a => {
+    const ks = [...new Set((a.kategorien ?? []).flatMap(k => KAT2K[k] ?? []))];
+    const scores = ks.map(k => agg.get(k)?.score).filter(v => v != null);
+    const stufe = overrides.get(a.ref) ?? a.relevanz?.betreiber_behoerde ?? 'kompakt';
+    return { id: a.ref, label: a.ref, relevanz: stufe, overridden: overrides.has(a.ref),
+      score: scores.length ? scores.reduce((x, y) => x + y, 0) / scores.length : null };
+  });
+  const kernN = articles.filter(a => a.relevanz === 'kern').length;
+  const axes = radarData(compDef.kompetenzen, agg);
+  // Ist-Kurve: kumulierter Einheiten-Fortschritt je Woche (aus Events); Soll: linear zu den Meilensteinen
+  const UNITS_TOTAL = 16;
+  const unitEvents = (s.events ?? []).filter(e => e.kind === 'unit_completed');
+  // Alt-Bestand ohne Event-Aufzeichnung (vor Task-12-Fix) als Baseline anrechnen
+  const unitBaseline = Math.max(0, (s.unit_done?.length ?? 0) - unitEvents.length);
+  const start = s.events?.[0]?.ts ?? Date.now();
+  const weeks = Math.max(2, Math.ceil((Date.now() - start) / (7 * 864e5)) + 1);
+  const ist = Array.from({ length: weeks }, (_, w) => ({
+    label: 'W' + (w + 1),
+    value: (unitBaseline + unitEvents.filter(e => e.ts <= start + (w + 1) * 7 * 864e5).length) / UNITS_TOTAL,
+  }));
+  const msEnd = s.milestones?.length ? Date.parse(s.milestones[s.milestones.length - 1].date) : start + 60 * 864e5;
+  const soll = ist.map((p, w) => ({ label: '', value: Math.min(1, ((start + (w + 1) * 7 * 864e5) - start) / Math.max(1, msEnd - start)) }));
+  const curve = { ist, soll };
+  const q = splitQueues(s.cards ?? [], Date.now());
+  view.innerHTML = `
+    <div class="card"><div class="chead"><span class="t"><h3>Artikel-Landkarte</h3><span class="sub">Gesamter AI Act · ${kernN} Kern-Artikel für dein Profil${overrides.size ? ` (${overrides.size} profil-angepasst)` : ''}</span></span></div>
+      <div class="hm-wrap" id="d-hm"></div>
+      <div class="legend"><span><i style="background:#65d8b2"></i>Sehr sicher</span><span><i style="background:#9dcc9b"></i>Sicher</span><span><i style="background:#e1ad58"></i>Unsicher</span><span><i style="background:#d97568"></i>Kritisch</span><span><i style="background:#414956"></i>Ungelernt</span></div></div>
+    <div class="card"><div class="chead"><span class="t"><h3>Kompetenzen</h3><span class="sub">Dein Kompetenzprofil</span></span></div>
+      <div class="radar-wrap" id="d-radar"></div></div>
+    <div class="card"><div class="chead"><span class="t"><h3>Lernkurve vs. Soll</h3></span></div>
+      <div class="curve-wrap" id="d-curve"></div></div>
+    <div class="right-col">
+      <div class="card due-mini"><div class="chead" style="margin-bottom:4px"><span class="t"><h3>Fällige Karten</h3></span></div>
+        <div class="due-mini-nums"><div><span>Kern</span><b style="color:#b6a5ff">${q.kern.length}</b></div><div><span>Aufholen</span><b style="color:var(--gold)">${q.aufhol.length}</b></div></div></div>
+      <div class="card"><div class="chead" style="margin-bottom:4px"><span class="t"><h3>Badges</h3><span class="sub">Aktivität — nicht Kompetenz (#28)</span></span></div><div id="d-badges"></div></div>
+      <div class="card duo-card"><div class="duo">
+        <div><div class="chead" style="margin-bottom:4px"><span class="t"><h3>XP · Wochen</h3></span></div><div id="d-xp"></div></div>
+        <div><div class="chead" style="margin-bottom:4px"><span class="t"><h3>Examen</h3></span></div><div id="d-exam"></div></div>
+      </div></div>
+    </div>`;
+  renderHeatmap(view.querySelector('#d-hm'), articles, { onSelect: a => a.unit_id && navigate(`#/einheit/${a.unit_id}`) });
+  renderRadar(view.querySelector('#d-radar'), axes);
+  renderCurve(view.querySelector('#d-curve'), curve.ist, curve.soll);
+  // XP je Kalenderwoche aus dayStats (echt)
+  const dayXp = Object.entries(s.dayStats ?? {});
+  const weekXp = new Map();
+  for (const [day, st] of dayXp) {
+    const d = new Date(day + 'T12:00');
+    const key = `${d.getFullYear()}-W${String(Math.ceil(((d - new Date(d.getFullYear(), 0, 1)) / 864e5 + 1) / 7)).padStart(2, '0')}`;
+    weekXp.set(key, (weekXp.get(key) ?? 0) + (st.xp ?? 0));
+  }
+  const xpBars = [...weekXp.entries()].slice(-4).map(([label, xp]) => ({ label: label.split('-')[1], xp }));
+  import('./rewards.js').then(({ renderBadgeGallery }) => renderBadgeGallery(view.querySelector('#d-badges'), s));
+  renderXpBars(view.querySelector('#d-xp'), xpBars.length ? xpBars : [{ label: 'W1', xp: s.xp ?? 0 }]);
+  const series = Object.entries(s.scoreSeries ?? {}).map(([k, v]) => ({
+    regime: k.split('|').slice(0, 4).join(' · '),
+    attempts: v.runs.map(r => ({ score: Math.round(r.pct * 100) })),
+  }));
+  renderExamHistory(view.querySelector('#d-exam'), series.length ? series : [{ regime: 'noch kein Examen', attempts: [] }]);
+});
+
+// Zeremonien-Demo (AC4-Testroute — bis Gamification an echte Ereignisse gebunden ist)
+route('zeremonie', (view, ctx, [tier]) => {
+  view.innerHTML = `<div class="card"><h3>Zeremonien-Test</h3><p class="dim">
+    <a href="#/zeremonie/klein">klein</a> · <a href="#/zeremonie/mittel">mittel</a> · <a href="#/zeremonie/gross">groß</a></p>
+    <button class="btn-primary" id="z-go">Auslösen: ${tier ?? 'klein'}</button></div>`;
+  view.querySelector('#z-go').addEventListener('click', () => {
+    const lv = levelFor(ctx.state.xp, ctx.state.levelEndtitel);
+    if (tier === 'gross') ceremony(document, CEREMONY.GROSS, {
+      title: 'Level-Up!', text: `Du bist jetzt Level ${lv.level + 1} — bleib dran.`,
+      image: 'assets/characters/crew/01-coach.png',
+      stats: [{ k: 'XP gesamt', v: ctx.state.xp + 120 }, { k: 'Einheiten', v: 12 }, { k: 'Beste Serie', v: '86%' }]
+    });
+    else if (tier === 'mittel') ceremony(document, CEREMONY.MITTEL, {
+      title: 'Badge: Dreistellig', text: '100 Fragen beantwortet. Verlässlich unspektakulär.',
+      image: 'assets/characters/crew/01-coach.png'
+    });
+    else ceremony(document, CEREMONY.KLEIN, { xp: 14, anchor: view.querySelector('#z-go').parentElement });
+  });
+});
+
+import { renderUnit } from './unit-view.js';
+
+const PHASE_LABEL = { p1: 'Fundament', p2: 'Verbote', p3: 'Einstufung', p4: 'Pflichten', p5: 'Transparenz',
+  p6: 'GPAI', p7: 'Aufsicht', p8: 'Randwissen', p9: 'Ländermodul AT', p10: 'Auslegung' };
+
+route('lernen', async (view, ctx, [phaseFilter]) => {
+  const idx = await fetch('content/units/index.json').then(r => r.json());
+  const st = ctx.state;
+  const done = new Set(st.unit_done ?? []);
+  const skipped = new Set(st.unit_skipped ?? []);
+  const phases = phaseFilter ? [phaseFilter] : Object.keys(PHASE_LABEL);
+  view.innerHTML = `<div class="card"><div class="chead"><span class="t"><h3>Lernen${phaseFilter ? ` — ${PHASE_LABEL[phaseFilter] ?? phaseFilter}` : ''}</h3>
+    <span class="sub">${phaseFilter ? '<a href="#/lernen">alle Phasen</a>' : 'Nach Rollen-Relevanz priorisiert (#3) — Skips erfordern einen Challenge-Test (#19)'}</span></span></div>
+    <div id="unit-list"></div></div>`;
+  const list = view.querySelector('#unit-list');
+  for (const p of phases) {
+    const units = idx.units.filter(u => u.phase === p);
+    if (!units.length) continue;
+    if (!phaseFilter) list.insertAdjacentHTML('beforeend', `<div class="sect lern-sect">${p.toUpperCase()} · ${PHASE_LABEL[p] ?? ''}</div>`);
+    for (const u of units) {
+      const status = done.has(u.id) ? 'done' : skipped.has(u.id) ? 'skipped' : '';
+      const row = document.createElement('div');
+      row.className = 'lern-row';
+      row.innerHTML = `<a class="ph ${status}" href="#/einheit/${u.id}">
+          <span class="ring">${done.has(u.id) ? '✓' : skipped.has(u.id) ? '»' : u.level}</span>
+          <span class="lbl">${u.title}</span><span class="dim">${u.competency ?? ''}</span></a>
+        ${status ? '' : `<a class="btn-mini" href="#/challenge/${u.id}" title="Challenge-Test: 6 Fragen, 80 % — bei Bestehen wird die Einheit übersprungen (#19)">Challenge</a>`}`;
+      list.appendChild(row);
+    }
+    const test = st.chapterTests?.[p];
+    if (phaseFilter || true) list.insertAdjacentHTML('beforeend',
+      `<div class="lern-test">${test?.passed ? `Kapiteltest bestanden (${(test.pct * 100).toFixed(0)} %)` : 'Kapiteltest offen'} — <a href="#/test/${p}">${test?.passed ? 'erneut antreten' : 'zum Kapiteltest'}</a></div>`);
+  }
+});
+
+route('einheit', async (view, ctx, [unitId]) => {
+  view.classList.remove('dash-grid');
+  // Pflicht-Review VOR neuem Stoff (§3 „erzwungen", #32) — Gate aus session.js
+  const { todaySession, sessionStatus } = await import('./ritual.js');
+  const { canStartUnit, completeStep } = await import('./session.js');
+  const s = todaySession(ctx.state);
+  const q = splitQueues(ctx.state.cards ?? [], Date.now());
+  if (!s.review.done && q.kern.length === 0) { completeStep(s, 'review'); ctx.saveState(); }
+  if (!canStartUnit(s)) {
+    const c = document.createElement('div');
+    c.className = 'card';
+    c.innerHTML = `<h3>Erst wiederholen, dann Neues</h3>
+      <p>Heute sind <b>${s.review.kern.length}</b> Karten regulär fällig. Verteilte Wiederholung VOR neuem Stoff ist der robusteste Lern-Hebel — deshalb ist dieser Schritt Pflicht (§3, #32).</p>
+      <a class="btn-primary" href="#/karten">Zum Pflicht-Review</a> <a class="btn" href="#/heute">Ritual-Übersicht</a>`;
+    view.appendChild(c);
+    return;
+  }
+  const st = sessionStatus(ctx.state);
+  if (st.block.due) {
+    const b = document.createElement('div');
+    b.className = 'card block-note';
+    b.innerHTML = `<b>Intensiv-Block ${st.block.block} erreicht (~60 min).</b> <span class="dim">Kurz aufstehen — Konsolidierung im Stundentakt schlägt Durchhalten (#33).</span>`;
+    view.appendChild(b);
+    ctx.saveState();
+  }
+  renderUnit(view, unitId, ctx);
+});
+
+// ---------- Wiederholung (Kern-/Aufholwarteschlange, #32/#34) ----------
+import { planAufhol, review, newCard } from './engine-leitner.js';
+
+route('karten', async (view, ctx) => {
+  // Glossar-Kategorie (#6): Begriffskarten laufen wie alle anderen durchs Leitner-System
+  if (!ctx.state.glossarCardsSeeded) {
+    try {
+      const fc = await fetch('content/flashcards.json').then(r => r.json());
+      const have = new Set((ctx.state.cards ?? []).map(c => c.id));
+      for (const c of fc.cards.filter(x => x.kind === 'glossar' && !have.has(x.id))) {
+        (ctx.state.cards ??= []).push(newCard(c.id, { competency: c.competency, front: c.front, back: c.back, kind: 'glossar' }, Date.now()));
+      }
+      ctx.state.glossarCardsSeeded = true;
+      await ctx.saveState();
+    } catch { /* Glossar-Karten sind Zusatz */ }
+  }
+  const paint = () => {
+    const q = splitQueues(ctx.state.cards ?? [], Date.now());
+    const aufholToday = planAufhol(q.aufholMeta, { perDay: 15 }).today;
+    const queue = [...q.kern, ...aufholToday];
+    if (!queue.length) {
+      view.innerHTML = `<div class="card"><h3>Wiederholung</h3><p class="dim">Nichts fällig. Kern: 0 · Aufholen heute: 0${(ctx.state.cards ?? []).length ? ` · ${(ctx.state.cards).length} Karten im System (nächste Fälligkeit folgt)` : ''}.</p></div>`;
+      return;
+    }
+    const c = queue[0];
+    view.innerHTML = `<div class="card"><h3>Wiederholung</h3>
+      <p class="dim">Kern: ${q.kern.length} · Aufholen heute: ${aufholToday.length}</p>
+      <div class="card unit-block"><div class="unit-tag">${c.competency ?? ''}</div>
+        <p><b>${c.front ?? c.id}</b></p>
+        <div id="k-back" hidden><p>${c.back ?? ''}</p>
+          <div class="q-confidence"><span>Gewusst?</span>
+            <button data-r="richtig-sicher">richtig · sicher</button>
+            <button data-r="richtig-unsicher">richtig · unsicher</button>
+            <button data-r="falsch">falsch</button></div></div>
+        <button class="btn-primary" id="k-flip">Antwort zeigen</button>
+      </div></div>`;
+    view.querySelector('#k-flip').onclick = () => { view.querySelector('#k-back').hidden = false; view.querySelector('#k-flip').hidden = true; };
+    view.querySelectorAll('[data-r]').forEach(b => b.onclick = () => {
+      const r = b.dataset.r;
+      review(c, { correct: r !== 'falsch', confidence: r === 'richtig-unsicher' ? 'unsicher' : 'sicher' }, Date.now());
+      ctx.state.dayStats = ctx.state.dayStats ?? {};
+      const dk = (d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`)(new Date());
+      ctx.state.dayStats[dk] = { ...(ctx.state.dayStats[dk] ?? {}), reviewDone: true, xp: (ctx.state.dayStats[dk]?.xp ?? 0) + 2 };
+      ctx.state.events.push({ competency: c.competency, level: 'A', correct: r !== 'falsch', confidence: r.includes('unsicher') ? 'unsicher' : 'sicher', summative: false, ts: Date.now() });
+      // Wenn die Kernwarteschlange leer ist: Takt 1 des Rituals abhaken (#32)
+      import('./ritual.js').then(({ todaySession }) => import('./session.js').then(({ completeStep }) => {
+        const s = todaySession(ctx.state);
+        if (splitQueues(ctx.state.cards ?? [], Date.now()).kern.length === 0) completeStep(s, 'review');
+        ctx.saveState();
+      }));
+      ctx.saveState(); paint();
+    });
+  };
+  paint();
+});
+
+// ---------- Bosskampf (Durchstich: Szenario-Engine + Bridge-Persona, §5.2) ----------
+import { createScenarioRun, recordUserTurn, advancePhase, buildAssessmentPayload } from './engine-dialog.js';
+import { renderDialog, renderAssessmentCard } from './engine-dialog.js';
+import { LlmAdapter } from './llm-adapter.js';
+
+route('boss', async (view, ctx, [scenarioId]) => {
+  const sc = await fetch('content/scenarios.json').then(r => r.json());
+  const scenario = sc.scenarios.find(s => s.id === (scenarioId ?? 'sz-p2-stimmungsradar'));
+  if (!scenario) { view.innerHTML = '<div class="card"><p class="dim">Szenario nicht gefunden.</p></div>'; return; }
+  const arch = (await fetch('content/archetypes.json').then(r => r.json())).archetypes
+    .find(a => a.id === scenario.persona_archetype);
+  // Archetyp → Crew-Figur (Task 9): Bilder + Persona-Karte pro Gesprächstyp
+  const CREW = {
+    'draengler':              { img: '03-fachabteilung', name: 'M. Brunner',  role: 'Leitung Fachabteilung' },
+    'kritischer-pruefer':     { img: '04-datenschutz',   name: 'Dr. E. Steiner', role: 'Datenschutzbeauftragte' },
+    'fuehrungsebene':         { img: '06-fuehrung',      name: 'K. Wallner',  role: 'Generaldirektion' },
+    'belegschaftsvertretung': { img: '05-personalvertretung', name: 'H. Novak', role: 'Personalvertretung' },
+    'kunde-konformitaet':     { img: '02-pruefer',       name: 'S. Berger',   role: 'Partner-Fachbereich' },
+    'cto-vor-release':        { img: '02-pruefer',       name: 'T. Auer',     role: 'IT-Leitung' },
+    'notifizierte-stelle':    { img: '02-pruefer',       name: 'Ing. R. Falk', role: 'Notifizierte Stelle' },
+  };
+  // Profil-Einkleidung (§5.2): NUR Oberflächen-Merkmale (Organisation, Rolle, Domänenbegriff) —
+  // Fakten, Rubrik, Fallen und Schwierigkeit bleiben unverändert.
+  const eink = (ctx.profile?.personalisierung?.szenario_einkleidungen ?? []).find(e => e.scenario_id === scenario.id);
+  const crew = CREW[scenario.persona_archetype] ?? CREW['draengler'];
+  const cimg = k => `assets/characters/crew/${crew.img}-${k}.png`;
+  scenario.persona = {
+    archetype: arch?.name ?? scenario.persona_archetype,
+    name: crew.name, role: eink?.rolle ?? crew.role,
+    organisation: eink?.org ?? ctx.profile?.fachprofil?.organisation ?? null,
+    domaenenbegriff: eink?.domaenenbegriff ?? ctx.profile?.fachprofil?.domaene ?? null,
+    avatar: cimg('neutral'),
+    expressions: { neutral: cimg('neutral'), skeptisch: cimg('skeptisch'), zufrieden: cimg('zufrieden'), nachbohrend: cimg('nachbohrend') }
+  };
+  const llm = new LlmAdapter({});
+  try { await llm.refreshHealth(); llm.evaluateGate(); } catch { /* Boss braucht LLM — Fehlerpfad unten */ }
+  const run = createScenarioRun(scenario, Date.now());
+  run.transcript.push({ who: 'persona', text: 'Schön, dass Sie Zeit haben! Wir wollen ein Stimmungsradar für die Hotline — Dashboard zeigt live die Gesprächsstimmung. Was brauche ich von Ihnen, damit das schnell durchgeht?', ts: Date.now(), phase: 0 });
+
+  const wrap = document.createElement('div');
+  wrap.className = 'card';
+  wrap.style.cssText = 'height:100%;display:flex;flex-direction:column';
+  wrap.innerHTML = `<div class="chead"><span class="t"><h3>${scenario.title}</h3><span class="sub">Bosskampf · ${arch?.name ?? ''}${scenario.persona.organisation ? ` · ${scenario.persona.organisation}` : ''} · Phase <span id="b-phase">1</span>/${scenario.phases.length}</span></span>
+    <span class="actions"><button id="b-next" class="btn" style="font-size:.75rem">Phase abschließen ▸</button></span></div>
+    <div id="b-dlg" style="flex:1;min-height:0"></div>`;
+  view.appendChild(wrap);
+  const dmount = wrap.querySelector('#b-dlg');
+
+  const paint = (opts = {}) => renderDialog(dmount, scenario, run, {
+    ...opts,
+    suggestedMoves: run.transcript.length < 3 ? ['Was genau ist die Zweckbestimmung?', 'Wessen Stimme wird analysiert — nur Anrufende oder auch unsere Leute?'] : [],
+    onUserTurn: async text => {
+      recordUserTurn(scenario, run, text, Date.now());
+      paint({ typing: true });
+      try {
+        const resp = await llm.boss({
+          bossId: `${scenario.id}-${run.started}`,
+          personaCard: { name: scenario.persona.name, role: scenario.persona.role, archetype: arch?.name, dynamik: arch?.dynamik, ton: arch?.ton,
+            organisation: scenario.persona.organisation, domaenenbegriff: scenario.persona.domaenenbegriff },
+          revealedFacts: scenario.facts.filter(f => run.released_fact_ids.includes(f.id)).map(f => f.text),
+          phase: scenario.phases[run.phase_index].opening_hint,
+          userTurn: text
+        });
+        run.transcript.push({ who: 'persona', text: resp.say ?? resp.reply ?? resp.text ?? '(keine Antwort)', ts: Date.now(), phase: run.phase_index });
+        paint({ mood: resp.pressure_point ? 'nachbohrend' : 'neutral' });
+      } catch (e) {
+        run.transcript.push({ who: 'persona', text: `[Bridge nicht erreichbar: ${e.message}]`, ts: Date.now(), phase: run.phase_index });
+        paint();
+      }
+      ctx.saveState();
+    }
+  });
+  wrap.querySelector('#b-next').onclick = async () => {
+    advancePhase(scenario, run);
+    wrap.querySelector('#b-phase').textContent = String(run.phase_index + 1);
+    if (run.finished) {
+      // Bewertung: FRISCHER, isolierter Aufruf — nur Transcript + Rubrik (#22c)
+      dmount.innerHTML = '<p class="dim">Bewertung läuft (frischer Prüfer-Aufruf)…</p>';
+      // Gating-Urteil (Plan §4.2: Bosskampf mind. „solide" vor Kapiteltest) —
+      // deterministisch aus der Szenario-Engine: erreichte Ziele / keine Critical-Falle.
+      const payload = buildAssessmentPayload(scenario, run);
+      const achieved = payload.goals.filter(g => g.hit).length;
+      const solide = achieved / payload.goals.length >= 0.5 && !payload.critical_triggered;
+      const phaseKey = (scenario.id.match(/^sz-(p\d+)-/) || [])[1];
+      if (phaseKey) {
+        ctx.state.bossResults ??= {};
+        ctx.state.bossResults[phaseKey] = { scenarioId: scenario.id, passed: solide, achieved, total: payload.goals.length, ts: Date.now() };
+        ctx.saveState();
+      }
+      try {
+        const j = await llm.judgeBoss({ scenarioCore: { title: scenario.title, goals: scenario.goals.map(g => g.text), critical_errors: scenario.critical_errors }, rubric: scenario.rubric, transcript: run.transcript });
+        dmount.innerHTML = '';
+        renderAssessmentCard(dmount, { goals: payload.goals, feedback: (solide ? 'Urteil: solide — Kapiteltest freigeschaltet. ' : 'Urteil: noch nicht solide — Wiederholung mit anderem Gesprächsverlauf empfohlen. ') + (j.feedback ?? '') });
+      } catch (e) { dmount.innerHTML = `<p class="dim">Bewertung fehlgeschlagen: ${e.message} — Gating-Urteil (deterministisch): ${solide ? 'solide' : 'nicht solide'}.</p>`; }
+    } else {
+      const hint = scenario.phases[run.phase_index].opening_hint;
+      run.transcript.push({ who: 'persona', text: `(${hint})`, ts: Date.now(), phase: run.phase_index });
+      paint();
+    }
+  };
+  paint();
+});
+
+// Prüfungssystem-Routen (Task 9) — registrieren sich über route()
+import './exam.js';
+import './onboarding.js';
+import './ritual.js';
+
+// ---------- Einstellungen (Plan §5.1: „Ein Lernprofil ist eine Momentaufnahme, kein Gelübde") ----------
+route('einstellungen', (view, ctx) => {
+  const st = ctx.state;
+  const ms = st.milestones ?? [];
+  const c = document.createElement('div');
+  c.className = 'card';
+  c.innerHTML = `<div class="chead"><span class="t"><h3>Einstellungen</h3><span class="sub">Lernprofil — nachträglich änderbar; die Soll-Kurve zieht automatisch nach</span></span></div>
+    <label>Minuten pro Tag<br><input id="s-min" type="number" min="10" max="480" value="${st.pace?.minutesPerDay ?? 45}"></label>
+    <label>Lerntage pro Woche<br><input id="s-days" type="number" min="1" max="7" value="${st.pace?.daysPerWeek ?? 5}"></label>
+    <label>Wochenziel (Tage mit Lernen)<br><input id="s-goal" type="number" min="1" max="7" value="${st.week?.goalDays ?? 5}"></label>
+    <label>Meilenstein 1 (Datum)<br><input id="s-m1" type="date" value="${ms[0]?.date ?? ''}"></label>
+    <label>Meilenstein 2 (Datum)<br><input id="s-m2" type="date" value="${ms[1]?.date ?? ''}"></label>
+    <button class="btn-primary" id="s-save">Speichern</button> <span class="dim" id="s-msg"></span>
+    <hr><p class="dim">Rechtsstand ${LEGAL_STATE.replace('Rechtsstand ', '')} · Bewertungs-Regime wechselt bei Modell-/Rubrik-Änderung automatisch in eine neue Score-Serie (#17).</p>`;
+  view.appendChild(c);
+  c.querySelector('#s-save').onclick = () => {
+    st.pace = { minutesPerDay: +c.querySelector('#s-min').value, daysPerWeek: +c.querySelector('#s-days').value };
+    st.week = { ...(st.week ?? {}), goalDays: +c.querySelector('#s-goal').value };
+    const m1 = c.querySelector('#s-m1').value, m2 = c.querySelector('#s-m2').value;
+    st.milestones = [m1 && { label: ms[0]?.label ?? 'Meilenstein 1', date: m1 }, m2 && { label: ms[1]?.label ?? 'Meilenstein 2', date: m2 }].filter(Boolean);
+    ctx.saveState();
+    c.querySelector('#s-msg').textContent = 'Gespeichert — Kurve und Wochenziel nutzen ab jetzt die neuen Werte.';
+  };
+});

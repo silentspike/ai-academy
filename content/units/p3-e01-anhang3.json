@@ -1,0 +1,210 @@
+{
+ "id": "p3-e01-anhang3",
+ "phase": "p3",
+ "title": "Anhang III: Die Einsatzbereiche-Liste — und Nr. 5 als Ihr Kerngebiet",
+ "competency": "K03",
+ "level": "B",
+ "legal_status": "konsolidiert-2026-07-27",
+ "legal_basis": [
+  {
+   "ref": "Art. 6 Abs. 2",
+   "instrument": "VO 2024/1689 idF 2026/1744",
+   "verified": "eigenpruefung-2026-07-24"
+  },
+  {
+   "ref": "Anhang III Nr. 5",
+   "instrument": "VO 2024/1689 idF 2026/1744",
+   "verified": "eigenpruefung-2026-07-24"
+  }
+ ],
+ "change_log": [
+  {
+   "date": "2026-07-24",
+   "was": "Ersterstellung",
+   "quelle": "legal/arbeitskonsolidierung.md"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "Auslegungs-Box ErwG 58 ergänzt (Plan #4 Doppelverankerung)"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "Beispiel-Slot slot-7 ergänzt (§5.1: fixer Intent, profilvariable Einkleidung)"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "A-Stufen-Check ergänzt (§3 Mengengerüst 40/40/20)"
+  }
+ ],
+ "blocks": [
+  {
+   "type": "problem",
+   "html": "Drei Projektideen liegen auf Ihrem Tisch: (A) KI-Vorprüfung von Rehab-Anträgen, (B) KI-Chatbot für Öffnungszeiten, (C) KI-gestützte Dienstplan-Optimierung. <b>Welche davon ist ein Kandidat für Anhang III — und welcher Denkfehler lauert bei „Behörde = automatisch Hochrisiko“?</b>",
+   "einsteiger_worked_example": "Prüfweg für (A): 1) Anhang III Nr. 5 lit. a: Entscheidung/wesentliche Unterstützung über ZUGANG, ANSPRUCH oder UMFANG wesentlicher öffentlicher Leistungen? Rehab = wesentliche Leistung, Vorprüfung = wesentliche Unterstützung → Kandidat JA. (B): keine Leistungsentscheidung → nein. (C): Dienstplan = Anhang III Nr. 4 prüfen (Beschäftigung!) — nicht Nr. 5. Der Denkfehler: Die Einstufung ist SYSTEM- und ZWECKbezogen, nie sektorbezogen."
+  },
+  {
+   "type": "concept",
+   "html": "<b>Anhang III</b> listet die Einsatzbereiche, in denen KI-Systeme nach Art. 6 Abs. 2 hochriskant sind: 1 Biometrie · 2 kritische Infrastruktur · 3 Bildung · 4 <b>Beschäftigung</b> · 5 <b>wesentliche private und öffentliche Leistungen</b> · 6 Strafverfolgung · 7 Migration · 8 Justiz/Demokratie. Für die ÖSVA sind <b>Nr. 5 lit. a</b> (Zugang/Anspruch/Umfang öffentlicher Leistungen — das Kerngeschäft eines Sozialversicherungsträgers) und <b>Nr. 4</b> (eigene Beschäftigte!) die beiden Dauerbrenner."
+  },
+  {
+   "type": "beispiel",
+   "intent_id": "slot-7",
+   "intent": "zeige, dass die Entscheidungsrolle über die Einstufung entscheidet",
+   "generisch": "Eine reine Dokumenten-Ablage ist unkritisch; sobald dieselbe Software die Bearbeitungsreihenfolge und damit faktisch die Erfolgsaussicht steuert, ist die Nr.-5-Frage eröffnet."
+  },
+  {
+   "type": "widget",
+   "widget": "annex3",
+   "payload": {}
+  },
+  {
+   "type": "merkbild",
+   "html": "🧠 Merkbild: Anhang III ist eine <b>Landkarte von Minenfeldern</b> — nicht das ganze Land ist vermint, aber wer in Feld 5 unterwegs ist (Leistungsentscheidungen), geht jeden Schritt mit Karte."
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p3-e01-a1",
+    "type": "mc",
+    "competency": "K03",
+    "level": "A",
+    "legal_status": "konsolidiert-2026-07-27",
+    "legal_basis": [
+     {
+      "ref": "Anhang III Nr. 5 lit. a",
+      "instrument": "VO 2024/1689 idF 2026/1744",
+      "verified": "eigenpruefung-a-checks-2026-07-25"
+     }
+    ],
+    "prompt": "Welche Anhang-III-Nummer betrifft grundlegende öffentliche Leistungen?",
+    "options": [
+     {
+      "id": "a",
+      "text": "Nr. 5",
+      "correct": true,
+      "rationale": "Nr. 5 lit. a: Zugang zu und Inanspruchnahme grundlegender öffentlicher Unterstützungsleistungen.",
+      "source_ref": "Anhang III Nr. 5 lit. a"
+     },
+     {
+      "id": "b",
+      "text": "Nr. 1",
+      "correct": false,
+      "rationale": "Biometrie.",
+      "source_ref": "Anhang III Nr. 1"
+     },
+     {
+      "id": "c",
+      "text": "Nr. 4",
+      "correct": false,
+      "rationale": "Beschäftigung.",
+      "source_ref": "Anhang III Nr. 4"
+     },
+     {
+      "id": "d",
+      "text": "Nr. 8",
+      "correct": false,
+      "rationale": "Rechtspflege und demokratische Prozesse.",
+      "source_ref": "Anhang III Nr. 8"
+     }
+    ]
+   }
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p3-e01-c1",
+    "type": "case",
+    "scenario": "Die ÖSVA plant ein KI-System, das Kurenanträge automatisch nach Erfolgsaussicht reiht; Sachbearbeiter arbeiten die Liste von oben ab. Alle Fakten liegen vor.",
+    "prompt": "Ihre Einstufung?",
+    "critical_error": {
+     "option_ids": [
+      "c"
+     ],
+     "reason": "Ein Anhang-III-Nr.-5-System als frei einzustufen verkennt das Kerngeschäfts-Risiko.",
+     "requires_complete_facts": true
+    },
+    "options": [
+     {
+      "id": "a",
+      "text": "Hochrisiko-Kandidat nach Anhang III Nr. 5 lit. a — die Reihung unterstützt Leistungsentscheidungen wesentlich.",
+      "correct": true,
+      "rationale": "Die Priorisierung beeinflusst faktisch Zugang und Timing der Leistung; das ist wesentliche Entscheidungsunterstützung i. S. v. Nr. 5 lit. a.",
+      "source_ref": "Anhang III Nr. 5 lit. a"
+     },
+     {
+      "id": "b",
+      "text": "Verbotene Praxis nach Art. 5.",
+      "correct": false,
+      "rationale": "Kein Verbots-Tatbestand einschlägig — Reihung nach Erfolgsaussicht ist kein Social Scoring i. S. v. lit. c, solange es um die konkrete Leistungssache geht.",
+      "source_ref": "Art. 5 Abs. 1 lit. c"
+     },
+     {
+      "id": "c",
+      "text": "Kein AI-Act-Thema, da nur eine Reihenfolge berechnet wird.",
+      "correct": false,
+      "rationale": "Gerade die Reihenfolge steuert den Leistungszugang — „nur intern“ ist kein Ausschlusskriterium.",
+      "source_ref": "Anhang III Nr. 5 lit. a"
+     },
+     {
+      "id": "d",
+      "text": "Für eine belastbare Einstufung fehlen Informationen.",
+      "correct": false,
+      "rationale": "Zweck, Wirkung und Kontext sind vollständig beschrieben.",
+      "source_ref": "Anhang III Nr. 5 lit. a"
+     }
+    ],
+    "level": "B"
+   }
+  },
+  {
+   "type": "quelle",
+   "ref": "Anhang III Nr. 5 lit. a (Auszug)",
+   "changed_by_omnibus": false,
+   "text": "KI-Systeme, die bestimmungsgemäß von Behörden oder im Namen von Behörden verwendet werden sollen, um zu beurteilen, ob natürliche Personen Anspruch auf grundlegende öffentliche Unterstützungsleistungen und -dienste, einschließlich Gesundheitsdiensten, haben und ob solche Leistungen und Dienste zu gewähren, einzuschränken, zu widerrufen oder zurückzufordern sind."
+  },
+  {
+   "type": "erwg",
+   "nr": "58",
+   "text": "Erwägungsgrund 58 — Zugang zu grundlegenden privaten und öffentlichen Diensten und Leistungen verdient besondere Aufmerksamkeit: Wer solche Leistungen zuteilt, entzieht oder kürzt, entscheidet über Existenzgrundlagen. Einsatz im Gespräch: Der ErwG hinter Anhang III Nr. 5 — die Kernnorm des Sozialversicherungsträgers."
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p3-e01-c2",
+    "type": "mc",
+    "prompt": "Die Personalabteilung will Bewerbungen KI-gestützt vorfiltern. Welcher Anhang-III-Bereich ist einschlägig?",
+    "options": [
+     {
+      "id": "a",
+      "text": "Nr. 5 (wesentliche Leistungen)",
+      "correct": false,
+      "rationale": "Nr. 5 betrifft Leistungsempfänger, nicht das Personalwesen.",
+      "source_ref": "Anhang III Nr. 5"
+     },
+     {
+      "id": "b",
+      "text": "Nr. 4 (Beschäftigung) — Einstellung/Auswahl ist ausdrücklich genannt.",
+      "correct": true,
+      "rationale": "Anhang III Nr. 4 lit. a erfasst KI zur Einstellung/Auswahl, insbesondere Sichtung/Filterung von Bewerbungen.",
+      "source_ref": "Anhang III Nr. 4 lit. a"
+     },
+     {
+      "id": "c",
+      "text": "Nr. 1 (Biometrie)",
+      "correct": false,
+      "rationale": "Ohne biometrische Komponente nicht einschlägig.",
+      "source_ref": "Anhang III Nr. 1"
+     },
+     {
+      "id": "d",
+      "text": "Keiner — Bewerbungsdaten sind DSGVO-Sache.",
+      "correct": false,
+      "rationale": "DSGVO gilt parallel; die AI-Act-Einstufung läuft eigenständig über Nr. 4.",
+      "source_ref": "Anhang III Nr. 4"
+     }
+    ],
+    "level": "B"
+   }
+  }
+ ]
+}

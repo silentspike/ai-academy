@@ -1,0 +1,202 @@
+{
+ "id": "p4-e02-rollenkipp",
+ "phase": "p4",
+ "title": "Die Art.-25-Falle: Wann der Betreiber zum Anbieter wird",
+ "competency": "K05",
+ "level": "C",
+ "legal_status": "konsolidiert-2026-07-27",
+ "legal_basis": [
+  {
+   "ref": "Art. 25 Abs. 1",
+   "instrument": "VO 2024/1689 idF 2026/1744",
+   "verified": "eigenpruefung-2026-07-24"
+  }
+ ],
+ "change_log": [
+  {
+   "date": "2026-07-24",
+   "was": "Ersterstellung",
+   "quelle": "legal/arbeitskonsolidierung.md"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "Auslegungs-Box ErwG 84 ergänzt (Plan #4 Doppelverankerung)"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "Beispiel-Slot slot-10 ergänzt (§5.1: fixer Intent, profilvariable Einkleidung)"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "A-Stufen-Check ergänzt (§3 Mengengerüst 40/40/20)"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "Originaltext-Box auf wörtlichen Amtsblatt-Wortlaut korrigiert (Nacharbeit: war paraphrasiert)"
+  }
+ ],
+ "blocks": [
+  {
+   "type": "problem",
+   "html": "Die IT will das zugekaufte Chatbot-Framework „nur ein bisschen anpassen“: eigenes Branding drauf, Feintuning mit ÖSVA-Daten, und ein Kollege möchte es intern als „ÖSVA-Assistent“ groß ausrollen. <b>An welchem Punkt wird aus der Betreiberin ÖSVA rechtlich eine ANBIETERIN — mit dem vollen Pflichtenpaket?</b>",
+   "einsteiger_worked_example": "Die drei Kipp-Schalter des Art. 25 Abs. 1 (für Hochrisiko-Systeme): a) EIGENER NAME/MARKE am System, b) WESENTLICHE ÄNDERUNG eines bereits hochriskanten Systems, c) ZWECKÄNDERUNG, die ein Nicht-Hochrisiko-System hochriskant macht. Prüfweg: Branding → Schalter a droht. Feintuning → je nach Tiefe Schalter b. Neuer Einsatzzweck (z. B. plötzlich Leistungsberatung) → Schalter c. Ergebnis: „Nur anpassen“ ist die teuerste Untertreibung des AI Act."
+  },
+  {
+   "type": "concept",
+   "html": "<b>Art. 25 Abs. 1</b> macht Betreiber (und andere) zu Anbietern, wenn sie a) ein Hochrisiko-System unter <b>eigenem Namen oder eigener Marke</b> führen, b) es <b>wesentlich verändern</b> (und es hochriskant bleibt) oder c) die <b>Zweckbestimmung so ändern</b>, dass es hochriskant WIRD. Folge: das komplette Anbieter-Pflichtenprogramm (Kap. III Abschn. 2/3). Der ursprüngliche Anbieter rückt dann grundsätzlich in die Zulieferer-Rolle. Fürs Tagesgeschäft heißt das: <b>Jede Produktisierungs-Idee der Fachabteilungen ist ein Art.-25-Prüffall.</b>"
+  },
+  {
+   "type": "beispiel",
+   "intent_id": "slot-10",
+   "intent": "zeige den Rollenwechsel durch eine scheinbar kleine Anpassung",
+   "generisch": "Ein zugekauftes System bekommt den eigenen Namen und eine erweiterte Zweckbestimmung — damit wird aus der Betreiberin eine Anbieterin."
+  },
+  {
+   "type": "widget",
+   "widget": "roleswitch",
+   "payload": {}
+  },
+  {
+   "type": "merkbild",
+   "html": "🧠 Merkbild: Art. 25 ist der <b>„Sie berühren es, Sie besitzen es“-Aufkleber</b> im Porzellanladen der Hochrisiko-KI."
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p4-e02-a1",
+    "type": "mc",
+    "competency": "K05",
+    "level": "A",
+    "legal_status": "konsolidiert-2026-07-27",
+    "legal_basis": [
+     {
+      "ref": "Art. 25 Abs. 1",
+      "instrument": "VO 2024/1689 idF 2026/1744",
+      "verified": "eigenpruefung-a-checks-2026-07-25"
+     }
+    ],
+    "prompt": "Welcher Artikel regelt den Rollenwechsel zum Anbieter?",
+    "options": [
+     {
+      "id": "a",
+      "text": "Art. 25",
+      "correct": true,
+      "rationale": "Drei Trigger: Umbranding, wesentliche Änderung, Zweckänderung.",
+      "source_ref": "Art. 25 Abs. 1"
+     },
+     {
+      "id": "b",
+      "text": "Art. 16",
+      "correct": false,
+      "rationale": "Listet die Anbieterpflichten, nicht den Wechsel.",
+      "source_ref": "Art. 16"
+     },
+     {
+      "id": "c",
+      "text": "Art. 22",
+      "correct": false,
+      "rationale": "Bevollmächtigte.",
+      "source_ref": "Art. 22"
+     },
+     {
+      "id": "d",
+      "text": "Art. 50",
+      "correct": false,
+      "rationale": "Transparenz.",
+      "source_ref": "Art. 50"
+     }
+    ]
+   }
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p4-e02-c1",
+    "type": "mc",
+    "prompt": "Welche Maßnahme löst den Rollen-Kipp nach Art. 25 am KLARSTEN aus?",
+    "options": [
+     {
+      "id": "a",
+      "text": "Das zugekaufte Hochrisiko-System intern unter dem Namen „ÖSVA-Antragsassistent“ mit eigenem Logo bereitstellen.",
+      "correct": true,
+      "rationale": "Eigener Name/eigene Marke an einem bereits in Verkehr befindlichen Hochrisiko-System ist Schalter a des Art. 25 Abs. 1.",
+      "source_ref": "Art. 25 Abs. 1 lit. a"
+     },
+     {
+      "id": "b",
+      "text": "Einen Konfigurationsparameter laut Handbuch setzen.",
+      "correct": false,
+      "rationale": "Bestimmungsgemäße Konfiguration ist normale Betreiber-Nutzung.",
+      "source_ref": "Art. 26 Abs. 1"
+     },
+     {
+      "id": "c",
+      "text": "Das System im Testbetrieb evaluieren.",
+      "correct": false,
+      "rationale": "Erprobung ohne Inverkehrbringen kippt die Rolle nicht.",
+      "source_ref": "Art. 25 sys."
+     },
+     {
+      "id": "d",
+      "text": "Dem Anbieter Feedback zu Fehlklassifikationen geben.",
+      "correct": false,
+      "rationale": "Feedback ist Teil der Überwachungspflichten, kein Kipp-Tatbestand.",
+      "source_ref": "Art. 26 Abs. 5"
+     }
+    ],
+    "level": "C"
+   }
+  },
+  {
+   "type": "quelle",
+   "ref": "Art. 25 Abs. 1",
+   "changed_by_omnibus": false,
+   "text": "In den folgenden Fällen gelten Händler, Einführer, Betreiber oder sonstige Dritte als Anbieter eines Hochrisiko-KI-Systems für die Zwecke dieser Verordnung und unterliegen den Anbieterpflichten gemäß Artikel 16: a) wenn sie ein bereits in Verkehr gebrachtes oder in Betrieb genommenes Hochrisiko-KI-System mit ihrem Namen oder ihrer Handelsmarke versehen …; b) wenn sie eine wesentliche Veränderung eines Hochrisiko-KI-Systems … so vornehmen, dass es weiterhin ein Hochrisiko-KI-System gemäß Artikel 6 bleibt; c) wenn sie die Zweckbestimmung eines KI-Systems … so verändern, dass das betreffende KI-System zu einem Hochrisiko-KI-System im Sinne von Artikel 6 wird."
+  },
+  {
+   "type": "erwg",
+   "nr": "84",
+   "text": "Erwägungsgrund 84 — Händler, Einführer, Betreiber oder Dritte gelten unter bestimmten Bedingungen als Anbieter und übernehmen dann dessen volle Pflichten. Einsatz im Gespräch: Der ErwG hinter Art. 25 — bei Umbranding, wesentlicher Änderung oder Zweckänderung."
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p4-e02-c2",
+    "type": "case",
+    "scenario": "Die Fachabteilung hat ein zugekauftes Textanalyse-Tool (bisher: interne Dokumentensortierung, kein Hochrisiko) eigenmächtig so umkonfiguriert, dass es Leistungsanträge inhaltlich vorbewertet.",
+    "prompt": "Ihre Bewertung?",
+    "options": [
+     {
+      "id": "a",
+      "text": "Zweckänderung Richtung Anhang III Nr. 5 — Kipp-Schalter c: Die ÖSVA droht Anbieterin dieses (jetzt) Hochrisiko-Systems zu werden.",
+      "correct": true,
+      "rationale": "Wer die Zweckbestimmung so ändert, dass ein System hochriskant wird, übernimmt nach Art. 25 Abs. 1 lit. c die Anbieterrolle — mit vollem Pflichtenprogramm.",
+      "source_ref": "Art. 25 Abs. 1 lit. c"
+     },
+     {
+      "id": "b",
+      "text": "Unkritisch, weil das Tool dasselbe bleibt.",
+      "correct": false,
+      "rationale": "Maßgeblich ist die Zweckbestimmung, nicht die Binärdatei.",
+      "source_ref": "Art. 3 Nr. 12"
+     },
+     {
+      "id": "c",
+      "text": "Nur ein Verstoß gegen interne IT-Richtlinien.",
+      "correct": false,
+      "rationale": "Zusätzlich zur Governance-Frage entsteht eine harte AI-Act-Rollenfolge.",
+      "source_ref": "Art. 25 Abs. 1 lit. c"
+     },
+     {
+      "id": "d",
+      "text": "Für eine belastbare Einstufung fehlen Informationen.",
+      "correct": false,
+      "rationale": "Ausgangszweck, neuer Zweck und Anhang-III-Bezug sind vollständig.",
+      "source_ref": "Art. 25 Abs. 1 lit. c"
+     }
+    ],
+    "level": "C"
+   }
+  }
+ ]
+}

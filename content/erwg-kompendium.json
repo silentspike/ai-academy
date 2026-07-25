@@ -1,0 +1,607 @@
+{
+ "titel": "ErwG-Kompendium — die 40 prüfungsrelevantesten Erwägungsgründe (Plan #4, Phase 10)",
+ "hinweis": "Erwägungsgründe binden nicht selbst (kein verfügender Teil), sind aber die maßgebliche Auslegungshilfe. Zitate sind Auszüge aus dem Amtsblatt-Volltext der Stammfassung; Kernaussagen daraus abgeleitet.",
+ "legal_status": "konsolidiert-2026-07-27",
+ "erwaegungsgruende": [
+  {
+   "nr": 20,
+   "thema": "Fundament",
+   "competency": "K14",
+   "kernaussage": "KI-Kompetenz ist als Kompetenz von Anbietern, Betreibern UND betroffenen Personen gedacht — nicht als Zertifikat, sondern als Befähigung zu informierten Entscheidungen.",
+   "einsatz": "Wenn jemand Art. 4 auf „einmal Schulung abhaken“ verkürzt.",
+   "zitat": "Um den größtmöglichen Nutzen aus KI-Systemen zu ziehen und gleichzeitig die Grundrechte, Gesundheit und Sicherheit zu wahren und eine demokratische Kontrolle zu ermöglichen, sollte die KI-Kompetenz Anbieter, Betreiber und betroffene Personen mit den notwendigen Konzepten ausstatten, um fundierte …",
+   "legal_basis": [
+    {
+     "ref": "ErwG 20",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-erwg-2026-07-25"
+    }
+   ]
+  },
+  {
+   "nr": 27,
+   "thema": "Fundament",
+   "competency": "K18",
+   "kernaussage": "Der risikobasierte Ansatz wird durch die sieben Ethikleitlinien für vertrauenswürdige KI flankiert (u. a. menschliches Handeln und Aufsicht, technische Robustheit, Datenschutz, Transparenz, Vielfalt/Nichtdiskriminierung, Wohlergehen, Rechenschaft).",
+   "einsatz": "Als Rahmen für freiwillige Selbstverpflichtungen unterhalb der Hochrisiko-Schwelle.",
+   "zitat": "Während der risikobasierte Ansatz die Grundlage für ein verhältnismäßiges und wirksames verbindliches Regelwerk bildet, muss auch auf die Ethikleitlinien für vertrauenswürdige KI von 2019 der von der Kommission eingesetzten unabhängigen hochrangigen Expertengruppe für künstliche Intelligenz …",
+   "legal_basis": [
+    {
+     "ref": "ErwG 27",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-erwg-2026-07-25"
+    }
+   ]
+  },
+  {
+   "nr": 28,
+   "thema": "Verbote",
+   "competency": "K04",
+   "kernaussage": "Die Verbote adressieren KI als Instrument manipulativer, ausbeuterischer und sozialer Kontrollpraktiken — sie sind Ausdruck eines unannehmbaren Risikos, nicht bloß strenger Regulierung.",
+   "einsatz": "Zur Begründung, warum Verbote einwilligungsfest sind.",
+   "zitat": "Abgesehen von den zahlreichen nutzbringenden Verwendungsmöglichkeiten von KI kann diese Technologie auch missbraucht werden und neue und wirkungsvolle Instrumente für manipulative, ausbeuterische und soziale Kontrollpraktiken bieten. Solche Praktiken sind besonders schädlich und missbräuchlich und …",
+   "legal_basis": [
+    {
+     "ref": "ErwG 28",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-erwg-2026-07-25"
+    }
+   ]
+  },
+  {
+   "nr": 29,
+   "thema": "Verbote",
+   "competency": "K04",
+   "kernaussage": "Manipulative Techniken wirken über die bewusste Wahrnehmung hinaus und untergraben Autonomie und Entscheidungsfreiheit; Zustimmung heilt das nicht.",
+   "einsatz": "Gegen „die Nutzer stimmen doch zu“-Argumente bei Dark Patterns.",
+   "zitat": "KI-gestützte manipulative Techniken können dazu verwendet werden, Personen zu unerwünschten Verhaltensweisen zu bewegen oder sie zu täuschen, indem sie in einer Weise zu Entscheidungen angeregt werden, die ihre Autonomie, Entscheidungsfindung und freie Auswahl untergräbt und beeinträchtigt. Das …",
+   "legal_basis": [
+    {
+     "ref": "ErwG 29",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-erwg-2026-07-25"
+    }
+   ]
+  },
+  {
+   "nr": 31,
+   "thema": "Verbote",
+   "competency": "K04",
+   "kernaussage": "Social Scoring führt zu Diskriminierung und Ausgrenzung, verletzt Menschenwürde und Gleichbehandlung — erfasst sind öffentliche UND private Akteure.",
+   "einsatz": "Wenn „wir sind doch keine Behörde“ als Ausrede kommt.",
+   "zitat": "KI-Systeme, die eine soziale Bewertung natürlicher Personen durch öffentliche oder private Akteure bereitstellen, können zu diskriminierenden Ergebnissen und zur Ausgrenzung bestimmter Gruppen führen. Sie können die Menschenwürde und das Recht auf Nichtdiskriminierung sowie die Werte der Gleichheit …",
+   "legal_basis": [
+    {
+     "ref": "ErwG 31",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-erwg-2026-07-25"
+    }
+   ]
+  },
+  {
+   "nr": 42,
+   "thema": "Verbote",
+   "competency": "K04",
+   "kernaussage": "Unschuldsvermutung: Menschen sind nach tatsächlichem Verhalten zu beurteilen, nie allein nach Prognosen aus Persönlichkeitsmerkmalen oder Profiling.",
+   "einsatz": "Die Begründung hinter lit. d — und die Grenze zulässiger Risikoanalysen.",
+   "zitat": "Im Einklang mit der Unschuldsvermutung sollten natürliche Personen in der Union stets nach ihrem tatsächlichen Verhalten beurteilt werden. Natürliche Personen sollten niemals allein nach dem Verhalten beurteilt werden, das von einer KI auf der Grundlage ihres Profiling, ihrer …",
+   "legal_basis": [
+    {
+     "ref": "ErwG 42",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-erwg-2026-07-25"
+    }
+   ]
+  },
+  {
+   "nr": 43,
+   "thema": "Verbote",
+   "competency": "K04",
+   "kernaussage": "Ungezieltes Auslesen von Gesichtsbildern aus dem Internet oder aus Überwachungsaufnahmen verstärkt das Gefühl der Massenüberwachung und ist deshalb verboten.",
+   "einsatz": "Bei Angeboten von Gesichtserkennungs-Datenbanken.",
+   "zitat": "Das Inverkehrbringen, die Inbetriebnahme für diesen spezifischen Zweck oder die Verwendung von KI-Systemen, die Datenbanken zur Gesichtserkennung durch das ungezielte Auslesen von Gesichtsbildern aus dem Internet oder von Videoüberwachungsaufnahmen erstellen oder erweitern, sollte verboten werden, …",
+   "legal_basis": [
+    {
+     "ref": "ErwG 43",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-erwg-2026-07-25"
+    }
+   ]
+  },
+  {
+   "nr": 44,
+   "thema": "Verbote",
+   "competency": "K04",
+   "kernaussage": "Emotionserkennung hat eine schwache wissenschaftliche Basis (kultur- und situationsabhängig, begrenzt zuverlässig und verallgemeinerbar) — daher das Verbot am Arbeitsplatz und in Bildungseinrichtungen.",
+   "einsatz": "Das stärkste Sachargument gegen „die Technik ist doch besser geworden“.",
+   "zitat": "Im Hinblick auf die wissenschaftliche Grundlage von KI-Systemen, die darauf abzielen, Emotionen zu erkennen oder abzuleiten, bestehen ernsthafte Bedenken, insbesondere da sich Gefühlsausdrücke je nach Kultur oder Situation und selbst bei ein und derselben Person erheblich unterscheiden. Zu den …",
+   "legal_basis": [
+    {
+     "ref": "ErwG 44",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-erwg-2026-07-25"
+    }
+   ]
+  },
+  {
+   "nr": 46,
+   "thema": "Einstufung",
+   "competency": "K03",
+   "kernaussage": "Hochrisiko-Systeme dürfen nur mit erfüllten verbindlichen Anforderungen in Verkehr; die Anforderungen sind die Bedingung des Marktzugangs, keine Empfehlung.",
+   "einsatz": "Wenn Pflichten als „nice to have“ dargestellt werden.",
+   "zitat": "Hochrisiko-KI-Systeme sollten nur dann auf dem Unionsmarkt in Verkehr gebracht, in Betrieb genommen oder verwendet werden, wenn sie bestimmte verbindliche Anforderungen erfüllen. Mit diesen Anforderungen sollte sichergestellt werden, dass Hochrisiko-KI-Systeme, die in der Union verfügbar sind oder …",
+   "legal_basis": [
+    {
+     "ref": "ErwG 46",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-erwg-2026-07-25"
+    }
+   ]
+  },
+  {
+   "nr": 48,
+   "thema": "Einstufung",
+   "competency": "K03",
+   "kernaussage": "Für die Hochrisiko-Einstufung zählt das Ausmaß der nachteiligen Grundrechts-Auswirkungen (Charta) — Würde, Nichtdiskriminierung, Datenschutz, Verfahrensrechte.",
+   "einsatz": "Als Maßstab, wenn eine Einstufung „am Wortlaut vorbei“ diskutiert wird.",
+   "zitat": "Das Ausmaß der nachteiligen Auswirkungen des KI-Systems auf die durch die Charta geschützten Grundrechte ist bei der Einstufung eines KI-Systems als hochriskant von besonderer Bedeutung. Zu diesen Rechten gehören die Würde des Menschen, die Achtung des Privat- und Familienlebens, der Schutz …",
+   "legal_basis": [
+    {
+     "ref": "ErwG 48",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-erwg-2026-07-25"
+    }
+   ]
+  },
+  {
+   "nr": 53,
+   "thema": "Einstufung",
+   "competency": "K03",
+   "kernaussage": "Nicht jedes System in einem Anhang-III-Bereich birgt ein bedeutendes Risiko — daraus folgt die eng umgrenzte Ausnahme des Art. 6 Abs. 3 mit Dokumentationspflicht.",
+   "einsatz": "Beim Prüfen, ob die Abs.-3-Ausnahme wirklich trägt.",
+   "zitat": "Ferner muss klargestellt werden, dass es bestimmte Fälle geben kann, in denen KI-Systeme für vordefinierte in dieser Verordnung festgelegte Bereiche nicht zu einem bedeutenden Risiko der Beeinträchtigung der in diesen Bereichen geschützten rechtlichen Interessen führen, da sie die …",
+   "legal_basis": [
+    {
+     "ref": "ErwG 53",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-erwg-2026-07-25"
+    }
+   ]
+  },
+  {
+   "nr": 54,
+   "thema": "Einstufung",
+   "competency": "K03",
+   "kernaussage": "Biometrische Daten sind besondere Kategorie personenbezogener Daten; kritische Anwendungsfälle (Fernidentifizierung, Kategorisierung, Emotionserkennung) sind hochriskant, soweit nicht verboten.",
+   "einsatz": "Zur Abgrenzung Verbot ↔ Hochrisiko bei Biometrie.",
+   "zitat": "Da biometrische Daten eine besondere Kategorie personenbezogener Daten darstellen, sollten einige kritische Anwendungsfälle biometrischer Systeme als hochriskant eingestuft werden, sofern ihre Verwendung nach den einschlägigen Rechtsvorschriften der Union und den nationalen Rechtsvorschriften …",
+   "legal_basis": [
+    {
+     "ref": "ErwG 54",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-erwg-2026-07-25"
+    }
+   ]
+  },
+  {
+   "nr": 57,
+   "thema": "Einstufung",
+   "competency": "K03",
+   "kernaussage": "Beschäftigungs-KI (Einstellung, Auswahl, Arbeitsbedingungen, Beförderung, Beendigung, Aufgabenzuweisung, Leistungsüberwachung) ist hochriskant — sie wirkt auf Karrierechancen und Existenzgrundlage.",
+   "einsatz": "Sobald Leistungs- oder Personalauswertungen „mitgenommen“ werden sollen.",
+   "zitat": "KI-Systeme, die in den Bereichen Beschäftigung, Personalmanagement und Zugang zur Selbstständigkeit eingesetzt werden, insbesondere für die Einstellung und Auswahl von Personen, für Entscheidungen über die Bedingungen des Arbeitsverhältnisses sowie die Beförderung und die Beendigung von …",
+   "legal_basis": [
+    {
+     "ref": "ErwG 57",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-erwg-2026-07-25"
+    }
+   ]
+  },
+  {
+   "nr": 58,
+   "thema": "Einstufung",
+   "competency": "K03",
+   "kernaussage": "Zugang zu grundlegenden privaten und öffentlichen Diensten und Leistungen verdient besondere Aufmerksamkeit: Wer solche Leistungen zuteilt, entzieht oder kürzt, entscheidet über Existenzgrundlagen.",
+   "einsatz": "Der ErwG hinter Anhang III Nr. 5 — die Kernnorm des Sozialversicherungsträgers.",
+   "zitat": "Ein weiterer Bereich, in dem der Einsatz von KI-Systemen besondere Aufmerksamkeit verdient, ist der Zugang zu und die Nutzung von bestimmten grundlegenden privaten und öffentlichen Diensten und Leistungen, die erforderlich sind, damit Menschen uneingeschränkt an der Gesellschaft teilhaben oder …",
+   "legal_basis": [
+    {
+     "ref": "ErwG 58",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-erwg-2026-07-25"
+    }
+   ]
+  },
+  {
+   "nr": 61,
+   "thema": "Einstufung",
+   "competency": "K03",
+   "kernaussage": "Rechtspflege und demokratische Prozesse sind wegen der Wirkung auf Rechtsstaatlichkeit und individuelle Freiheiten gesondert erfasst.",
+   "einsatz": "Zur Einordnung von Nr. 8 und zur Abgrenzung reiner Verwaltungshilfen.",
+   "zitat": "Bestimmte KI-Systeme, die für die Rechtspflege und demokratische Prozesse bestimmt sind, sollten angesichts ihrer möglichen erheblichen Auswirkungen auf die Demokratie, die Rechtsstaatlichkeit, die individuellen Freiheiten sowie das Recht auf einen wirksamen Rechtsbehelf und ein unparteiisches …",
+   "legal_basis": [
+    {
+     "ref": "ErwG 61",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-erwg-2026-07-25"
+    }
+   ]
+  },
+  {
+   "nr": 63,
+   "thema": "Einstufung",
+   "competency": "K16",
+   "kernaussage": "Die Hochrisiko-Einstufung nach dieser Verordnung sagt nichts darüber, ob der Einsatz nach ANDEREM Unionsrecht zulässig ist — die Rechtsschichten bleiben nebeneinander bestehen.",
+   "einsatz": "Gegen „AI Act erlaubt es doch“ — DSGVO und Fachrecht gelten weiter.",
+   "zitat": "Die Tatsache, dass ein KI-System gemäß dieser Verordnung als ein Hochrisiko-KI-System eingestuft wird, sollte nicht dahin gehend ausgelegt werden, dass die Verwendung des Systems nach anderen Rechtsakten der Union oder nach nationalen Rechtsvorschriften, die mit dem Unionsrecht vereinbar sind, …",
+   "legal_basis": [
+    {
+     "ref": "ErwG 63",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-erwg-2026-07-25"
+    }
+   ]
+  },
+  {
+   "nr": 65,
+   "thema": "Pflichten",
+   "competency": "K08",
+   "kernaussage": "Risikomanagement ist ein kontinuierlicher, iterativer Prozess über den gesamten Lebenszyklus — kein einmaliges Dokument vor dem Go-live.",
+   "einsatz": "Wenn Compliance als Projektphase statt Dauerbetrieb geplant wird.",
+   "zitat": "Das Risikomanagementsystem sollte in einem kontinuierlichen iterativen Prozess bestehen, der während des gesamten Lebenszyklus eines Hochrisiko-KI-Systems geplant und durchgeführt wird. Ziel dieses Prozesses sollte es ein, die einschlägigen Risiken von KI-Systemen für Gesundheit, Sicherheit und …",
+   "legal_basis": [
+    {
+     "ref": "ErwG 65",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-erwg-2026-07-25"
+    }
+   ]
+  },
+  {
+   "nr": 67,
+   "thema": "Pflichten",
+   "competency": "K11",
+   "kernaussage": "Hochwertige, repräsentative Daten sind zentral; Datensätze sollen hinreichend fehlerfrei und vollständig sein und statistische Merkmale der betroffenen Personengruppen berücksichtigen.",
+   "einsatz": "Zur Begründung von Datenqualitäts-Anforderungen in der Beschaffung.",
+   "zitat": "Hochwertige Daten und der Zugang dazu spielen eine zentrale Rolle bei der Bereitstellung von Strukturen und für die Sicherstellung der Leistung vieler KI-Systeme, insbesondere wenn Techniken eingesetzt werden, bei denen Modelle mit Daten trainiert werden, um sicherzustellen, dass das …",
+   "legal_basis": [
+    {
+     "ref": "ErwG 67",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-erwg-2026-07-25"
+    }
+   ]
+  },
+  {
+   "nr": 72,
+   "thema": "Pflichten",
+   "competency": "K08",
+   "kernaussage": "Transparenz gegenüber Betreibern soll Undurchsichtigkeit ausgleichen und sie in die Lage versetzen, ihre eigenen Pflichten zu erfüllen — deshalb die Betriebsanleitung.",
+   "einsatz": "Wenn ein Anbieter Angaben zu Grenzen und Genauigkeit verweigert.",
+   "zitat": "Um Bedenken hinsichtlich der Undurchsichtigkeit und Komplexität bestimmter KI-Systeme auszuräumen und die Betreiber bei der Erfüllung ihrer Pflichten gemäß dieser Verordnung zu unterstützen, sollte für HochrisikoKI-Systeme Transparenz vorgeschrieben werden, bevor sie in Verkehr gebracht oder in …",
+   "legal_basis": [
+    {
+     "ref": "ErwG 72",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-erwg-2026-07-25"
+    }
+   ]
+  },
+  {
+   "nr": 73,
+   "thema": "Pflichten",
+   "competency": "K08",
+   "kernaussage": "Menschliche Aufsicht muss die Funktionsweise überwachen können; Aufsichtspersonen brauchen Befähigung, Befugnis und Unterstützung — inklusive Bewusstsein für Automatisierungsbias.",
+   "einsatz": "Gegen Alibi-Aufsicht („die Sachbearbeiterin klickt ja am Ende“).",
+   "zitat": "Hochrisiko-KI-Systeme sollten so gestaltet und entwickelt werden, dass natürliche Personen ihre Funktionsweise überwachen und sicherstellen können, dass sie bestimmungsgemäß verwendet werden und dass ihre Auswirkungen während des Lebenszyklus des Systems berücksichtigt werden. Zu diesem Zweck …",
+   "legal_basis": [
+    {
+     "ref": "ErwG 73",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-erwg-2026-07-25"
+    }
+   ]
+  },
+  {
+   "nr": 74,
+   "thema": "Pflichten",
+   "competency": "K08",
+   "kernaussage": "Genauigkeit, Robustheit und Cybersicherheit müssen über den gesamten Lebenszyklus konsistent sein — Leistungsangaben gehören in die Betriebsanleitung.",
+   "einsatz": "Bei der Abnahme: Kennzahlen einfordern statt Marketing-Prozente.",
+   "zitat": "Hochrisiko-KI-Systeme sollten während ihres gesamten Lebenszyklus beständig funktionieren und ein angemessenes Maß an Genauigkeit, Robustheit und Cybersicherheit angesichts ihrer Zweckbestimmung und entsprechend dem allgemein anerkannten Stand der Technik aufweisen. Die Kommission sowie …",
+   "legal_basis": [
+    {
+     "ref": "ErwG 74",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-erwg-2026-07-25"
+    }
+   ]
+  },
+  {
+   "nr": 84,
+   "thema": "Rollen",
+   "competency": "K05",
+   "kernaussage": "Händler, Einführer, Betreiber oder Dritte gelten unter bestimmten Bedingungen als Anbieter und übernehmen dann dessen volle Pflichten.",
+   "einsatz": "Der ErwG hinter Art. 25 — bei Umbranding, wesentlicher Änderung oder Zweckänderung.",
+   "zitat": "Um Rechtssicherheit zu gewährleisten, muss präzisiert werden, dass unter bestimmten spezifischen Bedingungen jeder Händler, Einführer, Betreiber oder andere Dritte als Anbieter eines Hochrisiko-KI-Systems betrachtet werden und daher alle einschlägigen Pflichten erfüllen sollte. Dies wäre auch der …",
+   "legal_basis": [
+    {
+     "ref": "ErwG 84",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-erwg-2026-07-25"
+    }
+   ]
+  },
+  {
+   "nr": 91,
+   "thema": "Pflichten",
+   "competency": "K08",
+   "kernaussage": "Betreiber tragen eigene Zuständigkeiten, weil Risiken auch aus der Art der Verwendung entstehen — nicht nur aus dem Systemdesign.",
+   "einsatz": "Wenn Verantwortung pauschal auf den Anbieter geschoben wird.",
+   "zitat": "Angesichts des Charakters von KI-Systemen und der Risiken für die Sicherheit und die Grundrechte, die mit ihrer Verwendung verbunden sein können, ist es angezeigt, besondere Zuständigkeiten für die Betreiber festzulegen, auch im Hinblick darauf, dass eine angemessene Beobachtung der Leistung eines …",
+   "legal_basis": [
+    {
+     "ref": "ErwG 91",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-erwg-2026-07-25"
+    }
+   ]
+  },
+  {
+   "nr": 93,
+   "thema": "Pflichten",
+   "competency": "K08",
+   "kernaussage": "Verwendungsbedingte Risiken rechtfertigen Betreiberpflichten wie Aufsicht, Eingabedaten-Kontrolle, Protokollführung und Reaktion auf Vorfälle.",
+   "einsatz": "Zur Begründung des eigenen Betriebs-Regelwerks.",
+   "zitat": "Während Risiken im Zusammenhang mit KI-Systemen einerseits aus der Art und Weise entstehen können, in der solche Systeme konzipiert sind, können sie sich andererseits auch aus der Art und Weise ergeben, in der diese Systeme verwendet werden. Betreiber von Hochrisiko-KI-Systemen spielen daher eine …",
+   "legal_basis": [
+    {
+     "ref": "ErwG 93",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-erwg-2026-07-25"
+    }
+   ]
+  },
+  {
+   "nr": 96,
+   "thema": "FRIA",
+   "competency": "K09",
+   "kernaussage": "Betreiber, die Einrichtungen des öffentlichen Rechts sind oder öffentliche Dienste erbringen, sollen eine Grundrechte-Folgenabschätzung durchführen — wegen der besonderen Abhängigkeit der Betroffenen.",
+   "einsatz": "Warum die FRIA gerade die öffentliche Hand trifft.",
+   "zitat": "Um wirksam sicherzustellen, dass die Grundrechte geschützt werden, sollten Betreiber von Hochrisiko-KI-Systemen, bei denen es sich um Einrichtungen des öffentlichen Rechts oder private Einrichtungen, die öffentliche Dienste erbringen, handelt, und Betreiber, die bestimmte Hochrisiko-KI-Systemen …",
+   "legal_basis": [
+    {
+     "ref": "ErwG 96",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-erwg-2026-07-25"
+    }
+   ]
+  },
+  {
+   "nr": 97,
+   "thema": "GPAI",
+   "competency": "K13",
+   "kernaussage": "GPAI-Modelle werden funktional abgegrenzt (allgemeine Verwendbarkeit, Integration in nachgelagerte Systeme) — Modell ist nicht gleich System.",
+   "einsatz": "Für die Zwei-Ebenen-Analyse Modell/System.",
+   "zitat": "Der Begriff „KI-Modelle mit allgemeinem Verwendungszweck“ sollte klar bestimmt und vom Begriff der KI-Systeme abgegrenzt werden, um Rechtssicherheit zu schaffen. Die Begriffsbestimmung sollte auf den wesentlichen funktionalen Merkmalen eines KI-Modells mit allgemeinem Verwendungszweck beruhen, …",
+   "legal_basis": [
+    {
+     "ref": "ErwG 97",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-erwg-2026-07-25"
+    }
+   ]
+  },
+  {
+   "nr": 101,
+   "thema": "GPAI",
+   "competency": "K13",
+   "kernaussage": "GPAI-Anbieter haben besondere Verantwortung in der Wertschöpfungskette, weil ihre Modelle Grundlage vieler nachgelagerter Systeme sind — daher Dokumentations- und Informationspflichten.",
+   "einsatz": "Um Anbieter-Informationen für die eigene Einstufung einzufordern.",
+   "zitat": "Anbieter von KI-Modellen mit allgemeinem Verwendungszweck nehmen entlang der KI-Wertschöpfungskette eine besondere Rolle und Verantwortung wahr, da die von ihnen bereitgestellten Modelle die Grundlage für eine Reihe nachgelagerter Systeme bilden können, die häufig von nachgelagerten Anbietern …",
+   "legal_basis": [
+    {
+     "ref": "ErwG 101",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-erwg-2026-07-25"
+    }
+   ]
+  },
+  {
+   "nr": 102,
+   "thema": "GPAI",
+   "competency": "K13",
+   "kernaussage": "Freie und quelloffene Lizenzen können Innovation fördern; Erleichterungen gelten aber nur unter bestimmten Bedingungen und nie pauschal.",
+   "einsatz": "Gegen den „Open Source = pflichtenfrei“-Mythos.",
+   "zitat": "Software und Daten, einschließlich Modellen, die im Rahmen einer freien und quelloffenen Lizenz freigegeben werden, die ihre offene Weitergabe erlaubt und die Nutzer kostenlos abrufen, nutzen, verändern und weiter verteilen können, auch in veränderter Form, können zu Forschung und Innovation auf …",
+   "legal_basis": [
+    {
+     "ref": "ErwG 102",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-erwg-2026-07-25"
+    }
+   ]
+  },
+  {
+   "nr": 105,
+   "thema": "GPAI",
+   "competency": "K13",
+   "kernaussage": "Generative Modelle berühren Urheberrechte; Anbieter brauchen eine Strategie zur Einhaltung des Urheberrechts einschließlich Text- und Data-Mining-Vorbehalten.",
+   "einsatz": "Bei Fragen nach Trainingsdaten-Herkunft.",
+   "zitat": "KI-Modelle mit allgemeinem Verwendungszweck, insbesondere große generative KI-Modelle, die Text, Bilder und andere Inhalte erzeugen können, bedeuten einzigartige Innovationsmöglichkeiten, aber auch Herausforderungen für Künstler, Autoren und andere Kreative sowie die Art und Weise, wie ihre …",
+   "legal_basis": [
+    {
+     "ref": "ErwG 105",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-erwg-2026-07-25"
+    }
+   ]
+  },
+  {
+   "nr": 110,
+   "thema": "GPAI",
+   "competency": "K13",
+   "kernaussage": "Systemische Risiken umfassen schwere Unfälle, Störungen kritischer Sektoren, Auswirkungen auf Grundrechte und die Verbreitung schädlicher Verzerrungen.",
+   "einsatz": "Zur Einordnung, warum manche Modelle Zusatzpflichten tragen.",
+   "zitat": "KI-Modelle mit allgemeinem Verwendungszweck könnten systemische Risiken bergen, unter anderem tatsächliche oder vernünftigerweise vorhersehbare negative Auswirkungen im Zusammenhang mit schweren Unfällen, Störungen kritischer Sektoren und schwerwiegende Folgen für die öffentliche Gesundheit und …",
+   "legal_basis": [
+    {
+     "ref": "ErwG 110",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-erwg-2026-07-25"
+    }
+   ]
+  },
+  {
+   "nr": 132,
+   "thema": "Transparenz",
+   "competency": "K12",
+   "kernaussage": "Interagierende und inhaltserzeugende Systeme bergen unabhängig von der Hochrisiko-Einstufung besondere Täuschungs- und Identitätsbetrugsrisiken — daher eigene Transparenzpflichten.",
+   "einsatz": "Wenn „kein Hochrisiko, also keine Pflicht“ behauptet wird.",
+   "zitat": "Bestimmte KI-Systeme, die mit natürlichen Personen interagieren oder Inhalte erzeugen sollen, können unabhängig davon, ob sie als hochriskant eingestuft werden, ein besonderes Risiko in Bezug auf Identitätsbetrug oder Täuschung bergen. Unter bestimmten Umständen sollte die Verwendung solcher …",
+   "legal_basis": [
+    {
+     "ref": "ErwG 132",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-erwg-2026-07-25"
+    }
+   ]
+  },
+  {
+   "nr": 133,
+   "thema": "Transparenz",
+   "competency": "K12",
+   "kernaussage": "Synthetische Inhalte sind kaum noch von authentischen unterscheidbar — die Kennzeichnung soll diese Unterscheidbarkeit technisch erhalten.",
+   "einsatz": "Zur Begründung maschinenlesbarer Markierung.",
+   "zitat": "Eine Vielzahl von KI-Systemen kann große Mengen synthetischer Inhalte erzeugen, bei denen es für Menschen immer schwieriger wird, sie vom Menschen erzeugten und authentischen Inhalten zu unterscheiden. Die breite Verfügbarkeit und die zunehmenden Fähigkeiten dieser Systeme wirken sich erheblich auf …",
+   "legal_basis": [
+    {
+     "ref": "ErwG 133",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-erwg-2026-07-25"
+    }
+   ]
+  },
+  {
+   "nr": 134,
+   "thema": "Transparenz",
+   "competency": "K12",
+   "kernaussage": "Betreiber, die Bild-, Audio- oder Videoinhalte erzeugen oder manipulieren, die realen Personen ähneln, müssen offenlegen, dass die Inhalte künstlich erzeugt oder manipuliert wurden.",
+   "einsatz": "Bei Avataren und Deepfake-nahen Marketing-Ideen.",
+   "zitat": "Neben den technischen Lösungen, die von den Anbietern von KI-Systemen eingesetzt werden, sollten Betreiber, die ein KI-System zum Erzeugen oder Manipulieren von Bild-, Audio- oder Videoinhalte verwenden, die wirklichen Personen, Gegenständen, Orten, Einrichtungen oder Ereignissen merklich ähneln …",
+   "legal_basis": [
+    {
+     "ref": "ErwG 134",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-erwg-2026-07-25"
+    }
+   ]
+  },
+  {
+   "nr": 136,
+   "thema": "Transparenz",
+   "competency": "K12",
+   "kernaussage": "Die Feststellbarkeit künstlich erzeugter Inhalte ist Voraussetzung wirksamer Durchsetzung — Kennzeichnung ist kein kosmetischer Hinweis.",
+   "einsatz": "Wenn der Hinweis „das Design stört“ gestrichen werden soll.",
+   "zitat": "Die Pflichten, die Anbietern und Betreibern bestimmter KI-Systeme mit dieser Verordnung auferlegt werden, die Feststellung und Offenlegung zu ermöglichen, dass die Ausgaben dieser Systeme künstlich erzeugt oder manipuliert werden, sind von besonderer Bedeutung für die Erleichterung der wirksamen …",
+   "legal_basis": [
+    {
+     "ref": "ErwG 136",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-erwg-2026-07-25"
+    }
+   ]
+  },
+  {
+   "nr": 138,
+   "thema": "Aufsicht",
+   "competency": "K15",
+   "kernaussage": "Reallabore schaffen einen kontrollierten Raum für Erprobung unter behördlicher Aufsicht — verantwortungsvolle Innovation statt Grauzone.",
+   "einsatz": "Als konstruktiver Vorschlag bei innovativen Vorhaben.",
+   "zitat": "KI bezeichnet eine Reihe sich rasch entwickelnder Technologien, die eine Regulierungsaufsicht und einen sicheren und kontrollierten Raum für die Erprobung erfordern, wobei gleichzeitig eine verantwortungsvolle Innovation und die Integration geeigneter Schutzvorkehrungen und …",
+   "legal_basis": [
+    {
+     "ref": "ErwG 138",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-erwg-2026-07-25"
+    }
+   ]
+  },
+  {
+   "nr": 165,
+   "thema": "Aufsicht",
+   "competency": "K18",
+   "kernaussage": "Für Nicht-Hochrisiko-Systeme werden freiwillige Verhaltenskodizes und die Anwendung der Anforderungen ermutigt — gute Praxis ist nicht auf Pflichtfälle beschränkt.",
+   "einsatz": "Für eine Governance-Linie unterhalb der Schwelle.",
+   "zitat": "Die Entwicklung anderer KI-Systeme als Hochrisiko-KI-Systeme gemäß den Anforderungen dieser Verordnung kann zu einer stärkeren Verbreitung ethischer und vertrauenswürdiger KI in der Union führen. Anbieter von KI-Systemen, die kein hohes Risiko bergen, sollten angehalten werden, Verhaltenskodizes — …",
+   "legal_basis": [
+    {
+     "ref": "ErwG 165",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-erwg-2026-07-25"
+    }
+   ]
+  },
+  {
+   "nr": 168,
+   "thema": "Sanktionen",
+   "competency": "K15",
+   "kernaussage": "Die Mitgliedstaaten müssen wirksame, verhältnismäßige und abschreckende Sanktionen sicherstellen — die Durchsetzung ist Teil des Regelungskonzepts.",
+   "einsatz": "Zur Einordnung des Sanktionsrisikos.",
+   "zitat": "Die Einhaltung dieser Verordnung sollte durch die Verhängung von Sanktionen und anderen Durchsetzungs­ maßnahmen durchsetzbar sein. Die Mitgliedstaaten sollten alle erforderlichen Maßnahmen ergreifen, um sicherzustellen, dass die Bestimmungen dieser Verordnung durchgeführt werden, und dazu unter …",
+   "legal_basis": [
+    {
+     "ref": "ErwG 168",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-erwg-2026-07-25"
+    }
+   ]
+  },
+  {
+   "nr": 170,
+   "thema": "Rechte",
+   "competency": "K14",
+   "kernaussage": "Bestehende Rechtsbehelfe bleiben unberührt; ergänzend soll jede Person Beschwerde bei der Marktüberwachungsbehörde einlegen können.",
+   "einsatz": "Warum Compliance-Lücken extern entdeckbar sind.",
+   "zitat": "Im Unionsrecht und im nationalen Recht sind bereits wirksame Rechtsbehelfe für natürliche und juristische Personen vorgesehen, deren Rechte und Freiheiten durch die Nutzung von KI-Systemen beeinträchtigt werden. Unbeschadet dieser Rechtsbehelfe sollte jede natürliche oder juristische Person, die …",
+   "legal_basis": [
+    {
+     "ref": "ErwG 170",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-erwg-2026-07-25"
+    }
+   ]
+  },
+  {
+   "nr": 171,
+   "thema": "Rechte",
+   "competency": "K14",
+   "kernaussage": "Betroffene sollen eine Erklärung erhalten, wenn eine Entscheidung überwiegend auf der Ausgabe eines Hochrisiko-Systems beruht — Erklärbarkeit als Betroffenenrecht.",
+   "einsatz": "Der ErwG hinter Art. 86 — Prozesse müssen erklärungsfähig sein.",
+   "zitat": "Betroffene Personen sollten das Recht haben, eine Erklärung zu erhalten, wenn eine Entscheidung eines Betreibers überwiegend auf den Ausgaben bestimmter Hochrisiko-KI-systeme beruht, die in den Geltungsbereich dieser Verordnung fallen, und wenn diese Entscheidung Rechtswirkungen entfaltet oder …",
+   "legal_basis": [
+    {
+     "ref": "ErwG 171",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-erwg-2026-07-25"
+    }
+   ]
+  },
+  {
+   "nr": 179,
+   "thema": "Fristen",
+   "competency": "K06",
+   "kernaussage": "Die gestaffelte Anwendbarkeit folgt dem Risiko: Verbote und allgemeine Bestimmungen greifen früher als die Hochrisiko-Pflichten.",
+   "einsatz": "Zur Begründung der Zeitschichten-Logik (Omnibus-Verschiebungen inbegriffen).",
+   "zitat": "Diese Verordnung sollte ab dem 2. August 2026 gelten. Angesichts des unannehmbaren Risikos, das mit der Nutzung von KI auf bestimmte Weise verbunden ist, sollten die Verbote sowie die allgemeinen Bestimmungen dieser Verordnung jedoch bereits ab dem 2. Februar 2025 gelten. Während die volle Wirkung …",
+   "legal_basis": [
+    {
+     "ref": "ErwG 179",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-erwg-2026-07-25"
+    }
+   ]
+  }
+ ]
+}

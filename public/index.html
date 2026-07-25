@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI-Act-Akademie</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23070a10'/%3E%3Cpath d='M8 24 L16 7 L24 24 M11.5 18.5 h9' stroke='%23e1ad58' stroke-width='2.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="app/styles.css">
+<link rel="stylesheet" href="app/shell.css">
+</head>
+<body>
+<!-- Inszenierter Start (§6.3): ~1,5 s, Klick überspringt; reduced-motion entfernt ihn sofort -->
+<div id="intro" class="intro">
+  <div class="intro-mark brand-text">AI-Act-Akademie</div>
+  <div class="intro-greet"></div>
+</div>
+
+<div class="app-shell">
+  <div class="bg-layers"><div class="bg-aurora a"></div><div class="bg-aurora b"></div><div class="bg-aurora c"></div><div class="bg-grid"></div><div class="bg-noise"></div><div class="bg-vignette"></div></div>
+  <div class="app">
+
+    <nav class="rail">
+      <div class="logo"><svg viewBox="0 0 24 24" width="21" height="21" fill="none">
+        <defs><linearGradient id="lgA" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#987cff"/><stop offset=".55" stop-color="#ba8fd8"/><stop offset="1" stop-color="#e5b45f"/>
+        </linearGradient></defs>
+        <path d="M4.5 20 L12 4.5 L19.5 20" stroke="url(#lgA)" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M8.4 14.6 h7.2" stroke="url(#lgA)" stroke-width="1.5" stroke-linecap="round" opacity=".85"/>
+        <circle cx="12" cy="4.5" r="1.15" fill="#e5b45f"/>
+      </svg></div>
+      <a class="rail-item" data-nav="dashboard" href="#/dashboard" title="Dashboard"><svg><use href="assets/icons/sprite.svg#icon-nav-dashboard"/></svg></a>
+      <a class="rail-item" data-nav="lernen" href="#/lernen" title="Lernen"><svg><use href="assets/icons/sprite.svg#icon-nav-lernen"/></svg></a>
+      <a class="rail-item" data-nav="karten" href="#/karten" title="Karten"><svg><use href="assets/icons/sprite.svg#icon-nav-karten"/></svg></a>
+      <a class="rail-item" data-nav="examen" href="#/examen" title="Examen"><svg><use href="assets/icons/sprite.svg#icon-fach-trophy"/></svg></a>
+      <div class="spacer"></div>
+      <a class="rail-item" data-nav="einstellungen" href="#/einstellungen" title="Einstellungen"><svg><use href="assets/icons/sprite.svg#icon-nav-einstellungen"/></svg></a>
+    </nav>
+
+    <header class="topbar">
+      <span class="pill"><svg style="color:#b6a5ff"><use href="assets/icons/sprite.svg#icon-st-xp"/></svg> <b id="tb-xp" style="color:#b6a5ff">0 XP</b></span>
+      <span class="pill"><svg style="color:#b6a5ff"><use href="assets/icons/sprite.svg#icon-fach-badge"/></svg> Level <b id="tb-level">1</b></span>
+      <span class="pill"><svg><use href="assets/icons/sprite.svg#icon-st-kalender"/></svg> Woche: <b id="tb-week">0/5 Tagen</b></span>
+      <span class="pill"><svg style="color:var(--gold)"><use href="assets/icons/sprite.svg#icon-st-ziel"/></svg> Ziel: <b id="tb-goal" style="color:var(--gold)">—</b></span>
+      <div class="tb-right">
+        <span class="pill mono" id="tb-legal">Rechtsstand 27.7.2026</span>
+        <a class="iconbtn" href="/selfcheck.html" title="Self-Check"><svg><use href="assets/icons/sprite.svg#icon-st-check"/></svg></a>
+      </div>
+    </header>
+
+    <aside class="sidebar" id="sidebar">
+      <div class="wordmark">AI-Act-Akademie</div>
+      <div class="sect">Lernstruktur</div>
+      <a class="ph" href="#/heute"><svg class="ico" style="width:1.05rem"><use href="assets/icons/sprite.svg#icon-st-kalender"/></svg> Heute <span class="count" id="ritual-step">1/4</span></a>
+      <a class="ph" href="#/dashboard"><svg class="ico" style="width:1.05rem"><use href="assets/icons/sprite.svg#icon-nav-dashboard"/></svg> Dashboard</a>
+      <div class="sep"></div>
+      <div id="phase-tree" class="phase-tree"></div>
+      <div class="sep"></div>
+      <a class="ph" href="#/karten"><svg class="ico" style="width:1.05rem"><use href="assets/icons/sprite.svg#icon-nav-erhaltung"/></svg> Wiederholung
+        <span class="count" id="due-count" title="Kern (heute regulär fällig)">0</span><span class="count aufhol" id="aufhol-count" title="Aufholen (überfällig, verteilt)">0</span></a>
+      <a class="ph" id="nav-examen" href="#/examen"><svg class="ico" style="width:1.05rem"><use href="assets/icons/sprite.svg#icon-st-lock"/></svg> Examen</a>
+    </aside>
+
+    <main class="dashboard single" id="view"></main>
+  </div>
+</div>
+
+<script>window.BRIDGE_TOKEN = '__BRIDGE_TOKEN__';</script>
+<script type="module">
+  import { startApp } from './app/app.js';
+  startApp();
+</script>
+</body>
+</html>
