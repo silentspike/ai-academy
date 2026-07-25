@@ -54,7 +54,31 @@
   {
    "type": "widget",
    "widget": "roleswitch",
-   "payload": {}
+   "payload": {
+    "steps": [
+     {
+      "id": "marke",
+      "q": "Versehen Sie ein bereits in Verkehr gebrachtes oder in Betrieb genommenes Hochrisiko-KI-System mit Ihrem Namen oder Ihrer Handelsmarke?",
+      "yes": "RESULT:Sie gelten als Anbieter (Art. 25 Abs. 1 lit. a) und unterliegen den Anbieterpflichten nach Art. 16.",
+      "no": "veraenderung",
+      "legal_basis": "Art. 25 Abs. 1 lit. a"
+     },
+     {
+      "id": "veraenderung",
+      "q": "Nehmen Sie eine wesentliche Veränderung an einem Hochrisiko-KI-System vor, sodass es weiterhin ein Hochrisiko-KI-System nach Art. 6 bleibt?",
+      "yes": "RESULT:Sie gelten als Anbieter (Art. 25 Abs. 1 lit. b). Maßgeblich ist die wesentliche Veränderung — nicht jede Anpassung erfüllt sie.",
+      "no": "zweck",
+      "legal_basis": "Art. 25 Abs. 1 lit. b"
+     },
+     {
+      "id": "zweck",
+      "q": "Verändern Sie die Zweckbestimmung eines KI-Systems so, dass es dadurch zu einem Hochrisiko-KI-System nach Art. 6 wird?",
+      "yes": "RESULT:Sie gelten als Anbieter (Art. 25 Abs. 1 lit. c). Das gilt auch für ein System, das vorher nicht als Hochrisiko eingestuft war.",
+      "no": "RESULT:Kein Rollenwechsel nach Art. 25 Abs. 1. Sie bleiben Betreiber — die Betreiberpflichten nach Art. 26 gelten unverändert weiter.",
+      "legal_basis": "Art. 25 Abs. 1 lit. c"
+     }
+    ]
+   }
   },
   {
    "type": "merkbild",

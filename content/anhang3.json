@@ -1,0 +1,95 @@
+{
+  "titel": "Anhang III — Hochrisiko-Bereiche nach Art. 6 Abs. 2",
+  "legal_status": "konsolidiert-2026-07-27",
+  "hinweis": "Bereichsbezeichnungen im Wortlaut des Amtsblatts (VO (EU) 2024/1689, Anhang III). Die Einstufung erfolgt system- und zweckbezogen: Ein Bereich allein macht ein System noch nicht zum Hochrisiko-System — maßgeblich ist die Zweckbestimmung und die Ausnahme in Art. 6 Abs. 3.",
+  "areas": [
+    {
+      "nr": 1,
+      "title": "Biometrie",
+      "simple": "Systeme, die Menschen aus der Ferne biometrisch identifizieren, sie nach sensiblen Merkmalen kategorisieren oder Emotionen erkennen — jeweils nur, soweit ihr Einsatz überhaupt erlaubt ist. Die reine Verifizierung („bist du, wer du behauptest?“) gehört ausdrücklich nicht dazu.",
+      "examples": [
+        "Gesichtserkennung in einer Videoaufzeichnung, um Personen nachträglich zu identifizieren",
+        "Emotionserkennung aus der Stimme in einem Hotline-System",
+        "NICHT erfasst: Entsperren des Diensthandys per Fingerabdruck (Verifizierung)"
+      ],
+      "legal_basis": "Anhang III Nr. 1 lit. a–c (VO (EU) 2024/1689)"
+    },
+    {
+      "nr": 2,
+      "title": "Kritische Infrastruktur",
+      "simple": "Systeme, die als Sicherheitsbauteil in der Verwaltung oder im Betrieb kritischer digitaler Infrastruktur, des Straßenverkehrs oder der Wasser-, Gas-, Wärme- und Stromversorgung eingesetzt werden.",
+      "examples": [
+        "Lastschaltung im Stromnetz mit Sicherheitsfunktion",
+        "Verkehrssteuerung an Tunnelanlagen",
+        "NICHT erfasst: Ticketverkauf im Nahverkehr — kein Sicherheitsbauteil"
+      ],
+      "legal_basis": "Anhang III Nr. 2 (VO (EU) 2024/1689)"
+    },
+    {
+      "nr": 3,
+      "title": "Allgemeine und berufliche Bildung",
+      "simple": "Systeme, die über Zugang, Zulassung oder Zuweisung zu Bildungseinrichtungen entscheiden, Lernergebnisse bewerten, das angemessene Bildungsniveau beurteilen oder Prüfungsverhalten überwachen.",
+      "examples": [
+        "Zulassungsverfahren einer Hochschule mit KI-Vorauswahl",
+        "Automatisierte Bewertung von Prüfungsleistungen",
+        "Aufsichtssoftware, die verbotenes Verhalten bei Prüfungen erkennt"
+      ],
+      "legal_basis": "Anhang III Nr. 3 lit. a–d (VO (EU) 2024/1689)"
+    },
+    {
+      "nr": 4,
+      "title": "Beschäftigung, Personalmanagement und Zugang zur Selbstständigkeit",
+      "simple": "Systeme für Einstellung und Auswahl sowie für Entscheidungen über Arbeitsbedingungen, Beförderung und Kündigung, für Aufgabenzuweisung nach Verhalten oder persönlichen Merkmalen und für die Beobachtung und Bewertung von Leistung und Verhalten Beschäftigter.",
+      "examples": [
+        "Bewerbungs-Screening, das Lebensläufe filtert",
+        "Leistungsbewertung von Beschäftigten aus Aktivitätsdaten",
+        "Gezielte Ausspielung von Stellenanzeigen"
+      ],
+      "legal_basis": "Anhang III Nr. 4 lit. a–b (VO (EU) 2024/1689)"
+    },
+    {
+      "nr": 5,
+      "title": "Zugänglichkeit und Inanspruchnahme grundlegender privater und öffentlicher Dienste und Leistungen",
+      "simple": "Systeme, die für Behörden beurteilen, ob Anspruch auf grundlegende öffentliche Leistungen besteht und ob diese zu gewähren, einzuschränken, zu widerrufen oder zurückzufordern sind — dazu Kreditwürdigkeitsprüfung, Risikobewertung und Preisbildung bei Lebens- und Krankenversicherungen sowie Notruf-Bewertung und Patiententriage.",
+      "examples": [
+        "Prüfung von Leistungsansprüchen in der Sozialversicherung (lit. a)",
+        "Bonitätsbewertung natürlicher Personen (lit. b) — außer reiner Betrugserkennung",
+        "Triage von Patienten in der Notfallversorgung (lit. d)"
+      ],
+      "legal_basis": "Anhang III Nr. 5 lit. a–d (VO (EU) 2024/1689)"
+    },
+    {
+      "nr": 6,
+      "title": "Strafverfolgung",
+      "simple": "Systeme, die von Strafverfolgungsbehörden oder in deren Namen eingesetzt werden — etwa zur Bewertung des Risikos, Opfer einer Straftat zu werden, als Lügendetektor, zur Beweiswürdigung oder zur Profilerstellung. Nur, soweit der Einsatz überhaupt zulässig ist.",
+      "examples": [
+        "Bewertung des Opferrisikos einer natürlichen Person",
+        "Werkzeuge zur Beweiswürdigung im Ermittlungsverfahren",
+        "Abzugrenzen von Art. 5: manche Praktiken sind bereits verboten, nicht bloß hochriskant"
+      ],
+      "legal_basis": "Anhang III Nr. 6 lit. a–e (VO (EU) 2024/1689)"
+    },
+    {
+      "nr": 7,
+      "title": "Migration, Asyl und Grenzkontrolle",
+      "simple": "Systeme, die zuständige Behörden bei Migrations-, Asyl- und Grenzkontrollverfahren einsetzen — etwa zur Risikobewertung, zur Prüfung von Anträgen oder zur Identifizierung von Personen. Nur, soweit der Einsatz zulässig ist.",
+      "examples": [
+        "Risikobewertung einreisender Personen",
+        "Unterstützung bei der Prüfung von Asylanträgen",
+        "Identitätsfeststellung im Grenzkontrollverfahren"
+      ],
+      "legal_basis": "Anhang III Nr. 7 lit. a–d (VO (EU) 2024/1689)"
+    },
+    {
+      "nr": 8,
+      "title": "Rechtspflege und demokratische Prozesse",
+      "simple": "Systeme, die eine Justizbehörde bei der Ermittlung und Auslegung von Sachverhalten und Recht unterstützen, sowie Systeme, die das Ergebnis einer Wahl oder eines Referendums oder das Wahlverhalten beeinflussen sollen.",
+      "examples": [
+        "Recherche- und Auslegungshilfe für ein Gericht bei der Rechtsanwendung",
+        "System zur Beeinflussung des Wahlverhaltens",
+        "NICHT erfasst: reine Verwaltungstätigkeit ohne Bezug zur Rechtsanwendung"
+      ],
+      "legal_basis": "Anhang III Nr. 8 lit. a–b (VO (EU) 2024/1689)"
+    }
+  ]
+}

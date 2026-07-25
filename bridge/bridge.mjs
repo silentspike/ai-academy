@@ -13,7 +13,7 @@
 import http from 'node:http';
 import { spawn, spawnSync } from 'node:child_process';
 import { randomUUID, randomBytes } from 'node:crypto';
-import { mkdirSync, mkdtempSync, rmSync, readFileSync, writeFileSync, renameSync, existsSync, appendFileSync, statSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, readFileSync, writeFileSync, renameSync, appendFileSync } from 'node:fs';
 import { join, extname, normalize, resolve, dirname } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
@@ -22,7 +22,7 @@ import {
   PRUEFER_SYSTEM, COACH_SYSTEM, PROMPTS_VERSION,
   buildSummativeGradingPrompt, buildAppealPrompt, buildCoachPrompt,
   buildBossPersonaPrompt, buildBossJudgePrompt, buildGeneratePrompt, buildPersonalizationPrompt,
-  buildDiagnosePrompt, extractJson,
+  buildDiagnosePrompt, extractJson, asText,
 } from '../tutor/prompts.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -83,16 +83,34 @@ function storeWrite(name, obj) {
   const p = storePath(name);
   const tmp = `${p}.${process.pid}.${randomUUID().slice(0, 8)}.tmp`;
   try {
-    writeFileSync(tmp, JSON.stringify(obj, null, 1));
-    renameSync(tmp, p);                                     // atomar (T9)
+    schreibeAtomar(tmp, p, obj);
   } catch (e) {
-    try { rmSync(tmp, { force: true }); } catch { /* Temp-Rest ignorieren */ }
-    throw e;
+    try { rmSync(tmp, { force: true }); } catch { /* leftover temp file, ignore */ }
+    // The store directory can disappear underneath a running process — a stale
+    // path, a cleaned temporary directory, an unmounted share. Recreate it once
+    // and retry rather than answering 500 and losing the write.
+    if (e?.code !== 'ENOENT') throw e;
+    mkdirSync(join(STORE, 'store'), { recursive: true });
+    schreibeAtomar(tmp, p, obj);
   }
+}
+function schreibeAtomar(tmp, ziel, obj) {
+  writeFileSync(tmp, JSON.stringify(obj, null, 1));
+  renameSync(tmp, ziel);                                    // atomic (T9)
 }
 function logLine(kind, obj) {
   const entry = { ts: new Date().toISOString(), kind, ...obj };
-  appendFileSync(join(STORE, 'log', 'bridge-log.jsonl'), JSON.stringify(entry) + '\n');
+  // Create the directory on demand. On a fresh store it does not exist yet, and
+  // an append would abort the process on the very first request — which is
+  // exactly what a first-time user gets.
+  const datei = join(STORE, 'log', 'bridge-log.jsonl');
+  try {
+    appendFileSync(datei, JSON.stringify(entry) + '\n');
+  } catch (e) {
+    if (e?.code !== 'ENOENT') throw e;
+    mkdirSync(join(STORE, 'log'), { recursive: true });
+    appendFileSync(datei, JSON.stringify(entry) + '\n');
+  }
 }
 
 // ---------------------------------------------------------------- pairing token (T1/T2)
@@ -208,6 +226,23 @@ function requireUnlocked(kind) {
   }
 }
 
+/**
+ * Checks required request fields before any work starts.
+ * Throws with code BAD_FIELD, which the error handler maps to 400.
+ */
+function pruefeFelder(body, erwartet) {
+  const fehlend = [];
+  for (const [feld, typ] of Object.entries(erwartet)) {
+    const v = body?.[feld];
+    if (v === undefined || v === null || typeof v !== typ || (typ === 'string' && v === '')) {
+      fehlend.push(`${feld} (${typ})`);
+    }
+  }
+  if (fehlend.length) {
+    throw Object.assign(new Error('missing or invalid fields: ' + fehlend.join(', ')), { code: 'BAD_FIELD' });
+  }
+}
+
 async function gradeSummative({ question, rubric, modelAnswer, answer, sources, txKind, existingTxId = null }) {
   requireUnlocked(txKind);
   const txId = existingTxId || txBegin(txKind, { question: question.slice(0, 200), answerLen: answer.length, full: { question, rubric, modelAnswer, answer } });
@@ -294,7 +329,17 @@ const server = http.createServer(async (req, res) => {
       }
       if (seg === 'grade' && req.method === 'POST') {
         const b = await readBody(req);
-        const out = await gradeSummative({ question: b.question, rubric: b.rubric, modelAnswer: b.modelAnswer || '', answer: b.answer, sources: b.sources || '', txKind: b.kind || 'exercise' });
+        // Validate before doing anything. A missing field used to reach the
+        // grading path and fail there, which surfaced as "internal" with a
+        // stack-trace message — a public product must answer 400 for bad input.
+        pruefeFelder(b, { question: 'string', answer: 'string' });
+        if (b.rubric === undefined || b.rubric === null || b.rubric === '') {
+          throw Object.assign(new Error('missing or invalid fields: rubric'), { code: 'BAD_FIELD' });
+        }
+        // The rubric may arrive as a string or as a structure — the application
+        // sends both, depending on where the question came from. Normalise here
+        // rather than making every caller stringify.
+        const out = await gradeSummative({ question: b.question, rubric: asText(b.rubric), modelAnswer: asText(b.modelAnswer || ''), answer: b.answer, sources: asText(b.sources || ''), txKind: b.kind || 'exercise' });
         return send(res, 200, out);
       }
       if (seg === 'grade/retry' && req.method === 'POST') {
@@ -348,6 +393,7 @@ const server = http.createServer(async (req, res) => {
       }
       if (seg === 'appeal' && req.method === 'POST') {
         const b = await readBody(req);
+        pruefeFelder(b, { question: 'string', answer: 'string' });
         requireUnlocked('appeal');
         const prompt = buildAppealPrompt({ question: b.question, rubric: b.rubric, modelAnswer: b.modelAnswer || '', answer: b.answer, appealReason: b.appealReason, sources: b.sources || '' });
         logPrompt('summative', prompt);
@@ -369,6 +415,7 @@ const server = http.createServer(async (req, res) => {
       }
       if (seg === 'diagnose' && req.method === 'POST') {
         const b = await readBody(req);
+        pruefeFelder(b, { errors: 'object' });
         const prompt = buildDiagnosePrompt({ errorHistoryJson: JSON.stringify(b.errorHistory || []), competenciesJson: JSON.stringify(b.competencies || []) });
         logPrompt('diagnose', prompt);
         return send(res, 200, await llmJson({ system: PRUEFER_SYSTEM, prompt, isolate: true }));
@@ -391,9 +438,16 @@ const server = http.createServer(async (req, res) => {
         // Loads the local user profile from data/profiles/ (gitignored). Profile names are the
         // user's business — no profile name appears in the code.
         const dir = join(STORE, 'profiles');
-        const files = existsSync(dir) ? (await import('node:fs')).readdirSync(dir).filter(f => f.endsWith('.json')).sort() : [];
+        // Read and handle failure, rather than asking first and reading after:
+        // between the two the directory can change, and the check buys nothing.
+        let files = [];
+        try { files = (await import('node:fs')).readdirSync(dir).filter(f => f.endsWith('.json')).sort(); }
+        catch { files = []; }
         if (files.length) return send(res, 200, readFileSync(join(dir, files[0]), 'utf-8'), 'application/json; charset=utf-8');
-        return send(res, 404, { error: 'kein Profil' });
+        // No curated profile is the normal case — the repository ships none and
+        // share users create theirs in the wizard (§5.1). Answering 404 would put
+        // a red entry in every first-time user's console for an expected state.
+        return send(res, 200, null);
       }
       return send(res, 404, { error: 'unknown endpoint' });
     }
@@ -406,14 +460,34 @@ const server = http.createServer(async (req, res) => {
     const allowedRoots = [resolve(OPT.webroot), join(ROOT, 'assets'), join(ROOT, 'content'), join(ROOT, 'app')];
     if (path.startsWith('/app/')) fp = join(ROOT, normalize(path).replace(/^([/\\])+/, ''));
     if (!allowedRoots.some(r => resolve(fp).startsWith(r + '/') || resolve(fp) === r)) return send(res, 403, { error: 'path' });
-    if (!existsSync(fp) || !statSync(fp).isFile()) return send(res, 404, { error: 'not found' });
-    let data = readFileSync(fp);
+    // Read straight away and handle the failure. A stat followed by a read is
+    // still check-then-use: the answer can be stale by the time the read runs.
+    // Reading a directory fails with EISDIR, which is the same 404 to a client.
+    let data;
+    try { data = readFileSync(fp); }
+    catch { return send(res, 404, { error: 'not found' }); }
     if (path === '/' || path.endsWith('index.html')) {
       data = Buffer.from(data.toString('utf-8').replace('__BRIDGE_TOKEN__', TOKEN)); // Token-Injektion
     }
     return send(res, 200, data, MIME[extname(fp)] || 'application/octet-stream');
   } catch (e) {
-    const code = e.code === 'TOO_LARGE' ? 413 : e.code === 'BAD_JSON' ? 400 : e.code === 'QUEUE_FULL' ? 429 : e.code === 'NO_LLM' ? 503 : e.code === 'GOLDSET_LOCK' ? 423 : 500;
+    // A prompt builder rejecting an incomplete payload is a client error, not an
+    // internal one. Without this mapping the caller sees 500 "internal" and has
+    // no way to tell a bug from a malformed request. Must run before the status
+    // code is derived.
+    if (!e.code && /^(summative|appeal|coach|boss|generate|diagnose) prompt:/.test(String(e.message))) {
+      e.code = 'BAD_FIELD';
+    }
+    // BAD_OUTPUT and CLI_ERROR mean the model answered with something unusable —
+    // that is an upstream failure, not a fault of the bridge. Reporting it as 500
+    // "internal" sends the user looking in the wrong place.
+    const code = e.code === 'TOO_LARGE' ? 413
+      : e.code === 'BAD_JSON' || e.code === 'BAD_FIELD' ? 400
+      : e.code === 'QUEUE_FULL' ? 429
+      : e.code === 'NO_LLM' ? 503
+      : e.code === 'GOLDSET_LOCK' ? 423
+      : e.code === 'BAD_OUTPUT' || e.code === 'CLI_ERROR' ? 502
+      : 500;
     logLine('error', { code: e.code || 'ERR', msg: String(e.message).slice(0, 200) });
     return send(res, code, { error: e.code || 'internal', message: String(e.message).slice(0, 200) });
   }

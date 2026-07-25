@@ -1,0 +1,76 @@
+{
+  "titel": "Zuordnungsaufgaben (Drag & Drop)",
+  "legal_status": "konsolidiert-2026-07-27",
+  "hinweis": "Die Fälle sind bewusst so formuliert, dass keine Ausnahme greift und die Zuordnung eindeutig ist. Grenzfälle gehören in die Fragen, nicht in eine Zuordnungsübung — dort wäre eine falsche Platzierung Zufall statt Diagnose.",
+  "tasks": [
+    {
+      "id": "p2-dnd-pyramide",
+      "competency": "K04",
+      "level": "B",
+      "legal_status": "konsolidiert-2026-07-27",
+      "legal_basis": [
+        { "instrument": "VO (EU) 2024/1689", "ref": "Art. 5 Abs. 1" },
+        { "instrument": "VO (EU) 2024/1689", "ref": "Art. 6 Abs. 2 iVm Anhang III" },
+        { "instrument": "VO (EU) 2024/1689", "ref": "Art. 50" }
+      ],
+      "prompt": "Ordne jeden Fall der Stufe zu, die für ihn gilt.",
+      "layout": "pyramid",
+      "zones": [
+        { "id": "verboten", "label": "Verboten (Art. 5)" },
+        { "id": "hochrisiko", "label": "Hochrisiko (Art. 6 Abs. 2, Anhang III)" },
+        { "id": "transparenz", "label": "Transparenzpflicht (Art. 50)" },
+        { "id": "keine-spezifische", "label": "Keine spezifische Pflicht im geprüften Pfad" }
+      ],
+      "items": [
+        {
+          "id": "i1",
+          "text": "Eine Behörde bewertet Menschen über Monate nach ihrem Sozialverhalten und benachteiligt sie daraufhin in unzusammenhängenden Zusammenhängen.",
+          "zone": "verboten",
+          "why": "Soziale Bewertung mit benachteiligender Wirkung — Art. 5 Abs. 1 lit. c."
+        },
+        {
+          "id": "i2",
+          "text": "Ein Arbeitgeber lässt aus Videobildern die Stimmung seiner Beschäftigten ableiten, um die Teamleitung zu bewerten.",
+          "zone": "verboten",
+          "why": "Emotionsableitung am Arbeitsplatz, kein medizinischer und kein Sicherheitsgrund — Art. 5 Abs. 1 lit. f."
+        },
+        {
+          "id": "i3",
+          "text": "Ein Sozialversicherungsträger prüft mit einem KI-System, ob Versicherte Anspruch auf eine Leistung haben.",
+          "zone": "hochrisiko",
+          "why": "Beurteilung des Anspruchs auf grundlegende öffentliche Leistungen durch eine Behörde — Anhang III Nr. 5 lit. a."
+        },
+        {
+          "id": "i4",
+          "text": "Ein Unternehmen filtert eingehende Bewerbungen automatisiert vor und bewertet die Bewerber.",
+          "zone": "hochrisiko",
+          "why": "Einstellung und Auswahl natürlicher Personen — Anhang III Nr. 4 lit. a."
+        },
+        {
+          "id": "i5",
+          "text": "Ein Chatbot beantwortet Kundenanfragen im Namen des Unternehmens.",
+          "zone": "transparenz",
+          "why": "Interaktion mit natürlichen Personen: Die Person muss erfahren, dass sie mit einem KI-System spricht — Art. 50 Abs. 1."
+        },
+        {
+          "id": "i6",
+          "text": "Eine Agentur veröffentlicht ein realistisch wirkendes, KI-erzeugtes Video einer bekannten Person.",
+          "zone": "transparenz",
+          "why": "Deepfake-Offenlegung — Art. 50 Abs. 4."
+        },
+        {
+          "id": "i7",
+          "text": "Die Rechtschreibprüfung im Textverarbeitungsprogramm schlägt Korrekturen vor.",
+          "zone": "keine-spezifische",
+          "why": "Weder verbotene Praktik noch Anhang-III-Bereich noch Interaktions- oder Erzeugungsfall des Art. 50. Die Pflichten aus Art. 4 (KI-Kompetenz) und anderes Recht bleiben davon unberührt."
+        },
+        {
+          "id": "i8",
+          "text": "Ein Wartungssystem sagt den Verschleiß von Maschinenteilen in der eigenen Produktion voraus.",
+          "zone": "keine-spezifische",
+          "why": "Kein Personenbezug, kein Sicherheitsbauteil kritischer Infrastruktur, keine Interaktion mit Menschen — im geprüften Pfad greift keine spezifische Pflicht."
+        }
+      ]
+    }
+  ]
+}
