@@ -14,7 +14,7 @@ const d = JSON.parse(readFileSync(p, 'utf8'));
 let n = 0;
 for (const q of d.questions) if (q.status === 'source_linked') {
   q.status = 'approved_summative';
-  q.review_protocol = `legal/eigenpruefung-content.md#${anchor}`;
+  q.review_protocol = `eigenpruefung#${anchor}`;
   for (const cl of q.legal_basis) cl.verified = `eigenpruefung-${anchor}`;
   n++;
 }

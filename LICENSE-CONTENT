@@ -1,0 +1,36 @@
+Lizenz für die Lerninhalte
+==========================
+
+Diese Datei gilt für die kuratierten Lerninhalte des Projekts, das heißt für alle
+Dateien unterhalb von `content/` sowie für das Bildmaterial unterhalb von `assets/`
+(Titelbilder, Abzeichen, Charakterporträts, Symbole).
+
+    Creative Commons Namensnennung 4.0 International (CC BY 4.0)
+    https://creativecommons.org/licenses/by/4.0/deed.de
+
+Sie dürfen diese Inhalte teilen und bearbeiten, auch kommerziell, solange Sie
+angemessene Urheber- und Rechteangaben machen, einen Link zur Lizenz beifügen und
+angeben, ob Änderungen vorgenommen wurden.
+
+Namensnennung:
+    „AI-Academy" von Jan Neubauer, CC BY 4.0
+
+Nicht von dieser Lizenz erfasst
+-------------------------------
+
+1. **Der Programmcode** steht unter der Apache-Lizenz 2.0 (siehe LICENSE).
+
+2. **Zitate aus dem Amtsblatt der Europäischen Union** — Wortlaut der Verordnung
+   (EU) 2024/1689 und der Verordnung (EU) 2026/1744. Rechtsvorschriften der Union
+   sind gemeinfrei; die Wiedergabe ist mit Quellenangabe frei zulässig. Sie sind
+   nicht Gegenstand der Namensnennungspflicht dieser Lizenz.
+
+3. **Schriftarten** unter `assets/fonts/` — es gelten die jeweils beiliegenden
+   Lizenzen der Schriftanbieter (SIL Open Font License).
+
+Wichtiger Hinweis zum Inhalt
+----------------------------
+
+Die Lerninhalte geben einen Rechtsstand wieder, der sich ändert. Sie sind für die
+persönliche, freiwillige Weiterbildung bestimmt und ersetzen keine Rechtsberatung.
+Der Umfang der Zweckbestimmung steht in docs/INTENDED-PURPOSE.md.

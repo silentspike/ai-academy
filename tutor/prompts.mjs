@@ -7,7 +7,7 @@
 //
 // SOURCE-GROUNDING (Plan §5.2): Rechtliche Erklärungen liefern claims[] mit
 // source_ids[]; die App/Bridge validiert gegen das Quellenpaket. Das LLM ist
-// nie Rechtsquelle (legal/quellenhierarchie.md Rang 8).
+// nie Rechtsquelle (Rang 8 der Quellenhierarchie, docs/PRUEFPROZESS.md).
 
 export const PROMPTS_VERSION = '1.2.0';
 

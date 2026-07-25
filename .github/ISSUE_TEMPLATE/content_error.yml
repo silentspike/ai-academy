@@ -1,0 +1,30 @@
+name: Inhaltlichen oder rechtlichen Fehler melden
+description: Eine Aussage im Lernstoff ist falsch, veraltet oder unbelegt
+labels: ["type:content", "priority:high", "status:triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Fehler im Rechtsstoff haben Vorrang. Eine falsche Aussage kann dazu führen,
+        dass jemand im Beruf falsch berät — bitte so genau wie möglich.
+  - type: input
+    id: fundstelle
+    attributes:
+      label: Wo steht die Aussage
+      placeholder: "Einheit, Fragen-Kennung oder Bildschirmbereich"
+    validations:
+      required: true
+  - type: textarea
+    id: falsch
+    attributes:
+      label: Was ist falsch
+    validations:
+      required: true
+  - type: textarea
+    id: beleg
+    attributes:
+      label: Beleg
+      description: Fundstelle im Amtsblatt mit Artikel und Absatz, möglichst mit Fassung.
+      placeholder: "Art. 111 Abs. 2 Satz 2 in der Fassung der Verordnung (EU) 2026/1744"
+    validations:
+      required: true

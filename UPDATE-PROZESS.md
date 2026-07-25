@@ -45,7 +45,7 @@ Der gefährlichste Fall — Reihenfolge ist verbindlich:
 5. **Release + Changelog:** Korrektur-Release; Eintrag hier unter C mit
    Ursache, Umfang, betroffenen Objekt-IDs.
 6. **Ursachen-Doku:** Wie ist der Fehler durch die Eigenprüfung gekommen?
-   Prozess-Härtung in `legal/eigenpruefung-content.md` nachziehen.
+   Prozess-Härtung im Prüfprotokoll nachziehen (docs/PRUEFPROZESS.md).
 
 ## C. Change-Log (Sammelstellen)
 
