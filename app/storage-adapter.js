@@ -1,7 +1,7 @@
 // app/storage-adapter.js — EIN Storage-Interface, zwei Backends (Plan §6.2, #38):
 //   bridge-store:  Jans Betrieb — Persistenz serverseitig in data/ (atomar, Snapper-gesichert)
-//   localStorage:  Share-Betrieb — plus JSON-Export/Import als Safari-Sicherheitsnetz (§5.5)
-// Die Engine spricht NUR dieses Interface; Backend-Wahl trifft der Self-Check.
+//   localStorage:  share mode — plus JSON export/import as a safety net for Safari
+// The engine speaks ONLY this interface; the self-check picks the backend.
 
 import { apiPrefix } from './llm-adapter.js';
 const LS_PREFIX = 'ai-act-akademie:';
@@ -41,7 +41,7 @@ class BridgeStoreBackend {
     if (!res.ok) throw new Error('store ' + path + ': HTTP ' + res.status);
     return res.json();
   }
-  // Bridge kennt benannte Dokumente (progress/notes); generische Keys leben im progress-Dokument.
+  // The bridge knows named documents (progress, notes); generic keys live inside the progress document.
   async get(key, dflt) {
     if (key === 'notes') return await this.#call('notes').catch(() => dflt);
     const doc = await this.#call('progress').catch(() => ({}));

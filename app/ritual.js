@@ -1,7 +1,7 @@
-// app/ritual.js — Session-Ritual im UI (Plan #32, #33, §3 „Pflicht-Review erzwungen").
-// Verdrahtet die DOM-freie Zustandsmaschine aus session.js mit der App:
+// app/ritual.js — the session ritual in the interface, with the review enforced.
+// Wires the DOM-free state machine from session.js into the application:
 //   4-Takt: Pflicht-Review → 2–3 Einheiten → Tages-Drill → Abschluss-Karte
-// Dazu: Intensiv-Blöcke (60 min), Marathon-Warnung, Rotations-Banner, Drift-Vorschlag.
+// plus intensive blocks (60 minutes), marathon warning, rotation banner and drift suggestion.
 import { route } from './router.js';
 import {
   STEPS, createSession, canStartUnit, completeStep,
@@ -18,7 +18,7 @@ const dayKey = (ms = Date.now()) => {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 };
 
-/** Sitzung des heutigen Tages holen/anlegen (persistiert im State, damit F5 nichts zerstört). */
+/** Fetch or create today's session; persisted in state so a reload destroys nothing. */
 export function todaySession(state, nowMs = Date.now()) {
   const key = dayKey(nowMs);
   if (state.session?.day === key) return state.session;
@@ -28,7 +28,7 @@ export function todaySession(state, nowMs = Date.now()) {
   return state.session;
 }
 
-/** Intensiv-Block + Marathon-Status für Anzeige an beliebiger Stelle. */
+/** Intensive-block and marathon status, for display anywhere. */
 export function sessionStatus(state, nowMs = Date.now()) {
   const s = todaySession(state, nowMs);
   return { session: s, block: blockCheck(s, nowMs), marathon: marathonWarning(s, nowMs) };
@@ -67,7 +67,7 @@ route('heute', async (view, ctx) => {
     ${marathon.warn ? `<p class="ritual-warn">⚠ ${marathon.text}</p>` : ''}
     ${s.blocks.count ? `<p class="dim">Intensiv-Blöcke heute: ${s.blocks.count} (nach je ~60 min ein Mini-Block mit Pausenvorschlag, #33)</p>` : ''}`));
 
-  // Review-Erledigung automatisch erkennen: nichts mehr fällig ⇒ Takt 1 abgehakt
+  // Detect completion automatically: nothing due any more means step 1 is done
   if (!s.review.done && q.kern.length === 0) { completeStep(s, 'review'); await ctx.saveState(); }
 });
 
@@ -77,9 +77,9 @@ route('drill', async (view, ctx) => {
   const s = todaySession(st);
   const pool = (await fetch('content/questions-core.json').then(r => r.json())).questions
     .filter(q => q.status === 'approved_summative');
-  // Varianten-Engine (#14): formativer Zusatzpool aus der Fakten-DB (Distraktor-Rotation
-  // + Inversion). NIE summativ — die Varianten tragen status 'agent_generated' und
-  // erscheinen ausschließlich im Drill und in der Nachschulung.
+  // Variant engine: a formative extra pool from the fact database (distractor rotation
+  // and inversion). NEVER summative — variants carry status 'agent_generated' and
+  // appear only in the drill and in remediation.
   let variantPool = [];
   try {
     const { generateVariants } = await import('./variants.js');
@@ -98,7 +98,7 @@ route('drill', async (view, ctx) => {
     while (out.length < n && src.length) out.push(src.splice(Math.floor(Math.random() * src.length), 1)[0]);
     return out;
   };
-  // Mix nach #32: 3 Schwäche + 1 Zufall + 1 C-Bonus (Fallback: auffüllen)
+  // Mix: three weak spots, one at random, one level-C bonus; top up if short
   const chosen = [
     ...pick(q => weak.includes(q.competency), s.drill.mix.weak),
     ...pick(() => true, s.drill.mix.random),
@@ -151,7 +151,7 @@ route('drill', async (view, ctx) => {
 route('wrapup', async (view, ctx) => {
   const st = ctx.state;
   const s = todaySession(st);
-  // Fortschritt = abgeschlossene Einheiten / Gesamt (für Drift gegen die Soll-Kurve)
+  // Progress = completed units divided by total, for drift against the target curve
   const UNITS_TOTAL = 16;
   const progress = Math.min(1, (st.unit_done?.length ?? 0) / UNITS_TOTAL);
   let drift = { onTrack: true, drift: 0 };
@@ -163,8 +163,8 @@ route('wrapup', async (view, ctx) => {
   s.wrapupSeen = true;
   await ctx.saveState();
 
-  // §5.5: proaktiver Export-Hinweis nach großen Sessions — Safari räumt localStorage
-  // aggressiv; der Export ist das Sicherheitsnetz (und macht den Stand gerätewechselbar).
+  // Proactive export hint after long sessions: Safari clears local storage
+  // aggressively, and the export doubles as a way to move between devices.
   const grosseSession = w.bilanz.minutes >= 45 || w.bilanz.reviewed + w.bilanz.units * 5 >= 20;
   const localBackend = (ctx.storage?.backendName ?? '') === 'localStorage' || !ctx.storage?.backendName;
   if (grosseSession && !st.exportHintShownToday) {

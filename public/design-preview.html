@@ -7,12 +7,12 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23070a10'/%3E%3Cpath d='M8 24 L16 7 L24 24 M11.5 18.5 h9' stroke='%23e1ad58' stroke-width='2.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="app/styles.css">
 <style>
-  /* v4 — Umsetzung des externen Design-Reviews: App-Gehäuse, korrektes Grid,
+  /* v4 — implementation of the external design review: app frame, correct grid,
      geschlossene Komposition, Materialebenen, Informationsdichte, Typo-Staffelung */
   html,body { height:100%; }
   body { padding:0; background:#04060b; overflow:hidden; display:grid; place-items:center; }
 
-  /* §3 App-Shell — P0: vertikale Kompression, Ziel ≤800px Gesamthöhe */
+  /* app shell — vertical compression, target height at most 800 px */
   .app-shell { margin:0; width:calc(100vw - 24px); height:min(calc(100dvh - 24px), 768px);
     border-radius:16px; overflow:hidden;
     background:radial-gradient(circle at 58% 0%,rgba(56,73,111,.10),transparent 38%),
@@ -21,7 +21,7 @@
     box-shadow:inset 0 1px 0 rgba(255,255,255,.025), 0 24px 80px rgba(0,0,0,.55);
     position:relative; }
   .app-shell .bg-layers { position:absolute; z-index:0; }
-  /* P2: grünliche Farbkante neben der Sidebar zurücknehmen */
+  /* pull back the greenish edge next to the sidebar */
   .app-shell .bg-aurora.a { opacity:.11; left:-24%; }
   /* §1 Grid */
   .app { position:relative; z-index:1; display:grid;
@@ -40,7 +40,7 @@
   .rail-item { width:38px; height:38px; border-radius:10px; display:grid; place-items:center;
     color:var(--faint); cursor:pointer; position:relative; transition:all 120ms; }
   .rail-item:hover { background:rgba(151,169,202,.06); color:var(--text); }
-  /* P2: aktiver Rail-Punkt subtil — Linie + violettes Icon + schwacher Halo, kein gefülltes Quadrat */
+  /* active rail dot kept subtle: line, violet icon and a faint halo */
   .rail-item.active { color:#b6a5ff; background:rgba(138,112,239,.07);
     box-shadow:0 0 14px -3px rgba(138,112,239,.4); }
   .rail-item.active::before { content:''; position:absolute; left:-13px; top:8px; bottom:8px;
@@ -57,7 +57,7 @@
     background:var(--grad-card-soft); border:1px solid var(--line); border-radius:10px;
     box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
     font-size:.8rem; color:var(--dim); white-space:nowrap; }
-  /* Grundlinien-Ausgleich Label (Inter .8rem) vs. Wert (Poppins .86rem) bei Flex-Zentrierung */
+  /* baseline compensation between label and value, which have different x-heights */
   .pill b { color:var(--text); font-family:var(--font-num); font-weight:600; line-height:1;
     font-variant-numeric:tabular-nums; font-size:.86rem; position:relative; top:.5px; }
   .pill svg { width:1.02rem; height:1.02rem; }
@@ -66,7 +66,7 @@
     box-shadow:0 0 5px rgba(138,112,239,.5); }
   .dots i.off { background:transparent; border:1.3px solid var(--line-strong); box-shadow:none; }
   .pill.mono { font-family:var(--font-mono); font-size:.72rem; letter-spacing:.02em; }
-  /* P0: durchgehendes Instrumentenband — keine Lücke vor dem Rechtsstand */
+  /* continuous instrument bar: no gap before the legal-baseline chip */
   .tb-right { display:flex; gap:8px; align-items:center; }
   .tb-right .pill { flex:0 0 auto; }
   .iconbtn { width:38px; height:38px; border-radius:50%;
@@ -168,7 +168,7 @@
   .curve-wrap { flex:1; min-height:0; }
   .curve-wrap svg { width:100%; height:100%; }
 
-  /* Fällige Karten — P0: zweistufige Hierarchie (Titel oben, Kennzahlen darunter) */
+  /* due cards: two-level hierarchy, title above, figures below */
   .due { flex-direction:row; align-items:stretch; gap:10px; padding:12px 18px 10px; position:relative; overflow:hidden; }
   .due-main { flex:1; display:flex; flex-direction:column; min-width:0; }
   .due-title { display:flex; align-items:center; gap:9px; }
@@ -306,7 +306,7 @@
               </linearGradient>
               <filter id="soft"><feGaussianBlur stdDeviation="4"/></filter>
             </defs>
-            <!-- P1: gestaffelte Ringe — außen schwach, innen feiner; Zwischenring ergänzt -->
+            <!-- staggered rings: faint outside, finer inside, with an intermediate ring -->
             <g fill="none" stroke-width="1">
               <polygon points="160,26 272,90 272,192 160,244 48,192 48,90" stroke="rgba(151,169,202,.09)"/>
               <polygon points="160,40 258,96 258,186 160,230 62,186 62,96" stroke="rgba(151,169,202,.06)"/>
@@ -317,7 +317,7 @@
             <g stroke="rgba(151,169,202,.08)" stroke-width="1">
               <line x1="160" y1="26" x2="160" y2="244"/><line x1="48" y1="90" x2="272" y2="192"/><line x1="272" y1="90" x2="48" y2="192"/>
             </g>
-            <!-- P1: Soll-Profil sichtbar sekundär -->
+            <!-- target profile kept visibly secondary -->
             <polygon points="160,34 262,94 256,186 160,234 58,182 66,98" fill="none"
               stroke="rgba(170,186,214,.42)" stroke-dasharray="3 4" stroke-width="1.1"/>
             <polygon points="160,50 240,102 232,176 160,214 84,172 92,106" fill="url(#rg)"/>
@@ -360,7 +360,7 @@
               <text x="52" y="205">W-7</text><text x="100" y="205">W-6</text><text x="148" y="205">W-5</text><text x="196" y="205">W-4</text><text x="244" y="205">W-3</text><text x="292" y="205">W-2</text><text x="340" y="205">W-1</text><text x="390" y="205">W&#8202;0</text><text x="436" y="205">W+1</text><text x="484" y="205">W+2</text><text x="532" y="205">W+3</text><text x="578" y="205">W+4</text>
             </g>
             <line x1="44" y1="192" x2="608" y2="192" stroke="rgba(151,169,202,.16)"/>
-            <!-- P0: Ist-Kurve endet REAL bei W+4/68% (y = 192 − 1.8·68 ≈ 69.6); Soll endet bei ~90% (y=30) -->
+            <!-- actual curve really ends at W+4/68% (y = 192 − 1.8·68 ≈ 69.6); target ends at 100% -->
             <path d="M58 174 C120 158 180 130 250 106 C330 80 440 52 586 30" stroke="rgba(170,186,214,.34)" stroke-width="1.1" stroke-dasharray="3 4" fill="none"/>
             <path d="M58 177.6 C82 170 130 152 154 141.6 C178 133 226 122 250 120 C274 117 322 105 346 100.2 C370 96 418 90 442 85.8 C466 82 514 77 538 75 C554 73.5 572 71 586 69.6 L586 192 L58 192 Z" fill="url(#lg)"/>
             <path d="M58 177.6 C82 170 130 152 154 141.6 C178 133 226 122 250 120 C274 117 322 105 346 100.2 C370 96 418 90 442 85.8 C466 82 514 77 538 75 C554 73.5 572 71 586 69.6" stroke="#65d8b2" stroke-width="3.2" opacity=".2" fill="none" filter="url(#csoft)"/>
@@ -418,11 +418,11 @@
   </div>
 </div>
 <script>
-  // §6: Landkarte als DURCHGEHENDES feinkörniges Mosaik (Referenz-Charakter):
-  // ein Grid 27×12, Farbzonen fließen organisch ineinander (Zonen-Seeds + Jitter),
-  // Leerzellen in Clustern als Landkarten-Silhouette, Artikel mit variabler Zellgröße.
+  // Article map as a CONTINUOUS fine-grained mosaic, matching the reference
+  // a 27×12 grid whose colour zones blend organically (zone seeds plus jitter)
+  // empty cells cluster into a map silhouette; articles vary in size
   const COLS = 27, ROWS = 11;
-  // Sektorgrenzen (Zellindex, an dem ein neuer Sektor beginnt) — Spalten [5,4,5,5,4,4], Zeilen [4,4,4]
+  // sector boundaries (cell index where a new sector starts) — columns [5, 11, 17, 23]
   const CB = [5, 9, 14, 19, 23], RB = [4, 8];
   const shades = {
     0:[['#6fdcb8','#3fa981'],['#5ecfa9','#379a74']],
@@ -431,7 +431,7 @@
     3:[['#dd8578','#b05a4e'],['#d47b6f','#a55248']],
     4:[['#4a5160','#343a46'],['#434a58','#2f3540']]
   };
-  // Zonen-Seeds (col,row,stufe): grün links oben → safe links unten → amber Mitte → rot rechts → grau rechts unten
+  // zone seeds (col, row, tier): green top left → safe bottom left → amber centre → red right
   const seeds = [[3,3,0],[7,9,1],[13,4,2],[15,10,2],[21,2,3],[19,8,3],[25,10,4],[26,5,4]];
   const h = (x, y, s) => ((x * 73856093 ^ y * 19349663 ^ s * 83492791) >>> 0) % 1000 / 1000;
   const occ = Array.from({length: ROWS}, () => new Array(COLS).fill(false));
@@ -443,26 +443,26 @@
   let html = '';
   for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
     if (occ[r][c]) continue;
-    // Leerzellen: dezente Cluster — die Sektor-Gassen liefern die Hauptstruktur bereits
+    // empty cells form discreet clusters; the sector lanes carry the main structure
     const cluster = h(c >> 1, r >> 1, 7) < .07 ? .62 : 0;
     const gapP = .04 + cluster + (r >= ROWS - 1 ? .12 : 0);
     if (h(c, r, 1) < gapP) { occ[r][c] = true; continue; }
-    // Zone: nächster Seed nach gestreckter Distanz + Jitter → organische Cluster-Grenzen
+    // zone: nearest seed by stretched distance plus jitter, giving organic clusters
     let best = 0, bd = 1e9;
     for (const [sx, sy, st] of seeds) {
       const d = Math.hypot(c - sx, (r - sy) * 1.7) + h(c, r, st + 20) * 3.0;
       if (d < bd) { bd = d; best = st; }
     }
-    // P1: kontrollierte Durchmischung — vereinzelte Nachbarstufen-Sprenkel über Zonengrenzen hinweg
+    // controlled mixing: occasional speckles from neighbouring tiers across the area
     if (h(c, r, 5) < .10) best = Math.max(0, Math.min(4, best + (h(c, r, 6) > .5 ? 1 : -1)));
     const [a, b] = shades[best][Math.floor(h(c, r, 2) * 2)];
-    // P1: ~85–90 % einheitliche kleine Zellen; wenige 2×1, sehr wenige 2×2 — nie über Sektorgrenzen
+    // roughly 85-90 % uniform small cells; a few 2×1, very few 2×2, never at a sector edge
     const rs = h(c, r, 3);
     let w = 1, hh = 1;
     if (rs < .025 && free(c, r, 2, 2) && !CB.includes(c + 1) && !RB.includes(r + 1)) { w = 2; hh = 2; }
     else if (rs < .12 && free(c, r, 2, 1) && !CB.includes(c + 1)) { w = 2; }
     for (let y = r; y < r + hh; y++) for (let x = c; x < c + w; x++) occ[y][x] = true;
-    // Zellkoordinate → Grid-Track (Gassen-Tracks überspringen)
+    // cell coordinate to grid track, skipping the lane tracks
     const gc = c + CB.filter(b => c >= b).length + 1;
     const gr = r + RB.filter(b => r >= b).length + 1;
     html += `<i style="grid-area:${gr}/${gc}/span ${hh}/span ${w};` +

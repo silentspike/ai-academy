@@ -56,7 +56,7 @@
     memory_hook: 'Hochrisiko = Anhang entscheidet, nicht das Bauchgefühl.', legal_basis: 'Art. 6 VO 2024/1689 idF 2026/1744' }]);
   attachTooltip(document);
 
-  // Testdaten — FIKTIV, nur Engine-Verhalten (Content-Wahrheit kommt aus Task 8 mit Statusprozess)
+  // Test data — FICTIONAL, exercising engine behaviour only
   renderQuestion(document.getElementById('q-mc'), {
     id: 't-mc', type: 'mc', competency: 'K03', level: 'B',
     prompt: 'Die Fachabteilung will einen Chatbot für Versichertenanfragen. Was ist die ERSTE Frage?',
@@ -134,7 +134,7 @@
     { id: 's3', q: 'Ändern Sie die Zweckbestimmung so, dass das System hochriskant wird?', yes: 'RESULT:Sie werden zum Anbieter (Art. 25).', no: 'RESULT:Sie bleiben Betreiber.' }
   ], { onResult: r => log('[ROLESW]', r.result) });
 
-  // Dialog-UI (ohne LLM — Persona-Antworten simuliert; Szenario-Fakten deterministisch)
+  // Dialogue UI without a model: persona replies are simulated, scenario facts deterministic
   import { createScenarioRun, recordUserTurn, renderDialog } from './app/engine-dialog.js';
   const scenario = {
     id: 'sz-demo',

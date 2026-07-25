@@ -1,14 +1,14 @@
 // app/engine-widgets.js — Interaktive Widgets (Plan #45):
-// (a) Drag&Drop-Zuordnung (Risikopyramide befüllen, Artikel↔Kapitel, Pflichten↔Rollen)
-// (b) Fristen-Timeline 2024–2031 auf Omnibus-Stand (Daten aus content/fristen.json)
+// (a) drag-and-drop assignment (fill the risk pyramid, articles to chapters, duties to roles)
+// (b) deadline timeline 2024-2031 on the amended baseline (data from content/fristen.json)
 // (c) Anhang-III-Explorer  (d) Art.-25-Rollenweiche
-// Prüf-Logik DOM-frei; Rendering getrennt. Kein externes Framework.
+// Grading logic is DOM-free; rendering is separate. No external framework.
 
 // ---------- (a) Drag&Drop-Zuordnung ----------
 
 /**
  * Aufgaben-Schema: { id, title, zones:[{id,label,hint}], items:[{id,text,zone}] , competency, level }
- * gradeAssignment ist DOM-frei (AC1-testbar).
+ * gradeAssignment is DOM-free and therefore unit-testable.
  */
 export function gradeAssignment(task, placement /* Map itemId→zoneId */) {
   let correct = 0; const wrong = [];
@@ -75,7 +75,7 @@ export function renderAssignment(mount, task, opts = {}) {
 // ---------- (b) Fristen-Timeline (Omnibus-Stand, §2.6/#45c) ----------
 
 /**
- * milestones: aus content/fristen.json (g1–g9 + u1–u5) —
+ * milestones: from content/fristen.json (g1-g9 and u1-u5) —
  * [{id, date:'YYYY-MM-DD', label, detail, kind:'geltung'|'uebergang', changed_by_omnibus:bool}]
  */
 export function renderTimeline(mount, milestones, opts = {}) {
@@ -83,7 +83,7 @@ export function renderTimeline(mount, milestones, opts = {}) {
   const from = Date.parse(opts.from ?? '2024-06-01');
   const to = Date.parse(opts.to ?? '2031-03-01');
   const W = opts.width ?? 900, H = 210, PAD = 40;   // H trägt 5 Beschriftungszeilen
-                                                  // (34..114) plus Achse bei H-56.
+                                                  // (34..114) plus the axis at H-56.
   const x = d => PAD + (Date.parse(d) - from) / (to - from) * (W - 2 * PAD);
   const years = [];
   for (let y = 2024; y <= 2031; y++) years.push(y);
@@ -96,12 +96,12 @@ export function renderTimeline(mount, milestones, opts = {}) {
       `<text x="${x(y + '-01-01')}" y="${H - 30}" fill="rgba(218,226,240,.5)" font-size="10" text-anchor="middle">${y}</text>`).join('') +
     `<line x1="${PAD}" y1="${H - 56}" x2="${W - PAD}" y2="${H - 56}" stroke="rgba(151,169,202,.25)"/>`;
   const sorted = [...milestones].sort((a, b) => Date.parse(a.date) - Date.parse(b.date));
-  // Die Meilensteine liegen zeitlich sehr ungleich verteilt (Häufung 2026–2027). Ein
-  // starrer Zeilenwechsel schiebt dicht benachbarte Beschriftungen übereinander, und
-  // eine geschätzte Zeichenbreite trifft es nicht zuverlässig — Großbuchstaben und
-  // Ziffern sind deutlich breiter als der Durchschnitt. Deshalb zwei Durchgänge:
-  // zuerst alle Beschriftungen einsetzen, dann ihre TATSÄCHLICHE Breite messen und
-  // erst danach die Zeile zuweisen.
+  // The milestones are distributed very unevenly in time, clustering in 2026-2027. A
+  // fixed row rotation pushes closely spaced labels on top of each other, and an
+  // estimated character width does not fit reliably: capitals and digits are
+  // considerably wider than average. Hence two passes: insert every label first,
+  // then measure its ACTUAL width, and only then assign the row.
+
   const ZEILEN = 5, ZEILENHOEHE = 20, OBEN = 34, ABSTAND = 8;
   const cy = H - 56;
   const gruppen = sorted.map(m => {
@@ -126,9 +126,9 @@ export function renderTimeline(mount, milestones, opts = {}) {
     `<span><i style="background:#e1ad58"></i>durch VO 2026/1744 geändert/neu</span>`;
   mount.append(svg, legend);
 
-  // Zweiter Durchgang — erst JETZT, nach dem Einhängen ins Dokument: vorher liefert
+  // Second pass — only NOW, after insertion into the document: before that,
   // getComputedTextLength() keine belastbare Breite.
-  // In DOM-Attrappen (Unit-Tests) fehlt getComputedTextLength — dann wird geschätzt.
+  // DOM stubs used in unit tests lack getComputedTextLength, so we estimate.
   const messen = text => {
     let b = 0;
     try { b = text.getComputedTextLength?.() ?? 0; } catch { b = 0; }
@@ -141,9 +141,9 @@ export function renderTimeline(mount, milestones, opts = {}) {
     let breite = messen(text);
     let lane = belegtBis.findIndex(kante => cx - breite / 2 > kante + ABSTAND);
     if (lane === -1) {
-      // Keine Zeile frei: die am weitesten links endende nehmen und die Beschriftung
-      // so weit kürzen, dass sie kollisionsfrei bleibt. Der vollständige Text geht
-      // dabei nicht verloren — er steht im <title> und erscheint als Tooltip.
+      // No free row: take the one ending furthest left and shorten the label until
+      // it no longer collides. The full text is not lost — it sits in the <title>
+      // and shows up as a tooltip.
       lane = belegtBis.indexOf(Math.min(...belegtBis));
       let txt = String(m.label);
       while (txt.length > 6 && cx - breite / 2 <= belegtBis[lane] + ABSTAND) {
@@ -190,7 +190,7 @@ export function renderAnnexExplorer(mount, areas, opts = {}) {
 // ---------- (d) Art.-25-Rollenweiche (#45c) ----------
 
 /**
- * Entscheidungsbaum DOM-frei (testbar): Fragen mit ja/nein → Ergebnis Anbieter-Kipp ja/nein.
+ * Decision tree, DOM-free and testable: yes/no questions leading to a provider-switch verdict.
  * steps: [{id, q, yes:'stepId'|'RESULT:…', no:'stepId'|'RESULT:…', legal_basis}]
  */
 export function walkRoleSwitch(steps, answers /* Map stepId→bool */) {
@@ -248,8 +248,8 @@ export function renderRoleSwitch(mount, steps, opts = {}) {
 }
 
 /**
- * ErwG-Explorer (Plan #4, Phase 10): die 40 prüfungsrelevantesten Erwägungsgründe
- * filterbar nach Thema — Kernaussage, Einsatzzweck und Amtsblatt-Zitat je Eintrag.
+ * Recital explorer: the 40 most exam-relevant recitals, filterable by topic, each with
+ * its core statement, its use in argument and a verbatim quotation.
  * data: { erwaegungsgruende: [{nr, thema, competency, kernaussage, einsatz, zitat}] }
  */
 export function renderErwgExplorer(mount, data, opts = {}) {

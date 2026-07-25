@@ -1,6 +1,6 @@
 // app/competency.js — Kompetenzmodell (Plan §3, #16, #44):
 // Mapping Frage/Einheit → Kompetenz (K01..K18) + Stufe A/B/C,
-// Auswertung pro Kompetenz und Stufe, Radar-Daten fürs Dashboard.
+// Evaluation per competency and level, plus radar data for the dashboard.
 // Reine Logik — kein DOM, in Node testbar.
 
 export const LEVELS = ['A', 'B', 'C'];
@@ -17,8 +17,8 @@ export const RETENTION = Object.freeze({
  * Aggregiert Antwort-Ereignisse zu einem Kompetenzbild.
  * events: [{competency:'K03', level:'A'|'B'|'C', correct:bool, confidence:'sicher'|'unsicher'|'geraten',
  *           summative:bool, ts:epochMs}]
- * Rückgabe: Map competency → {byLevel:{A:{n,correct,score},…}, score, weakest, sureButWrong}
- * score = gewichteter Anteil richtig (C zählt 1.5, B 1.25, A 1.0 — Anwendung wiegt mehr).
+ * Returns: Map competency → {byLevel:{A:{n,correct,score},…}, score, weakest, sureButWrong}
+ * score = weighted share correct (C counts 1.5, B 1.25, A 1.0 — application weighs more).
  */
 export function aggregateCompetencies(events) {
   const W = { A: 1, B: 1.25, C: 1.5 };
@@ -44,7 +44,7 @@ export function aggregateCompetencies(events) {
       num += W[lv] * b.correct; den += W[lv] * b.n;
     }
     c.score = den ? num / den : null;
-    // Diagnose-Kern: welche Stufe ist das Problem? (z. B. "K3-C rot bei K3-A grün")
+    // Diagnostic core: which level is the problem? (for example C weak while A is strong)
     c.weakest = LEVELS
       .filter(lv => c.byLevel[lv].n >= 2)
       .sort((a, b) => (c.byLevel[a].score ?? 1) - (c.byLevel[b].score ?? 1))[0] ?? null;
@@ -53,10 +53,10 @@ export function aggregateCompetencies(events) {
 }
 
 /**
- * Radar-Daten: Kompetenzen in Gruppen (z. B. K1–K3) bündeln.
+ * Radar data: group competencies into bundles (for example K1 to K3).
  * competencies: content/competencies.json-Array [{id,name,…}]
- * agg: Ergebnis von aggregateCompetencies
- * groupSize: Achsen-Bündelung (Dashboard nutzt 3 → 6 Achsen bei 18 Kompetenzen)
+ * agg: result of aggregateCompetencies
+ * groupSize: axis bundling (the dashboard uses 3, giving 6 axes for 18 competencies)
  */
 export function radarData(competencies, agg, groupSize = 3) {
   const axes = [];
@@ -72,7 +72,7 @@ export function radarData(competencies, agg, groupSize = 3) {
   return axes;
 }
 
-/** Schwächen-Ranking für Drill/Nachschulung (Plan #16, #32). */
+/** Weakness ranking for the drill and for remediation. */
 export function weakestCompetencies(agg, limit = 3) {
   return [...agg.entries()]
     .filter(([, c]) => c.score != null && c.n >= 3)

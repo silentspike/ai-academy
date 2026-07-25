@@ -1,9 +1,9 @@
 // app/rewards.js — Belohnungs-Verdrahtung (Plan #28, §6.3 gestufte Zeremonien).
-// Zentrale Stelle, an der ECHTE Ereignisse zu Zeremonien werden:
-//   KLEIN  = richtige Antwort/XP (inline, im Quiz)
+// The single place where REAL events turn into ceremonies:
+//   small  = correct answer or points (inline, inside the quiz)
 //   MITTEL = neues Badge, Tagesziel erreicht
 //   GROSS  = Level-Up, Phasen-Abschluss, bestandenes Examen
-// Vorher lief nur KLEIN; MITTEL/GROSS existierten ausschließlich in der Demo-Route.
+// Previously only the small tier ran; medium and large existed only in the demo route.
 import { levelFor, newBadges, ceremony, CEREMONY, BADGES, dayCounts } from './gamification.js';
 
 const dayKey = (ms = Date.now()) => {
@@ -12,8 +12,8 @@ const dayKey = (ms = Date.now()) => {
 };
 
 /**
- * Nach JEDEM verbuchten Ereignis aufrufen: prüft Level-Up, neue Badges und Tagesziel
- * und spielt die passende Zeremonie. Gibt aus, was ausgelöst wurde (für Tests/Logs).
+ * Call after EVERY recorded event: checks for a level-up, new badges and the daily goal,
+ * then plays the matching ceremony. Returns what was triggered, for tests and logs.
  */
 export function checkRewards(state, doc = document, { anchor = null, phaseCompleted = null, examPassed = false } = {}) {
   const fired = [];
@@ -62,8 +62,8 @@ const COVER = { p1: 'p1-fundament', p2: 'p2-verbote', p3: 'p3-einstufung', p4: '
   p6: 'p6-gpai', p7: 'p7-aufsicht', p8: 'p8-randwissen', p9: 'p9-oesterreich', p10: 'p10-auslegung' };
 function coverArt(p) { return `assets/covers/${COVER[p] ?? p}.webp`; }
 
-// Badge-ID → vorhandenes Artwork (Task-12-Nacharbeit: die Galerie lud 404er, weil
-// IDs und Dateinamen auseinanderliefen).
+// Badge identifier → existing artwork. The gallery used to load nothing because
+// identifiers and file names had drifted apart.
 const BADGE_ART = {
   'erste-schritte': 'erste-einheit.webp',
   'streakless': 'wochenziel.webp',
@@ -78,7 +78,7 @@ const BADGE_ART = {
 };
 function badgeArt(id) { return `assets/badges/${BADGE_ART[id] ?? 'wissens-tresor.webp'}`; }
 
-/** Badge-Galerie (#28): verdiente und offene Badges sichtbar machen. */
+/** Badge gallery: makes earned and outstanding badges visible. */
 export function renderBadgeGallery(mount, state) {
   const have = new Set(state.badges ?? []);
   mount.innerHTML = `<div class="badge-grid">${BADGES.map(b => `
@@ -90,7 +90,7 @@ export function renderBadgeGallery(mount, state) {
   return have.size;
 }
 
-/** Erstkontakt-Hero (§6.3): einmaliger Startmoment vor dem ersten Lernen. */
+/** First-contact hero: a one-off opening moment before the first learning session. */
 export function heroOnce(state, doc = document) {
   if (state.heroSeen) return false;
   const ov = doc.createElement('div');

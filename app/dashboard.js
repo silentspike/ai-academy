@@ -1,7 +1,7 @@
 // app/dashboard.js — Dashboard-Cockpit (Plan #44): Artikel-Heatmap (klickbar),
-// Kompetenz-Radar mit A/B/C, Lernkurve vs. Soll, Fälligkeit Kern/Aufhol, XP-Wochen-Historie,
-// Examens-Historie first/latest/best je Score-Serie. Eigenbau-SVG im Glow-Stil (§6.3) —
-// Layout und Optik folgen dem freigegebenen Gate-2a-Preview (design-preview.html v4).
+// Competency radar with levels A/B/C, progress against target, due counts for core and
+// catch-up queues, weekly points history, exam history as first/latest/best per score
+// series. Hand-built SVG in the glow style; layout follows the approved design preview.
 
 const SVGNS = 'http://www.w3.org/2000/svg';
 const HEAT_SHADES = {
@@ -14,16 +14,16 @@ const HEAT_SHADES = {
 const h = (x, y, s) => ((x * 73856093 ^ y * 19349663 ^ s * 83492791) >>> 0) % 1000 / 1000;
 
 /**
- * Artikel-Heatmap als Sektor-Mosaik (Gate-2a-Design): articles = [{id, label, score:0..1|null, unit_id}]
+ * Article heat map as a sector mosaic: articles = [{id, label, score:0..1|null, unit_id}]
  * score→Stufe: ≥.85 sehr sicher(0) · ≥.65(1) · ≥.4(2) · <.4 kritisch(3) · null ungelernt(4).
- * Klick auf Zelle → onSelect(article) (#44 „klickbare Kacheln → Einheit").
+ * Clicking a cell calls onSelect(article), which navigates to the unit.
  */
 export function renderHeatmap(mount, articles, opts = {}) {
   const doc = mount.ownerDocument;
   const wrap = doc.createElement('div');
   wrap.className = 'hm-groups';
   const stufe = a => a.score == null ? 4 : a.score >= .85 ? 0 : a.score >= .65 ? 1 : a.score >= .4 ? 2 : 3;
-  // Sortierung: grün → safe → amber → rot → grau (fließende Zonen wie Referenz)
+  // Order: green → safe → amber → red → grey, so the zones blend as in the reference
   const sorted = [...articles].sort((a, b) => stufe(a) - stufe(b));
   const COLS = 27, ROWS = 11, CB = [5, 9, 14, 19, 23], RB = [4, 8];
   const occ = Array.from({ length: ROWS }, () => new Array(COLS).fill(false));
@@ -35,7 +35,7 @@ export function renderHeatmap(mount, articles, opts = {}) {
     const st = stufe(a);
     const [g1, g2] = HEAT_SHADES[st][Math.floor(h(c, r, 2) * 2)];
     let w = 1;
-    // mehr Doppel-Zellen als im Preview: 133 Artikel sollen die Fläche füllen
+    // more double cells than in the preview: 133 articles should fill the area
     if (h(c, r, 3) < .55 && c + 1 < COLS && !occ[r][c + 1] && !CB.includes(c + 1)) w = 2;
     for (let x = c; x < c + w; x++) occ[r][x] = true;
     const gc = c + CB.filter(b => c >= b).length + 1, gr = r + RB.filter(b => r >= b).length + 1;
@@ -94,7 +94,7 @@ export function renderRadar(mount, axes, opts = {}) {
   return svg;
 }
 
-/** Lernkurve vs. Soll (Gate-2a-Stil): points/targets als {label, value 0..1}[]; Badge am letzten Ist-Wert. */
+/** Progress against target: points and targets as {label, value 0..1}[]; badge on the last actual value. */
 export function renderCurve(mount, points, targets) {
   const doc = mount.ownerDocument;
   const W = 620, H = 208, X0 = 58, XW = 528, Y = v => 192 - v * 180;
@@ -131,7 +131,7 @@ export function renderCurve(mount, points, targets) {
   return svg;
 }
 
-/** XP-Wochen-Historie als Glow-Balken. weeks: [{label, xp}] */
+/** Weekly points history as glow bars. weeks: [{label, xp}] */
 export function renderXpBars(mount, weeks) {
   const doc = mount.ownerDocument;
   const W = 320, H = 120, max = Math.max(...weeks.map(w => w.xp), 1);

@@ -1,14 +1,14 @@
-// app/exam-core.js — Prüfungssystem-Logik (Plan §4.3, §9 Schritt 6). Reine Logik,
+// app/exam-core.js — exam system logic. Pure logic, DOM-free and testable in Node.
 // kein DOM, in Node testbar (tools/exam-tests.mjs).
 //
 // Bausteine: Fragenauswahl nach Blueprint (Kapiteltest 2-teilig, Examen Teil A),
 // deterministische Bewertung + Critical-Error-Gates (#16a, eng gefasst),
 // Examens-Gate (#12: P1–P9 bestanden + Kern-Kompetenzen „behalten"),
 // Score-Serien (#17: first/latest/best NUR innerhalb desselben Bewertungsregimes),
-// Nachschulung pro Kompetenz (#16), Placement nur als Empfehlung + Challenge (#19).
+// Remediation per competency; placement yields recommendations plus a challenge test.
 //
-// Cut-Score-Begründung: docs/CUT-SCORE-BLUEPRINT.md · Critical-Error-Liste
-// (vorab veröffentlicht): docs/CRITICAL-ERRORS.md
+// Cut-score derivation: docs/CUT-SCORE-BLUEPRINT.md · list of critical errors,
+// published in advance: docs/CRITICAL-ERRORS.md
 
 import { RETENTION } from './competency.js';
 
@@ -16,13 +16,13 @@ export const PASS_SCORE = 0.8;                       // #10, Herleitung im Bluep
 export const KERN_MIN = 0.5;                         // Mindestleistung je Kern-Kompetenz im Test
 export const BLUEPRINT_VERSION = '1.0.0';
 
-// Mengengerüst (#10/#11): Kapiteltest 25/50/25, Examen Teil A 15/50/35 über A/B/C.
+// Composition: chapter test 25/50/25, exam part A 15/50/35 across levels A, B and C.
 export const TEST_MIX = { A: 0.25, B: 0.5, C: 0.25 };
 export const EXAM_MIX = { A: 0.15, B: 0.5, C: 0.35 };
 
 // ---------------------------------------------------------------- deterministische Auswahl
-// Hash-Seed (wie variants.js): stabil pro (poolVersion, salt) → Retake mit anderem
-// salt zieht andere Fragen; keine Date/Random-Abhängigkeit in der Auswahl selbst.
+// Hash seed (as in variants.js): stable per (poolVersion, salt), so a retake with a
+// different salt draws other questions; the selection itself uses no date or randomness.
 export function hashSeed(str) {
   let h = 2166136261;
   for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
@@ -45,7 +45,7 @@ function pickWeighted(pool, n, mix, rnd, excludeIds = new Set()) {
       out.push(src.splice(j, 1)[0]);
     }
   }
-  // Auffüllen, falls ein Level zu dünn besetzt war
+  // Top up if a level was too thinly populated
   const chosen = new Set(out.map(q => q.id));
   const rest = pool.filter(q => !chosen.has(q.id) && !excludeIds.has(q.id));
   while (out.length < n && rest.length) out.push(rest.splice(Math.floor(rnd() * rest.length), 1)[0]);
@@ -53,9 +53,9 @@ function pickWeighted(pool, n, mix, rnd, excludeIds = new Set()) {
 }
 
 // ---------------------------------------------------------------- Kapiteltest (2-teilig, #10)
-// Teil 1 „Triage" — Closed Book, nur deterministisch bewertbare Formate.
-// Teil 2 „Quellenarbeit" — Open Book (Verordnungstext verfügbar), Freitext/Fälle.
-// 100 % validierter Pool (#14): nur status approved_summative.
+// Part 1, triage — closed book, only formats that can be graded deterministically.
+// Part 2, source work — open book (the regulation is available), free text and cases.
+// Exclusively the approved pool: only status approved_summative.
 export function buildChapterTest(phaseId, pool, { salt = 'v1', part1Count = 8, part2Count = 2, excludeIds = new Set() } = {}) {
   const approved = pool.filter(q => q.status === 'approved_summative' && q.id.startsWith(phaseId + '-'));
   const rnd = hashSeed(`${phaseId}|${salt}|chapter`);
@@ -88,10 +88,10 @@ export function buildExamA(pool, { salt = 'v1', count = 40, excludeIds = new Set
 }
 
 // ---------------------------------------------------------------- Bewertung + Critical Errors
-// Deterministisch für mc/multi/assign; Freitext-Scores kommen als LLM-Ergebnisse
+// Deterministic for multiple choice, multi-select and assignment; free-text scores arrive
 // herein ({score, max, critical_error}). Critical-Error-Gate (#16a, v3.2 eng):
-// greift NUR, wenn die Frage critical_error trägt (requires_complete_facts wurde
-// bei der Autorierung erzwungen — check-questions/validate).
+// applies ONLY when the question carries critical_error; requires_complete_facts was
+// enforced at authoring time by check-questions and the validator.
 export function gradeAnswer(q, answer) {
   if (q.type === 'mc' || q.type === 'case') {
     const correctId = q.options.find(o => o.correct)?.id;
@@ -147,7 +147,7 @@ export function examGate(state, { kompetenzen, cards = [], nowMs }) {
   for (let p = 1; p <= 9; p++) {
     if (!tests['p' + p]?.passed) reasons.push(`Kapiteltest P${p} nicht bestanden`);
   }
-  // Kern-Kompetenzen auf Stufe „behalten" (7-Tage-Bestätigung): über Karten-Retention
+  // Core competencies at the "retained" tier (seven-day confirmation), via card retention
   const kernIds = (kompetenzen || []).filter(k => k.kern).map(k => k.id);
   const okStages = new Set([RETENTION.BEHALTEN_7D, RETENTION.GEFESTIGT]);
   for (const kid of kernIds) {
@@ -164,8 +164,8 @@ export function examGate(state, { kompetenzen, cards = [], nowMs }) {
 }
 
 // ---------------------------------------------------------------- Score-Serien (#17)
-// Regime-Schlüssel: Rechtsstand + Content- + Prompt-/Rubrik- + Modell- + Blueprint-Version.
-// Serien werden NIE gemischt; Wechsel = neue Serie mit sichtbarer Trennlinie.
+// Regime key: legal baseline plus content, prompt/rubric, model and blueprint version.
+// Series are NEVER mixed; a change starts a new series with a visible divider.
 export function regimeKey({ rechtsstand, contentVersion, promptsVersion, model }) {
   return [rechtsstand, contentVersion, promptsVersion, model, BLUEPRINT_VERSION].join('|');
 }
@@ -189,14 +189,14 @@ export function nachschulungPlan(evalResult, { pool, units, scenarios = [], ques
     units: (units || []).filter(u => (u.competencies || []).includes(comp)).map(u => u.id),
     questions: pool.filter(q => q.competency === comp && q.status === 'approved_summative')
       .slice(0, questionsPerComp).map(q => q.id),
-    // #16 verlangt zusätzlich EIN Kurzszenario je Kompetenz — Anwendung statt Wiedererkennen
+    // Remediation also requires ONE short scenario per competency: application, not recognition
     szenario: (scenarios.find(s => s.competency === comp)
       ?? scenarios.find(s => (s.goals ?? []).some(g => g.competency === comp)))?.id ?? null,
     passRequired: 1.0,                       // Nachschulungs-Fragen: 100 % (#16)
   }));
 }
 
-// ---------------------------------------------------------------- Placement (#19, nur Empfehlung)
+// ---------------------------------------------------------------- placement (recommendation only)
 export function placementBuild(pool, { salt = 'v1', count = 20 } = {}) {
   const approved = pool.filter(q => q.status === 'approved_summative' && ['mc', 'multi', 'case'].includes(q.type));
   const rnd = hashSeed(`placement|${salt}`);

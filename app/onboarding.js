@@ -1,13 +1,13 @@
-// app/onboarding.js — Onboarding-Wizard der Share-Version (Plan §5.3, app-orchestriert):
+// app/onboarding.js — setup wizard for the share version, orchestrated by the app:
 // Verbinden → Fachprofil → Lernprofil → Machbarkeits-Check → Personalisierung
 // (strukturierte Prompts, JSON-validiert, Retry) → Placement → Los.
-// Jans Betrieb überspringt den Wizard: Profil kommt aus data/profiles/ (Bridge /api/profile).
+// A prepared profile skips the wizard: it comes from data/profiles/ via /api/profile.
 import { route } from './router.js';
 import { LlmAdapter } from './llm-adapter.js';
 import { feasibilityCheck } from './pacing.js';
 
 // ---------------------------------------------------------------- Personalisierungs-Validierung
-// AC2-Kern (Plan §5.3): LLM-Antworten fließen NUR maschinenlesbar validiert in die
+// Core rule: model answers enter the data structures ONLY after machine-readable
 // Datenstrukturen. Reine Funktion — in Node testbar (tools/onboarding-tests.mjs).
 export function validatePersonalization(obj) {
   const errors = [];
@@ -26,7 +26,7 @@ export function validatePersonalization(obj) {
   if (!Array.isArray(obj.szenario_einkleidungen)) errors.push('szenario_einkleidungen muss Array sein');
   else for (const s of obj.szenario_einkleidungen) {
     if (!s.scenario_id || !s.org || !s.rolle) errors.push(`szenario_einkleidung unvollständig: ${s.scenario_id ?? '?'}`);
-    // Harte Oberflächen-Grenze (§5.2): NUR org/rolle/domaenenbegriffe — rechtliche Felder verboten
+    // Hard surface boundary: ONLY organisation, role and domain vocabulary — legal fields are forbidden
     const verboten = ['facts', 'goals', 'rubric', 'critical', 'phases', 'legal'];
     for (const k of Object.keys(s)) if (verboten.some(v => k.toLowerCase().includes(v)))
       errors.push(`szenario_einkleidung ${s.scenario_id}: Feld '${k}' überschreitet die Oberflächen-Grenze (§5.2)`);
@@ -34,7 +34,7 @@ export function validatePersonalization(obj) {
   return { ok: errors.length === 0, errors };
 }
 
-/** Personalisierung mit Validierungs-Retry: invalides JSON → bis zu `retries` Neuversuche. */
+/** Personalisation with a validation retry: invalid JSON triggers up to `retries` attempts. */
 export async function personalizeWithRetry(callLlm, payload, { retries = 2 } = {}) {
   let lastErrors = [];
   for (let attempt = 0; attempt <= retries; attempt++) {
@@ -152,7 +152,7 @@ route('onboarding', async (view, ctx) => {
       }
       c.querySelector('button').onclick = next;
     },
-    // 5 Placement (nur Empfehlungen, #19)
+    // 5 placement (recommendations only)
     () => {
       const c = card('<p>20 Fragen quer durch alle Phasen (~15 min) — Ergebnis sind Startempfehlungen; Einheiten-Skips erfordern Challenge-Tests.</p><button class="btn-primary" id="ob-pl">Placement starten</button> <button class="btn" id="ob-skip">Überspringen</button>');
       view.appendChild(c);
@@ -168,8 +168,8 @@ route('onboarding', async (view, ctx) => {
     },
   ];
 
-  // §5.2: Persona-Auswahl folgt der Organisationsrolle — ein Behörden-Betreiber spricht mit
-  // Fachabteilung/DSB/Personalvertretung, ein Anbieter mit Kunde/notifizierter Stelle/CTO.
+  // Persona selection follows the organisational role: a public-sector deployer talks to
+  // a department, a data protection officer and staff representatives; a provider to a customer, a notified body and a CTO.
   const ARCHETYPEN_NACH_ROLLE = {
     betreiber: ['draengler', 'kritischer-pruefer', 'belegschaftsvertretung', 'fuehrungsebene'],
     anbieter: ['kunde-konformitaet', 'notifizierte-stelle', 'cto-vor-release', 'fuehrungsebene'],

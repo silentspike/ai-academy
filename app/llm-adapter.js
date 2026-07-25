@@ -1,11 +1,11 @@
-// app/llm-adapter.js — EIN LLM-Interface für die gesamte App (Plan §6.2).
-// v3.2 + Direktive 2026-07-25: Der EINZIGE Browser-Transport ist die Local
-// Bridge, und die Bridge spricht LLMs AUSSCHLIESSLICH über Abo/OAuth der CLIs
-// (claude/codex) an — API-Keys werden im gesamten Produkt nicht unterstützt.
+// app/llm-adapter.js — ONE model interface for the whole application.
+// The ONLY browser transport is the local bridge, and the bridge reaches models
+// EXCLUSIVELY through the subscription sign-in of the CLIs (claude, codex).
+// API keys are not supported anywhere in this product.
 //
-// Frontier-Gate (Plan §5.4, docs/INTENDED-PURPOSE.md §3): Unterstützt sind nur
-// Frontier-Modelle von Anthropic (Claude) und OpenAI (ChatGPT). Nicht
-// unterstützte Modelle → harte Sperre aller summativen Funktionen.
+// Frontier gate: only frontier models from Anthropic (Claude) and OpenAI (ChatGPT)
+// are supported. An unsupported model hard-locks every summative function.
+
 
 export const FRONTIER_PATTERNS = [
   /^claude-(opus|sonnet|fable|mythos)/i,   // Anthropic-Frontier-Klassen
@@ -17,14 +17,14 @@ export function isFrontierModel(model) {
   return typeof model === 'string' && FRONTIER_PATTERNS.some(re => re.test(model.trim()));
 }
 
-// API-Präfix, dokumentrelativ ermittelt.
+// API prefix, derived relative to the document.
 //
-// Die App wird an sehr unterschiedlichen Orten ausgeliefert: von der Bridge direkt
-// unter "/", oder von einem beliebigen Webserver unter einem beliebigen Unterpfad.
-// Ein fest verdrahteter Pfad wäre deshalb nur in genau einer Installation richtig.
-// Stattdessen wird das Verzeichnis der laufenden Seite als Basis genommen und "api/"
-// angehängt — das stimmt in beiden Betriebsarten, ohne dass die App wissen muss,
-// wo sie liegt. Beim Betrieb hinter einem Webserver muss dieser <basis>/api/ an die
+// The application is served from very different places: directly by the bridge at
+// "/", or by an arbitrary web server under an arbitrary sub-path. A hard-wired path
+// would therefore be correct in exactly one installation.
+// Instead the directory of the running page is taken as the base and "api/" appended.
+// That holds in both operating modes without the application needing to know where
+// it lives. When running behind a web server, that server must forward <base>/api/
 // Bridge weiterreichen (siehe README, Abschnitt Betrieb).
 export function apiPrefix(baseUrl = '') {
   if (baseUrl) return baseUrl.replace(/\/+$/, '') + '/api/';
@@ -57,7 +57,7 @@ export class LlmAdapter {
 
   async refreshHealth() { this.health = await this.#call('health'); return this.health; }
 
-  // Frontier-Gate: Modellklasse prüfen. Ergebnis steuert die Prüfungs-Sperre (#summativeAllowed).
+  // Frontier gate: check the model class. The result drives the exam lock.
   evaluateGate() {
     const h = this.health;
     if (!h || !h.llm) this.gate = { checked: true, frontier: false, reason: 'kein LLM verbunden' };
@@ -80,7 +80,7 @@ export class LlmAdapter {
   async judgeBoss(payload)  { this.#requireGate(); return this.#call('dialog/judge', { method: 'POST', body: payload }); }
   async appeal(payload)     { this.#requireGate(); return this.#call('appeal', { method: 'POST', body: payload }); }
 
-  // --- Formative Wege (laufen auch, solange irgendein CLI verbunden ist) ---
+  // --- formative paths (these run as long as any CLI is connected) ---
   async coach(payload)      { return this.#call('dialog', { method: 'POST', body: { mode: 'coach', ...payload } }); }
   async boss(payload)       { return this.#call('dialog', { method: 'POST', body: { mode: 'boss', ...payload } }); }
   async endSession(day)     { return this.#call('dialog/end-session', { method: 'POST', body: { day } }); }

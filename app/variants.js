@@ -1,7 +1,7 @@
-// app/variants.js — Varianten-Engine (Plan #14b): erzeugt aus Fakten der facts-db
-// zusätzliche Übungsfragen per Distraktor-Rotation und Inversion. Läuft komplett in JS
-// (beide Produkte, kein LLM). NUR formativ — summative Prüfungen ziehen aus dem
-// validierten Pool (#14). Deterministisch über seed → reproduzierbar.
+// app/variants.js — the variant engine: builds additional practice questions from the
+// fact database by rotating distractors and inverting statements. Runs entirely in
+// JavaScript, without a model. FORMATIVE ONLY — summative exams draw from the
+// approved pool. Deterministic via a seed, therefore reproducible.
 // Reine Logik — kein DOM, in Node testbar.
 
 /** Deterministischer Hash (kein Math.random — Reproduzierbarkeit). */
@@ -28,9 +28,9 @@ function shuffle(arr, seed) {
  */
 
 /**
- * Erzeugt bis zu `count` Varianten aus EINEM Faktensatz.
- * Jede Variante: MC-Frage mit rotierten Distraktoren; bei invertible zusätzlich
- * die invertierte Form („Welche Aussage ist FALSCH?" — als Fangfrage gekennzeichnet, #13).
+ * Produces up to `count` variants from ONE fact set.
+ * Each variant is a multiple-choice question with rotated distractors; where the fact
+ * is invertible, also the inverted form, marked as a trick question.
  */
 export function generateVariants(fact, { count = 4, optionCount = 4, seedBase = 'v1' } = {}) {
   if (!fact?.id || fact.correct == null || !Array.isArray(fact.distractor_pool)) {
@@ -45,7 +45,7 @@ export function generateVariants(fact, { count = 4, optionCount = 4, seedBase = 
     const seed = `${seedBase}:${fact.id}:${v}`;
     const wantInvert = fact.invertible && fact.negation && (v % 3 === 2); // jede 3. Variante invertiert
     if (wantInvert) {
-      // Inversion: 3 richtige Aussagen + die Negation als gesuchte falsche
+      // Inversion: three true statements plus the negation as the false one to find
       const truths = shuffle(fact.distractor_truths ?? fact.distractor_pool, seed)
         .slice(0, optionCount - 1)
         .map((t, i) => ({ id: `t${i}`, text: t.truth ?? t, correct: false }));
@@ -69,7 +69,7 @@ export function generateVariants(fact, { count = 4, optionCount = 4, seedBase = 
       rotations++;
     }
   }
-  // Dedup über Options-Signatur (Rotation kann bei kleinem Pool kollidieren)
+  // Deduplicate by option signature: rotation can collide when the pool is small
   const seen = new Set();
   const unique = out.filter(q => {
     const sig = q.options.map(o => o.text).sort().join('|') + '§' + q.prompt;

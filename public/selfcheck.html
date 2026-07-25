@@ -6,7 +6,7 @@
 <title>AI-Act-Akademie</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2334d399'/%3E%3Cstop offset='1' stop-color='%2322d3ee'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='7' fill='%230a0e17'/%3E%3Cpath d='M8 24 L16 7 L24 24 M11.5 18.5 h9' stroke='url(%23g)' stroke-width='2.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <style>
-  /* Fundament-Shell (Schritt 1/2) — volle SPA folgt in Schritt 3 gegen DESIGN-SYSTEM.md.
+  /* Foundation shell; the full application follows, built against DESIGN-SYSTEM.md */
      Farbwelt nach Plan §6.3: Dark-Tech #0a0e17, Emerald/Cyan. */
   :root { --bg:#0a0e17; --panel:#101624; --line:#1c2537; --text:#e6edf3; --dim:#8b96a8;
           --emerald:#34d399; --cyan:#22d3ee; --amber:#fbbf24; --red:#f87171; }
@@ -58,7 +58,7 @@
   import { runSelfCheck, buildDiagnoseExport } from './app/selfcheck.js';
 
   const llm = new LlmAdapter({});
-  // Backend-Wahl: Bridge-Store, wenn die Bridge antwortet, sonst localStorage (Share-Fallback)
+  // Backend choice: the bridge store when the bridge answers, otherwise local storage.
   let storage = StorageAdapter.bridgeStore({});
   let lastResult = null;
 

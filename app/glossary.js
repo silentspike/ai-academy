@@ -1,6 +1,6 @@
 // app/glossary.js — Glossar-Tooltips (Plan #6, #41):
-// Fachbegriffe überall unterstrichen; Erklärung per Hover UND Klick (A11y-Basic).
-// In Prüfungen (Closed Book) zentral deaktiviert über engine-quiz.applyMode → .gloss-off.
+// Technical terms are underlined everywhere; the explanation opens on hover AND click.
+// Disabled centrally during closed-book exams via engine-quiz.applyMode → .gloss-off.
 
 let TERMS = new Map();
 
@@ -16,7 +16,7 @@ export function loadGlossary(entries) {
   return TERMS.size;
 }
 
-/** Markiert bekannte Begriffe in einem Container (idempotent; überspringt Prüf-Container). */
+/** Marks known terms inside a container (idempotent; skips exam containers). */
 export function decorate(root) {
   if (!TERMS.size) return 0;
   const doc = root.ownerDocument;
@@ -50,7 +50,7 @@ export function decorate(root) {
   return count;
 }
 
-/** Ein globaler Tooltip; öffnet auf Hover UND Klick/Enter, schließt bei Escape/Blur. */
+/** A single global tooltip; opens on hover AND click or Enter, closes on Escape or blur. */
 export function attachTooltip(doc) {
   let tip = doc.querySelector('.gloss-tip');
   if (!tip) {

@@ -1,19 +1,19 @@
-// app/erhaltung.js — Erhaltungsmodus (Plan #36): Nach bestandenem Examen wird aus
-// dem Kurs ein Dauerbegleiter — täglich 5–10 Karten + 1 Szenario pro Woche.
+// app/erhaltung.js — maintenance mode: once the exam is passed the course turns
+// into a long-term companion — five to ten cards a day plus one scenario a week.
 // Reine Logik, DOM-frei (tools/erhaltung-tests.mjs).
 import { DAY_MS, startOfDay } from './engine-leitner.js';
 
 export const WEEK_MS = 7 * DAY_MS;
 
-/** Aktiv, sobald irgendein Examens-Antritt (Teil A+B) bestanden ist. */
+/** Active as soon as any exam attempt (parts A and B) has been passed. */
 export function maintenanceActive(state) {
   return (state.examAttempts ?? []).some(a => a.passed);
 }
 
 /**
- * Tagesplan im Erhaltungsmodus: 5–10 Karten (fällige zuerst, dann die ältesten
- * als Auffrischung) + wöchentliches Szenario (fällig, wenn seit dem letzten
- * ≥ 7 Tage vergangen sind).
+ * Daily plan in maintenance mode: five to ten cards (due ones first, then the oldest
+ * as a refresher) plus a weekly scenario, due once seven days have passed since
+ * the previous one.
  */
 export function maintenancePlan(state, scenarios, nowMs) {
   if (!maintenanceActive(state)) return { active: false };

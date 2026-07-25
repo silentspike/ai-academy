@@ -1,10 +1,10 @@
 // app/gamification.js — XP, Level, Badges, Wochenziel, Zeremonien (Plan #28–#31, §6.3).
-// KERNREGEL (#28, Review 2): Aktivitäts-XP (Teilnahme — auch bei Fehlern, straffreier Lernraum)
-// und Mastery-Evidenz (nur echte, verzögerte, erfolgreiche Leistungen) sind STRIKT getrennte
-// Größen und werden nie vermischt. XP treibt Level/Badges; Mastery treibt Radar/Retention/Gate.
+// CORE RULE: activity points (participation, including mistakes — a penalty-free space)
+// and mastery evidence (only real, delayed, successful performance) are STRICTLY separate
+// quantities and are never mixed. Points drive levels and badges; mastery drives the radar, retention and the gate.
 // Logik DOM-frei; Zeremonien-Rendering getrennt.
 
-// ---------- XP & Level (Aktivität) ----------
+// ---------- points and levels (activity) ----------
 
 export const XP_RULES = Object.freeze({
   check_answered: { A: 10, B: 14, C: 20 },     // C > B > A (#28) — unabhängig von richtig/falsch
@@ -16,7 +16,7 @@ export const XP_RULES = Object.freeze({
   exam_passed: 400
 });
 
-/** Level-Leiter: trocken-witzige Fachtitel (#28); Endstufe kommt aus dem Profil. */
+/** Level ladder with dryly humorous titles; the final title comes from the profile. */
 export const LEVELS_LADDER = [
   { level: 1, xp: 0, title: 'Anhang-Ahnungslos' },
   { level: 2, xp: 250, title: 'Erwägungsgrund-Leser' },
@@ -43,9 +43,9 @@ export function levelFor(xp, profileEndTitle = 'AI-Act-Souverän') {
 }
 
 /**
- * Ereignis verbuchen — gibt IMMER beide Ströme getrennt zurück (AC1).
+ * Record an event — ALWAYS returns both streams separately.
  * event: {kind, level?, correct?, confidence?, delayedDays?, competency?}
- * XP fließt bei Teilnahme; Mastery-Evidenz NUR wenn correct && (kind summativ/verzögert relevant).
+ * Points flow on participation; mastery evidence ONLY when correct and the kind is summative or delayed.
  */
 export function applyEvent(state, event) {
   const xpGain = event.kind === 'check_answered'
@@ -55,7 +55,7 @@ export function applyEvent(state, event) {
 
   let masteryGain = null;
   if (event.correct === true) {
-    // Mastery zählt nur echte Erfolge; verzögerte Leistung (≥1 Tag Abstand) wiegt mehr (#28, #33)
+    // Mastery counts real successes only; delayed performance (a day or more apart) weighs more
     const delayed = (event.delayedDays ?? 0) >= 1;
     masteryGain = {
       competency: event.competency ?? null,
@@ -71,7 +71,7 @@ export function applyEvent(state, event) {
 
 // ---------- Wochenziel (#29) ----------
 
-/** Ein Tag zählt ab: Pflicht-Review erledigt UND (≥10 Fragen ODER ≥1 Einheit). */
+/** A day counts once the mandatory review is done AND either 10 questions or one unit. */
 export function dayCounts(dayStats) {
   return dayStats.reviewDone === true && ((dayStats.questions ?? 0) >= 10 || (dayStats.units ?? 0) >= 1);
 }
@@ -83,7 +83,7 @@ export function weekProgress(state, nowMs) {
   return { done, goal: state.week.goalDays ?? 5, met: done >= (state.week.goalDays ?? 5) };
 }
 
-// ---------- Badges (#28; Katalog wächst mit Content) ----------
+// ---------- badges (the catalogue grows with the content) ----------
 
 export const BADGES = [
   { id: 'erste-schritte', title: 'Aktenkundig', desc: 'Erste Einheit abgeschlossen.', check: s => (s.stats?.units ?? 0) >= 1 },
@@ -105,11 +105,11 @@ export function newBadges(state) {
   return fresh;
 }
 
-// ---------- Zeremonien (§6.3: klein / mittel / groß) ----------
+// ---------- ceremonies (small, medium, large) ----------
 
 export const CEREMONY = Object.freeze({ KLEIN: 'klein', MITTEL: 'mittel', GROSS: 'gross' });
 
-/** Konfetti-Physik auf Canvas — nur transform/opacity-äquivalente Zeichnung, reduced-motion → aus. */
+/** Confetti physics on canvas; disabled entirely under reduced motion. */
 export function confettiBurst(doc, { count = 80, duration = 1800 } = {}) {
   if (doc.defaultView.matchMedia('(prefers-reduced-motion: reduce)').matches) return null;
   const c = doc.createElement('canvas');
@@ -141,8 +141,8 @@ export function confettiBurst(doc, { count = 80, duration = 1800 } = {}) {
 }
 
 /**
- * Zeremonie auslösen (AC4): klein = Inline-Snap; mittel = Toast + kleiner Burst;
- * groß = Vollbild-Bühne (abgedunkelt, Artwork fährt auf, Stats-Karte, Konfetti).
+ * Trigger a ceremony: small = inline snap; medium = toast with a small burst;
+ * large = full-screen stage (dimmed, artwork rises, stats card, confetti).
  */
 export function ceremony(doc, tier, payload = {}) {
   if (tier === CEREMONY.KLEIN) {

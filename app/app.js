@@ -1,6 +1,6 @@
 // app/app.js — SPA-Kern (Plan §6.2, #42, §6.3 Erstkontakt):
-// Hash-Router, zentraler State über storage-adapter, Sitzungsstart-Choreografie (~1,5 s, überspringbar),
-// Topbar-Status (XP · Level · Wochenziel · Zieltermin · Rechtsstand) und Sidebar-Phasenbaum.
+// Hash router, central state via the storage adapter, the opening choreography (about 1.5 s, skippable),
+// the status bar (points, level, weekly goal, target date, legal baseline) and the phase tree.
 
 import { StorageAdapter } from './storage-adapter.js';
 import { loadGlossary, decorate, attachTooltip } from './glossary.js';
@@ -17,9 +17,9 @@ export async function startApp({ mountId = 'view' } = {}) {
   let storage = StorageAdapter.bridgeStore({});
   try { await storage.get('state'); } catch { storage = StorageAdapter.localStorage(); }
   const state = await loadState(storage);
-  // Speicher-Serialisierung: saveState wird aus vielen Stellen (Routen, Ritual, Rewards)
-  // teils gleichzeitig gerufen. Parallele PUTs konnten sich überholen bzw. abgebrochen
-  // werden — dann ging ein Save still verloren (Task-12-Finding: Glossar-Karten).
+  // Serialised saving: saveState is called from many places (routes, ritual, rewards),
+  // sometimes concurrently. Parallel writes could overtake or abort each other, and a
+  // save was then lost silently.
   let saveChain = Promise.resolve();
   let savePending = false;
   const ctx = { storage, state, saveState: () => {
@@ -43,8 +43,8 @@ export async function startApp({ mountId = 'view' } = {}) {
     if (gl.length) loadGlossary(gl);
   } catch { /* Glossar kommt mit dem Content (Task 8) */ }
 
-  // Profil-Auflösung (§5.1): 1. lokales Kurator-Profil über die Bridge (data/profiles/,
-  // gitignored) · 2. per Onboarding erzeugtes Profil im State · 3. → Onboarding-Wizard.
+  // Profile resolution: 1. a curated local profile via the bridge (data/profiles/,
+  // gitignored) · 2. a profile created by the wizard and held in state · 3. the wizard.
   if (!ctx.profile) {
     try {
       const { apiPrefix } = await import('./llm-adapter.js');
@@ -53,8 +53,8 @@ export async function startApp({ mountId = 'view' } = {}) {
     } catch { /* Share-Betrieb ohne Kurator-Profil */ }
     if (!ctx.profile && state.profile) ctx.profile = state.profile;
     if (!ctx.profile && !location.hash.startsWith('#/onboarding')) location.hash = '#/onboarding';
-    // Profil in den Lern-State ausrollen (Task-12-Finding: Kurve/Topbar/Endtitel
-    // blieben leer, obwohl das Kurator-Profil geladen war)
+    // Roll the profile out into the learning state; otherwise curve, status bar and
+    // final title stayed empty even though the curated profile had loaded.
     if (ctx.profile) {
       const lp = ctx.profile.lernprofil ?? {};
       const ziele = lp.zieltermine ?? lp.milestones ?? [];
@@ -71,7 +71,7 @@ export async function startApp({ mountId = 'view' } = {}) {
   const { heroOnce } = await import('./rewards.js');
   if (heroOnce(state, document)) { await ctx.saveState(); }
 
-  // Art.-50-Transparenz im eigenen Produkt (§5.0): einmalig VOR der ersten Tutor-Interaktion.
+  // Article 50 transparency applied to our own product: once, BEFORE the first tutor interaction.
   if (!state.aiNoticeAck) {
     const ov = document.createElement('div');
     ov.className = 'ai-notice-overlay';
@@ -119,8 +119,8 @@ async function loadState(storage) {
 }
 
 /**
- * Sidebar (#42): Phasen-Baum mit Fortschrittsringen, Review-Badge mit Kern-/Aufhol-Zähler,
- * Examens-Schloss dynamisch am Gate (#12) — nicht mehr hardcoded.
+ * Sidebar: phase tree with progress rings, a review badge counting core and catch-up,
+ * and an exam lock bound to the gate rather than hard-coded.
  */
 const PHASEN = [
   ['p1', 'Fundament'], ['p2', 'Verbote'], ['p3', 'Einstufung'], ['p4', 'Pflichten'], ['p5', 'Transparenz'],
@@ -155,7 +155,7 @@ export async function paintSidebar(state) {
   set('due-count', q.kern.length);
   set('aufhol-count', aufholToday.length);
 
-  // Examens-Schloss: offen, sobald das Gate (#12) offen ist
+  // Exam lock: open as soon as the gate is open
   const nav = document.getElementById('nav-examen');
   if (nav) {
     try {
@@ -171,7 +171,7 @@ export async function paintSidebar(state) {
     } catch { nav.classList.add('state-locked'); }
   }
 
-  // Ritual-Fortschritt in der Sidebar
+  // Ritual progress in the sidebar
   try {
     const { todaySession } = await import('./ritual.js');
     const { STEPS } = await import('./session.js');
@@ -180,7 +180,7 @@ export async function paintSidebar(state) {
   } catch { /* Ritual optional */ }
 }
 
-/** Inszenierter Start (§6.3): Wortmarke → Aurora → Kaskade; überspringbar; reduced-motion → sofort. */
+/** Staged opening: wordmark, aurora, cascade. Skippable; with reduced motion it appears at once. */
 function introSequence(state) {
   const el = document.getElementById('intro');
   if (!el) return Promise.resolve();
@@ -241,7 +241,7 @@ route('dashboard', async (view, ctx) => {
   } catch { /* Erhaltung ist Zusatz — Dashboard rendert auch ohne */ }
   view.classList.add('dash-grid');
   const s = ctx.state;
-  // Machbarkeits-/Drift-Hinweis auch für kuratierte Profile (§5.1) — nicht nur im Onboarding
+  // Feasibility and drift hints also for curated profiles, not only during onboarding
   if (s.milestones?.length && s.pace) {
     try {
       const { feasibilityCheck } = await import('./pacing.js');
@@ -268,8 +268,8 @@ route('dashboard', async (view, ctx) => {
     rollen: ['K05'], pflichten: ['K08', 'K09', 'K10'], daten: ['K11'], transparenz: ['K12'],
     gpai: ['K13'], aufsicht: ['K15', 'K14'], sanktionen: ['K15'], innovation: ['K15'],
     verfahren: ['K10', 'K16'], anhang: ['K03', 'K16'], rand: ['K16'] };
-  // Profil-Overrides (§5.1): das Onboarding/Kurator-Profil verschiebt Relevanz-Stufen —
-  // sie steuern Priorisierung und Hervorhebung in der Landkarte.
+  // Profile overrides: the profile shifts relevance tiers, which steer prioritisation
+  // and emphasis in the article map.
   const overrides = new Map((ctx.profile?.personalisierung?.relevanz_overrides ?? []).map(o => [o.ref, o.stufe]));
   const articles = factsDb.relevanz_matrix.artikel.map(a => {
     const ks = [...new Set((a.kategorien ?? []).flatMap(k => KAT2K[k] ?? []))];
@@ -280,10 +280,10 @@ route('dashboard', async (view, ctx) => {
   });
   const kernN = articles.filter(a => a.relevanz === 'kern').length;
   const axes = radarData(compDef.kompetenzen, agg);
-  // Ist-Kurve: kumulierter Einheiten-Fortschritt je Woche (aus Events); Soll: linear zu den Meilensteinen
+  // Actual curve: cumulative unit progress per week from events; target: linear to the milestones
   const UNITS_TOTAL = 16;
   const unitEvents = (s.events ?? []).filter(e => e.kind === 'unit_completed');
-  // Alt-Bestand ohne Event-Aufzeichnung (vor Task-12-Fix) als Baseline anrechnen
+  // Count legacy progress without recorded events as a baseline
   const unitBaseline = Math.max(0, (s.unit_done?.length ?? 0) - unitEvents.length);
   const start = s.events?.[0]?.ts ?? Date.now();
   const weeks = Math.max(2, Math.ceil((Date.now() - start) / (7 * 864e5)) + 1);
@@ -315,7 +315,7 @@ route('dashboard', async (view, ctx) => {
   renderHeatmap(view.querySelector('#d-hm'), articles, { onSelect: a => a.unit_id && navigate(`#/einheit/${a.unit_id}`) });
   renderRadar(view.querySelector('#d-radar'), axes);
   renderCurve(view.querySelector('#d-curve'), curve.ist, curve.soll);
-  // XP je Kalenderwoche aus dayStats (echt)
+  // Points per calendar week from dayStats (real data)
   const dayXp = Object.entries(s.dayStats ?? {});
   const weekXp = new Map();
   for (const [day, st] of dayXp) {
@@ -333,7 +333,7 @@ route('dashboard', async (view, ctx) => {
   renderExamHistory(view.querySelector('#d-exam'), series.length ? series : [{ regime: 'noch kein Examen', attempts: [] }]);
 });
 
-// Zeremonien-Demo (AC4-Testroute — bis Gamification an echte Ereignisse gebunden ist)
+// Ceremony demo route, kept for manual inspection of the three tiers
 route('zeremonie', (view, ctx, [tier]) => {
   view.innerHTML = `<div class="card"><h3>Zeremonien-Test</h3><p class="dim">
     <a href="#/zeremonie/klein">klein</a> · <a href="#/zeremonie/mittel">mittel</a> · <a href="#/zeremonie/gross">groß</a></p>
@@ -390,7 +390,7 @@ route('lernen', async (view, ctx, [phaseFilter]) => {
 
 route('einheit', async (view, ctx, [unitId]) => {
   view.classList.remove('dash-grid');
-  // Pflicht-Review VOR neuem Stoff (§3 „erzwungen", #32) — Gate aus session.js
+  // Mandatory review BEFORE new material — the gate comes from session.js
   const { todaySession, sessionStatus } = await import('./ritual.js');
   const { canStartUnit, completeStep } = await import('./session.js');
   const s = todaySession(ctx.state);
@@ -460,7 +460,7 @@ route('karten', async (view, ctx) => {
       const dk = (d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`)(new Date());
       ctx.state.dayStats[dk] = { ...(ctx.state.dayStats[dk] ?? {}), reviewDone: true, xp: (ctx.state.dayStats[dk]?.xp ?? 0) + 2 };
       ctx.state.events.push({ competency: c.competency, level: 'A', correct: r !== 'falsch', confidence: r.includes('unsicher') ? 'unsicher' : 'sicher', summative: false, ts: Date.now() });
-      // Wenn die Kernwarteschlange leer ist: Takt 1 des Rituals abhaken (#32)
+      // If the core queue is empty, tick off step 1 of the ritual
       import('./ritual.js').then(({ todaySession }) => import('./session.js').then(({ completeStep }) => {
         const s = todaySession(ctx.state);
         if (splitQueues(ctx.state.cards ?? [], Date.now()).kern.length === 0) completeStep(s, 'review');
@@ -483,7 +483,7 @@ route('boss', async (view, ctx, [scenarioId]) => {
   if (!scenario) { view.innerHTML = '<div class="card"><p class="dim">Szenario nicht gefunden.</p></div>'; return; }
   const arch = (await fetch('content/archetypes.json').then(r => r.json())).archetypes
     .find(a => a.id === scenario.persona_archetype);
-  // Archetyp → Crew-Figur (Task 9): Bilder + Persona-Karte pro Gesprächstyp
+  // Archetype to crew figure: artwork and persona card per conversation type
   const CREW = {
     'draengler':              { img: '03-fachabteilung', name: 'M. Brunner',  role: 'Leitung Fachabteilung' },
     'kritischer-pruefer':     { img: '04-datenschutz',   name: 'Dr. E. Steiner', role: 'Datenschutzbeauftragte' },
@@ -493,8 +493,8 @@ route('boss', async (view, ctx, [scenarioId]) => {
     'cto-vor-release':        { img: '02-pruefer',       name: 'T. Auer',     role: 'IT-Leitung' },
     'notifizierte-stelle':    { img: '02-pruefer',       name: 'Ing. R. Falk', role: 'Notifizierte Stelle' },
   };
-  // Profil-Einkleidung (§5.2): NUR Oberflächen-Merkmale (Organisation, Rolle, Domänenbegriff) —
-  // Fakten, Rubrik, Fallen und Schwierigkeit bleiben unverändert.
+  // Profile reskin: ONLY surface features (organisation, role, domain vocabulary).
+  // Facts, rubric, traps and difficulty stay unchanged.
   const eink = (ctx.profile?.personalisierung?.szenario_einkleidungen ?? []).find(e => e.scenario_id === scenario.id);
   const crew = CREW[scenario.persona_archetype] ?? CREW['draengler'];
   const cimg = k => `assets/characters/crew/${crew.img}-${k}.webp`;
@@ -548,10 +548,10 @@ route('boss', async (view, ctx, [scenarioId]) => {
     advancePhase(scenario, run);
     wrap.querySelector('#b-phase').textContent = String(run.phase_index + 1);
     if (run.finished) {
-      // Bewertung: FRISCHER, isolierter Aufruf — nur Transcript + Rubrik (#22c)
+      // Grading: a FRESH, isolated call with only the transcript and the rubric
       dmount.innerHTML = '<p class="dim">Bewertung läuft (frischer Prüfer-Aufruf)…</p>';
       // Gating-Urteil (Plan §4.2: Bosskampf mind. „solide" vor Kapiteltest) —
-      // deterministisch aus der Szenario-Engine: erreichte Ziele / keine Critical-Falle.
+      // Deterministic from the scenario engine: goals reached, no critical trap sprung.
       const payload = buildAssessmentPayload(scenario, run);
       const achieved = payload.goals.filter(g => g.hit).length;
       const solide = achieved / payload.goals.length >= 0.5 && !payload.critical_triggered;
@@ -575,12 +575,12 @@ route('boss', async (view, ctx, [scenarioId]) => {
   paint();
 });
 
-// Prüfungssystem-Routen (Task 9) — registrieren sich über route()
+// Exam routes register themselves through route()
 import './exam.js';
 import './onboarding.js';
 import './ritual.js';
 
-// ---------- Einstellungen (Plan §5.1: „Ein Lernprofil ist eine Momentaufnahme, kein Gelübde") ----------
+// ---------- settings: a learning profile is a snapshot, not a vow ----------
 route('einstellungen', (view, ctx) => {
   const st = ctx.state;
   const ms = st.milestones ?? [];

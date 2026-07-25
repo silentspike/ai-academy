@@ -1,5 +1,5 @@
 // app/pacing.js — Zieltermin-Soll-Kurve, Machbarkeits-Check, Drift-Nachjustierung (Plan #30, §5.1).
-// Parametrisch aus Stoffumfang und Lernprofil — Kurve zieht bei Profiländerungen automatisch nach.
+// Derived from the amount of material and the learning profile, so the curve follows profile changes.
 // Reine Logik, Node-testbar.
 
 export const DAY_MS = 86_400_000;
@@ -9,15 +9,15 @@ export const DAY_MS = 86_400_000;
  * Stoffmodell: { totalUnits, minutesPerUnit (Ø inkl. Review-Anteil) }
  */
 
-/** Verfügbare Lernminuten zwischen zwei Zeitpunkten nach Profil. */
+/** Learning minutes available between two points in time, per profile. */
 export function availableMinutes(profile, fromMs, toMs) {
   const days = Math.max(0, Math.ceil((toMs - fromMs) / DAY_MS));
   return days * (profile.daysPerWeek / 7) * profile.minutesPerDay;
 }
 
 /**
- * Machbarkeits-Check (AC2, §5.1): rechnet Stoff ÷ Pensum ÷ Zeit und meldet ehrlich.
- * Rückgabe: {feasible, neededMinutesPerDay, availableMinutes, requiredMinutes, deficitUnits}
+ * Feasibility check: material divided by workload divided by time, reported honestly.
+ * Returns: {feasible, neededMinutesPerDay, availableMinutes, requiredMinutes, deficitUnits}
  */
 export function feasibilityCheck(profile, stoff, nowMs) {
   const results = [];
@@ -43,7 +43,7 @@ export function feasibilityCheck(profile, stoff, nowMs) {
   return results;
 }
 
-/** Soll-Kurve: erwarteter Fortschritt (0..1) je Tag bis zum letzten Meilenstein. */
+/** Target curve: expected progress (0..1) per day up to the final milestone. */
 export function targetCurve(profile, stoff, startMs) {
   const end = Math.max(...(profile.milestones ?? []).map(m => Date.parse(m.date)), startMs + 30 * DAY_MS);
   const points = [];

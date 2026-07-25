@@ -1,6 +1,6 @@
 // app/unit-view.js — Einheiten-Renderer (Plan §3, #5–#7): Problem-first (profiladaptiv),
-// Häppchen + Checks, Originaltext-Boxen (data-hilfsmittel, Omnibus-Hinweis), ErwG-Boxen,
-// Merkbilder, eingebettete Widgets. Antworten fließen in Leitner + Kompetenz-Events.
+// Chunks and checks, verbatim-text boxes (with an amendment note), recital boxes,
+// mnemonics and embedded widgets. Answers feed spaced repetition and competency events.
 
 import { renderQuestion } from './engine-quiz.js';
 import { renderTimeline, renderAssignment, renderErwgExplorer, renderAnnexExplorer, renderRoleSwitch } from './engine-widgets.js';
@@ -8,9 +8,9 @@ import { applyEvent, ceremony, CEREMONY } from './gamification.js';
 import { LlmAdapter } from './llm-adapter.js';
 
 /**
- * Asynchroner Coach-Nachschlag (#21/#24): sokratisch, Hint statt Lösung.
- * Formativ — hier DÜRFEN Notizen und Lernjournal in den Prompt (#26 verbietet das
- * nur summativ; die getrennten Prompt-Builder erzwingen das strukturell).
+ * Asynchronous follow-up from the coach: Socratic, a hint rather than the answer.
+ * Formative, so notes and the learning journal MAY enter the prompt; the ban applies
+ * to summative calls only, and the separate prompt builders enforce that structurally.
  */
 function coachNachschlag(mount, unit, question, result, confidence, ctx) {
   const box = mount.ownerDocument.createElement('div');
@@ -80,8 +80,8 @@ export async function renderUnit(mount, unitId, ctx) {
         card.classList.add('unit-merkbild');
         card.innerHTML = `<div>${b.html}</div>`; break;
       case 'beispiel': {
-        // §5.1: fixer didaktischer Intent, profilvariable Einkleidung. Liegt eine
-        // Einkleidung für diesen Slot im Profil, ersetzt sie den generischen Text.
+        // Fixed didactic intent, profile-variable dressing. If the profile carries a
+        // dressing for this slot, it replaces the generic text.
         const eink = (ctx?.profile?.personalisierung?.beispiel_einkleidungen ?? []).find(e => e.intent_id === b.intent_id);
         card.classList.add('unit-beispiel');
         card.innerHTML = `<div class="unit-tag">Beispiel${eink ? ' · auf dein Profil zugeschnitten' : ''}</div>
@@ -95,8 +95,8 @@ export async function renderUnit(mount, unitId, ctx) {
       case 'quelle':
         card.classList.add('unit-quelle');
         card.setAttribute('data-hilfsmittel', '');
-        // „Originaltext" nur bei echten Amtsblatt-Zitaten; systematische Einordnungen
-        // werden ehrlich als solche bezeichnet (Nacharbeit Plan-Vollprüfung #7).
+        // "Verbatim text" only for real quotations; structural commentary is labelled
+        // honestly as such.
         card.innerHTML = b.kind === 'einordnung'
           ? `<details><summary>Systematik-Einordnung ${escapeHtml(b.ref)}</summary><p>${escapeHtml(b.text)}</p></details>`
           : `<details><summary>Originaltext ${escapeHtml(b.ref)}${b.changed_by_omnibus ? ' <span class="legal-status-warn">· geändert durch VO 2026/1744</span>' : ''}</summary><blockquote class="mono">${escapeHtml(b.text)}</blockquote></details>`;
@@ -109,11 +109,11 @@ export async function renderUnit(mount, unitId, ctx) {
         renderQuestion(qmount, b.question, {
           onAnswered: (result, confidence) => {
             answered++;
-            // #21: Sofort-Feedback ist deterministisch (steht schon), der COACH liefert
-            // die Erklärungs-Tiefe ASYNCHRON nach — formativ, mit Notizen/Journal,
-            // Fehler stören den Lernfluss nicht (kein await, kein Blockieren).
+            // Immediate feedback is deterministic and already shown; the COACH supplies
+            // the depth of explanation ASYNCHRONOUSLY — formative, with notes and journal.
+            // Failures do not disturb the flow: no await, no blocking.
             coachNachschlag(qmount, unit, b.question, result, confidence, ctx);
-            // Straffreier Lernraum (§3): XP immer; Mastery nur bei Erfolg (getrennt, #28)
+            // Penalty-free space: points always, mastery only on success (kept separate)
             const ev = applyEvent(ctx.state, {
               kind: 'check_answered', level: unit.level, correct: result.verdict === 'correct',
               confidence, competency: b.question.competency ?? unit.competency, ts: Date.now()
@@ -161,8 +161,8 @@ export async function renderUnit(mount, unitId, ctx) {
   wrap.appendChild(done);
 
   // Notizen + eigene Karten (#37, Generation Effect): Notiz pro Einheit persistiert;
-  // selbst formulierte Karten fließen ins Leitner-System. Tutor-Nutzung NUR formativ (#26) —
-  // die summativen Prompt-Builder haben strukturell keinen Notizen-Parameter.
+  // Self-authored cards feed the spaced-repetition system. The tutor uses them FORMATIVELY only;
+  // the summative prompt builders have no parameter for notes at all.
   const notesBox = doc.createElement('div');
   notesBox.className = 'card unit-notes';
   const savedNote = ctx.state.notes?.[unit.id] ?? '';
@@ -195,7 +195,7 @@ export async function renderUnit(mount, unitId, ctx) {
   mount.appendChild(wrap);
 
   function finishUnit() {
-    // Einheit abgeschlossen: Aktivitäts-XP + Karten der Einheit in die Leitner-Queue (§3)
+    // Unit completed: activity points plus the unit's cards into the repetition queue
     const ev = applyEvent(ctx.state, { kind: 'unit_completed', correct: true, competency: unit.competency, ts: Date.now() });
     ctx.state.events.push({ kind: 'unit_completed', competency: unit.competency, ts: Date.now() });   // Kurven-Datenpunkt
     ctx.state.stats = ctx.state.stats ?? {}; ctx.state.stats.units = (ctx.state.stats.units ?? 0) + 1;

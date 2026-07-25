@@ -1,6 +1,6 @@
-// app/exam.js — Prüfungs-Views (Plan §4.3): Kapiteltests (2-teilig), Examen A+B,
-// Placement, Nachschulung, Einspruch, Persönlicher Lernnachweis.
-// Logik liegt in exam-core.js (DOM-frei, getestet) — hier nur Ablauf + Darstellung.
+// app/exam.js — exam views: two-part chapter tests, final exam parts A and B,
+// placement, remediation, appeal and the personal record of learning.
+// The logic lives in exam-core.js (DOM-free, tested); this file is flow and presentation.
 import { route } from './router.js';
 import { renderQuestion, applyMode, MODES } from './engine-quiz.js';
 import { LlmAdapter } from './llm-adapter.js';
@@ -25,14 +25,14 @@ async function data() {
 function card(html) { const d = document.createElement('div'); d.className = 'card'; d.innerHTML = html; return d; }
 
 // Ein Frage-Ablauf: rendert questions nacheinander, sammelt Ergebnisse.
-// Deterministische Typen sofort; freetext über die Bridge (kind), transaktional (#25).
+// Deterministic types grade immediately; free text goes through the bridge, transactionally.
 async function runQuestions(view, questions, { mode, kind, llm, onDone }) {
   const results = [];
   let i = 0;
   const mount = document.createElement('div');
   view.appendChild(mount);
-  // Bewertungs-/Einspruchs-Karten überleben den Fragenwechsel (Task-12-E2E-Finding:
-  // mount wird pro Schritt geleert — der Einspruchs-Button war sonst unerreichbar)
+  // Assessment and appeal cards survive moving to the next question: the mount is
+  // cleared per step, which used to make the appeal button unreachable.
   const resultsArea = document.createElement('div');
   resultsArea.className = 'exam-results-area';
   view.appendChild(resultsArea);
@@ -55,7 +55,7 @@ async function runQuestions(view, questions, { mode, kind, llm, onDone }) {
             });
             const r = out.result ?? out;
             results.push({ score: r.score, max: r.max || 10, critical: !!r.critical_error, confidence: conf, txId: out.txId, feedback: r.feedback });
-            // Einspruch (#20): frischer Zweitprüfer OHNE Erstbewertung im Prompt (Bridge buildAppealPrompt)
+            // Appeal: a fresh second assessor WITHOUT the first assessment in the prompt
             const lab = out.label ? `<span class="grade-label mono">Bewertungstyp: ${out.label.type} · ${out.label.model} · Rubrik ${out.label.rubricVersion} · Rechtsstand 27.7.2026</span>` : '';
             const fb = card(`<p><b>${r.score}/${r.max || 10}</b> — ${r.feedback ?? ''}</p>${lab}
               <details><summary>Einspruch einlegen</summary>
@@ -74,7 +74,7 @@ async function runQuestions(view, questions, { mode, kind, llm, onDone }) {
               (window.__akademieCtx?.state?.appeals ?? []).push?.({ q: q.id, granted, ts: Date.now() });
             };
           } catch (e) {
-            // Transaktionale Sicherung (#25): Antwort ist bridge-seitig gespeichert; Versuch nicht verbraucht.
+            // Transactional safeguard: the answer is stored by the bridge, the attempt is not consumed.
             resultsArea.appendChild(card(`<p class="dim">Bewertung technisch fehlgeschlagen (${e.message}). Die Antwort ist gesichert — „Bewertung neu anstoßen" im Examen-Menü.</p>`));
             results.push({ score: 0, max: 10, pending: true, confidence: conf });
           }
@@ -103,7 +103,7 @@ route('test', async (view, ctx, [phaseId]) => {
     view.appendChild(card(`<h3>Kapiteltest ${phaseId?.toUpperCase()}</h3><p class="dim">Prüfungen gesperrt: ${llm.gate.reason}</p>`));
     return;
   }
-  // Bosskampf-Gating (Plan §4.2): jede Phase erst Fachgespräch (mind. „solide"), dann Test
+  // Dialogue gating: each phase requires a solid expert conversation before the test
   const boss = st.bossResults?.[phaseId];
   if (!boss?.passed) {
     const { scenarios } = await data();
@@ -168,7 +168,7 @@ route('examen', async (view, ctx) => {
   st.examAttempts ??= []; st.scoreSeries ??= {};
   const gate = examGate(st, { kompetenzen, cards: st.cards ?? [], nowMs: Date.now() });
 
-  // Marathon-Warnung vor dem Antritt (#33): nach sehr langer Sitzung misst ein Examen Erschöpfung
+  // Marathon warning: after a very long session an exam measures exhaustion, not knowledge
   const { sessionStatus } = await import('./ritual.js');
   const mw = sessionStatus(st).marathon;
   if (mw.warn) view.appendChild(card(`<p class="ritual-warn">⚠ ${mw.text}</p>`));
@@ -195,7 +195,7 @@ route('examen', async (view, ctx) => {
       mode: 'exam', kind: 'exam', llm,
       onDone: async resultsA => {
         const evA = evaluateTest({ questions: exam.questions, results: resultsA, kompetenzen });
-        // Teil B: Capstone (Open Book) aus dem fixen Kern (Profil-Einkleidung nur im Profil, §5.2)
+        // Part B: the open-book capstone from the fixed core; any reskin lives in the profile only
         const cap = scenarios.find(s => s.id === 'sz-capstone-kern');
         view.appendChild(card(`<h3>Teil B — Capstone (Open Book, ~30 min)</h3><p>${cap.setting_hint ?? cap.title}</p>
           <p class="dim">Methodik, Fundstellen, Schlussfolgerung — bewertet nach fixer Rubrik.</p>`));
@@ -252,8 +252,8 @@ route('placement', async (view, ctx) => {
 });
 
 // ---------------------------------------------------------------- Challenge-Test #/challenge/<unitId> (#19)
-// Placement liefert nur EMPFEHLUNGEN — das tatsächliche Überspringen einer Einheit
-// muss einzeln verdient werden: 6 kompetenzspezifische Fragen, 80 %-Hürde.
+// Placement yields RECOMMENDATIONS only. Actually skipping a unit has to be earned
+// individually: six competency-specific questions at an 80 % threshold.
 route('challenge', async (view, ctx, [unitId]) => {
   const { pool, kompetenzen } = await data();
   const idx = await fetch('content/units/index.json').then(r => r.json());

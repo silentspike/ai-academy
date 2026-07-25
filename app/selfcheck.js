@@ -1,12 +1,12 @@
 // app/selfcheck.js — In-App-Verifikation (Plan §5.6 Stufe 1, v3.2).
-// Prüft VOR dem ersten Lernen: Bridge-Verbindung, Frontier-Gate (harte Sperre),
-// Mini-Gold-Set (Aussage: „technisch kompatibel", NICHT „Modellqualität gut"),
-// Speicher, Latenz. Ergebnis: Ampel + Diagnose-Export (ohne Secrets, T6).
+// Checks BEFORE the first learning session: bridge connection, frontier gate (hard lock),
+// a miniature calibration probe (which says "technically compatible", NOT "good model"),
+// storage and latency. Result: a traffic light plus a diagnostic export without secrets (T6).
 
 import { isFrontierModel } from './llm-adapter.js';
 
-// Mini-Gold-Set: 1 bekannte Musterantwort mit fixer Soll-Bewertung.
-// Der volle Gold-Set-Lauf (50-80 Fälle, Auto-Sperre) ist tools/gold-set-run.mjs (#27a).
+// Miniature calibration: one known reference answer with a fixed expected score.
+// The full calibration run (50-80 cases, automatic lock) is tools/gold-set-run.mjs.
 const MINI_GOLD = {
   question: 'Ab wann gelten die Hochrisiko-Pflichten (Kap. III Abschn. 1–3) für Anhang-III-KI-Systeme (VO 2024/1689 idF VO 2026/1744)?',
   rubric: '2 Punkte: 2. Dezember 2027 (2P). Anderes Datum: 0P.',
@@ -29,11 +29,11 @@ export async function runSelfCheck({ llm, storage }) {
     return finish(checks, llm);
   }
 
-  // 2) Frontier-Gate (harte Sperre summativer Funktionen bei Nicht-Frontier)
+  // 2) frontier gate (hard lock on summative functions for unsupported models)
   const gate = llm.evaluateGate();
   add('gate', 'Frontier-Gate (Claude/ChatGPT)', gate.frontier ? 'ok' : 'blocked', gate.reason);
 
-  // 3) LLM-Roundtrip + Mini-Gold-Set (nur wenn Gate offen; misst „technisch kompatibel")
+  // 3) model round trip plus the miniature calibration (only when the gate is open)
   if (gate.frontier) {
     try {
       const t0 = performance.now();
@@ -77,8 +77,8 @@ function finish(checks, llm) {
   };
 }
 
-// Diagnose-Export (Plan §5.6): Zustand für den Troubleshoot-Agent des Users.
-// ENTHÄLT KEINE SECRETS: kein Token, keine Keys, keine Lerninhalte im Klartext.
+// Diagnostic export: state for the user's troubleshooting agent.
+// CONTAINS NO SECRETS: no token, no keys, no learning content in clear text.
 export function buildDiagnoseExport({ selfCheckResult, health }) {
   return {
     kind: 'ai-act-akademie-diagnose',

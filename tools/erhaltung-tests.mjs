@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// tools/erhaltung-tests.mjs — Erhaltungsmodus (#36) + eigene Karten im Leitner-Zyklus (#37)
+// tools/erhaltung-tests.mjs — maintenance mode and user-authored cards in spaced repetition.
 import { maintenanceActive, maintenancePlan, markScenarioDone, WEEK_MS } from '../app/erhaltung.js';
 import { newCard, review, splitQueues, DAY_MS, MAX_BOX } from '../app/engine-leitner.js';
 
