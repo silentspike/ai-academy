@@ -9,6 +9,15 @@
 // Every click also asserts reachability. A component can work perfectly and still
 // be impossible to click because something overlaps it — that class of defect has
 // occurred twice in this project and no unit test can see it.
+//
+// Two strengths of statement, deliberately kept apart:
+//   unerreichbar  a real click was attempted and the control was covered — hard
+//                 failure, this is what the suite exists for
+//   verdacht      the passive capture measured a stack without the settling time
+//                 a real click gets. Reported, not fatal: it produced false
+//                 alarms for terms inside <summary> and for wrapped inline text,
+//                 and a check that cries wolf gets ignored, which is worse than
+//                 not having it.
 
 import { mkdirSync, writeFileSync, readFileSync, existsSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
@@ -88,25 +97,55 @@ export async function erfasse(page, route) {
       if (text) teil.push(`"${text}"`);
       return teil.join(' ');
     };
-    const gefunden = [], geprueft = [], unerreichbar = [];
+    const gefunden = [], geprueft = [], verdacht = [], unklar = [];
     for (const n of document.querySelectorAll(sel)) {
       if (n.offsetParent === null && getComputedStyle(n).position !== 'fixed') continue;
       const id = kennungVon(n);
       gefunden.push(id);
+      // Scroll it into view first. This stays one round trip, which is the point
+      // of doing the whole view in a single evaluate — but it also means there is
+      // no chance to wait for the browser to settle afterwards.
+      n.scrollIntoView({ block: 'center', inline: 'center', behavior: 'instant' });
+      void n.offsetHeight;                    // force layout before measuring
       const r = n.getBoundingClientRect();
-      if (r.width === 0 || r.height === 0) { unerreichbar.push(`${id} — zero size`); continue; }
+      if (r.width === 0 || r.height === 0) { unklar.push(`${id} — zero size`); continue; }
       const x = r.left + r.width / 2, y = r.top + r.height / 2;
-      if (x < 0 || y < 0 || x > innerWidth || y > innerHeight) continue;   // scroll position, not an overlay
-      const oben = document.elementFromPoint(x, y);
-      if (!oben) { unerreichbar.push(`${id} — nothing at the click point`); continue; }
-      if (oben !== n && !n.contains(oben) && !oben.contains(n)) {
-        unerreichbar.push(`${id} — covered by ` + oben.tagName.toLowerCase() +
-          (oben.className && typeof oben.className === 'string' ? '.' + oben.className.split(/\s+/)[0] : ''));
+      // Still outside the window after scrolling: the passive capture cannot
+      // judge this one. It is NOT reported as covered — that word is reserved
+      // for something actually lying on top of a visible control. The sweep
+      // operates each of these individually, with the waiting a single evaluate
+      // cannot do, and would report a real overlay there.
+      if (x < 0 || y < 0 || x > innerWidth || y > innerHeight) {
+        unklar.push(`${id} — outside the window when captured`);
         continue;
       }
-      geprueft.push(id);
+      // elementsFromPoint, not elementFromPoint: the question is whether anything
+      // lies ON TOP of the control, and the plural form answers exactly that by
+      // returning the whole stack. The singular form returns whichever element
+      // owns the event at that pixel, which for a term inside a <summary> is the
+      // summary — a legitimate ancestor, reported as an overlay.
+      //
+      // Three points across the line, because the exact middle of an inline box
+      // can fall between two glyphs.
+      const punkte = [[x, y], [r.left + r.width * 0.25, y], [r.left + r.width * 0.75, y]];
+      let erreichbar = false, davor = null;
+      for (const [px, py] of punkte) {
+        const stapel = document.elementsFromPoint(px, py);
+        const idx = stapel.findIndex(o => o === n || n.contains(o) || o.contains(n));
+        if (idx < 0) continue;
+        // Anything above it in the stack that is neither ancestor nor descendant
+        // is a real overlay.
+        const fremdesDarueber = stapel.slice(0, idx)
+          .find(o => o !== n && !n.contains(o) && !o.contains(n));
+        if (!fremdesDarueber) { erreichbar = true; break; }
+        davor = fremdesDarueber;
+      }
+      if (erreichbar) { geprueft.push(id); continue; }
+      if (!davor) { unklar.push(`${id} — nothing at the click point`); continue; }
+      verdacht.push(`${id} — appears covered by ` + davor.tagName.toLowerCase() +
+        (davor.className && typeof davor.className === 'string' ? '.' + davor.className.split(/\s+/)[0] : ''));
     }
-    return { gefunden, geprueft, unerreichbar };
+    return { gefunden, geprueft, verdacht, unklar };
   }, INTERAKTIV);
   merke(route, ergebnis);
   return ergebnis.gefunden;
@@ -120,13 +159,20 @@ async function erreichbarkeit(page, el) {
     if (r.width === 0 || r.height === 0) return { ok: false, grund: 'zero size' };
     const x = r.left + r.width / 2, y = r.top + r.height / 2;
     if (x < 0 || y < 0 || x > innerWidth || y > innerHeight) return { ok: false, grund: 'outside the viewport' };
-    const oben = document.elementFromPoint(x, y);
-    if (!oben) return { ok: false, grund: 'nothing at the click point' };
-    if (oben !== n && !n.contains(oben) && !oben.contains(n)) {
-      return { ok: false, grund: 'covered by ' + oben.tagName.toLowerCase() +
-        (oben.className && typeof oben.className === 'string' ? '.' + oben.className.split(/\s+/)[0] : '') };
+    // Same stack check as in erfasse() — see the note there.
+    let davor = null;
+    for (const [px, py] of [[x, y], [r.left + r.width * 0.25, y], [r.left + r.width * 0.75, y]]) {
+      const stapel = document.elementsFromPoint(px, py);
+      const idx = stapel.findIndex(o => o === n || n.contains(o) || o.contains(n));
+      if (idx < 0) continue;
+      const fremdesDarueber = stapel.slice(0, idx)
+        .find(o => o !== n && !n.contains(o) && !o.contains(n));
+      if (!fremdesDarueber) return { ok: true };
+      davor = fremdesDarueber;
     }
-    return { ok: true };
+    if (!davor) return { ok: false, grund: 'nothing at the click point' };
+    return { ok: false, grund: 'covered by ' + davor.tagName.toLowerCase() +
+      (davor.className && typeof davor.className === 'string' ? '.' + davor.className.split(/\s+/)[0] : '') };
   }).catch(() => ({ ok: false, grund: 'element vanished' }));
 }
 
@@ -147,11 +193,13 @@ export async function klicke(page, locator, route, { erwarteNavigation = false }
   // a control can sit just under a sticky header and be reported as covered —
   // which says something about the scroll position, not about an overlay. The
   // question here is whether something lies ON TOP of a control the user can see.
-  await el.evaluate(n => n.scrollIntoView({ block: 'center', inline: 'center' }));
+  await el.evaluate(n => n.scrollIntoView({ block: 'center', inline: 'center', behavior: 'instant' }));
   await page.waitForTimeout(80);
 
   const erreichbar = await el.evaluate(n => {
-    const r = n.getBoundingClientRect();
+    // First line box for inline elements — see the note in erfasse().
+    const rects = n.getClientRects();
+    const r = rects.length ? rects[0] : n.getBoundingClientRect();
     if (r.width === 0 || r.height === 0) return { ok: false, grund: 'zero size' };
     const x = r.left + r.width / 2, y = r.top + r.height / 2;
     if (x < 0 || y < 0 || x > innerWidth || y > innerHeight) return { ok: false, grund: 'outside the viewport' };
@@ -183,8 +231,8 @@ function merke(route, teil) {
   if (existsSync(DATEI)) {
     try { daten = JSON.parse(readFileSync(DATEI, 'utf8')); } catch { daten = {}; }
   }
-  const r = daten[route] ??= { gefunden: [], betaetigt: [], geprueft: [], unerreichbar: [] };
-  for (const schluessel of ['gefunden', 'betaetigt', 'geprueft', 'unerreichbar']) {
+  const r = daten[route] ??= { gefunden: [], betaetigt: [], geprueft: [], unerreichbar: [], verdacht: [], unklar: [] };
+  for (const schluessel of ['gefunden', 'betaetigt', 'geprueft', 'unerreichbar', 'verdacht', 'unklar']) {
     if (teil[schluessel]) r[schluessel] = [...new Set([...r[schluessel], ...teil[schluessel]])];
   }
   writeFileSync(DATEI, JSON.stringify(daten, null, 1));
@@ -212,7 +260,7 @@ export function auswertung() {
     try { teil = JSON.parse(readFileSync(join(VERZEICHNIS, f), 'utf8')); } catch { continue; }
     for (const [route, r] of Object.entries(teil)) {
       const z = daten[route] ??= { gefunden: [], betaetigt: [], geprueft: [], unerreichbar: [] };
-      for (const k of ['gefunden', 'betaetigt', 'geprueft', 'unerreichbar']) {
+      for (const k of ['gefunden', 'betaetigt', 'geprueft', 'unerreichbar', 'verdacht', 'unklar']) {
         z[k] = [...new Set([...z[k], ...(r[k] ?? [])])];
       }
     }
@@ -220,17 +268,19 @@ export function auswertung() {
   if (!Object.keys(daten).length) return leer;
 
   const wo = new Map();            // control → first route it was seen on
-  const jeBetaetigt = new Set(), jeGeprueft = new Set();
+  const jeBetaetigt = new Set(), jeGeprueft = new Set(), jeUnklar = new Set();
   const unerreichbar = [];
   for (const [route, r] of Object.entries(daten)) {
     if (NICHT_WERTEN.has(route)) continue;
     for (const g of r.gefunden) if (!wo.has(g)) wo.set(g, route);
     for (const b of r.betaetigt) jeBetaetigt.add(b);
     for (const g of r.geprueft ?? []) jeGeprueft.add(g);
+    for (const u of r.unklar ?? []) jeUnklar.add(u.split(' — ')[0]);
+    for (const v of r.verdacht ?? []) jeUnklar.add(v.split(' — ')[0]);
     for (const u of r.unerreichbar) unerreichbar.push(`${route}  ${u}`);
   }
   const offen = [...wo.entries()]
-    .filter(([g]) => !jeBetaetigt.has(g) && !jeGeprueft.has(g))
+    .filter(([g]) => !jeBetaetigt.has(g) && !jeGeprueft.has(g) && !jeUnklar.has(g))
     .map(([g, r]) => `${r}  ${g}`);
   const nurGeprueft = [...wo.entries()]
     .filter(([g]) => !jeBetaetigt.has(g) && jeGeprueft.has(g))

@@ -244,6 +244,12 @@ export const test = base.extend({
  * is exactly what happened while building this suite.
  */
 export async function warteAufAnsicht(page, timeout = 20_000) {
+  // The opening choreography lies in front of the page while it runs. Measuring
+  // through it reported every control as covered by div.intro — a real overlay,
+  // but not one a user ever clicks against.
+  await page.waitForFunction(() => !document.querySelector('.intro'), { timeout: 8000 })
+    .catch(() => { /* no intro on this route */ });
+
   // Polled here rather than via waitForFunction: that call gets its budget
   // trimmed by the remaining test time and then reports "10000ms exceeded" for a
   // view that simply needed two seconds — which reads like a hanging application
