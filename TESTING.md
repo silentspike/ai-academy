@@ -1,8 +1,8 @@
 # Testing
 
-> Status: levels A and B are running. Levels C through E are being built; this
-> document is updated alongside them. What is written here has been executed and
-> evidenced — it is not a plan.
+> Status: levels A, B and C are running. D and E stay local, because CI has no
+> model access. What is written here has been executed and evidenced — it is not
+> a plan.
 
 ## Why this split
 
@@ -50,8 +50,65 @@ node tools/check-questions.mjs       # figures, dates and citations against the 
 node tools/legal-audit.mjs "Art. 6"  # which content hangs off which provision
 ```
 
-Evidenced state: 132 unit tests, 310 of 310 questions with no finding in the
-script comparison, schema validation without errors.
+```bash
+# Level C — interaction, in a real browser
+npx playwright test                       # everything, about 11 minutes
+npx playwright test --project=chromium    # functional suite plus sweep
+npx playwright test --grep-invert @sweep  # without the sweep, about 90 seconds
+npx playwright test --project=visual      # captures for the contact sheets
+
+node tools/contact-sheet.mjs              # sheets of twelve, with findings
+node tools/contact-sheet.mjs --vergleich <verzeichnis>   # before/after/difference
+node tools/coverage-report.mjs            # click coverage across all shards
+node tools/budget-gate.mjs                # time budget from the last run
+```
+
+Evidenced state: 137 unit tests · 310 of 310 questions with no finding in the
+script comparison · schema validation without errors · **131 interaction tests
+plus 28 sweep routes in Chromium, 35 in Firefox** · click coverage 407 controls
+across 42 views, 0 unreachable.
+
+## The sweep, and why it is separate
+
+The functional specs check what a control is supposed to do. The sweep asks only
+whether it can be operated at all — every control, on every route, actually
+clicked, with the page reopened whenever the click changed something.
+
+That is the question the July acceptance run got wrong: its checklist named the
+features somebody remembered, and eleven gaps were not on it. An inventory
+verifies what is on screen; a list verifies what someone thought to write down.
+
+It is slow by construction (about 190 clicks), so it has its own four-shard
+matrix and runs on main. A pull request answers in about ninety seconds without
+it — deferred by one merge, not skipped.
+
+## Two strengths of statement about reachability
+
+| Reported as | Means | Consequence |
+|---|---|---|
+| **unreachable** | a click was attempted and something covered the control | hard failure |
+| **suspected** | the passive capture measured a stack without the settling time a real click gets | reported, not fatal |
+
+The separation exists because the passive check produced false alarms: a term
+inside a `<summary>` has the summary as its event target, and an inline element
+that wraps has a bounding box spanning the gap between its lines. A check that
+cries wolf gets ignored, which is worse than not having one.
+
+## What the interaction suite found
+
+Not a hypothetical list — these shipped and were invisible until a browser
+operated them:
+
+| Defect | Effect |
+|---|---|
+| glossary dead on every unit | terms underlined, explanation never opened |
+| closed book leaked | tooltips kept explaining during a running exam |
+| drag-and-drop did not exist | the task referenced a file that was nowhere |
+| annex III explorer empty | the code fetched the fact base and discarded it |
+| heat-map tiles dead | pointer cursor, handler, no target ever set |
+| learning record crashed | blank certificate after restoring a backup |
+| overlay not darkened | two layers of text ran into each other |
+| dashboard column overflowed | badges on top of the exam block, bottom row cut off |
 
 ## What counts as evidence
 
@@ -76,6 +133,19 @@ or an explicit fixed value. A guard aborts every run before a single screenshot 
 taken at the wrong size. The reason is uncomfortably concrete: every earlier
 design review in this project accidentally ran at 1280 × 720, that is at
 two-thirds of the actual width.
+
+## Timing
+
+| Run | Measured | Budget |
+|---|---|---|
+| pull request | 114 s | 90 s — not met |
+| main, everything | 224 s | 4 min — met |
+
+A reporter records how long each spec takes, and `tools/budget-gate.mjs` fails
+the run when one spec takes more than 75 % of it. The threshold is loose on
+purpose: it exists to catch a spec running away — the sweep at ten minutes
+against four minutes of everything else — not a shift from 50 % to 55 %. A
+tighter value fired on ordinary distribution.
 
 ## When the law changes
 
