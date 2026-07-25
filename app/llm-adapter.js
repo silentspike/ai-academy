@@ -17,12 +17,18 @@ export function isFrontierModel(model) {
   return typeof model === 'string' && FRONTIER_PATTERNS.some(re => re.test(model.trim()));
 }
 
-// API-Präfix je Betriebsart (Plan §6.1): Bridge served die App same-origin
-// unter /api/; Jans nginx-Betrieb liegt unter /ai-act-training/ und proxyt
-// über /ai-act-tutor-api/ → Bridge /api/ (dev-workspaces.conf).
+// API-Präfix, dokumentrelativ ermittelt.
+//
+// Die App wird an sehr unterschiedlichen Orten ausgeliefert: von der Bridge direkt
+// unter "/", oder von einem beliebigen Webserver unter einem beliebigen Unterpfad.
+// Ein fest verdrahteter Pfad wäre deshalb nur in genau einer Installation richtig.
+// Stattdessen wird das Verzeichnis der laufenden Seite als Basis genommen und "api/"
+// angehängt — das stimmt in beiden Betriebsarten, ohne dass die App wissen muss,
+// wo sie liegt. Beim Betrieb hinter einem Webserver muss dieser <basis>/api/ an die
+// Bridge weiterreichen (siehe README, Abschnitt Betrieb).
 export function apiPrefix(baseUrl = '') {
-  if (baseUrl) return baseUrl + '/api/';
-  return location.pathname.startsWith('/ai-act-training') ? '/ai-act-tutor-api/' : '/api/';
+  if (baseUrl) return baseUrl.replace(/\/+$/, '') + '/api/';
+  return new URL('api/', document.baseURI).pathname;
 }
 
 export class LlmAdapter {
