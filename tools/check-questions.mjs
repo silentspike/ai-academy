@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 // tools/check-questions.mjs — Eigenprüfung Durchgang 1 (deterministischer Abgleich, #15b-i):
-// prüft alle zähl-/datumsbaren Angaben in questions-core.json gegen legal/fristen-uebergangsmatrix.json
+// prüft alle zähl-/datumsbaren Angaben in questions-core.json gegen content/fristen.json
 // und die Fundstellen-Formate gegen die Relevanz-Matrix. KEIN Ersatz für Durchgang 2 (Zweitdurchsicht).
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 const ROOT = new URL('..', import.meta.url).pathname;
 
 const qs = JSON.parse(readFileSync(join(ROOT, 'content/questions-core.json'), 'utf8')).questions;
-const matrix = JSON.parse(readFileSync(join(ROOT, 'legal/fristen-uebergangsmatrix.json'), 'utf8'));
+const matrix = JSON.parse(readFileSync(join(ROOT, 'content/fristen.json'), 'utf8'));
 const artikel = JSON.parse(readFileSync(join(ROOT, 'content/facts-db.json'), 'utf8')).relevanz_matrix.artikel;
 const knownRefs = new Set(artikel.map(a => a.ref.toLowerCase().replace('art. ', '').replace('anhang ', 'anh')));
 
