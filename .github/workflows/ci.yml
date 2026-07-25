@@ -153,17 +153,20 @@ jobs:
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with: { node-version: 22, cache: npm }
       - run: npm ci --prefer-offline --no-audit --no-fund
+      - name: Cache the browser
+        # About twenty seconds per job, and there are nine of them.
+        id: browser-cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Run shard
-        # On a pull request the sweep is left out; main runs everything.
-        run: |
-          if [ "$E2E_PR" = "ja" ]; then
-            npx playwright test --project=chromium --shard=${{ matrix.shard }}/4 \
-              --grep-invert "@sweep"
-          else
-            npx playwright test --project=chromium --shard=${{ matrix.shard }}/4
-          fi
+        # Never the sweep: it has its own job. Sharding splits by test count, not
+        # by duration, so the sweep's slow tests all landed in one shard and that
+        # shard alone took eight minutes while the others took eighty seconds.
+        run: npx playwright test --project=chromium --shard=${{ matrix.shard }}/4 --grep-invert "@sweep"
       - name: Time budget
         # A spec that quietly grows until it dominates the run is how the sweep
         # got to ten minutes before anyone looked at the clock.
@@ -222,6 +225,13 @@ jobs:
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with: { node-version: 22, cache: npm }
       - run: npm ci --prefer-offline --no-audit --no-fund
+      - name: Cache the browser
+        # About twenty seconds per job, and there are nine of them.
+        id: browser-cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Install ImageMagick
@@ -261,6 +271,55 @@ jobs:
             test-results/kontaktbogen/
             test-results/ansichten/
           retention-days: 14
+
+  # The operation sweep, on its own axis. Four shards of its own, so its slow
+  # tests spread out instead of piling into one bucket of the functional matrix.
+  # Main only: a pull request should answer in about ninety seconds, and this is
+  # minutes. Deferred by one merge, not skipped.
+  sweep:
+    name: sweep ${{ matrix.shard }}/4
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with: { node-version: 22, cache: npm }
+      - run: npm ci --prefer-offline --no-audit --no-fund
+      - name: Cache the browser
+        # About twenty seconds per job, and there are nine of them.
+        id: browser-cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run
+        run: npx playwright test --project=chromium --grep "@sweep" --shard=${{ matrix.shard }}/4
+      - name: Move the click coverage where the uploader can see it
+        if: always()
+        run: |
+          mkdir -p coverage-out
+          cp .tmp-coverage/*.json coverage-out/ 2>/dev/null || true
+      - name: Keep the click coverage of this shard
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: coverage-sweep-${{ matrix.shard }}
+          path: coverage-out/
+          if-no-files-found: ignore
+          retention-days: 3
+      - name: Keep the details on failure
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: sweep-report-${{ matrix.shard }}
+          path: test-results/
+          retention-days: 7
 
   # A second engine, on the part where engines actually differ: layout, storage,
   # focus, dates. Running the full sweep here would double the wall clock without
@@ -320,7 +379,7 @@ jobs:
   coverage:
     name: click coverage
     runs-on: ubuntu-latest
-    needs: [e2e]
+    needs: [e2e, sweep]
     # The evaluation needs the sweep, which runs on main. On a pull request it
     # would judge a partial inventory and call it a gap.
     if: always() && github.event_name != 'pull_request'
@@ -331,7 +390,7 @@ jobs:
       - name: Collect the shards
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
-          pattern: coverage-chromium-*
+          pattern: coverage-*
           merge-multiple: true
           path: .tmp-coverage
       - name: Evaluate
@@ -343,7 +402,7 @@ jobs:
   ci-pass:
     name: ci-pass
     runs-on: ubuntu-latest
-    needs: [lint, content, unit, e2e, e2e-firefox, coverage, views, report]
+    needs: [lint, content, unit, e2e, sweep, e2e-firefox, coverage, views, report]
     if: always()
     steps:
       - name: Verify all gates passed
