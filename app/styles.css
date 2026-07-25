@@ -291,8 +291,13 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 
 /* ---- ErwG-Explorer (#4, Phase 10) ---- */
 .erwg-filter{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
-.chip{font-size:.7rem;padding:4px 10px;border-radius:999px;background:var(--layer2,#111827);border:1px solid rgba(255,255,255,.08);color:inherit;cursor:pointer}
-.chip.active{border-color:var(--emerald,#34d399);color:var(--emerald,#34d399)}
+/* Scoped to the filter bar. `.chip` is also the round 34x34 icon button in
+   shell.css, and whichever rule won last decided whether a text label fitted —
+   the filter pills overflowed their row by up to 40px. */
+.erwg-filter .chip{width:auto;height:auto;border-radius:999px;font-size:.7rem;padding:4px 10px;
+  background:var(--layer2,#111827);border:1px solid rgba(255,255,255,.08);color:inherit;cursor:pointer;
+  white-space:nowrap}
+.erwg-filter .chip.active{border-color:var(--emerald,#34d399);color:var(--emerald,#34d399)}
 .erwg-list{display:flex;flex-direction:column;gap:6px;max-height:460px;overflow-y:auto;padding-right:4px}
 .erwg-item{background:var(--layer2,#111827);border-radius:9px;padding:9px 12px;font-size:.83rem}
 .erwg-item summary{cursor:pointer;line-height:1.45}
