@@ -14,7 +14,7 @@ jobs:
       - name: Gates + Paket bauen (Schema, legal-audit, Privat-Begriffe-Scan)
         run: node tools/build-release.mjs --version "${GITHUB_REF_NAME}" --out dist
       - name: Release-ZIP anhängen
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: dist/ai-act-akademie-*.zip
           body: |
