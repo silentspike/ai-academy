@@ -93,37 +93,46 @@ test.describe('persistence', () => {
     // 8 KB, and every save above that vanished — silently, because the write
     // reported success. A learning state with notes and cards passes 8 KB
     // quickly, so this is the size that actually matters.
-    const ergebnis = await page.evaluate(async () => {
-      const { StorageAdapter } = await import('./app/storage-adapter.js');
-      const s = StorageAdapter.bridgeStore({});
-      const notiz = 'Zweckbestimmung, Rolle, Fundstelle — '.repeat(400);   // ≈ 15 KB
-      const gross = { xp: 99, notes: { 'p1-e01-ki-system-rollen': notiz },
-                      cards: Array.from({ length: 120 }, (_, i) => ({ id: 'c' + i, box: 2, competency: 'K02' })) };
-      const bytes = new TextEncoder().encode(JSON.stringify(gross)).length;
-      await s.set('state', gross);
-      const zurueck = await s.get('state');
-      return { bytes, xp: zurueck?.xp, notizLaenge: (zurueck?.notes?.['p1-e01-ki-system-rollen'] ?? '').length,
-               karten: (zurueck?.cards ?? []).length };
-    });
-    expect(ergebnis.bytes, 'the test payload is below the size under test').toBeGreaterThan(8 * 1024);
-    expect(ergebnis.xp, 'the large document did not arrive').toBe(99);
-    expect(ergebnis.notizLaenge, 'the note was truncated').toBeGreaterThan(8 * 1024);
-    expect(ergebnis.karten, 'cards were lost').toBe(120);
+    //
+    // Driven from the test process with no page running: a live application
+    // persists its own state alongside, and on four workers that lands between
+    // the write and the read.
+    const { basis, kopf } = await bridgeZugang(page);
+    const notiz = 'Zweckbestimmung, Rolle, Fundstelle — '.repeat(400);   // ≈ 15 KB
+    const gross = { xp: 99, notes: { 'p1-e01-ki-system-rollen': notiz },
+                    cards: Array.from({ length: 120 }, (_, i) => ({ id: 'c' + i, box: 2, competency: 'K02' })) };
+    const bytes = Buffer.byteLength(JSON.stringify(gross));
+    expect(bytes, 'the test payload is below the size under test').toBeGreaterThan(8 * 1024);
+
+    const put = await page.request.put(`${basis}/api/progress`, { headers: kopf, data: { state: gross } });
+    expect(put.ok(), `storing failed with HTTP ${put.status()}`).toBe(true);
+    const zurueck = (await (await page.request.get(`${basis}/api/progress`, { headers: kopf })).json()).state;
+
+    expect(zurueck?.xp, 'the large document did not arrive').toBe(99);
+    expect((zurueck?.notes?.['p1-e01-ki-system-rollen'] ?? '').length, 'the note was truncated')
+      .toBeGreaterThan(8 * 1024);
+    expect((zurueck?.cards ?? []).length, 'cards were lost').toBe(120);
   });
 
-  test('the store recovers when its directory disappears underneath it', async ({ page }) => {
-    // Seen in practice: a cleaned temporary directory turned every save into a
-    // 500 and silently lost the day's work.
-    const ok = await page.evaluate(async () => {
-      const { StorageAdapter } = await import('./app/storage-adapter.js');
-      const s = StorageAdapter.bridgeStore({});
-      await s.set('state', { xp: 7 });
-      const a = await s.get('state');
-      await s.set('state', { xp: 8 });
-      const b = await s.get('state');
-      return a?.xp === 7 && b?.xp === 8;
-    });
-    expect(ok, 'consecutive saves do not arrive').toBe(true);
+  test('consecutive saves both arrive', async ({ page }) => {
+    // Seen in practice: a shared temporary file name made two saves collide, and
+    // one of them vanished while reporting success.
+    const { basis, kopf } = await bridgeZugang(page);
+    const schreibe = async (xp) => {
+      const r = await page.request.put(`${basis}/api/progress`, { headers: kopf, data: { state: { xp } } });
+      expect(r.ok(), `save failed with HTTP ${r.status()}`).toBe(true);
+      return (await (await page.request.get(`${basis}/api/progress`, { headers: kopf })).json()).state?.xp;
+    };
+    expect(await schreibe(7), 'the first save did not arrive').toBe(7);
+    expect(await schreibe(8), 'the second save did not arrive').toBe(8);
   });
+
+  /** Bridge address and headers, with the page parked so nothing writes alongside. */
+  async function bridgeZugang(page) {
+    const token = await page.evaluate(() => window.BRIDGE_TOKEN || '');
+    const basis = new URL(page.url()).origin;
+    await page.goto('about:blank');
+    return { basis, kopf: { 'Content-Type': 'application/json', 'X-Bridge-Token': token } };
+  }
 });
 
