@@ -107,8 +107,10 @@ export default defineConfig({
     },
   ],
 
+  // Blob format while sharding: four partial runs only mean something merged.
+  // The timing reporter runs everywhere — it is what noticed the sweep growing.
   reporter: process.env.CI
-    ? [['list'], ['json', { outputFile: 'test-results/report.json' }], ['./tests/e2e/reporter.mjs']]
+    ? [['list'], ['blob'], ['./tests/e2e/reporter.mjs']]
     : [['list'], ['./tests/e2e/reporter.mjs']],
 
   globalSetup: './tests/e2e/global-setup.mjs',
