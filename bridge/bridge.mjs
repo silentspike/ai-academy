@@ -13,7 +13,7 @@
 import http from 'node:http';
 import { spawn, spawnSync } from 'node:child_process';
 import { randomUUID, randomBytes } from 'node:crypto';
-import { mkdirSync, mkdtempSync, rmSync, readFileSync, writeFileSync, renameSync, existsSync, appendFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, readFileSync, writeFileSync, renameSync, appendFileSync } from 'node:fs';
 import { join, extname, normalize, resolve, dirname } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
