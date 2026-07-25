@@ -25,6 +25,17 @@ affected questions and bind existing results to a superseded state of the law.
 - The deadline check reads the legal baseline from `content/` rather than from an
   internal working area.
 
+### Changed (continued)
+- Project documentation switched to English, following the precedent of the
+  German-language sibling project: standard meta files in English, README German
+  with an English subtitle, reviewer box and full English summary. Learning
+  content stays German.
+- Working rules moved to `AGENTS.md`; `CLAUDE.md` is now a pointer.
+- Label schema moved to `.github/labels.yml` as the single source of truth,
+  synchronised by a workflow.
+- CI split into lint, content and unit with a `ci-pass` aggregate, so branch
+  protection does not need touching when jobs change.
+
 ### Fixed
 - Milestone labels on the deadline timeline overlapped and were unreadable in the
   dense 2026–2027 range. Label width is now measured after insertion into the
