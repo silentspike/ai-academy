@@ -205,8 +205,26 @@ jobs:
         run: sudo apt-get update -qq && sudo apt-get install -y -qq imagemagick
       - name: Capture the views
         run: npx playwright test --project=visual
+      - name: Fetch the previous captures for comparison
+        # From the last successful run on main, not from checked-in baselines:
+        # 44 lossless captures are ~9 MB in the repository, and every intentional
+        # design change would produce a wall of diffs to approve.
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          LAUF=$(gh run list --workflow ci.yml --branch main --status success \
+                   --limit 1 --json databaseId --jq '.[0].databaseId')
+          if [ -n "$LAUF" ]; then
+            gh run download "$LAUF" -n contact-sheets -D vergleich || true
+          fi
       - name: Build the sheets
-        run: node tools/contact-sheet.mjs --out test-results/kontaktbogen
+        run: |
+          if [ -d vergleich/ansichten ]; then
+            node tools/contact-sheet.mjs --out test-results/kontaktbogen --vergleich vergleich/ansichten
+          else
+            node tools/contact-sheet.mjs --out test-results/kontaktbogen
+          fi
       - name: Put the findings in the run summary
         if: always()
         run: cat test-results/kontaktbogen/BEFUND.md >> "$GITHUB_STEP_SUMMARY" || true

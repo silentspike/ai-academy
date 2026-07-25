@@ -13,6 +13,13 @@
 // least once.
 //
 // Usage: node tools/contact-sheet.mjs [quellverzeichnis] [--out verzeichnis]
+//                                     [--vergleich referenzverzeichnis]
+//
+// With --vergleich the run compares against an earlier set of captures and emits
+// before/after/difference triples for whatever changed. The reference comes from
+// the previous run's artifact rather than from checked-in baselines: 44 lossless
+// captures are about 9 MB in the repository, and every intentional design change
+// would produce a wall of diffs to approve.
 
 import { readdirSync, existsSync, mkdirSync, writeFileSync, statSync } from 'node:fs';
 import { join, resolve, basename } from 'node:path';
@@ -21,9 +28,11 @@ import { execFileSync } from 'node:child_process';
 // Parsed properly: taking "the first argument without a dash" swallowed the
 // VALUE of --out and then looked for screenshots in the output directory.
 const args = process.argv.slice(2);
+const vglIdx = args.indexOf('--vergleich');
+const REFERENZ = vglIdx >= 0 && args[vglIdx + 1] ? resolve(args[vglIdx + 1]) : null;
 const outIdx = args.indexOf('--out');
 const ZIEL = resolve(outIdx >= 0 && args[outIdx + 1] ? args[outIdx + 1] : 'test-results/kontaktbogen');
-const frei = args.filter((a, i) => !a.startsWith('--') && i !== outIdx + 1);
+const frei = args.filter((a, i) => !a.startsWith('--') && i !== outIdx + 1 && i !== vglIdx + 1);
 const QUELLE = resolve(frei[0] ?? 'test-results/ansichten');
 const PRO_BOGEN = 12;
 
@@ -123,6 +132,39 @@ for (let i = 0; i < sortiert.length; i += PRO_BOGEN) {
   bogen.push({ datei: basename(ziel), bilder: teil });
 }
 
+// ---------------------------------------------------------------- comparison
+const veraendert = [];
+if (REFERENZ && existsSync(REFERENZ)) {
+  mkdirSync(join(ZIEL, 'diff'), { recursive: true });
+  for (const b of bilder) {
+    const alt = join(REFERENZ, b);
+    if (!existsSync(alt)) { veraendert.push({ bild: b, art: 'neu', wert: '—' }); continue; }
+    const diffDatei = join(ZIEL, 'diff', b.replace(/\.png$/, '-diff.png'));
+    let abweichung = 0;
+    try {
+      // compare exits non-zero when images differ; the metric goes to stderr.
+      execFileSync('magick', ['compare', '-metric', 'AE', '-fuzz', '1%', alt, join(QUELLE, b), diffDatei],
+        { stdio: ['ignore', 'ignore', 'pipe'] });
+    } catch (e) {
+      abweichung = Number(String(e.stderr ?? '').trim().split(/\s+/)[0]) || 0;
+    }
+    if (abweichung > 200) {                       // below that: antialiasing noise
+      veraendert.push({ bild: b, art: 'verändert', wert: `${abweichung} Pixel` });
+      // Triple: before, after, difference — side by side, so a change can be
+      // judged rather than merely counted.
+      execFileSync('montage', [
+        '-background', '#0a0e17', '-fill', '#9db0d0', '-pointsize', '13',
+        '-label', 'vorher', alt,
+        '-label', 'jetzt', join(QUELLE, b),
+        '-label', 'Unterschied', diffDatei,
+        '-tile', '3x1', '-geometry', '620x+6+18', '-quality', '82',
+        join(ZIEL, 'diff', b.replace(/\.png$/, '-tripel.jpg')),
+      ]);
+    }
+  }
+  console.log(`Vergleich gegen ${REFERENZ}: ${veraendert.length} von ${bilder.length} verändert`);
+}
+
 const bericht = [
   '# Kontaktbögen', '',
   `- Aufnahmen: **${bilder.length}**`,
@@ -134,6 +176,12 @@ if (befunde.length) {
     'Heuristisch — jede Zeile ist ein Hinweis zum Nachsehen, kein Urteil.', '',
     '| Aufnahme | Art | Messwert |', '|---|---|---|',
     ...befunde.map(f => `| ${f.bild} | ${f.art} | ${f.hinweis} |`), '');
+}
+if (veraendert.length) {
+  bericht.push('## Gegenüber dem Vergleichslauf verändert', '',
+    'Je Eintrag liegt ein Dreier-Bogen vorher/jetzt/Unterschied unter `diff/`.', '',
+    '| Aufnahme | Art | Abweichung |', '|---|---|---|',
+    ...veraendert.map(v => `| ${v.bild} | ${v.art} | ${v.wert} |`), '');
 }
 bericht.push('## Bögen', '', ...bogen.map(b => `- \`${b.datei}\` — ${b.bilder.length} Aufnahmen`), '');
 writeFileSync(join(ZIEL, 'BEFUND.md'), bericht.join('\n'));
