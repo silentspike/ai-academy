@@ -1,13 +1,13 @@
-// tutor/prompts.mjs — Prompt-Builder der AI-Act-Akademie.
+// tutor/prompts.mjs — prompt builders for AI-Academy.
 //
-// ARCHITEKTUR-REGEL (Plan #26, Threat-Model T4): Getrennte Builder setzen die
-// Isolations-Regel als Code-Struktur durch. Der summative Builder NIMMT keine
-// Notizen, keine Historie, keine Profil-Freitexte an — es gibt schlicht keinen
-// Parameter dafür. Formative Builder dürfen personalisieren.
+// ARCHITECTURAL RULE (threat model T4): separate builders enforce the isolation
+// rule as code structure. The summative builder ACCEPTS no notes, no history and
+// no free text from the profile — there is simply no parameter for it. Formative
+// builders may personalise.
 //
-// SOURCE-GROUNDING (Plan §5.2): Rechtliche Erklärungen liefern claims[] mit
-// source_ids[]; die App/Bridge validiert gegen das Quellenpaket. Das LLM ist
-// nie Rechtsquelle (Rang 8 der Quellenhierarchie, docs/REVIEW-PROCESS.md).
+// SOURCE GROUNDING: legal explanations return claims[] with source_ids[]; the
+// application and bridge validate them against the source package. The model is
+// never a legal source (rank 8 of the hierarchy, docs/REVIEW-PROCESS.md).
 
 export const PROMPTS_VERSION = '1.2.0';
 
@@ -65,7 +65,7 @@ export const COACH_SYSTEM =
   'bist du unsicher, sag es ausdrücklich. Ton: präzise, trocken-freundlich, nie überschwänglich.';
 
 // ---------------------------------------------------------------------------
-// SUMMATIV — bewusst minimale Signatur. KEINE weiteren Parameter ergänzen!
+// SUMMATIVE — deliberately minimal signature. Do NOT add further parameters.
 // ---------------------------------------------------------------------------
 export function buildSummativeGradingPrompt({ question, rubric, modelAnswer, answer, sources }) {
   for (const [k, v] of Object.entries({ question, rubric, answer })) {
@@ -88,7 +88,7 @@ export function buildSummativeGradingPrompt({ question, rubric, modelAnswer, ans
   ].join('\n');
 }
 
-// Einspruch: FRISCHER Zweitprüfer, sieht die Erstbewertung NICHT (Plan #20).
+// Appeal: a FRESH second assessor that does NOT see the first assessment.
 export function buildAppealPrompt({ question, rubric, modelAnswer, answer, appealReason, sources }) {
   const base = buildSummativeGradingPrompt({ question, rubric, modelAnswer, answer, sources });
   return base.replace(
@@ -98,7 +98,7 @@ export function buildAppealPrompt({ question, rubric, modelAnswer, answer, appea
 }
 
 // ---------------------------------------------------------------------------
-// FORMATIV — Personalisierung erlaubt (Notizen, Journal, Profil).
+// FORMATIVE — personalisation allowed (notes, journal, profile).
 // ---------------------------------------------------------------------------
 export function buildCoachPrompt({ topic, unitContext, userMessage, notes, journal, profileHints, sources }) {
   return [
@@ -112,7 +112,7 @@ export function buildCoachPrompt({ topic, unitContext, userMessage, notes, journ
   ].filter(Boolean).join('\n\n');
 }
 
-/** Objekte/Arrays lesbar in den Prompt bringen (Task-12-Finding: personaCard landete als "[object Object]"). */
+/** Render objects and arrays readably into the prompt. A persona card used to arrive as "[object Object]". */
 function asText(v) {
   if (v == null) return '';
   if (typeof v === 'string') return v;
@@ -161,7 +161,7 @@ export function buildDiagnosePrompt({ errorHistoryJson, competenciesJson }) {
   ].join('\n\n');
 }
 
-// Bewertung eines Bosskampf-Transcripts: frischer Aufruf, Schiedsrichter-Rolle (Plan #22c).
+// Grading an expert-dialogue transcript: a fresh call in the role of an adjudicator.
 export function buildBossJudgePrompt({ scenarioCore, rubric, transcript }) {
   return buildSummativeGradingPrompt({
     question: `Bewerte das folgende Fachgespräch gegen die Rubrik.\n\n## Szenario-Kern\n${asText(scenarioCore)}`,
@@ -179,10 +179,10 @@ export function extractJson(text) {
   if (start < 0 || end <= start) throw new Error('kein JSON-Objekt in LLM-Antwort');
   const raw = t.slice(start, end + 1);
   try { return JSON.parse(raw); } catch (e) {
-    // Reparatur 1 (Gold-Set-Finding: unescapte Quotes/Umbrüche IN String-Werten)
+    // Repair 1: unescaped quotes and line breaks INSIDE string values
     try { return JSON.parse(repairJson(raw)); } catch { /* weiter */ }
-    // Reparatur 2: Das Modell hat ZWEI Objekte geliefert (Antwort + Nachtrag) —
-    // dann ist lastIndexOf('}') zu gierig. Erstes vollständiges Objekt nehmen.
+    // Repair 2: the model returned TWO objects (answer plus addendum), which makes
+    // lastIndexOf('}') too greedy. Take the first complete object.
     const first = firstBalancedObject(t.slice(start));
     if (first) {
       try { return JSON.parse(first); } catch { try { return JSON.parse(repairJson(first)); } catch { /* aufgeben */ } }
@@ -191,7 +191,7 @@ export function extractJson(text) {
   }
 }
 
-/** Erstes klammerbalanciertes {…} ab Position 0 (String-Literale werden übersprungen). */
+/** First brace-balanced {…} from position 0; string literals are skipped. */
 function firstBalancedObject(s) {
   let depth = 0, inStr = false, esc = false;
   for (let i = 0; i < s.length; i++) {
@@ -206,7 +206,7 @@ function firstBalancedObject(s) {
   return null;
 }
 
-/** Konservative Reparatur: escapt Steuerzeichen und „nackte" Quotes innerhalb von Strings. */
+/** Conservative repair: escapes control characters and bare quotes inside strings. */
 function repairJson(s) {
   let out = '', inStr = false, esc = false;
   for (let i = 0; i < s.length; i++) {
@@ -215,7 +215,7 @@ function repairJson(s) {
     if (c === '\\') { out += c; esc = true; continue; }
     if (c === '"') {
       if (!inStr) { inStr = true; out += c; continue; }
-      // Schließend ist das Quote nur, wenn danach (ggf. nach Leerraum) ein Struktur-Zeichen folgt
+      // The quote only closes if a structural character follows, possibly after whitespace
       const rest = s.slice(i + 1).replace(/^\s*/, '');
       if (rest === '' || ':,}]'.includes(rest[0])) { inStr = false; out += c; }
       else out += '\\"';                       // nacktes Quote im String → escapen
@@ -228,9 +228,9 @@ function repairJson(s) {
   return out;
 }
 
-// Personalisierung (Plan §5.3, app-orchestriert): strukturierte Prompts, JSON zurück.
-// HARTE Oberflächen-Grenze (§5.2): Einkleidungen ändern NUR Organisationsname,
-// Rollenbezeichnungen und Domänenbegriffe — nie Fakten, Rubriken, Schwierigkeit.
+// Personalisation, orchestrated by the application: structured prompts, JSON back.
+// HARD surface boundary: a reskin changes ONLY the organisation name, role titles
+// and domain vocabulary — never facts, rubrics or difficulty.
 export function buildPersonalizationPrompt({ fachprofil, lernprofil, retry_hint }) {
   return [
     'Du personalisierst eine EU-AI-Act-Lernakademie für dieses Nutzerprofil.',

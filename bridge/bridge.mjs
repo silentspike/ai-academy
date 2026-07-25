@@ -1,14 +1,14 @@
 #!/usr/bin/env node
-// bridge/bridge.mjs — Local Bridge der AI-Act-Akademie.
-// Dependency-frei (nur Node-Builtins). EINE Implementierung, drei Betriebsarten (Plan §5.4/§6):
-//   Jans Betrieb:  node bridge.mjs --cli claude --sessions --store data --port 8791
-//   Share:         node bridge.mjs            (Auto-CLI-Erkennung, Zufallsport, Token)
-//   Serve-only:    node bridge.mjs --no-llm   (nur App ausliefern; Prüfungen bleiben gesperrt)
+// bridge/bridge.mjs — the local bridge of AI-Academy.
+// Dependency-free (Node built-ins only). ONE implementation, three operating modes:
+//   full:       node bridge.mjs --cli claude --sessions --store data --port 8791
+//   share:      node bridge.mjs            (CLI auto-detection, random port, token)
+//   serve-only: node bridge.mjs --no-llm   (serve the app only; exams stay locked)
 //
-// Sicherheits-Kontrakt: docs/THREAT-MODEL.md (T1-T10). Kurzfassung:
-//   Loopback-only · Pairing-Token · Host-/Origin-Prüfung · Body-/Zeit-/Rate-Limits ·
-//   Executable-Whitelist ohne Shell · Umgebungs-Isolation summativer Aufrufe ·
-//   transaktionale Sicherung summativer Antworten · redigierte Logs · kein Secret in /health.
+// Security contract: docs/THREAT-MODEL.md (T1-T10). In short:
+//   loopback only · pairing token · host and origin check · body, time and rate limits ·
+//   executable allowlist without a shell · environment isolation for summative calls ·
+//   transactional safeguarding of summative answers · redacted logs · no secret in /health.
 
 import http from 'node:http';
 import { spawn, spawnSync } from 'node:child_process';
@@ -27,7 +27,7 @@ import {
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
-// ---------------------------------------------------------------- CLI-Argumente
+// ---------------------------------------------------------------- CLI arguments
 const args = process.argv.slice(2);
 function argVal(name, dflt) { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : dflt; }
 const OPT = {
@@ -41,8 +41,8 @@ const OPT = {
   logFull: args.includes('--log-full'),            // Default: redigierte Logs (Threat T6)
 };
 
-// ---------------------------------------------------------------- CLI-Erkennung
-// Executable-WHITELIST (Threat T8): ausschließlich diese Binaries, nie Shell.
+// ---------------------------------------------------------------- CLI detection
+// Executable ALLOWLIST (threat T8): these binaries only, never a shell.
 const SUPPORTED_CLIS = ['claude', 'codex'];
 function detectClis() {
   const found = {};
@@ -56,15 +56,15 @@ const CLIS = OPT.noLlm ? {} : detectClis();
 const ACTIVE_CLI = OPT.noLlm ? null
   : OPT.cli !== 'auto' ? (CLIS[OPT.cli] ? OPT.cli : null)
   : (CLIS.claude ? 'claude' : CLIS.codex ? 'codex' : null);
-// Modell-Default hängt am aktiven CLI (Task-12-Finding: Codex-Betrieb meldete Claude-Modell)
+// The default model follows the active CLI; running codex used to report a Claude model.
 if (!OPT.model) OPT.model = ACTIVE_CLI === 'codex' ? 'codex (gpt-frontier)' : 'claude-opus-4-8';
 
-// LLM-Zugang AUSSCHLIESSLICH über Abo/OAuth der CLIs (claude/codex) —
-// Auftraggeber-Direktive 2026-07-25: KEIN API-Key-Transport. Es gibt bewusst
-// keinen Code-Pfad, der Provider-Schlüssel liest; gesetzte Provider-Umgebungs-
-// variablen werden ignoriert (der Release-Scan wacht über die Wiedereinführung).
+// Model access runs EXCLUSIVELY through the subscription sign-in of the CLIs
+// (claude/codex). There is deliberately no code path that reads a provider key;
+// provider environment variables that happen to be set are ignored, and the
+// release scan guards against reintroduction.
 
-// ---------------------------------------------------------------- File-Store (atomar)
+// ---------------------------------------------------------------- file store (atomic)
 const STORE = resolve(OPT.store);
 mkdirSync(join(STORE, 'store'), { recursive: true });
 mkdirSync(join(STORE, 'log'), { recursive: true });
@@ -77,9 +77,9 @@ function storeRead(name, dflt) {
   try { return JSON.parse(readFileSync(storePath(name), 'utf-8')); } catch { return dflt; }
 }
 function storeWrite(name, obj) {
-  // Atomar UND parallelsicher: eindeutiger Temp-Name pro Write. Ein gemeinsamer
-  // ".tmp"-Pfad kollidierte bei gleichzeitigen Saves (Task-12-Nacharbeit: 500er
-  // beim PUT /progress, wenn zwei Views gleichzeitig speicherten).
+  // Atomic AND safe under concurrency: a unique temporary name per write. A shared
+  // ".tmp" path collided when two views saved at once, surfacing as a 500 on
+  // PUT /progress while silently losing the write.
   const p = storePath(name);
   const tmp = `${p}.${process.pid}.${randomUUID().slice(0, 8)}.tmp`;
   try {
@@ -95,13 +95,13 @@ function logLine(kind, obj) {
   appendFileSync(join(STORE, 'log', 'bridge-log.jsonl'), JSON.stringify(entry) + '\n');
 }
 
-// ---------------------------------------------------------------- Pairing-Token (T1/T2)
+// ---------------------------------------------------------------- pairing token (T1/T2)
 const TOKEN = process.env.BRIDGE_TOKEN || randomBytes(24).toString('base64url');
 
-// ---------------------------------------------------------------- LLM-Aufrufe
-// Session-Matrix (Plan #22): benannte Sessions über CLI-Session-IDs (--session-id/--resume),
-// frische Aufrufe ohne Session. Summative Aufrufe laufen ISOLIERT (leeres Temp-cwd,
-// --setting-sources "" → keine CLAUDE.md/AGENTS.md/Hooks, keine Tools, kein MCP; Threat T5).
+// ---------------------------------------------------------------- model calls
+// Session matrix: named sessions via CLI session identifiers (--session-id/--resume),
+// fresh calls without a session. Summative calls run ISOLATED (empty temporary working
+// directory, --setting-sources "" → no agent instruction files, no hooks, no tools; threat T5).
 const namedSessions = storeRead('sessions', {});   // name -> {sessionId, startedAt, turns}
 let queueChain = Promise.resolve();                 // 1 LLM-Aufruf zur Zeit (T7)
 let queueDepth = 0;
@@ -110,10 +110,10 @@ const MAX_QUEUE = 20;
 function claudeArgs({ system, prompt, sessionName, isolate }) {
   const a = ['-p', '--output-format', 'json', '--model', OPT.model,
              '--disallowedTools', '*', '--strict-mcp-config',
-             // IMMER ohne Nutzer-Konfiguration (CLAUDE.md/Hooks): Der Tutor-Charakter kommt
-             // ausschließlich aus unseren System-Prompts — persönliche Agent-Instruktionen
-             // des Rechners dürfen weder Coach noch Prüfer beeinflussen (Task-12-Finding;
-             // T5 verlangte das bisher nur summativ, produktrichtig ist es überall).
+             // ALWAYS without user configuration: the tutor's character comes solely from
+             // our own system prompts. Personal agent instructions present on the machine
+             // must influence neither the coach nor the examiner. T5 required this for
+             // summative calls only; for the product it is right everywhere.
              '--setting-sources', ''];
   void isolate; // Isolation steuert zusätzlich cwd (Temp) — Flag-seitig jetzt einheitlich
   if (system) a.push('--system-prompt', system);
@@ -131,9 +131,9 @@ function runCli({ system, prompt, sessionName = null, isolate = false, timeoutMs
   if (queueDepth >= MAX_QUEUE) return Promise.reject(Object.assign(new Error('Warteschlange voll'), { code: 'QUEUE_FULL' }));
   queueDepth++;
   const job = () => new Promise((resolveP, rejectP) => {
-    // cwd-Regel: Summative/frische Aufrufe → eigenes leeres Temp-Verzeichnis pro Aufruf (T5).
-    // Benannte Sessions (coach/boss) → STABILES leeres Verzeichnis unter dem Store, weil die
-    // CLI Sessions pro Projektverzeichnis ablegt und --resume sonst ins Leere greift.
+    // Working-directory rule: summative and fresh calls each get their own empty temporary directory (T5).
+    // Named sessions (coach, boss) get a STABLE empty directory under the store, because the
+    // CLI files sessions per project directory and --resume would otherwise find nothing.
     let cwd, ephemeral;
     if (sessionName) {
       cwd = join(STORE, 'llm-sessions', sessionName.replace(/[^a-z0-9_-]/gi, '_'));
@@ -183,7 +183,7 @@ async function llmJson(opts) {
   return extractJson(text);
 }
 
-// ---------------------------------------------------------------- Transaktionale Sicherung (T9)
+// ---------------------------------------------------------------- transactional safeguarding (T9)
 function txBegin(kind, payload) {
   const tx = storeRead('pending_grades', {});
   const id = randomUUID();
@@ -195,10 +195,10 @@ function txResolve(id, result) {
   const tx = storeRead('pending_grades', {});
   if (tx[id]) { tx[id].status = 'graded'; tx[id].result = result; tx[id].gradedAt = new Date().toISOString(); storeWrite('pending_grades', tx); }
 }
-// Auto-Sperre (Plan #27a v3.2): Gold-Set-Toleranzverletzung sperrt summative
-// Bewertung, bis tools/gold-set-run.mjs wieder grün läuft. Der Gold-Set-Lauf
-// selbst (kind 'goldset') und formative Übungen bleiben erlaubt — sonst wäre
-// ein Entsperren unmöglich bzw. das Lernen blockiert.
+// Automatic lock: a tolerance breach in the calibration set locks summative
+// grading until tools/gold-set-run.mjs passes again. The calibration run
+// itself (kind 'goldset') and formative practice stay allowed — otherwise
+// unlocking would be impossible and learning would be blocked.
 const LOCKED_KINDS = new Set(['chapter', 'chapter1', 'chapter2', 'exam', 'capstone', 'placement', 'appeal', 'boss-judge', 'challenge']);
 function requireUnlocked(kind) {
   if (!LOCKED_KINDS.has(kind)) return;
@@ -219,15 +219,15 @@ async function gradeSummative({ question, rubric, modelAnswer, answer, sources, 
   return { txId, result, label: { type: 'LLM-unterstützt', model: OPT.model, rubricVersion: PROMPTS_VERSION } };
 }
 
-// Prompt-Log (Verifikation Plan §10: "Prompt-Log-Inspektion") — voller Prompt nur mit --log-full,
-// sonst Hash+Länge (Redaktion, T6). Für die Isolations-ACs wird --log-full genutzt.
+// Prompt log — the full prompt only with --log-full, otherwise hash and length
+// (redaction, T6). Verifying the isolation guarantees uses --log-full.
 function logPrompt(kind, prompt) {
   const rec = { kind, len: prompt.length };
   if (OPT.logFull) rec.prompt = prompt;
   appendFileSync(join(STORE, 'log', 'prompt-log.jsonl'), JSON.stringify({ ts: new Date().toISOString(), ...rec }) + '\n');
 }
 
-// ---------------------------------------------------------------- HTTP-Schicht
+// ---------------------------------------------------------------- HTTP layer
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.woff2': 'font/woff2', '.pdf': 'application/pdf' };
 const CSP = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'";
 
@@ -244,7 +244,7 @@ function readBody(req, limit = 256 * 1024) {
       size += c.length;
       if (size > limit) {
         if (!rejected) { rejected = true; rej(Object.assign(new Error('body too large'), { code: 'TOO_LARGE' })); }
-        // Erst ab dem 4-fachen Limit hart trennen — so kann der 413 noch gesendet werden (T7)
+        // Only sever at four times the limit, so the 413 can still be sent (T7)
         if (size > limit * 4) req.destroy();
       } else chunks.push(c);
     });
@@ -274,7 +274,7 @@ const server = http.createServer(async (req, res) => {
 
     // ---------- API ----------
     if (path.startsWith('/api/')) {
-      // /api/health ist token-frei (Discovery), enthält aber KEINE Secrets (T6)
+      // /api/health needs no token (discovery) but carries NO secrets (T6)
       if (path === '/api/health') {
         return send(res, 200, {
           ok: true, name: 'ai-act-akademie-bridge', promptsVersion: PROMPTS_VERSION,
@@ -323,7 +323,7 @@ const server = http.createServer(async (req, res) => {
       if (seg === 'dialog/judge' && req.method === 'POST') {
         const b = await readBody(req);
         requireUnlocked('boss-judge');
-        // Payload-Normalisierung: App liefert Rubrik/Kern/Transcript als Objekte (Task-12-Finding)
+        // Payload normalisation: the app sends rubric, core and transcript as objects
         for (const k of ['scenarioCore', 'rubric', 'transcript'])
           if (b[k] != null && typeof b[k] !== 'string') b[k] = JSON.stringify(b[k], null, 1);
         const prompt = buildBossJudgePrompt({ scenarioCore: b.scenarioCore, rubric: b.rubric, transcript: b.transcript });
@@ -334,7 +334,7 @@ const server = http.createServer(async (req, res) => {
       }
       if (seg === 'dialog/end-session' && req.method === 'POST') {
         const b = await readBody(req);
-        // Lernjournal-Summary bei Sitzungsende (Plan #22a), dann Coach-Session verwerfen
+        // Write the learning-journal summary at session end, then discard the coach session
         let summary = null;
         if (namedSessions.coach) {
           try {
@@ -388,8 +388,8 @@ const server = http.createServer(async (req, res) => {
         return send(res, 200, { exportedAt: new Date().toISOString(), warning: 'Enthält persönliche Lerndaten.', data: bundle });
       }
       if (seg === 'profile' && req.method === 'GET') {
-        // Lädt das lokale Nutzerprofil aus data/profiles/ (gitignored; Namen sind Nutzersache —
-        // KEINE Profilnamen im Code, Git-Historie-Schutz Plan §5.1)
+        // Loads the local user profile from data/profiles/ (gitignored). Profile names are the
+        // user's business — no profile name appears in the code.
         const dir = join(STORE, 'profiles');
         const files = existsSync(dir) ? (await import('node:fs')).readdirSync(dir).filter(f => f.endsWith('.json')).sort() : [];
         if (files.length) return send(res, 200, readFileSync(join(dir, files[0]), 'utf-8'), 'application/json; charset=utf-8');
@@ -398,7 +398,7 @@ const server = http.createServer(async (req, res) => {
       return send(res, 404, { error: 'unknown endpoint' });
     }
 
-    // ---------- Static (nur GET; Webroot + assets/ + content/ read-only) ----------
+    // ---------- static files (GET only; web root plus assets/ and content/, read-only) ----------
     if (req.method !== 'GET') return send(res, 405, { error: 'method' });
     let fp;
     if (path.startsWith('/assets/') || path.startsWith('/content/')) fp = join(ROOT, normalize(path).replace(/^([/\\])+/, ''));

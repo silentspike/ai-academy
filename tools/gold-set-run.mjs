@@ -1,18 +1,18 @@
 #!/usr/bin/env node
 // tools/gold-set-run.mjs — Gold-Set-Lauf (Plan #27a, Gate 3):
-// prüft den Tutor-Bewertungsmaßstab gegen content/goldset.json (54 Musterantworten,
-// 18 davon Holdout — der Holdout floss NIE in die Prompt-Entwicklung ein, wird hier
-// aber MIT gemessen). Verpflichtend bei jedem Modell- oder Promptwechsel.
+// checks the tutor's grading scale against content/goldset.json (54 reference answers,
+// 18 of them held out — the holdout never fed into prompt development but is
+// measured here as well). Mandatory on every model or prompt change.
 //
-// Metriken je Eintrag: Punktabweichung |ist−soll|/max, Bestehens-Kippfall
+// Metrics per entry: score deviation |actual−expected|/max, pass/fail flip
 // (Verdict-Klasse weicht ab), falsche Critical-Error-Erkennung.
-// TOLERANZEN (v3.2, Auto-Sperre bei Überschreitung — kein bloßer Report):
+// TOLERANCES (a breach locks grading automatically — not merely a report):
 //   T1  mittlere normierte Abweichung  ≤ 0.15
 //   T2  Kippfall-Quote                 ≤ 0.15
 //   T3  falsche Critical-Errors        = 0
 //   T4  max. Einzelabweichung          ≤ 0.35
 // Bei Verletzung: data/store/summative_lock.json → Bridge sperrt summative
-// Bewertungen (Kapiteltest/Examen/Einspruch), bis ein neuer Lauf grün ist.
+// grading (chapter test, exam, appeal) until a fresh run passes.
 //
 // Aufruf:  node tools/gold-set-run.mjs [--reps N] [--sample N] [--entries id,id]
 //          [--bridge http://127.0.0.1:8791] [--dry]
@@ -80,8 +80,8 @@ for (const e of entries) {
       const out = raw.result ?? raw;              // Bridge liefert {txId, result, label}
       const max = out.max || e.target_max;
       const dev = Math.abs((out.score ?? 0) - e.target_score) / (e.target_max || 10);
-      // Bestehens-Kippfall (Plan #27a): Soll und Ist liegen auf verschiedenen Seiten
-      // der 80-%-Besteh-Grenze. Das Verdict-Wort ist Zusatzinfo, nicht die Metrik.
+      // Pass/fail flip: expected and actual land on different sides of the
+      // 80 % pass mark. The verdict word is supplementary, not the metric.
       const PASS = 0.8;
       const flip = (e.target_score / (e.target_max || 10) >= PASS) !== ((out.score ?? 0) / (out.max || e.target_max || 10) >= PASS);
       const verdictMismatch = out.verdict !== VERDICT_MAP[e.target_verdict];
@@ -129,8 +129,8 @@ if (report.pass && vollerLauf) {
   if (existsSync(LOCK)) { rmSync(LOCK); console.log('GRÜN (voller Lauf) — Auto-Sperre aufgehoben.'); }
   else console.log('GRÜN (voller Lauf) — keine Sperre aktiv.');
 } else if (report.pass) {
-  // Teilläufe (--entries/--sample) sind Diagnose, kein Freigabe-Nachweis: sie dürfen
-  // die Sperre NIE aufheben (Task-12-Nacharbeit — sonst entsperrt eine 1-Frage-Probe).
+  // Partial runs (--entries/--sample) are diagnostics, not release evidence: they must
+  // NEVER lift the lock, otherwise a single-question probe would unlock grading.
   console.log(`GRÜN für ${entries.length}/${gold.length} Einträge — Teillauf, Sperre bleibt unverändert. Für die Freigabe: voller Lauf ohne --entries/--sample.`);
 } else {
   writeFileSync(LOCK, JSON.stringify({ locked: true, since: report.ts, reason: breaches, report: rp, teillauf: !vollerLauf }, null, 1));

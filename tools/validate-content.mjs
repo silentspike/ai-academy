@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// tools/validate-content.mjs — Schema-Gate für content/ (SCHEMA.md ist SSOT).
-// CI-Regel: Content ohne Rechtsquelle/Kompetenz failt (§5.7). Exit 1 bei Fehlern.
+// tools/validate-content.mjs — schema gate for content/ (SCHEMA.md is the source of truth).
+// Pipeline rule: content without a legal source or competency fails. Exit 1 on errors.
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 

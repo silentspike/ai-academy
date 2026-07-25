@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// tools/gamification-tests.mjs — Tests für Task 7 (AC1, AC2 + Session-/Pacing-Logik).
+// tools/gamification-tests.mjs — tests for points, levels, session and pacing logic.
 import { applyEvent, levelFor, dayCounts, newBadges, XP_RULES } from '../app/gamification.js';
 import { feasibilityCheck, targetCurve, driftCheck, DAY_MS } from '../app/pacing.js';
 import { createSession, canStartUnit, completeStep, blockCheck, marathonWarning, rotationHint } from '../app/session.js';
@@ -11,7 +11,7 @@ const t = (name, cond, detail = '') => {
   else { fail++; console.error(`  ✗ ${name} ${detail}`); }
 };
 
-// ---------- AC1: XP und Mastery strikt getrennt ----------
+// ---------- AC1: activity points and mastery stay strictly separate ----------
 console.log('AC1 — XP/Mastery-Trennung');
 const st = { xp: 0 };
 const wrong = applyEvent(st, { kind: 'check_answered', level: 'B', correct: false, competency: 'K03' });
@@ -27,7 +27,7 @@ t('C gibt mehr XP als A', XP_RULES.check_answered.C > XP_RULES.check_answered.A)
 t('Level-Leiter: 1400 XP → Level 4 Anhang-III-Flüsterer', levelFor(1400).title === 'Anhang-III-Flüsterer');
 t('Endtitel profilabhängig', levelFor(20000, 'KI-Spezialist ÖSVA').title === 'KI-Spezialist ÖSVA');
 
-// Wochenziel-Zählkriterien (#29): Alibi-Tage zählen nicht
+// Weekly-goal counting rules: token days do not count
 t('Tag zählt: Review + 10 Fragen', dayCounts({ reviewDone: true, questions: 10 }) === true);
 t('Tag zählt: Review + 1 Einheit', dayCounts({ reviewDone: true, units: 1 }) === true);
 t('Tag zählt NICHT: nur eingeloggt', dayCounts({ reviewDone: false, questions: 30 }) === false);

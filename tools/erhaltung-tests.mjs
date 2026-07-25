@@ -21,7 +21,7 @@ markScenarioDone(st, NOW);
 t('nach Szenario: erst in 7 Tagen wieder fällig', maintenancePlan(st, scenarios, NOW + 2 * DAY_MS).szenarioDue === false
   && maintenancePlan(st, scenarios, NOW + WEEK_MS).szenarioDue === true);
 
-// ---- AC2: EIGENE Karte durchläuft den vollen Leitner-Zyklus
+// ---- AC2: a user-created card runs the full spaced-repetition cycle
 let card = newCard('custom-1', { custom: true, front: 'Meine Frage', back: 'Meine Antwort', competency: 'K06' }, NOW);
 t('eigene Karte: startet in Box 1, fällig ab morgen (Same-Day zählt nie)', card.box === 1 && card.due > NOW && card.due <= NOW + DAY_MS);
 card = review(card, { correct: true, confidence: 'sicher' }, NOW);
