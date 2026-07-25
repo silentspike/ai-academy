@@ -1,0 +1,48 @@
+name: Fehler melden
+description: Etwas funktioniert nicht wie beschrieben
+labels: ["type:bug", "status:triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Danke für die Meldung. **Sicherheitslücken bitte nicht hier melden**, sondern
+        über Security → Report a vulnerability (siehe SECURITY.md).
+  - type: textarea
+    id: beobachtung
+    attributes:
+      label: Was passiert
+      description: Was haben Sie beobachtet, und was hatten Sie erwartet?
+    validations:
+      required: true
+  - type: textarea
+    id: schritte
+    attributes:
+      label: Schritte zur Reproduktion
+      placeholder: |
+        1. Bridge gestartet mit ...
+        2. Aufruf von #/...
+        3. Geklickt auf ...
+    validations:
+      required: true
+  - type: dropdown
+    id: betriebsart
+    attributes:
+      label: Betriebsart
+      options:
+        - Bridge liefert die Anwendung selbst aus
+        - Eigener Webserver, Bridge über Weiterleitung
+    validations:
+      required: true
+  - type: input
+    id: umgebung
+    attributes:
+      label: Umgebung
+      placeholder: "Browser und Version, Betriebssystem, Node-Version, Commit oder Release"
+    validations:
+      required: true
+  - type: textarea
+    id: konsole
+    attributes:
+      label: Meldungen aus der Browser-Konsole
+      description: Bitte keine personenbezogenen Daten einfügen.
+      render: text

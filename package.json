@@ -1,12 +1,21 @@
 {
-  "name": "ai-act-akademie",
+  "name": "ai-academy",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
   "type": "module",
-  "description": "Interaktives Lerntraining für den EU AI Act (VO 2024/1689 idF VO 2026/1744) mit LLM-Tutor",
+  "description": "Interaktives Lerntraining zum EU AI Act (Verordnung (EU) 2024/1689 in der Fassung der Verordnung (EU) 2026/1744) mit Tutor auf Basis eines Sprachmodells",
+  "license": "Apache-2.0",
+  "author": "Jan Neubauer",
+  "homepage": "https://github.com/obtFusi/ai-academy#readme",
+  "repository": { "type": "git", "url": "git+https://github.com/obtFusi/ai-academy.git" },
+  "bugs": { "url": "https://github.com/obtFusi/ai-academy/issues" },
+  "keywords": ["eu-ai-act", "ai-act", "lernen", "compliance", "e-learning", "ki-verordnung"],
   "engines": { "node": ">=20" },
   "scripts": {
     "bridge": "node bridge/bridge.mjs",
-    "check": "node --check bridge/bridge.mjs && node --check tutor/prompts.mjs && for f in tools/*.mjs app/*.js; do node --check \"$f\" || exit 1; done"
+    "check": "find bridge tutor tools app scripts -name '*.mjs' -o -name '*.js' | xargs -P \"$(nproc)\" -I{} node --check {}",
+    "test:unit": "for t in engine gamification exam onboarding erhaltung; do node tools/$t-tests.mjs || exit 1; done",
+    "test:content": "node tools/validate-content.mjs && node tools/check-questions.mjs",
+    "test:all": "npm run check && npm run test:unit && npm run test:content"
   }
 }

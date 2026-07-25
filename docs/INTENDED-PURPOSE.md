@@ -28,7 +28,7 @@ Sie ist **NICHT bestimmt** für:
 - JEDE Bewertung trägt ein Label: `Bewertungstyp: deterministisch | LLM-unterstützt · Modell · Rubrikversion · Rechtsstand`.
 - Deterministische und LLM-generierte/-bewertete Inhalte sind durchgängig unterscheidbar.
 
-**LLM-Rolle:** Das LLM ist Erklärer und Bewerter auf Basis mitgelieferter, versionierter Quellen — **niemals selbst Rechtsquelle** (Rangstufe 8 der Quellenhierarchie, `legal/quellenhierarchie.md`).
+**LLM-Rolle:** Das LLM ist Erklärer und Bewerter auf Basis mitgelieferter, versionierter Quellen — **niemals selbst Rechtsquelle** (Rangstufe 8 der Quellenhierarchie, siehe `docs/PRUEFPROZESS.md`).
 
 ## 3. Frontier-Gate-Definition (Auftraggeber-Beschluss, Plan §5.4)
 

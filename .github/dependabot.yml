@@ -1,0 +1,23 @@
+version: 2
+updates:
+  # Die Anwendung selbst kommt ohne Abhängigkeiten aus; überwacht werden die
+  # Werkzeuge der Prüfstrecke und die Bausteine der Arbeitsabläufe.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: deps
+    groups:
+      pruefstrecke:
+        patterns: ["@playwright/*", "playwright"]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    commit-message:
+      prefix: ci

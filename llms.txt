@@ -1,0 +1,39 @@
+# AI-Academy
+
+> Interaktives Lerntraining zum EU AI Act (Verordnung (EU) 2024/1689 in der Fassung
+> der Verordnung (EU) 2026/1744) mit Tutor auf Basis eines Sprachmodells.
+> Läuft vollständig örtlich. Zweckbestimmung und Grenzen: docs/INTENDED-PURPOSE.md.
+
+## Zuerst lesen
+- [README](README.md): Was es ist, wie man es startet
+- [CLAUDE.md](CLAUDE.md): verbindlicher Arbeitsrahmen — Grundsätze, Aufbau, Regeln
+- [docs/INTENDED-PURPOSE.md](docs/INTENDED-PURPOSE.md): Zweckbestimmung, ausgeschlossene Verwendungen
+
+## Aufbau
+- [content/SCHEMA.md](content/SCHEMA.md): Schema der Lerninhalte, Pflichtfelder
+- [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md): Gestaltungsreferenz — Farben, Typografie, Bewegung
+- [TESTING.md](TESTING.md): Prüfebenen, Befehle, was als Nachweis gilt
+
+## Betrieb und Pflege
+- [SETUP-AGENT.md](SETUP-AGENT.md): Einrichtungsauftrag samt prüfbarer Abnahmeliste
+- [TROUBLESHOOT-AGENT.md](TROUBLESHOOT-AGENT.md): Vorgehen im Störungsfall
+- [UPDATE-PROZESS.md](UPDATE-PROZESS.md): Ablauf bei Rechtsänderungen — verbindlich
+
+## Beurteilung und Risiken
+- [docs/PRUEFPROZESS.md](docs/PRUEFPROZESS.md): wie die Inhalte geprüft wurden, inklusive der Grenzen des Verfahrens
+- [docs/CUT-SCORE-BLUEPRINT.md](docs/CUT-SCORE-BLUEPRINT.md): Herleitung der Bestehensgrenze
+- [docs/CRITICAL-ERRORS.md](docs/CRITICAL-ERRORS.md): Fehler, die unabhängig von der Punktzahl zum Nichtbestehen führen
+- [docs/RISIKOREGISTER.md](docs/RISIKOREGISTER.md): bewusst getragene Risiken
+- [docs/THREAT-MODEL.md](docs/THREAT-MODEL.md): Bedrohungsmodell der Bridge
+- [docs/DATENSCHUTZ-ROLLENMATRIX.md](docs/DATENSCHUTZ-ROLLENMATRIX.md): Rollen je Betriebsart
+
+## Mitwirken
+- [CONTRIBUTING.md](CONTRIBUTING.md): Regeln, besonders für Inhalte
+- [SECURITY.md](SECURITY.md): Meldeweg für Schwachstellen
+- [CHANGELOG.md](CHANGELOG.md): Änderungen, Rechtsstand gesondert ausgewiesen
+
+## Grundsätzliches
+Der Programmcode kommt zur Laufzeit ohne Abhängigkeiten aus. Das Sprachmodell ist
+Erklärer und Bewerter auf Basis mitgelieferter Quellen — **niemals selbst
+Rechtsquelle**. Der Zugang läuft ausschließlich über die Anmeldung der jeweiligen
+Kommandozeilenanwendung; Schlüssel für Programmierschnittstellen sind ausgeschlossen.
