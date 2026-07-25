@@ -1,6 +1,6 @@
 // app/engine-widgets.js — Interaktive Widgets (Plan #45):
 // (a) Drag&Drop-Zuordnung (Risikopyramide befüllen, Artikel↔Kapitel, Pflichten↔Rollen)
-// (b) Fristen-Timeline 2024–2031 auf Omnibus-Stand (Daten aus legal/fristen-uebergangsmatrix)
+// (b) Fristen-Timeline 2024–2031 auf Omnibus-Stand (Daten aus content/fristen.json)
 // (c) Anhang-III-Explorer  (d) Art.-25-Rollenweiche
 // Prüf-Logik DOM-frei; Rendering getrennt. Kein externes Framework.
 
@@ -75,14 +75,15 @@ export function renderAssignment(mount, task, opts = {}) {
 // ---------- (b) Fristen-Timeline (Omnibus-Stand, §2.6/#45c) ----------
 
 /**
- * milestones: aus legal/fristen-uebergangsmatrix.json (g1–g9 + u1–u5) —
+ * milestones: aus content/fristen.json (g1–g9 + u1–u5) —
  * [{id, date:'YYYY-MM-DD', label, detail, kind:'geltung'|'uebergang', changed_by_omnibus:bool}]
  */
 export function renderTimeline(mount, milestones, opts = {}) {
   const doc = mount.ownerDocument;
   const from = Date.parse(opts.from ?? '2024-06-01');
   const to = Date.parse(opts.to ?? '2031-03-01');
-  const W = opts.width ?? 900, H = 190, PAD = 40;
+  const W = opts.width ?? 900, H = 210, PAD = 40;   // H trägt 5 Beschriftungszeilen
+                                                  // (34..114) plus Achse bei H-56.
   const x = d => PAD + (Date.parse(d) - from) / (to - from) * (W - 2 * PAD);
   const years = [];
   for (let y = 2024; y <= 2031; y++) years.push(y);
@@ -95,25 +96,67 @@ export function renderTimeline(mount, milestones, opts = {}) {
       `<text x="${x(y + '-01-01')}" y="${H - 30}" fill="rgba(218,226,240,.5)" font-size="10" text-anchor="middle">${y}</text>`).join('') +
     `<line x1="${PAD}" y1="${H - 56}" x2="${W - PAD}" y2="${H - 56}" stroke="rgba(151,169,202,.25)"/>`;
   const sorted = [...milestones].sort((a, b) => Date.parse(a.date) - Date.parse(b.date));
-  let lane = 0;
-  for (const m of sorted) {
-    const cx = x(m.date), cy = H - 56, ty = 44 + (lane++ % 3) * 26;
+  // Die Meilensteine liegen zeitlich sehr ungleich verteilt (Häufung 2026–2027). Ein
+  // starrer Zeilenwechsel schiebt dicht benachbarte Beschriftungen übereinander, und
+  // eine geschätzte Zeichenbreite trifft es nicht zuverlässig — Großbuchstaben und
+  // Ziffern sind deutlich breiter als der Durchschnitt. Deshalb zwei Durchgänge:
+  // zuerst alle Beschriftungen einsetzen, dann ihre TATSÄCHLICHE Breite messen und
+  // erst danach die Zeile zuweisen.
+  const ZEILEN = 5, ZEILENHOEHE = 20, OBEN = 34, ABSTAND = 8;
+  const cy = H - 56;
+  const gruppen = sorted.map(m => {
+    const cx = x(m.date);
     const g = doc.createElementNS(svgNS, 'g');
     g.classList.add('tl-m');
     g.dataset.mid = m.id;
     g.innerHTML =
-      `<line x1="${cx}" y1="${ty + 6}" x2="${cx}" y2="${cy}" stroke="rgba(151,169,202,.28)" stroke-dasharray="2 3"/>` +
+      `<title>${m.label}${m.detail ? ' — ' + m.detail : ''}</title>` +
+      `<line x1="${cx}" y1="0" x2="${cx}" y2="${cy}" stroke="rgba(151,169,202,.28)" stroke-dasharray="2 3"/>` +
       `<circle cx="${cx}" cy="${cy}" r="5" fill="${m.changed_by_omnibus ? '#e1ad58' : '#65d8b2'}"/>` +
       (m.changed_by_omnibus ? `<circle cx="${cx}" cy="${cy}" r="8.5" fill="none" stroke="rgba(225,173,88,.4)"/>` : '') +
-      `<text x="${cx}" y="${ty}" fill="#e5eaf3" font-size="10.5" text-anchor="middle">${m.label}</text>`;
+      `<text x="${cx}" y="0" fill="#e5eaf3" font-size="10.5" text-anchor="middle">${m.label}</text>`;
     g.addEventListener('click', () => opts.onSelect?.(m));
     svg.appendChild(g);
-  }
+    return { m, g, cx };
+  });
+
   const legend = doc.createElement('div');
   legend.className = 'legend';
   legend.innerHTML = `<span><i style="background:#65d8b2"></i>Stammfassung</span>` +
     `<span><i style="background:#e1ad58"></i>durch VO 2026/1744 geändert/neu</span>`;
   mount.append(svg, legend);
+
+  // Zweiter Durchgang — erst JETZT, nach dem Einhängen ins Dokument: vorher liefert
+  // getComputedTextLength() keine belastbare Breite.
+  // In DOM-Attrappen (Unit-Tests) fehlt getComputedTextLength — dann wird geschätzt.
+  const messen = text => {
+    let b = 0;
+    try { b = text.getComputedTextLength?.() ?? 0; } catch { b = 0; }
+    return b || text.textContent.length * 6;
+  };
+
+  const belegtBis = new Array(ZEILEN).fill(-Infinity);
+  for (const { m, g, cx } of gruppen) {
+    const text = g.querySelector('text');
+    let breite = messen(text);
+    let lane = belegtBis.findIndex(kante => cx - breite / 2 > kante + ABSTAND);
+    if (lane === -1) {
+      // Keine Zeile frei: die am weitesten links endende nehmen und die Beschriftung
+      // so weit kürzen, dass sie kollisionsfrei bleibt. Der vollständige Text geht
+      // dabei nicht verloren — er steht im <title> und erscheint als Tooltip.
+      lane = belegtBis.indexOf(Math.min(...belegtBis));
+      let txt = String(m.label);
+      while (txt.length > 6 && cx - breite / 2 <= belegtBis[lane] + ABSTAND) {
+        txt = txt.replace(/[…\s]*.$/, '');
+        text.textContent = txt + '…';
+        breite = messen(text);
+      }
+    }
+    belegtBis[lane] = cx + breite / 2;
+    const ty = OBEN + lane * ZEILENHOEHE;
+    text.setAttribute('y', ty);
+    g.querySelector('line').setAttribute('y1', ty + 6);
+  }
   return svg;
 }
 

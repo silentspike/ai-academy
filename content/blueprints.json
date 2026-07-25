@@ -3,7 +3,7 @@
   {
    "id": "bp-frist-variation",
    "pattern": "Fristen-Frage mit konkretem Fallbezug generieren (Datum im Sachverhalt!)",
-   "constraints": "Nur Fristen aus legal/fristen-uebergangsmatrix.json; Prüfungsfälle nennen Einsatz-/Inverkehrbringungsdatum; 'nicht abschließend bestimmbar' als Option zulassen",
+   "constraints": "Nur Fristen aus content/fristen.json; Prüfungsfälle nennen Einsatz-/Inverkehrbringungsdatum; 'nicht abschließend bestimmbar' als Option zulassen",
    "competency": "K07",
    "level": "B",
    "summative": false

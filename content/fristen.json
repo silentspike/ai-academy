@@ -109,5 +109,5 @@
   "anhang_I_oder_III",
   "sonder_uebergangsregel"
  ],
- "generated_from": "legal/fristen-uebergangsmatrix.json (SSOT, Gate 0) — bei Rechtsänderung dort pflegen und neu kopieren"
+ "generated_from": "Änderungsregister der Rechtsbaseline (internes Prüfdokument des Autors). Bei einer Rechtsänderung wird dort gepflegt und diese Datei neu erzeugt — siehe UPDATE-PROZESS.md."
 }
