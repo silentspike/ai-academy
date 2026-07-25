@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // tools/engine-tests.mjs — deterministische Engine-Tests (Task 6, AC1–AC4).
-// Läuft ohne Browser: node tools/engine-tests.mjs
+// Runs without a browser: node tools/engine-tests.mjs
 import { grade, trapQuota } from '../app/engine-quiz.js';
 import { newCard, review, splitQueues, planAufhol, DAY_MS, startOfDay } from '../app/engine-leitner.js';
 import { generateVariants, validateVariant } from '../app/variants.js';
@@ -53,7 +53,7 @@ console.log('AC2 — Leitner Kern-/Aufholwarteschlange');
 const T0 = startOfDay(Date.parse('2026-07-01T12:00:00Z'));
 const cards = [];
 for (let i = 0; i < 30; i++) cards.push(newCard(`c${i}`, { competency: `K${(i % 5) + 1}` }, T0));
-// Tag 1: alle richtig-sicher beantworten → Box 2, fällig T0+1+3
+// Day 1: answer everything correctly and confidently → box 2, due T0+1+3
 let now = T0 + DAY_MS;
 for (const c of cards) review(c, { correct: true, confidence: 'sicher' }, now);
 // 10 Karten am Folgetag nochmal (Box 3 → +7 Tage), Rest ruht
@@ -62,7 +62,7 @@ for (const c of cards.slice(0, 10)) review(c, { correct: true, confidence: 'sich
 // 7 Tage Pause: heute = T0+9
 now = T0 + 9 * DAY_MS;
 const q = splitQueues(cards, now);
-// slice(0,10): due T0+2+7=T0+9 → HEUTE fällig → Kern. Rest: due T0+1+3=T0+4 → 5 Tage überfällig → Aufhol
+// slice(0,10): due T0+2+7=T0+9 → due today → core queue. Rest: due T0+1+3=T0+4 → 5 days overdue → catch-up queue
 t('Kern = regulär heute fällige (10)', q.kern.length === 10, `got ${q.kern.length}`);
 t('Aufhol = Pausen-Rückstand (20)', q.aufhol.length === 20, `got ${q.aufhol.length}`);
 t('Nichts verfällt (30 gesamt)', q.kern.length + q.aufhol.length === 30);
@@ -70,7 +70,7 @@ const plan = planAufhol(q.aufholMeta, { perDay: 8 });
 t('Aufhol über Tage verteilt (8/Tag → 3 Tage)', plan.plan.length === 3 && plan.today.length === 8);
 t('Aufhol-Priorität: überfälligste zuerst', plan.today.every(c => q.aufholMeta.find(m => m.card === c).overdueDays >= 5));
 
-// Retention-Stufen: Same-Day erhöht nie (#33), 1d/7d/21d-Kette
+// Retention tiers: same-day never promotes; the chain is 1, 7 and 21 days
 const rc = newCard('r1', {}, T0);
 review(rc, { correct: true }, T0 + 1000);
 t('Same-Day → bleibt "gelernt"', rc.retention === RETENTION.GELERNT);
@@ -81,7 +81,7 @@ t('+7 Tage → behalten', rc.retention === RETENTION.BEHALTEN_7D);
 review(rc, { correct: false }, T0 + 9 * DAY_MS);
 t('Fehler → zurück auf gelernt + Box 1', rc.retention === RETENTION.GELERNT && rc.box === 1);
 
-// ---------- AC3: Szenario-Engine gibt dem LLM NUR freigegebene Fakten ----------
+// ---------- AC3: the scenario engine hands the model ONLY released facts ----------
 console.log('AC3 — Szenario-Engine Informationsfreigabe');
 const scenario = {
   id: 'sz1', title: 'Chatbot-Anfrage',
@@ -119,7 +119,7 @@ t('Ziel-Treffer deterministisch erkannt (g1)', run.goals_hit.includes('g1'));
 const payload = buildAssessmentPayload(scenario, run);
 t('Bewertungs-Payload: Transcript + Rubrik-ID, keine Fakten', payload.rubric_id === 'rub-sz1' && !JSON.stringify(payload).includes('GEHEIM-PHASE2'));
 
-// ---------- AC4: Varianten-Engine ≥3 valide Varianten aus 1 Faktensatz ----------
+// ---------- AC4: the variant engine yields at least 3 valid variants from one fact set ----------
 console.log('AC4 — Varianten-Engine');
 const fact = {
   id: 'fakt-frist-anhang3', kind: 'frist', subject: 'dem Geltungsbeginn für Anhang-III-Hochrisiko',

@@ -2,7 +2,7 @@
 // tools/build-release.mjs — Release-Paket-Builder (Plan §5.7):
 // versioniertes ZIP (App + Assets + Content + Bridge + Doku) + Pflicht-Gates:
 //   1. Schema-Validierung  2. legal-audit-Lauf  3. Privat-Begriffe-Scan
-// Der Scan läuft ÜBER DEN PAKET-INHALT (nicht das Repo) — was ins ZIP geht, ist geprüft.
+// The scan runs OVER THE PACKAGE CONTENT, not the repository — what ships is what was checked.
 // Aufruf: node tools/build-release.mjs [--version vX.Y.Z] [--out dist/]
 import { execSync } from 'node:child_process';
 import { readFileSync, mkdirSync, rmSync, cpSync, writeFileSync, readdirSync, statSync } from 'node:fs';
@@ -12,18 +12,18 @@ const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? proces
 const VERSION = arg('--version', 'v0.9.0-dev');
 const OUT = arg('--out', join(ROOT, 'dist'));
 
-// Paket-Inhalt (Whitelist — data/, legal/, tests/, .git kommen NIE mit)
+// Package content (allowlist — data/, legal/, tests/ and .git never ship)
 const INCLUDE = ['public', 'app', 'content', 'assets', 'bridge', 'tutor', 'tools', 'scripts', 'docs',
   'README.md', 'SETUP-AGENT.md', 'TROUBLESHOOT-AGENT.md', 'UPDATE-PROZESS.md', 'content/SCHEMA.md'];
 // Gate-3-Muster, zweigeteilt:
-//  (a) ÖFFENTLICH — verbotene Key-Umgebungsnamen. Das Produkt nutzt ausschließlich
-//      Abo/OAuth über die CLI; ein API-Key-Pfad darf nie zurückkehren. Diese Regel ist
-//      selbst kein Geheimnis und steht deshalb im Klartext.
+//  (a) PUBLIC — forbidden key environment names. The product uses subscription
+//      sign-in through the CLI only; an API key path must never return. The rule is
+//      itself no secret and therefore stands in clear text.
 const FORBIDDEN_KEY_ENVS = /ANTHROPIC_API_KEY|OPENAI_API_KEY|GEMINI_API_KEY/i;
-//  (b) PRIVAT — projekt-/personenbezogene Begriffe. Die Liste steht NICHT im Repo:
-//      In einem öffentlichen Repo würde der Schutzmechanismus sonst genau das verraten,
-//      was er schützt. Quelle ist die Umgebungsvariable PRIVATE_TERMS_REGEX (in CI aus
-//      einem Secret) oder die lokale, nicht versionierte Datei .private-terms.
+//  (b) PRIVATE — project and person specific terms. The list is NOT in the repository:
+//      in a public repository the guard would otherwise reveal exactly what it
+//      protects. The source is the environment variable PRIVATE_TERMS_REGEX (from a
+//      secret in CI) or the local, unversioned file .private-terms.
 function loadPrivateTerms() {
   const env = process.env.PRIVATE_TERMS_REGEX?.trim();
   if (env) return new RegExp(env, 'i');
@@ -36,7 +36,7 @@ function loadPrivateTerms() {
 const PRIVATE_TERMS = loadPrivateTerms();
 
 console.log(`Release-Build ${VERSION}`);
-// Gate 1+2: Validierung + legal-audit lauffähig
+// Gates 1 and 2: validation and legal audit must run
 execSync('node tools/validate-content.mjs', { cwd: ROOT, stdio: 'inherit' });
 execSync('node tools/legal-audit.mjs "Art. 6" > /dev/null', { cwd: ROOT, stdio: 'inherit', shell: '/bin/bash' });
 console.log('Gates 1+2 (Schema, legal-audit) grün');
@@ -49,12 +49,12 @@ for (const item of INCLUDE) {
   try { cpSync(join(ROOT, item), join(stage, item), { recursive: true, dereference: true }); }
   catch (e) { if (item === 'README.md') console.warn('README.md fehlt noch (Task 11)'); else throw e; }
 }
-// Laufzeit-Reste aus dem Stage entfernen
+// Remove runtime leftovers from the staging directory
 rmSync(join(stage, 'public/.playwright-cli'), { recursive: true, force: true });
 rmSync(join(stage, '.playwright-cli'), { recursive: true, force: true });
 writeFileSync(join(stage, 'VERSION'), VERSION + '\n');
 
-// Gate 3: Privat-Begriffe-Scan über den STAGE-Inhalt (Plan §5.1 Release-Scan)
+// Gate 3: protected-term scan over the STAGED content
 const hits = [];
 (function scan(dir) {
   for (const f of readdirSync(dir)) {
@@ -65,8 +65,8 @@ const hits = [];
     const lines = readFileSync(p, 'utf-8').split('\n');
     lines.forEach((l, i) => {
       const treffer = FORBIDDEN_KEY_ENVS.test(l) || (PRIVATE_TERMS && PRIVATE_TERMS.test(l));
-      // Der Treffer wird OHNE die auslösende Zeile gemeldet, damit ein öffentliches
-      // CI-Protokoll den geschützten Begriff nicht doch noch preisgibt.
+      // The hit is reported WITHOUT the offending line so that a public
+      // pipeline log does not leak the protected term after all.
       if (treffer) hits.push(`${p.replace(stage + '/', '')}:${i + 1}`);
     });
   }

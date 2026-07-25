@@ -1,17 +1,17 @@
 // app/engine-leitner.js — Spaced Repetition (Plan §3, #34):
-// Leitner-Boxen mit Kern-/Aufholwarteschlange und Retention-Stufenmodell.
-// Reine Logik — kein DOM, in Node testbar. Zeit kommt IMMER als Parameter (testbar, kein Date.now-Zwang).
+// Leitner boxes with a core and a catch-up queue, plus retention tiers.
+// Pure logic, no DOM, testable in Node. Time is ALWAYS a parameter, never Date.now.
 
 import { RETENTION } from './competency.js';
 
 export const DAY_MS = 86_400_000;
 
-// Box → Intervall in Tagen bis zur nächsten Fälligkeit.
-// Box 1 = neu/falsch (nächster Tag), aufsteigend bis Langzeit.
+// Box → interval in days until the next due date.
+// Box 1 = new or wrong (next day), rising to long-term.
 export const BOX_INTERVALS = [null, 1, 3, 7, 14, 30];
 export const MAX_BOX = 5;
 
-/** Neue Karte. refs: {competency, level, unit_id, legal_basis} werden durchgereicht. */
+/** New card. refs: {competency, level, unit_id, legal_basis} are passed through. */
 export function newCard(id, meta = {}, nowMs) {
   return {
     id, box: 1, ...meta,
@@ -24,16 +24,16 @@ export function newCard(id, meta = {}, nowMs) {
 }
 
 export function startOfDay(ms) {
-  // LOKALE Mitternacht (Plan #29 „Tageswechsel Mitternacht") — nicht UTC:
-  // sonst wechselt der Lerntag in Wien erst um 01:00/02:00.
+  // LOCAL midnight, not UTC: otherwise the learning day would roll over at
+  // one or two in the morning in Central European time.
   const d = new Date(ms); d.setHours(0, 0, 0, 0); return d.getTime();
 }
 export function daysBetween(aMs, bMs) { return Math.floor((startOfDay(bMs) - startOfDay(aMs)) / DAY_MS); }
 
 /**
- * Antwort verbuchen (Plan §3: Konfidenz steuert die Einstufung mit).
+ * Record an answer; the stated confidence co-determines the placement.
  * richtig+sicher → Box +1 · richtig+unsicher → Box bleibt · richtig+geraten → Box −1
- * falsch → Box 1. Retention-Stufen NUR über echte Zeitabstände (Intensiv-Tag erhöht nichts, #33).
+ * Wrong → box 1. Retention tiers advance ONLY on real elapsed time; a marathon day promotes nothing.
  */
 export function review(card, { correct, confidence = 'sicher' }, nowMs) {
   const prev = card.last_review;
@@ -53,7 +53,7 @@ export function review(card, { correct, confidence = 'sicher' }, nowMs) {
 }
 
 function nextRetention(current, gapDays) {
-  // Stufenaufstieg nur bei bestätigendem Abstand — Same-Day-Wiederholung zählt nie (gap 0).
+  // A tier only advances on a confirming interval; same-day repetition never counts (gap 0).
   if (gapDays >= 21) return RETENTION.GEFESTIGT;
   if (gapDays >= 7) {
     return (current === RETENTION.BEHALTEN_7D || current === RETENTION.GEFESTIGT)
@@ -67,9 +67,9 @@ function nextRetention(current, gapDays) {
 
 /**
  * Kern-/Aufholwarteschlange (Plan #34):
- * Kern   = heute regulär fällig (due liegt heute oder war gestern fällig — normaler Rhythmus).
- * Aufhol = überfällig ≥2 Tage (Pausen-Rückstand) — wird NICHT komplett auf heute gekippt,
- *          sondern über die kommenden Tage verteilt; nichts verfällt.
+ * Core     = regularly due today (due today or yesterday — the normal rhythm).
+ * Catch-up = overdue by two days or more after a break. It is NOT dumped onto today but
+ *            spread across the coming days; nothing expires.
  */
 export function splitQueues(cards, nowMs) {
   const today = startOfDay(nowMs);
@@ -84,15 +84,15 @@ export function splitQueues(cards, nowMs) {
 }
 
 /**
- * Aufhol-Verteilung (Plan #34): priorisiert nach Überfälligkeit + Kompetenz-Schwäche,
- * gedeckelt pro Tag → Rückgabe: heutige Aufhol-Portion + Restplan.
- * weakScores: Map competency → score (0..1, niedriger = schwächer) — optional.
+ * Catch-up distribution: prioritised by how overdue a card is and by competency weakness,
+ * capped per day. Returns today's portion plus the remaining plan.
+ * weakScores: Map competency → score (0..1, lower means weaker) — optional.
  */
 export function planAufhol(aufholMeta, { perDay = 15, weakScores = new Map() } = {}) {
   const prio = [...aufholMeta].sort((a, b) => {
     const wa = weakScores.get(a.card.competency) ?? .5;
     const wb = weakScores.get(b.card.competency) ?? .5;
-    // überfälliger zuerst; bei Gleichstand schwächere Kompetenz zuerst
+    // more overdue first; on a tie, the weaker competency first
     return (b.overdueDays - a.overdueDays) || (wa - wb);
   });
   const days = [];
@@ -100,7 +100,7 @@ export function planAufhol(aufholMeta, { perDay = 15, weakScores = new Map() } =
   return { today: days[0] ?? [], plan: days };
 }
 
-/** Retention-Checks des Vortags (Session-Ritual #32): gestern gelernte Einheiten heute bestätigen. */
+/** Retention checks from the previous day: confirm today what was learned yesterday. */
 export function dueRetentionChecks(cards, nowMs) {
   const today = startOfDay(nowMs);
   return cards.filter(c =>

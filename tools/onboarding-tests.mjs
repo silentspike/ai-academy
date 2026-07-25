@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// tools/onboarding-tests.mjs — AC2 (Plan §5.3): Personalisierung wird JSON-validiert
-// übernommen; invalide Antworten führen zu Retry mit Korrekturhinweis.
+// tools/onboarding-tests.mjs — personalisation is accepted only after JSON validation;
+// invalid answers trigger a retry carrying a correction hint.
 import { validatePersonalization, personalizeWithRetry } from '../app/onboarding.js';
 
 let pass = 0, fail = 0;
@@ -22,7 +22,7 @@ t('Oberflächen-Grenze: facts-Feld in Einkleidung → abgelehnt (§5.2)',
 t('Oberflächen-Grenze: rubric-Feld → abgelehnt',
   validatePersonalization({ ...VALID, szenario_einkleidungen: [{ scenario_id: 's', org: 'X', rolle: 'Y', rubric_bonus: 2 }] }).ok === false);
 
-// Retry-Mechanik: 1. Antwort invalide → Retry mit Korrekturhinweis → 2. Antwort valide
+// Retry mechanics: first answer invalid → retry with a hint → second answer valid
 let calls = [];
 const flaky = async payload => { calls.push(payload); return calls.length === 1 ? { kaputt: true } : VALID; };
 const r1 = await personalizeWithRetry(flaky, { fachprofil: {}, lernprofil: {} });

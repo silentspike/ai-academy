@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-// tools/check-questions.mjs — Eigenprüfung Durchgang 1 (deterministischer Abgleich, #15b-i):
-// prüft alle zähl-/datumsbaren Angaben in questions-core.json gegen content/fristen.json
-// und die Fundstellen-Formate gegen die Relevanz-Matrix. KEIN Ersatz für Durchgang 2 (Zweitdurchsicht).
+// tools/check-questions.mjs — self-review pass 1 (deterministic comparison):
+// checks every countable and datable statement in questions-core.json against content/fristen.json
+// and citation formats against the relevance matrix. NOT a substitute for pass 2 (re-reading).
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 const ROOT = new URL('..', import.meta.url).pathname;
@@ -11,14 +11,14 @@ const matrix = JSON.parse(readFileSync(join(ROOT, 'content/fristen.json'), 'utf8
 const artikel = JSON.parse(readFileSync(join(ROOT, 'content/facts-db.json'), 'utf8')).relevanz_matrix.artikel;
 const knownRefs = new Set(artikel.map(a => a.ref.toLowerCase().replace('art. ', '').replace('anhang ', 'anh')));
 
-// SOLL-Fristen aus der Gate-0-Matrix (SSOT)
+// Expected dates from the legal baseline matrix (source of truth)
 const FRIST = {};
 for (const g of matrix.geltungsstufen) FRIST[g.id] = g.applies_from;
 const SOLL = {
   'stamm-verbote': '2025-02-02', 'neue-verbote': '2026-12-02', 'allgemein': '2026-08-02',
   'anhang3': '2027-12-02', 'anhang1': '2028-08-02', 'behoerden-alt': '2030-08-02'
 };
-// Abgleich SOLL gegen Matrix selbst (Selbstkonsistenz)
+// Compare the expectations against the matrix itself (self-consistency)
 const mErr = [];
 if (FRIST.g1 !== SOLL['stamm-verbote']) mErr.push('g1 ≠ 2025-02-02');
 if (FRIST.g2 !== SOLL['neue-verbote']) mErr.push('g2 ≠ 2026-12-02');
@@ -26,7 +26,7 @@ if (FRIST.g3 !== SOLL['allgemein']) mErr.push('g3 ≠ 2026-08-02');
 if (FRIST.g4 !== SOLL['anhang3']) mErr.push('g4 ≠ 2027-12-02');
 if (FRIST.g5 !== SOLL['anhang1']) mErr.push('g5 ≠ 2028-08-02');
 
-// Datums-Erwähnungen in Fragetexten: jedes deutsche Datum muss eine bekannte Frist ODER Fall-Datum sein
+// Dates in question texts: every date must be a known deadline OR a case date
 const KNOWN_DATES = new Set([
   '2.2.2025', '02.02.2025', '2. februar 2025', '2.8.2025', '2. august 2025',
   '2.12.2026', '2. dezember 2026', '27.7.2026', '27. juli 2026',
@@ -53,13 +53,13 @@ for (const q of qs) {
   if (q.id === 'p2-q03' && !correctTexts.includes('2. dezember 2026')) findings.push('q03: richtige Option muss 2.12.2026 sein');
   if (q.id === 'p1-q03' && !correctTexts.includes('27. juli 2026')) findings.push('p1-q03: Inkrafttreten muss 27.7.2026 sein');
   if (q.id === 'p3-q06' && !correctTexts.includes('2.12.2027')) findings.push('p3-q06: Anwendungsbeginn 2.12.2027 muss in richtiger Option stehen');
-  // 3. source_refs formal plausibel (beginnen mit Art./Anhang/VO oder Systematik-Marker)
+  // 3. source_refs are formally plausible (article, annex, regulation or structural marker)
   for (const o of (q.options ?? []).concat(q.pairs ?? [])) {
     if (!/^(art\.|anhang|vo |erwg|aeuv|methodik|systematik|quellenhierarchie|k1[0-9]-methodik|zitierpraxis)/i.test(o.source_ref)) findings.push(`source_ref-Format: "${o.source_ref}"`);
     const base = o.source_ref.toLowerCase().match(/^art\. (\d+[a-z]?)/);
     if (base && !knownRefs.has(base[1])) findings.push(`source_ref zeigt auf unbekannten Artikel: ${o.source_ref}`);
   }
-  // 4. mc/case: genau 1 richtig (Redundanz zum Schema-Validator, hier als Prüfprotokoll)
+  // 4. multiple choice and case: exactly one correct option (redundant with the schema validator, kept as a record)
   if ((q.type === 'mc' || q.type === 'case') && (q.options ?? []).filter(o => o.correct).length !== 1)
     findings.push('nicht genau 1 richtige Option');
   if (q.type === 'assign' && (q.pairs ?? []).length < 3) findings.push('assign mit < 3 Paaren');

@@ -3,20 +3,20 @@
 // deterministische SOFORT-Bewertung aller eindeutigen Formate (Agent liefert Tiefe asynchron),
 // Konfidenz-Abfrage, Fangfragen-Kennzeichnung, „Nicht genug Informationen"-Option,
 // eng gefasste Critical-Error-Gates, Closed-Book-Modus.
-// Bewertungslogik ist DOM-frei (Node-testbar); Rendering ist strikt getrennt.
+// The grading logic is DOM-free and testable in Node; rendering is strictly separate.
 
 // ---------- Bewertung (deterministisch, DOM-frei) ----------
 
 /**
  * Frage-Schema (verbindlich, content/SCHEMA.md folgt in Task 8):
  * { id, type:'mc'|'multi'|'case'|'freetext', prompt, scenario?, options?:[{id,text,correct,rationale,source_id}],
- *   insufficient_info?: {option_id, correct:bool},         // #13: „nicht genug Informationen" als reguläre Option
- *   trap?: {is_trap, note},                                // Fangfragen-Kennzeichnung im Feedback
+ *   insufficient_info?: {option_id, correct:bool},         // "insufficient information" as a regular option
+ *   trap?: {is_trap, note},                                // marks a trick question in the feedback
  *   critical_error?: {option_ids:[…], reason, requires_complete_facts:true},  // #16a eng gefasst
  *   competency, level:'A'|'B'|'C', legal_basis, legal_status, status }
  */
 
-/** MC/Case: genau eine Auswahl. multi: Set von Auswahl-IDs. */
+/** Multiple choice and case: exactly one selection. multi: a set of option identifiers. */
 export function grade(question, answer) {
   switch (question.type) {
     case 'mc':
@@ -37,7 +37,7 @@ export function grade(question, answer) {
       if (sel.size === 0) return { verdict: 'invalid', reason: 'keine Auswahl' };
       const hits = [...sel].filter(id => correctSet.has(id)).length;
       const wrongPicks = [...sel].filter(id => !correctSet.has(id)).length;
-      // Teilpunkte: Treffer minus Fehlgriffe, normiert; volle Punkte nur bei exakter Menge
+      // Partial credit: hits minus misses, normalised; full marks only for an exact set
       const score = Math.max(0, (hits - wrongPicks) / correctSet.size);
       const verdict = score === 1 && sel.size === correctSet.size ? 'correct'
         : score > 0 ? 'partial' : 'wrong';
@@ -61,14 +61,14 @@ export function grade(question, answer) {
       });
     }
     case 'freetext':
-      // Freitext KANN nur der Agent bewerten (#21) — deterministisch nur Annahme + Status.
+      // Only the model CAN grade free text; deterministically we record acceptance and status.
       return { verdict: 'pending_agent', score: null, chosen: null, answerText: answer.text ?? '' };
     default:
       return { verdict: 'invalid', reason: `unbekannter Typ ${question.type}` };
   }
 }
 
-/** Critical-Error-Gate (#16a): greift NUR wenn der Fall vollständige Fakten hat. */
+/** Critical-error gate: applies ONLY when the case carries complete facts. */
 function withGates(question, chosenIds, result) {
   const ce = question.critical_error;
   if (ce && ce.requires_complete_facts !== false) {
@@ -78,17 +78,17 @@ function withGates(question, chosenIds, result) {
   return result;
 }
 
-/** Konfidenz-Urteil (Plan §3): 1 Klick, Pflicht bei Checks. */
+/** Confidence rating: one click, mandatory on checks. */
 export const CONFIDENCE = ['sicher', 'unsicher', 'geraten'];
 
-/** Fangfragen-Quote eines Fragensatzes prüfen (#13: 10–15 % Deckel — Test-/CI-Helfer). */
+/** Check the trick-question share of a question set (cap 10-15 %; helper for tests and CI). */
 export function trapQuota(questions) {
   const n = questions.length;
   const traps = questions.filter(q => q.trap?.is_trap).length;
   return { n, traps, quota: n ? traps / n : 0, withinCap: n === 0 || traps / n <= 0.15 };
 }
 
-// ---------- Prüfmodus (Closed Book, #13) ----------
+// ---------- exam mode (closed book) ----------
 
 export const MODES = Object.freeze({ LERNEN: 'lernen', CLOSED_BOOK: 'closed_book', OPEN_BOOK: 'open_book' });
 
@@ -112,8 +112,8 @@ export function applyMode(root, mode) {
 const ICON = { correct: '✓', partial: '≈', wrong: '✕' };
 
 /**
- * Rendert eine Frage in `mount`. opts: {mode, onAnswered(result, confidence)}.
- * Ablauf Checks (Plan §3): Antwort wählen → Konfidenz-Klick → deterministisches Sofort-Feedback.
+ * Renders a question into `mount`. opts: {mode, onAnswered(result, confidence)}.
+ * Flow for checks: pick an answer → click confidence → immediate deterministic feedback.
  */
 export function renderQuestion(mount, question, opts = {}) {
   const doc = mount.ownerDocument;
@@ -148,7 +148,7 @@ export function renderQuestion(mount, question, opts = {}) {
     });
     el.append(ta, note, btn);
   } else if (question.type === 'assign') {
-    // Zuordnungs-UI ohne Drag-Zwang: pro linkem Begriff die rechte Option anklicken (#43-konform).
+    // Assignment UI without forced dragging: click the right-hand option for each left-hand term.
     const pairs = question.pairs ?? [];
     const rights = [...new Set([...pairs.map(p => p.right), ...(question.distractors ?? [])])];
     const ist = {};
@@ -221,8 +221,8 @@ export function renderQuestion(mount, question, opts = {}) {
       if (result.verdict === 'invalid') return;
       lock(list);
       // Feedback-Timing nach Aufgabentyp (§3, v3.2): Fakten-/Zuordnungsfragen sofort;
-      // komplexe Falllösungen (case oder C-Stufe) erst Selbstbegründung + Konfidenz,
-      // DANN Feedback — sonst überschreibt die Lösung die eigene Denkspur.
+      // For complex cases (case type or level C) ask for self-justification and confidence
+      // FIRST, then show feedback — otherwise the solution overwrites the learner's own reasoning.
       const komplex = question.type === 'case' || question.level === 'C';
       const weiter = conf => { paintFeedback(doc, el, question, result); opts.onAnswered?.(result, conf); };
       if (komplex && !opts.noSelfExplain) {
@@ -269,7 +269,7 @@ function showConfidence(doc, el, cb) {
   el.appendChild(bar);
 }
 
-/** Erklärendes Feedback bei richtig UND falsch (Plan §3) + Fangfragen- und Critical-Kennzeichnung. */
+/** Explanatory feedback on correct AND wrong answers, marking trick questions and critical errors. */
 function paintFeedback(doc, el, question, result) {
   // Zuordnungs-Fragen haben keine options — eigenes Feedback (Task-12-E2E-Finding)
   if (question.type === 'assign') {

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// tools/exam-tests.mjs — Unit-Tests Prüfungssystem (app/exam-core.js), DOM-frei.
+// tools/exam-tests.mjs — unit tests for the exam system (app/exam-core.js), DOM-free.
 import {
   buildChapterTest, buildExamA, gradeAnswer, evaluateTest, examGate,
   regimeKey, recordScore, nachschulungPlan, placementBuild, placementRecommend,
@@ -113,7 +113,7 @@ t('Placement: NUR Empfehlungen (challenge_moeglich für starke Phase)', rec.p2?.
 const chall = buildChallengeTest({ id: 'p2-e01', competencies: ['K04'] }, pool, {});
 t('Challenge: 6 Fragen der Einheiten-Kompetenz, 80 %-Hürde', chall.questions.length === 6 && chall.questions.every(q => q.competency === 'K04') && chall.passRequired === 0.8);
 
-// ---- Seed-Stabilität
+// ---- seed stability
 const r1 = hashSeed('x'); const r2 = hashSeed('x');
 t('hashSeed deterministisch', r1() === r2());
 

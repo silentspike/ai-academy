@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// tools/build-icons.mjs — erzeugt das eigene Duotone-Glow-Icon-Set (DESIGN-SYSTEM §6).
-// SSOT ist die ICONS-Definition hier; das Skript erzwingt die Konstruktionsregeln
+// tools/build-icons.mjs — generates the project's duotone glow icon set (see DESIGN-SYSTEM).
+// The ICONS definition here is the source of truth; the script enforces the construction rules
 // (24er-ViewBox, stroke 1.6, round caps, .ico-line/.ico-fill-Klassen, currentColor).
 // Aufruf: node tools/build-icons.mjs  → schreibt assets/icons/*.svg
 
@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 const OUT = join(dirname(fileURLToPath(import.meta.url)), '..', 'assets', 'icons');
 mkdirSync(OUT, { recursive: true });
 
-// Jedes Icon: { line: [SVG-Pfad/Elemente…], fill: [Duotone-Flächen…] } auf 24×24-Grid.
+// Each icon: { line: [SVG paths/elements…], fill: [duotone shapes…] } on a 24×24 grid.
 // p('M…') = path, c(cx,cy,r) = circle, r(x,y,w,h,rx) = rect, l(x1,y1,x2,y2) = line
 const p = d => ({ t: 'path', d });
 const c = (cx, cy, r_) => ({ t: 'circle', cx, cy, r: r_ });
@@ -79,8 +79,8 @@ const ICONS = {
   'fach-heatmap':    { line: [r(3,3,18,18), l(3,9,21,9), l(3,15,21,15), l(9,3,9,21), l(15,3,15,21)], fill: [r(9,3,6,6), r(3,15,6,6), r(15,9,6,6)] },
 };
 
-// Präsentationsattribute statt <style>-Klassen: funktioniert identisch inline,
-// im Sprite (<use>) und in <img> — currentColor wird bei Inline/<use> vom Kontext
+// Presentation attributes instead of <style> classes: identical behaviour inline,
+// in a sprite (<use>) and in <img>. With inline and <use>, currentColor is inherited
 // geerbt (DESIGN-SYSTEM §6: Farbe IMMER vom Kontext).
 function el(e, mode) {
   const a = v => String(Math.round(v * 100) / 100);
@@ -103,7 +103,7 @@ for (const [name, def] of Object.entries(ICONS)) {
   symbols.push(`<symbol id="icon-${name}" viewBox="0 0 24 24">${body}</symbol>`);
   count++;
 }
-// Sprite für Inline-Nutzung: <svg class="ico"><use href="/assets/icons/sprite.svg#icon-…"/></svg>
+// Sprite for inline use: <svg class="ico"><use href="/assets/icons/sprite.svg#icon-…"/></svg>
 writeFileSync(join(OUT, 'sprite.svg'),
   `<svg xmlns="http://www.w3.org/2000/svg" style="display:none">${symbols.join('')}</svg>`);
 console.log(`${count} Icons + sprite.svg geschrieben (Duotone-Glow, 24×24, stroke 1.6, currentColor)`);

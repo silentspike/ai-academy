@@ -1,13 +1,13 @@
-// app/engine-dialog.js — Charakter-Dialoge / Bosskämpfe (Plan §5.2):
-// DETERMINISTISCHE Szenario-Engine: Sachverhalt, Gesprächsphasen, Informationsfreigabe,
-// Fallen und Prüfziele hält die Engine — das LLM formuliert AUSSCHLIESSLICH Persona-Antworten
-// auf Basis der bereits freigegebenen Informationen und darf keine neuen rechtlichen Fakten erzeugen.
-// Engine-Teil ist DOM-frei (Node-testbar); UI-Teil strikt getrennt.
+// app/engine-dialog.js — character dialogues, the expert conversations:
+// A DETERMINISTIC scenario engine holds the facts, the conversation phases, the release
+// of information, the traps and the assessment goals. The model formulates ONLY the
+// persona's replies from already released information and may not invent legal facts.
+// The engine part is DOM-free and testable in Node; the UI part is strictly separate.
 
 // ---------- Szenario-Engine (DOM-frei) ----------
 
 /**
- * Szenario-Schema (content/scenarios.json, Schicht 1+2 aus §5.2):
+ * Scenario schema (content/scenarios.json, layers 1 and 2):
  * { id, title, persona:{archetype, name, role, avatar, expressions:{neutral,skeptisch,zufrieden,nachbohrend}},
  *   facts:[{id, text, released_at_phase}],          // Sachverhalt — Freigabe pro Phase
  *   phases:[{id, goal, opening_hint, traps:[{id,text,expected_competency}]}],
@@ -27,7 +27,7 @@ export function createScenarioRun(scenario, nowMs) {
   };
 }
 
-/** Zug des Lernenden verbuchen; Engine prüft Ziel-Treffer deterministisch über goal_matchers. */
+/** Record the learner's move; the engine checks goal hits deterministically via goal_matchers. */
 export function recordUserTurn(scenario, run, text, nowMs) {
   run.transcript.push({ who: 'user', text, ts: nowMs, phase: run.phase_index });
   for (const g of scenario.goals) {
@@ -35,7 +35,7 @@ export function recordUserTurn(scenario, run, text, nowMs) {
     const rx = g.matcher ? new RegExp(g.matcher, 'i') : null;
     if (rx && rx.test(text)) run.goals_hit.push(g.id);
   }
-  // Critical-Fallen (#16a im Gespräch): Zusage-Muster lösen die Falle deterministisch aus
+  // Critical traps: patterns of agreement spring the trap deterministically
   for (const ce of scenario.critical_errors ?? []) {
     if (run.criticals_hit.includes(ce.id) || !ce.matcher) continue;
     const rx = new RegExp(ce.matcher, 'i');
@@ -44,7 +44,7 @@ export function recordUserTurn(scenario, run, text, nowMs) {
   return run;
 }
 
-/** Phase weiterschalten → gibt die Fakten der neuen Phase frei. */
+/** Advance the phase, which releases the facts belonging to it. */
 export function advancePhase(scenario, run) {
   if (run.phase_index >= scenario.phases.length - 1) { run.finished = true; return run; }
   run.phase_index++;
@@ -57,11 +57,11 @@ export function advancePhase(scenario, run) {
 }
 
 /**
- * DER Sicherheitskern (AC3): Persona-Prompt enthält NUR
+ * THE safety core: the persona prompt contains ONLY
  * - Persona-Beschreibung + Tonvorgabe
- * - die BEREITS FREIGEGEBENEN Fakten (released_fact_ids)
- * - das Transcript
- * Nicht freigegebene Fakten, Prüfziele, Fallen-Auflösungen und Rubriken sind NICHT enthalten.
+ * - the facts ALREADY RELEASED (released_fact_ids)
+ * - the transcript
+ * Unreleased facts, assessment goals, trap resolutions and rubrics are NOT included.
  * Harte Anweisung: keine neuen rechtlichen Fakten erfinden.
  */
 export function buildPersonaPrompt(scenario, run) {
@@ -97,7 +97,7 @@ export function buildAssessmentPayload(scenario, run) {
 
 // ---------- Dialog-UI (Browser) ----------
 
-/** Ausdruckswechsel je Gesprächsverlauf (§6.3 Bildwelt): Engine liefert den Schlüssel. */
+/** Expression changes along the conversation; the engine supplies the key. */
 export function expressionFor(scenario, run, lastPersonaMood) {
   if (lastPersonaMood && scenario.persona.expressions[lastPersonaMood]) return lastPersonaMood;
   return run.goals_hit.length > scenario.goals.length / 2 ? 'zufrieden' : 'neutral';
@@ -137,7 +137,7 @@ export function renderDialog(mount, scenario, run, opts = {}) {
   }
   wrap.appendChild(feed);
 
-  // Züge: klickbare Vorschläge + Freitext (#45b)
+  // Moves: clickable suggestions plus free text
   const moves = doc.createElement('div');
   moves.className = 'dlg-moves';
   for (const m of (opts.suggestedMoves ?? [])) {
@@ -160,7 +160,7 @@ export function renderDialog(mount, scenario, run, opts = {}) {
   return wrap;
 }
 
-/** Bewertungs-Card nach Gesprächsende (#45b). */
+/** Assessment card shown once the conversation ends. */
 export function renderAssessmentCard(mount, assessment) {
   const doc = mount.ownerDocument;
   const card = doc.createElement('div');

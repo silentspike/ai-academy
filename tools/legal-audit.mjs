@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // tools/legal-audit.mjs — Quellenregister-Abfragen (Plan #9e):
 //   node tools/legal-audit.mjs                → alle Objekte je Rechtsquelle/Status
-//   node tools/legal-audit.mjs "Art. 5"       → welche Objekte hängen an Art. 5?
+//   node tools/legal-audit.mjs "Art. 5"       → which objects hang off Article 5?
 //   node tools/legal-audit.mjs --status at-vollzug-offen
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
@@ -12,7 +12,7 @@ const arg = process.argv[2];
 const statusFilter = arg === '--status' ? process.argv[3] : null;
 const refFilter = arg && arg !== '--status' ? arg : null;
 
-// Alle Content-Objekte mit legal_basis einsammeln (Datei, Typ, id, claims)
+// Collect every content object carrying legal_basis (file, type, id, claims)
 const objects = [];
 function collect(file, type, list) {
   for (const o of list ?? []) {
@@ -28,7 +28,7 @@ collect('scenarios.json', 'szenario', J('scenarios.json')?.scenarios);
 for (const uf of (existsSync(C('units')) ? readdirSync(C('units')) : []).filter(x => x.endsWith('.json'))) {
   const u = JSON.parse(readFileSync(join(C('units'), uf), 'utf8'));
   collect(`units/${uf}`, 'einheit', [u]);
-  // eingebettete Checks zählen als eigene Objekte (erben Unit-Claims, haben aber eigene source_refs)
+  // embedded checks count as objects of their own: they inherit unit claims but carry their own source_refs
   for (const b of u.blocks ?? []) if (b.type === 'check' && b.question) {
     objects.push({ file: `units/${uf}`, type: 'check', id: b.question.id, status: u.legal_status,
       claims: (b.question.options ?? []).map(o => ({ ref: o.source_ref, instrument: 'via option' })) });
@@ -40,7 +40,7 @@ const norm = s => String(s ?? '').toLowerCase().replace(/\s+/g, ' ');
 const matches = (claimRef, query) => {
   const c = norm(claimRef), q = norm(query);
   if (c === q) return true;
-  // Präfix mit Wortgrenze: "art. 5" matcht "art. 5 abs. 1", NICHT "art. 50"
+  // Prefix with a word boundary: "art. 5" matches "art. 5 abs. 1", NOT "art. 50"
   return c.startsWith(q) && !/[0-9a-z]/.test(c.charAt(q.length));
 };
 

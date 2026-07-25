@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // tools/approve-questions.mjs — setzt source_linked → approved_summative NUR wenn
-// Durchgang 1 (check-questions) grün ist. Aufruf: node tools/approve-questions.mjs <protokoll-anker>
+// pass 1 (check-questions) is green. Usage: node tools/approve-questions.mjs <protocol-anchor>
 import { execSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';

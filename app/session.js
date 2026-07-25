@@ -1,5 +1,5 @@
-// app/session.js — Session-Ritual (Plan #32) + Intensiv-Blöcke (#33) + Rotations-Banner (§3).
-// Zustandsmaschine DOM-frei; die App rendert die Schritte.
+// app/session.js — the session ritual, intensive blocks and the rotation banner.
+// The state machine is DOM-free; the application renders the steps.
 
 import { splitQueues, planAufhol, dueRetentionChecks } from './engine-leitner.js';
 
@@ -25,7 +25,7 @@ export function createSession(state, nowMs, { weakScores } = {}) {
   };
 }
 
-/** Pflicht-Review VOR neuem Stoff — Einheiten sind gesperrt bis Review erledigt (§3 „erzwungen"). */
+/** Mandatory review BEFORE new material — units stay locked until the review is done. */
 export function canStartUnit(session) { return session.review.done; }
 
 export function completeStep(session, step) {
@@ -58,7 +58,7 @@ export function marathonWarning(session, nowMs, { hours = 4 } = {}) {
     : { warn: false };
 }
 
-/** Rotations-Banner (§3): nach 2–3 gleichartigen Aktivitäten freiwilligen Wechsel vorschlagen — nie Zwang. */
+/** Rotation banner: after two or three similar activities, suggest a change — never force it. */
 export function rotationHint(session, kind, nowMs) {
   session.activityLog.push({ ts: nowMs, kind });
   const last = session.activityLog.slice(-3);
@@ -68,7 +68,7 @@ export function rotationHint(session, kind, nowMs) {
   return { hint: false };
 }
 
-/** Abschluss-Karte (#32): Bilanz + Morgen-Vorschau. driftResult von pacing.driftCheck. */
+/** Closing card: summary plus a preview of tomorrow. driftResult comes from pacing.driftCheck. */
 export function wrapupCard(session, state, driftResult, nowMs) {
   return {
     bilanz: {
