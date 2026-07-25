@@ -15,6 +15,12 @@ const st = { examAttempts: [{ passed: true }], cards: [] };
 for (let i = 0; i < 30; i++) st.cards.push({ ...newCard('k' + i, {}, NOW - 40 * DAY_MS), due: NOW - (i % 3) * DAY_MS, last_reviewed: NOW - (30 - i) * DAY_MS });
 const plan = maintenancePlan(st, scenarios, NOW);
 t('aktiv nach bestandenem Examen', plan.active === true);
+// maintenanceActive ist die exportierte Einzelprüfung hinter plan.active —
+// sie war importiert, aber nie geprüft (CodeQL: unused import).
+t('maintenanceActive: false ohne Antritte', maintenanceActive({ examAttempts: [] }) === false);
+t('maintenanceActive: false bei nicht bestandenem Antritt', maintenanceActive({ examAttempts: [{ passed: false }] }) === false);
+t('maintenanceActive: true nach bestandenem Antritt', maintenanceActive(st) === true);
+t('maintenanceActive: stimmt mit plan.active überein', maintenanceActive(st) === plan.active);
 t('Tagesdosis 5-10 Karten', plan.cards.length >= 5 && plan.cards.length <= 10);
 t('Wochen-Szenario initial fällig', plan.szenarioDue === true && typeof plan.szenarioId === 'string');
 markScenarioDone(st, NOW);

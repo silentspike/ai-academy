@@ -17,6 +17,10 @@ let pass = 0, fail = 0;
 const t = (name, cond) => { cond ? pass++ : (fail++, console.error(`  ✗ ${name}`)); };
 
 // ---- Kapiteltest-Bau
+// Die Bestehensgrenze ist eine begründete Festlegung (docs/CUT-SCORE-BLUEPRINT.md)
+// und war bislang nirgends im Test verankert — sie konnte unbemerkt driften.
+t('Bestehensgrenze liegt bei 80 %', PASS_SCORE === 0.8);
+
 const ct = buildChapterTest('p2', pool, { salt: 'test1' });
 t('Kapiteltest: Teil 1 hat 8 Fragen', ct.part1.length === 8);
 t('Kapiteltest: Teil 2 hat 2 Fragen', ct.part2.length === 2);

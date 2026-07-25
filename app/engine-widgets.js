@@ -253,7 +253,6 @@ export function renderRoleSwitch(mount, steps, opts = {}) {
  * data: { erwaegungsgruende: [{nr, thema, competency, kernaussage, einsatz, zitat}] }
  */
 export function renderErwgExplorer(mount, data, opts = {}) {
-  const doc = mount.ownerDocument;
   const list = data.erwaegungsgruende ?? [];
   const themen = [...new Set(list.map(e => e.thema))];
   mount.innerHTML = `<div class="erwg-x">

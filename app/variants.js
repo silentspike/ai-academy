@@ -10,7 +10,6 @@ function h32(str) {
   for (let i = 0; i < str.length; i++) { x ^= str.charCodeAt(i); x = Math.imul(x, 16777619); }
   return x >>> 0;
 }
-function pick(arr, seed, salt) { return arr[h32(seed + ':' + salt) % arr.length]; }
 function shuffle(arr, seed) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
