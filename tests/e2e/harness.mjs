@@ -76,7 +76,7 @@ export const FIXTURES = {
     placement: { done: true, at: JETZT - 7 * 86400_000 },
     xp: 640, level: 2,
     units_done: ['p1-e01-ki-system-rollen', 'p1-e02-digital-omnibus', 'p2-e01-rote-linien', 'p2-e02-zeitschichten'],
-    chapterTests: { p1: { passed: true, at: JETZT - 5 * 86400_000, score: 0.86 },
+    chapterTests: { p1: { passed: true, at: JETZT - 5 * 86400_000, pct: 0.86 },
                     p2: { passed: true, at: JETZT - 2 * 86400_000, score: 0.9 } },
     events: [], cards: [], dayStats: {},
   }),
@@ -93,7 +93,7 @@ export const FIXTURES = {
     };
     // All nine chapter tests passed, comfortably in the past so retention holds.
     for (let i = 1; i <= 9; i++) {
-      st.chapterTests['p' + i] = { passed: true, at: JETZT - (30 - i) * 86400_000, score: 0.85 };
+      st.chapterTests['p' + i] = { passed: true, at: JETZT - (30 - i) * 86400_000, pct: 0.85 };
     }
     // Cards confirmed at the seven-day tier, which the exam gate requires.
     for (let i = 0; i < 24; i++) {
