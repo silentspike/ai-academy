@@ -150,12 +150,22 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Run shard
         run: npx playwright test --project=chromium --shard=${{ matrix.shard }}/4
+      - name: Move the click coverage where the uploader can see it
+        # The recording directory starts with a dot, and the artifact globber
+        # skips hidden paths — the upload found nothing and reported it only as a
+        # warning, so the evaluation later claimed no coverage had been recorded.
+        if: always()
+        run: |
+          mkdir -p coverage-out
+          cp .tmp-coverage/*.json coverage-out/ 2>/dev/null || true
+          ls -la coverage-out/
       - name: Keep the click coverage of this shard
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: coverage-chromium-${{ matrix.shard }}
-          path: .tmp-coverage/
+          path: coverage-out/
+          if-no-files-found: error
           retention-days: 3
       - name: Keep the report on failure
         if: failure()
@@ -182,6 +192,9 @@ jobs:
       - run: npm ci
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
+      - name: Install ImageMagick
+        # Not preinstalled on ubuntu-latest — the sheets are assembled with it.
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq imagemagick
       - name: Capture the views
         run: npx playwright test --project=visual
       - name: Build the sheets
