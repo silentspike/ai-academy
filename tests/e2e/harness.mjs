@@ -187,11 +187,18 @@ export const test = base.extend({
       const daten = typeof name === 'string' ? FIXTURES[name]() : name;
 
       if (echterStore) {
-        // Bridge-backed spec: go through the application, which is the point there.
-        await page.evaluate(async (d) => {
-          const { StorageAdapter } = await import('./app/storage-adapter.js');
-          await StorageAdapter.bridgeStore({}).set('state', d);
-        }, daten);
+        // Write while no application is running. Writing through the live page
+        // loses the same race as below: the page persists its own state right
+        // after and overwrites the fixture (measured: 1234 came back as 738).
+        const token = await page.evaluate(() => window.BRIDGE_TOKEN || '');
+        const basis = new URL(page.url()).origin;
+        await page.goto('about:blank');
+        const antwort = await page.request.put(`${basis}/api/progress`, {
+          headers: { 'Content-Type': 'application/json', 'X-Bridge-Token': token },
+          data: { state: daten },
+        });
+        if (!antwort.ok()) throw new Error(`fixture write failed: HTTP ${antwort.status()}`);
+        await page.goto('/', { waitUntil: 'load' });
       } else {
         // Set the precondition directly. Writing it through the running page
         // loses a race: the page persists its own (empty) state right after and
@@ -228,14 +235,25 @@ export async function warteAufAnsicht(page, timeout = 20_000) {
  * closed the way a user closes them — by clicking their button.
  */
 export async function schliesseOverlays(page) {
-  for (const sel of ['.hero-overlay button', '.ai-notice-overlay button', '.intro-skip',
-                     '.stage-ceremony button']) {
-    const el = page.locator(sel).first();
-    if (await el.count() && await el.isVisible().catch(() => false)) {
-      await el.click().catch(() => {});
+  const SELEKTOREN = ['.hero-overlay button', '.ai-notice-overlay button', '.intro-skip',
+                      '.stage-ceremony button'];
+  // Several rounds on purpose: the overlays appear one after another and some
+  // only after the state has loaded. A single pass left the hero standing, and
+  // the reachability probe then reported the page behind it as blocked — which
+  // it genuinely was, just not for the reason under test.
+  for (let runde = 0; runde < 4; runde++) {
+    let geklickt = false;
+    for (const sel of SELEKTOREN) {
+      const el = page.locator(sel).first();
+      if (await el.count() && await el.isVisible().catch(() => false)) {
+        await el.click().catch(() => {});
+        geklickt = true;
+      }
     }
+    await page.waitForTimeout(150);
+    const offen = await page.locator('.hero-overlay, .ai-notice-overlay, .stage-ceremony').count();
+    if (!offen && !geklickt) break;
   }
-  await page.waitForTimeout(120);
 }
 
 /**

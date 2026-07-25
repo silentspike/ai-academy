@@ -301,7 +301,11 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 .unit-erwg{border-left:3px solid rgba(182,165,255,.5)}
 
 /* ---- Erstkontakt-Hero + Badge-Galerie (§6.3, #28) ---- */
-.hero-overlay{position:fixed;inset:0;background:radial-gradient(80% 60% at 50% 40%,rgba(52,211,153,.10),rgba(4,6,12,.96));display:grid;place-items:center;z-index:1000}
+/* The stage has to darken the page underneath it. The gradient alone left the
+   centre — exactly where the text sits — at 10 % opacity, so the page behind
+   showed through and both layers of text ran into each other. Opaque base
+   colour first, the emerald glow on top of it. */
+.hero-overlay{position:fixed;inset:0;background-color:rgba(4,6,12,.96);background-image:radial-gradient(80% 60% at 50% 40%,rgba(52,211,153,.14),transparent 72%);display:grid;place-items:center;z-index:1000}
 .hero-card{max-width:520px;text-align:center;padding:28px}
 .hero-card img{max-width:260px;border-radius:14px;margin-bottom:18px}
 .hero-card h1{font-family:'Space Grotesk',system-ui;font-size:2.1rem;margin:0 0 10px}
