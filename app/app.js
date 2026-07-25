@@ -3,7 +3,7 @@
 // the status bar (points, level, weekly goal, target date, legal baseline) and the phase tree.
 
 import { StorageAdapter } from './storage-adapter.js';
-import { loadGlossary, decorate, attachTooltip } from './glossary.js';
+import { loadGlossary, decorate, beobachte, attachTooltip } from './glossary.js';
 
 export const LEGAL_STATE = 'Rechtsstand 27.7.2026';
 
@@ -92,16 +92,23 @@ export async function startApp({ mountId = 'view' } = {}) {
   const render = () => {
     const [path, ...args] = (location.hash.replace(/^#\/?/, '') || 'dashboard').split('/');
     const view = document.getElementById(mountId);
-    const fn = routes.get(path) ?? routes.get('dashboard');
+    // Explicit check: the route comes from the address bar, and the value out of
+    // the map is called straight away. The map only ever holds what we register,
+    // but relying on that is exactly the assumption an analyser cannot verify —
+    // and neither can a reader.
+    const kandidat = routes.get(path) ?? routes.get('dashboard');
+    const fn = typeof kandidat === 'function' ? kandidat : null;
     view.classList.remove('dash-grid');      // Routen setzen ihr Layout selbst
     view.innerHTML = '';
     view.classList.remove('reveal');
     void view.offsetWidth;                 // Reveal-Animation neu triggern
     view.classList.add('reveal');
     fn?.(view, ctx, args);
-    decorate(view);
+    decorate(view);       // synchronous routes are marked up immediately …
     markActiveNav(path);
   };
+  // … everything a route adds later is picked up by the observer.
+  beobachte(document.getElementById(mountId));
   window.addEventListener('hashchange', render);
   render();
   paintTopbar(state);
@@ -109,13 +116,41 @@ export async function startApp({ mountId = 'view' } = {}) {
   return ctx;
 }
 
-async function loadState(storage) {
-  const s = await storage.get('state');
-  return s ?? {
+/** Every field the application relies on, with a safe starting value. */
+function leererZustand() {
+  return {
     xp: 0, level: 1, week: { goalDays: 5, doneDays: [] },
     milestones: [], cards: [], events: [], phase_progress: {},
-    created: Date.now()
+    units_done: [], chapterTests: {}, examAttempts: [], dayStats: {}, notes: {},
+    created: Date.now(),
   };
+}
+
+/**
+ * Loads the learning state and fills in whatever is missing.
+ *
+ * Defaults used to apply only when no state existed at all. Any incomplete state
+ * — an import from an older version, a partially written record — then reached
+ * the views with fields missing, and the first access to one of them took the
+ * whole route down with it. A learning tool must not lose a day's work to a
+ * missing key.
+ */
+async function loadState(storage) {
+  const gespeichert = await storage.get('state');
+  const basis = leererZustand();
+  if (!gespeichert || typeof gespeichert !== 'object') return basis;
+
+  const s = { ...basis, ...gespeichert };
+  // The weekly goal is a nested object; a shallow merge would keep an incomplete one.
+  s.week = { ...basis.week, ...(gespeichert.week ?? {}) };
+  if (!Array.isArray(s.week.doneDays)) s.week.doneDays = [];
+  for (const feld of ['milestones', 'cards', 'events', 'units_done', 'examAttempts']) {
+    if (!Array.isArray(s[feld])) s[feld] = [];
+  }
+  for (const feld of ['phase_progress', 'chapterTests', 'dayStats', 'notes']) {
+    if (!s[feld] || typeof s[feld] !== 'object') s[feld] = {};
+  }
+  return s;
 }
 
 /**
@@ -271,11 +306,21 @@ route('dashboard', async (view, ctx) => {
   // Profile overrides: the profile shifts relevance tiers, which steer prioritisation
   // and emphasis in the article map.
   const overrides = new Map((ctx.profile?.personalisierung?.relevanz_overrides ?? []).map(o => [o.ref, o.stufe]));
+  // Article → unit, from the unit index. Without this the tiles carried a pointer
+  // cursor and a click handler that could never fire: the handler tests unit_id,
+  // and nothing ever set it.
+  const unitIdx = await fetch('content/units/index.json').then(r => r.ok ? r.json() : null).catch(() => null);
+  const artikelZuEinheit = new Map();
+  for (const u of unitIdx?.units ?? []) {
+    for (const ref of u.legal_refs ?? []) if (!artikelZuEinheit.has(ref)) artikelZuEinheit.set(ref, u.id);
+  }
+
   const articles = factsDb.relevanz_matrix.artikel.map(a => {
     const ks = [...new Set((a.kategorien ?? []).flatMap(k => KAT2K[k] ?? []))];
     const scores = ks.map(k => agg.get(k)?.score).filter(v => v != null);
     const stufe = overrides.get(a.ref) ?? a.relevanz?.betreiber_behoerde ?? 'kompakt';
     return { id: a.ref, label: a.ref, relevanz: stufe, overridden: overrides.has(a.ref),
+      unit_id: artikelZuEinheit.get(a.ref) ?? null,
       score: scores.length ? scores.reduce((x, y) => x + y, 0) / scores.length : null };
   });
   const kernN = articles.filter(a => a.relevanz === 'kern').length;
@@ -298,6 +343,7 @@ route('dashboard', async (view, ctx) => {
   view.innerHTML = `
     <div class="card"><div class="chead"><span class="t"><h3>Artikel-Landkarte</h3><span class="sub">Gesamter AI Act · ${kernN} Kern-Artikel für dein Profil${overrides.size ? ` (${overrides.size} profil-angepasst)` : ''}</span></span></div>
       <div class="hm-wrap" id="d-hm"></div>
+      <div class="dim" id="d-hm-hinweis">Kachel anklicken: führt zur Einheit, die den Artikel behandelt.</div>
       <div class="legend"><span><i style="background:#65d8b2"></i>Sehr sicher</span><span><i style="background:#9dcc9b"></i>Sicher</span><span><i style="background:#e1ad58"></i>Unsicher</span><span><i style="background:#d97568"></i>Kritisch</span><span><i style="background:#414956"></i>Ungelernt</span></div></div>
     <div class="card"><div class="chead"><span class="t"><h3>Kompetenzen</h3><span class="sub">Dein Kompetenzprofil</span></span></div>
       <div class="radar-wrap" id="d-radar"></div></div>
@@ -312,7 +358,16 @@ route('dashboard', async (view, ctx) => {
         <div><div class="chead" style="margin-bottom:4px"><span class="t"><h3>Examen</h3></span></div><div id="d-exam"></div></div>
       </div></div>
     </div>`;
-  renderHeatmap(view.querySelector('#d-hm'), articles, { onSelect: a => a.unit_id && navigate(`#/einheit/${a.unit_id}`) });
+  renderHeatmap(view.querySelector('#d-hm'), articles, {
+    onSelect: a => {
+      if (a.unit_id) return navigate(`#/einheit/${a.unit_id}`);
+      // Not every article has its own unit — say so instead of doing nothing.
+      // A tile that looks operable and stays silent is the worse outcome.
+      const hinweis = view.querySelector('#d-hm-hinweis');
+      if (hinweis) hinweis.textContent =
+        `${a.label}: keine eigene Einheit — im Überblick „Randwissen" behandelt (${a.relevanz}).`;
+    },
+  });
   renderRadar(view.querySelector('#d-radar'), axes);
   renderCurve(view.querySelector('#d-curve'), curve.ist, curve.soll);
   // Points per calendar week from dayStats (real data)
@@ -538,7 +593,16 @@ route('boss', async (view, ctx, [scenarioId]) => {
         run.transcript.push({ who: 'persona', text: resp.say ?? resp.reply ?? resp.text ?? '(keine Antwort)', ts: Date.now(), phase: run.phase_index });
         paint({ mood: resp.pressure_point ? 'nachbohrend' : 'neutral' });
       } catch (e) {
-        run.transcript.push({ who: 'persona', text: `[Bridge nicht erreichbar: ${e.message}]`, ts: Date.now(), phase: run.phase_index });
+        // Naming the cause correctly matters: the product has no support desk,
+        // so the message is what the user (or their agent) works from. Claiming
+        // the bridge is unreachable when it answered sends them hunting in the
+        // wrong place — the model's answer was the problem.
+        const hinweis = /HTTP 50[23]/.test(String(e.message))
+          ? 'Das Modell hat keine verwertbare Antwort geliefert'
+          : /HTTP 503/.test(String(e.message))
+            ? 'Kein Modell verbunden'
+            : 'Bridge nicht erreichbar';
+        run.transcript.push({ who: 'persona', text: `[${hinweis}: ${e.message}]`, ts: Date.now(), phase: run.phase_index });
         paint();
       }
       ctx.saveState();

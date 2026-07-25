@@ -15,6 +15,20 @@ const Q_STATUS = ['agent_generated', 'source_linked', 'reviewed', 'approved_summ
 const COMPETENCIES = new Set(
   JSON.parse(readFileSync(C('competencies.json'), 'utf8')).kompetenzen.map(k => k.id));
 
+/** Every content file as raw text — for checks on embedded markup. */
+function alleRohtexte() {
+  const out = [];
+  const walk = dir => {
+    for (const e of readdirSync(dir, { withFileTypes: true })) {
+      const p = join(dir, e.name);
+      if (e.isDirectory()) walk(p);
+      else if (e.name.endsWith('.json')) out.push([p.slice(ROOT.length), readFileSync(p, 'utf8')]);
+    }
+  };
+  walk(join(ROOT, 'content'));
+  return out;
+}
+
 function checkCommon(f, o, { needLevel = true } = {}) {
   if (!o.id) err(f, `Objekt ohne id: ${JSON.stringify(o).slice(0, 60)}`);
   if (!Array.isArray(o.legal_basis) || o.legal_basis.length === 0)
@@ -127,7 +141,62 @@ if (fd) {
 
 // ---------- glossary / flashcards / scenarios / archetypes / blueprints / goldset ----------
 const gl = load('glossary.json');
-if (gl) { for (const g of gl) { if (!g.term || !g.simple) err('glossary', `Eintrag unvollständig: ${g.term}`); } counts.glossary = gl.length; }
+if (gl) {
+  for (const g of gl) { if (!g.term || !g.simple) err('glossary', `Eintrag unvollständig: ${g.term}`); }
+  counts.glossary = gl.length;
+
+  // Hand-written <span class="gloss"> markup in unit content only works if the
+  // word actually exists in the glossary — otherwise the tooltip stays empty and
+  // the underline promises an explanation that never comes.
+  const bekannt = new Set();
+  for (const g of gl) {
+    bekannt.add(String(g.term).toLowerCase());
+    for (const a of g.aliases ?? []) bekannt.add(String(a).toLowerCase());
+  }
+  let geprueft = 0;
+  for (const [datei, roh] of alleRohtexte()) {
+    // Raw JSON keeps the quotes escaped: <span class=\"gloss\">…
+    for (const m of roh.matchAll(/<span class=\\?"gloss\\?"[^>]*>(.*?)<\\?\/span>/g)) {
+      geprueft++;
+      const wort = m[1].trim().toLowerCase();
+      if (!bekannt.has(wort)) err('glossary', `${datei}: markierter Begriff "${m[1].trim()}" steht nicht im Glossar`);
+    }
+  }
+  counts.gloss_markup = geprueft;
+}
+// Annex III master data and the drag-and-drop tasks: both feed widgets that were
+// dead until now, so they get the same scrutiny as the rest of the content.
+const ax = load('anhang3.json');
+if (ax) {
+  const nummern = (ax.areas ?? []).map(a => a.nr);
+  if (nummern.length !== 8) err('anhang3', `Anhang III hat 8 Bereiche, gefunden: ${nummern.length}`);
+  for (let n = 1; n <= 8; n++) if (!nummern.includes(n)) err('anhang3', `Bereich Nr. ${n} fehlt`);
+  for (const a of ax.areas ?? []) {
+    if (!a.title || !a.simple) err('anhang3', `Nr. ${a.nr}: Titel oder Erklärung fehlt`);
+    if (!/Anhang III Nr\.? ?\d/.test(a.legal_basis ?? '')) err('anhang3', `Nr. ${a.nr}: legal_basis ohne Fundstelle`);
+  }
+  counts.anhang3 = nummern.length;
+}
+
+const dnd = load('dnd-tasks.json');
+if (dnd) {
+  for (const t of dnd.tasks ?? []) {
+    checkCommon('dnd-tasks', t, { needLevel: true });
+    const zonen = new Set((t.zones ?? []).map(z => z.id));
+    if (zonen.size < 2) err('dnd-tasks', `${t.id}: weniger als zwei Zonen`);
+    if ((t.items ?? []).length < 4) err('dnd-tasks', `${t.id}: zu wenige Elemente für eine Zuordnung`);
+    for (const it of t.items ?? []) {
+      if (!zonen.has(it.zone)) err('dnd-tasks', `${t.id}/${it.id}: Zielzone „${it.zone}" gibt es nicht`);
+      // Without a reason the exercise only says "wrong" — that teaches nothing.
+      if (!it.why) err('dnd-tasks', `${t.id}/${it.id}: keine Begründung hinterlegt`);
+    }
+    // Every zone must be used, otherwise it is a decoy that cannot be judged.
+    const belegt = new Set((t.items ?? []).map(i => i.zone));
+    for (const z of zonen) if (!belegt.has(z)) err('dnd-tasks', `${t.id}: Zone „${z}" hat kein Element`);
+  }
+  counts.dnd_tasks = (dnd.tasks ?? []).length;
+}
+
 const fc = load('flashcards.json');
 if (fc) { for (const c of fc.cards ?? []) checkCommon('flashcards', c); counts.flashcards = (fc.cards ?? []).length; }
 const sc = load('scenarios.json');
