@@ -1,0 +1,3 @@
+{"ts":"2026-07-25T15:03:09.354Z","kind":"llm-call","cli":"claude","isolate":false,"sessionName":"coach","cwd":"/work/ai-academy/.tmp-probe-store/llm-sessions/coach","settingSources":"NONE"}
+{"ts":"2026-07-25T15:03:29.296Z","kind":"llm-call","cli":"claude","isolate":false,"sessionName":"boss-s1","cwd":"/work/ai-academy/.tmp-probe-store/llm-sessions/boss-s1","settingSources":"NONE"}
+{"ts":"2026-07-25T15:03:29.398Z","kind":"error","code":"ERR","msg":"LLM-Antwort ist kein Text"}

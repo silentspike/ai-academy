@@ -238,6 +238,25 @@ export async function schliesseOverlays(page) {
   await page.waitForTimeout(120);
 }
 
+/**
+ * Waits until something in the view can be operated again.
+ *
+ * After an answer the engine shows its explanation for a moment before moving
+ * on. A fixed short pause reads that gap as "nothing left to do" and reports a
+ * working drill as stuck — which is exactly what happened while writing this.
+ */
+export async function warteAufKlickbares(page, timeout = 6000) {
+  try {
+    await page.waitForFunction(() => {
+      const v = document.getElementById('view');
+      if (!v) return false;
+      return [...v.querySelectorAll('button, a[href], input, select')]
+        .some(n => !n.disabled && n.offsetParent !== null);
+    }, { timeout });
+    return true;
+  } catch { return false; }
+}
+
 /** Content-driven: specs iterate over the real inventory rather than a hard-coded list. */
 export function einheiten() {
   return JSON.parse(readFileSync(join(ROOT, 'content/units/index.json'), 'utf8')).units ?? [];

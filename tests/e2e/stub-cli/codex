@@ -1,0 +1,6 @@
+#!/usr/bin/env node
+// Entry point named like the real CLI so the bridge finds it on the PATH.
+// The name decides the output format: claude wraps its answer in a JSON
+// envelope, codex writes the payload straight out.
+process.env.E2E_STUB_NAME = 'codex';
+await import(new URL('stub.mjs', import.meta.url).href);

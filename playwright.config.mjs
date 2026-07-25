@@ -35,13 +35,22 @@ export default defineConfig({
   },
 
   // The bridge serves the application; Playwright starts and stops it.
+  // The bridge runs with the substitute CLI on its PATH — not with --no-llm.
+  // Without a CLI the product locks every exam, every chapter test and every boss
+  // fight ("Gesperrt: kein LLM verbunden"), so those paths would never be tested.
+  // The substitute is a versioned file rather than something generated at start-up,
+  // so it cannot lose a race with the web server and can be read in review.
   webServer: {
-    command: `node bridge/bridge.mjs --no-llm --port ${PORT} --store .tmp-e2e-store`,
+    command: `node bridge/bridge.mjs --port ${PORT} --store .tmp-e2e-store`,
     url: `http://127.0.0.1:${PORT}/api/health`,
     reuseExistingServer: !process.env.CI,
     timeout: 30_000,
     stdout: 'ignore',
     stderr: 'pipe',
+    env: {
+      ...process.env,
+      PATH: `${new URL('tests/e2e/stub-cli/', import.meta.url).pathname}:${process.env.PATH}`,
+    },
   },
 
   use: {
