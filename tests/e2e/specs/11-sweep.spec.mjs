@@ -67,6 +67,11 @@ test.describe('sweep', () => {
           await page.keyboard.press('Escape').catch(() => {});
           await page.mouse.move(4, 4);
           await page.waitForTimeout(60);
+          // And once more for the overlays: on a slower machine the AI notice
+          // appears after the check in oeffne() has already run, and the next
+          // control is then genuinely covered — by a modal that should have been
+          // dismissed, not by a layout defect.
+          await schliesseOverlays(page);
           await klicke(page, page.locator(INTERAKTIV).nth(kandidat.index), route);
         } catch (e) {
           probleme.push(`${kandidat.id} — ${e.message.replace(/^Element is not clickable: /, '')}`);

@@ -276,9 +276,16 @@ export async function warteAufAnsicht(page, timeout = 20_000) {
 export async function schliesseOverlays(page) {
   // Cheap check first: without it this ran sixteen locator calls per navigation
   // even when nothing was on screen, and the sweep navigates hundreds of times.
-  const offen = await page.evaluate(() =>
-    !!document.querySelector('.hero-overlay, .ai-notice-overlay, .intro-skip, .stage-ceremony'))
-    .catch(() => true);
+  // A short grace period, because the overlays are added after the state loads —
+  // on a slower machine the check ran before the modal existed, and the next
+  // control was then covered by something that should have been dismissed.
+  let offen = false;
+  for (let i = 0; i < 3 && !offen; i++) {
+    offen = await page.evaluate(() =>
+      !!document.querySelector('.hero-overlay, .ai-notice-overlay, .intro-skip, .stage-ceremony'))
+      .catch(() => true);
+    if (!offen) await page.waitForTimeout(70);
+  }
   if (!offen) return;
 
   const SELEKTOREN = ['.hero-overlay button', '.ai-notice-overlay button', '.intro-skip',
