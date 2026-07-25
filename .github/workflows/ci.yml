@@ -142,12 +142,12 @@ jobs:
   # fast is more machines — which is exactly what a public repository gets for
   # free.
   e2e:
-    name: e2e (chromium ${{ matrix.shard }}/4)
+    name: e2e (chromium ${{ matrix.shard }}/8)
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4]
+        shard: [1, 2, 3, 4, 5, 6, 7, 8]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
@@ -166,7 +166,7 @@ jobs:
         # Never the sweep: it has its own job. Sharding splits by test count, not
         # by duration, so the sweep's slow tests all landed in one shard and that
         # shard alone took eight minutes while the others took eighty seconds.
-        run: npx playwright test --project=chromium --shard=${{ matrix.shard }}/4 --grep-invert "@sweep"
+        run: npx playwright test --project=chromium --shard=${{ matrix.shard }}/8 --grep-invert "@sweep"
       - name: Time budget
         # A spec that quietly grows until it dominates the run is how the sweep
         # got to ten minutes before anyone looked at the clock.
