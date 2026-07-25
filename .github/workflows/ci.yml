@@ -23,6 +23,13 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+# What runs when. A pull request gets an answer in about ninety seconds: gates
+# plus the functional specs. The sweep operates every control on every route and
+# takes minutes — it belongs on main, where nobody waits for it. Nothing is
+# skipped, it is deferred by one merge.
+env:
+  E2E_PR: ${{ github.event_name == 'pull_request' && 'ja' || 'nein' }}
+
 jobs:
   lint:
     name: lint
@@ -145,11 +152,18 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with: { node-version: 22, cache: npm }
-      - run: npm ci
+      - run: npm ci --prefer-offline --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Run shard
-        run: npx playwright test --project=chromium --shard=${{ matrix.shard }}/4
+        # On a pull request the sweep is left out; main runs everything.
+        run: |
+          if [ "$E2E_PR" = "ja" ]; then
+            npx playwright test --project=chromium --shard=${{ matrix.shard }}/4 \
+              --grep-invert "@sweep"
+          else
+            npx playwright test --project=chromium --shard=${{ matrix.shard }}/4
+          fi
       - name: Time budget
         # A spec that quietly grows until it dominates the run is how the sweep
         # got to ten minutes before anyone looked at the clock.
@@ -175,14 +189,21 @@ jobs:
           # arrived overall; failing here would punish a correct split.
           if-no-files-found: ignore
           retention-days: 3
-      - name: Keep the report on failure
+      - name: Keep this shard's report
+        # Blob format, because a sharded run produces four partial reports that
+        # only mean something merged.
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: blob-report-${{ matrix.shard }}
+          path: blob-report/
+          retention-days: 3
+      - name: Keep the details on failure
         if: failure()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: playwright-report-${{ matrix.shard }}
-          path: |
-            playwright-report/
-            test-results/
+          path: test-results/
           retention-days: 7
 
   # The visual record plus contact sheets. Not a pass/fail on design — the sheets
@@ -193,11 +214,14 @@ jobs:
   views:
     name: views (contact sheets)
     runs-on: ubuntu-latest
+    # Captures and sheets on main only: on a pull request they would double the
+    # wait for a result that nobody looks at until the change has landed.
+    if: github.event_name != 'pull_request'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with: { node-version: 22, cache: npm }
-      - run: npm ci
+      - run: npm ci --prefer-offline --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Install ImageMagick
@@ -248,7 +272,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with: { node-version: 22, cache: npm }
-      - run: npm ci
+      - run: npm ci --prefer-offline --no-audit --no-fund
       - name: Install Firefox
         run: npx playwright install --with-deps firefox
       - name: Run
@@ -263,13 +287,43 @@ jobs:
             test-results/
           retention-days: 7
 
+  # One report out of four partial ones. Without this a failure has to be pieced
+  # together from four separate logs.
+  report:
+    name: merged report
+    runs-on: ubuntu-latest
+    needs: [e2e]
+    if: always()
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with: { node-version: 22, cache: npm }
+      - run: npm ci --prefer-offline --no-audit --no-fund
+      - name: Collect the shard reports
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          pattern: blob-report-*
+          merge-multiple: true
+          path: alle-blobs
+      - name: Merge
+        run: npx playwright merge-reports --reporter html alle-blobs || true
+      - name: Keep it
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
   # Click coverage across all shards. No single shard sees the whole inventory,
   # so the evaluation happens here rather than inside a test.
   coverage:
     name: click coverage
     runs-on: ubuntu-latest
     needs: [e2e]
-    if: always()
+    # The evaluation needs the sweep, which runs on main. On a pull request it
+    # would judge a partial inventory and call it a gap.
+    if: always() && github.event_name != 'pull_request'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
@@ -289,7 +343,7 @@ jobs:
   ci-pass:
     name: ci-pass
     runs-on: ubuntu-latest
-    needs: [lint, content, unit, e2e, e2e-firefox, coverage, views]
+    needs: [lint, content, unit, e2e, e2e-firefox, coverage, views, report]
     if: always()
     steps:
       - name: Verify all gates passed

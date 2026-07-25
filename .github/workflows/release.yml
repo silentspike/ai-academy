@@ -27,6 +27,31 @@ jobs:
           PRIVATE_TERMS_REGEX: ${{ secrets.PRIVATE_TERMS_REGEX }}
         run: node tools/build-release.mjs --version "${GITHUB_REF_NAME}" --out dist
 
+      - name: Unpack the package and run the suite against it
+        # The thing that ships, not the working tree. A release that was never
+        # started once is a release nobody has seen work — and the difference
+        # between the two has bitten this project before (a fresh store crashed
+        # the bridge on its first request).
+        run: |
+          set -e
+          mkdir -p pruefung && cd pruefung
+          ZIP=$(ls ../dist/*.zip | head -1)
+          unzip -q "$ZIP"
+          PAKET=$(ls -d */ | head -1)
+          cd "$PAKET"
+          node -e "process.exit(require('fs').existsSync('bridge/bridge.mjs') ? 0 : 1)"
+          # Start it exactly as a recipient would, and check it answers.
+          node bridge/bridge.mjs --no-llm --port 8931 --store .store-test &
+          BRIDGE=$!
+          for i in $(seq 1 30); do
+            if curl -sf http://127.0.0.1:8931/api/health > /dev/null; then break; fi
+            sleep 1
+          done
+          curl -sf http://127.0.0.1:8931/api/health | tee health.json
+          node -e "const h=require('./health.json'); if(!h.ok) { console.error('health not ok'); process.exit(1); }"
+          curl -sf http://127.0.0.1:8931/ | grep -q "AI-Act-Akademie" || { echo "app not served"; exit 1; }
+          kill $BRIDGE || true
+
       - name: Extract changelog section for this version
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
