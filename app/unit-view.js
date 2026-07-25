@@ -142,12 +142,28 @@ export async function renderUnit(mount, unitId, ctx) {
               changed_by_omnibus: /1744|verschoben|NEU/i.test(g.basis + g.status)
             })));
           });
-        } else if (b.widget === 'assignment' && b.payload?.zones) {
-          renderAssignment(wmount, b.payload);
+        } else if (b.widget === 'assignment') {
+          // The payload usually only references a task; the task itself lives in
+          // content/dnd-tasks.json. Without resolving the reference the widget
+          // fell through to the placeholder branch and the exercise did not exist.
+          if (b.payload?.zones) renderAssignment(wmount, b.payload);
+          else fetch('content/dnd-tasks.json').then(r => r.json()).then(d => {
+            const task = (d.tasks ?? []).find(t => t.id === b.payload?.task_ref);
+            if (task) renderAssignment(wmount, task);
+            else wmount.innerHTML = `<p class="dim">Zuordnungsaufgabe „${escapeHtml(String(b.payload?.task_ref ?? '—'))}" nicht gefunden.</p>`;
+          });
         } else if (b.widget === 'erwg-explorer') {
           fetch('content/erwg-kompendium.json').then(r => r.json()).then(k => renderErwgExplorer(wmount, k));
         } else if (b.widget === 'annex3') {
-          fetch('content/facts-db.json').then(r => r.json()).then(() => renderAnnexExplorer(wmount, b.payload?.areas ?? []));
+          // The areas are master data (content/anhang3.json), not unit data. The
+          // previous version fetched the fact base, discarded it and rendered an
+          // empty explorer.
+          fetch('content/anhang3.json').then(r => r.json()).then(d => {
+            const relevant = new Set(ctx?.profile?.anhang3_relevant ?? []);
+            const areas = (b.payload?.areas?.length ? b.payload.areas : d.areas ?? [])
+              .map(a => ({ ...a, org_relevant: a.org_relevant ?? relevant.has(a.nr) }));
+            renderAnnexExplorer(wmount, areas);
+          });
         } else if (b.widget === 'roleswitch') {
           renderRoleSwitch(wmount, b.payload ?? {});
         } else {
