@@ -189,7 +189,14 @@ export async function klicke(page, locator, route, { erwarteNavigation = false }
   });
 
   if (!erreichbar.ok) {
-    merke(route, { unerreichbar: [`${id} — ${erreichbar.grund}`] });
+    // "unreachable" is reserved for something lying on top of a visible control.
+    // A control with no area is not covered — it is on its way out, which is what
+    // the conversation moves do the moment one is chosen. Same distinction as in
+    // erfasse(): a failed measurement is not a defect.
+    const messfehler = /zero size|nothing at the click point|vanished/.test(erreichbar.grund);
+    merke(route, messfehler
+      ? { unklar: [`${id} — ${erreichbar.grund}`] }
+      : { unerreichbar: [`${id} — ${erreichbar.grund}`] });
     throw new Error(`Element is not clickable: ${id} — ${erreichbar.grund}`);
   }
 
