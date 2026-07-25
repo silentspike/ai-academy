@@ -4,6 +4,9 @@
 
 let TERMS = new Map();
 
+/** Marks a subtree as an exam in progress; set by engine-quiz.applyMode. */
+const GESCHLOSSEN = '[data-quiz-mode="closed_book"]';
+
 const rxEscape = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 /** glossary.json: [{term, aliases:[…], simple, memory_hook, legal_basis}] */
@@ -29,6 +32,15 @@ export function decorate(root) {
     if (!TERMS.has(wort)) continue;
     s.dataset.term = wort;
     if (!s.hasAttribute('tabindex')) s.tabIndex = 0;
+  }
+
+  // Closed book is applied once when a question renders (engine-quiz.applyMode).
+  // Anything decorated afterwards would slip past it and quietly turn a
+  // closed-book exam into an open-book one (#13).
+  for (const s of root.querySelectorAll('.gloss')) {
+    if (!s.closest(GESCHLOSSEN)) continue;
+    s.classList.add('gloss-off');
+    s.removeAttribute('tabindex');
   }
 
   const walker = doc.createTreeWalker(root, 4 /* NodeFilter.SHOW_TEXT */);
@@ -96,6 +108,10 @@ export function attachTooltip(doc) {
   }
   const show = el => {
     if (el.classList.contains('gloss-off')) return;         // Closed Book (#13)
+    // Second line of defence: even if the class were missing, a term inside a
+    // running closed-book question must not explain itself. Exam integrity is
+    // not something to leave to a single class attribute.
+    if (el.closest(GESCHLOSSEN)) return;
     const e = TERMS.get(el.dataset.term);
     if (!e) return;
     tip.innerHTML = `<b>${e.term}</b><p>${e.simple}</p>` +

@@ -440,7 +440,10 @@ const server = http.createServer(async (req, res) => {
         const dir = join(STORE, 'profiles');
         const files = existsSync(dir) ? (await import('node:fs')).readdirSync(dir).filter(f => f.endsWith('.json')).sort() : [];
         if (files.length) return send(res, 200, readFileSync(join(dir, files[0]), 'utf-8'), 'application/json; charset=utf-8');
-        return send(res, 404, { error: 'kein Profil' });
+        // No curated profile is the normal case — the repository ships none and
+        // share users create theirs in the wizard (§5.1). Answering 404 would put
+        // a red entry in every first-time user's console for an expected state.
+        return send(res, 200, null);
       }
       return send(res, 404, { error: 'unknown endpoint' });
     }
@@ -467,7 +470,16 @@ const server = http.createServer(async (req, res) => {
     if (!e.code && /^(summative|appeal|coach|boss|generate|diagnose) prompt:/.test(String(e.message))) {
       e.code = 'BAD_FIELD';
     }
-    const code = e.code === 'TOO_LARGE' ? 413 : e.code === 'BAD_JSON' || e.code === 'BAD_FIELD' ? 400 : e.code === 'QUEUE_FULL' ? 429 : e.code === 'NO_LLM' ? 503 : e.code === 'GOLDSET_LOCK' ? 423 : 500;
+    // BAD_OUTPUT and CLI_ERROR mean the model answered with something unusable —
+    // that is an upstream failure, not a fault of the bridge. Reporting it as 500
+    // "internal" sends the user looking in the wrong place.
+    const code = e.code === 'TOO_LARGE' ? 413
+      : e.code === 'BAD_JSON' || e.code === 'BAD_FIELD' ? 400
+      : e.code === 'QUEUE_FULL' ? 429
+      : e.code === 'NO_LLM' ? 503
+      : e.code === 'GOLDSET_LOCK' ? 423
+      : e.code === 'BAD_OUTPUT' || e.code === 'CLI_ERROR' ? 502
+      : 500;
     logLine('error', { code: e.code || 'ERR', msg: String(e.message).slice(0, 200) });
     return send(res, code, { error: e.code || 'internal', message: String(e.message).slice(0, 200) });
   }

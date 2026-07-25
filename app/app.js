@@ -568,7 +568,16 @@ route('boss', async (view, ctx, [scenarioId]) => {
         run.transcript.push({ who: 'persona', text: resp.say ?? resp.reply ?? resp.text ?? '(keine Antwort)', ts: Date.now(), phase: run.phase_index });
         paint({ mood: resp.pressure_point ? 'nachbohrend' : 'neutral' });
       } catch (e) {
-        run.transcript.push({ who: 'persona', text: `[Bridge nicht erreichbar: ${e.message}]`, ts: Date.now(), phase: run.phase_index });
+        // Naming the cause correctly matters: the product has no support desk,
+        // so the message is what the user (or their agent) works from. Claiming
+        // the bridge is unreachable when it answered sends them hunting in the
+        // wrong place — the model's answer was the problem.
+        const hinweis = /HTTP 50[23]/.test(String(e.message))
+          ? 'Das Modell hat keine verwertbare Antwort geliefert'
+          : /HTTP 503/.test(String(e.message))
+            ? 'Kein Modell verbunden'
+            : 'Bridge nicht erreichbar';
+        run.transcript.push({ who: 'persona', text: `[${hinweis}: ${e.message}]`, ts: Date.now(), phase: run.phase_index });
         paint();
       }
       ctx.saveState();
