@@ -43,9 +43,11 @@ export default class Reporter {
       console.log(`    ${(d.ms / 1000).toFixed(1)} s (${Math.round(d.anteil * 100)} %)  ${d.datei}`);
     }
 
-    // Only meaningful once the run has some length — on a single-spec run one
-    // file is trivially 100 % of the time.
-    if (gesamt < MINDESTLAUF_MS) return;
+    // Only meaningful once the run has some length AND covers several specs. A
+    // shard that happens to hold one file is trivially 100 % of its own time —
+    // that says nothing about a spec growing out of proportion, which is the
+    // thing being watched.
+    if (gesamt < MINDESTLAUF_MS || dateien.length < 3) return;
     const ueber = dateien.filter(d => d.anteil > ANTEIL_MAX);
     if (ueber.length) {
       for (const d of ueber) {
