@@ -165,7 +165,10 @@ jobs:
         with:
           name: coverage-chromium-${{ matrix.shard }}
           path: coverage-out/
-          if-no-files-found: error
+          # Not every shard records coverage — a shard may hold only specs that
+          # do not enumerate controls. The evaluation job checks that something
+          # arrived overall; failing here would punish a correct split.
+          if-no-files-found: ignore
           retention-days: 3
       - name: Keep the report on failure
         if: failure()
