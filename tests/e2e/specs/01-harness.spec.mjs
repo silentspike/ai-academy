@@ -1,4 +1,4 @@
-import { test, expect, JETZT, schliesseOverlays } from '../harness.mjs';
+import { test, expect, schliesseOverlays } from '../harness.mjs';
 import { erfasse, klicke, INTERAKTIV } from '../coverage.mjs';
 
 test.describe('harness', () => {

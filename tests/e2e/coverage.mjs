@@ -151,30 +151,6 @@ export async function erfasse(page, route) {
   return ergebnis.gefunden;
 }
 
-/** Is anything lying on top of this control? Scrolls it into view first. */
-async function erreichbarkeit(page, el) {
-  await el.evaluate(n => n.scrollIntoView({ block: 'center', inline: 'center' })).catch(() => {});
-  return el.evaluate(n => {
-    const r = n.getBoundingClientRect();
-    if (r.width === 0 || r.height === 0) return { ok: false, grund: 'zero size' };
-    const x = r.left + r.width / 2, y = r.top + r.height / 2;
-    if (x < 0 || y < 0 || x > innerWidth || y > innerHeight) return { ok: false, grund: 'outside the viewport' };
-    // Same stack check as in erfasse() — see the note there.
-    let davor = null;
-    for (const [px, py] of [[x, y], [r.left + r.width * 0.25, y], [r.left + r.width * 0.75, y]]) {
-      const stapel = document.elementsFromPoint(px, py);
-      const idx = stapel.findIndex(o => o === n || n.contains(o) || o.contains(n));
-      if (idx < 0) continue;
-      const fremdesDarueber = stapel.slice(0, idx)
-        .find(o => o !== n && !n.contains(o) && !o.contains(n));
-      if (!fremdesDarueber) return { ok: true };
-      davor = fremdesDarueber;
-    }
-    if (!davor) return { ok: false, grund: 'nothing at the click point' };
-    return { ok: false, grund: 'covered by ' + davor.tagName.toLowerCase() +
-      (davor.className && typeof davor.className === 'string' ? '.' + davor.className.split(/\s+/)[0] : '') };
-  }).catch(() => ({ ok: false, grund: 'element vanished' }));
-}
 
 /**
  * Clicks an element for real and asserts it is reachable.
@@ -227,10 +203,10 @@ export async function klicke(page, locator, route, { erwarteNavigation = false }
 /** Merges into the coverage file; workers run in parallel, so read-modify-write each time. */
 function merke(route, teil) {
   mkdirSync(VERZEICHNIS, { recursive: true });
+  // Read and recover, rather than ask first and read after: between the two the
+  // file can appear or vanish, and the check buys nothing.
   let daten = {};
-  if (existsSync(DATEI)) {
-    try { daten = JSON.parse(readFileSync(DATEI, 'utf8')); } catch { daten = {}; }
-  }
+  try { daten = JSON.parse(readFileSync(DATEI, 'utf8')); } catch { daten = {}; }
   const r = daten[route] ??= { gefunden: [], betaetigt: [], geprueft: [], unerreichbar: [], verdacht: [], unklar: [] };
   for (const schluessel of ['gefunden', 'betaetigt', 'geprueft', 'unerreichbar', 'verdacht', 'unklar']) {
     if (teil[schluessel]) r[schluessel] = [...new Set([...r[schluessel], ...teil[schluessel]])];
