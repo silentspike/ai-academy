@@ -13,7 +13,7 @@
 import http from 'node:http';
 import { spawn, spawnSync } from 'node:child_process';
 import { randomUUID, randomBytes } from 'node:crypto';
-import { mkdirSync, mkdtempSync, rmSync, readFileSync, writeFileSync, renameSync, existsSync, appendFileSync, statSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, readFileSync, writeFileSync, renameSync, existsSync, appendFileSync } from 'node:fs';
 import { join, extname, normalize, resolve, dirname } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
@@ -460,11 +460,12 @@ const server = http.createServer(async (req, res) => {
     const allowedRoots = [resolve(OPT.webroot), join(ROOT, 'assets'), join(ROOT, 'content'), join(ROOT, 'app')];
     if (path.startsWith('/app/')) fp = join(ROOT, normalize(path).replace(/^([/\\])+/, ''));
     if (!allowedRoots.some(r => resolve(fp).startsWith(r + '/') || resolve(fp) === r)) return send(res, 403, { error: 'path' });
-    // Same here: stat and let a missing file fall through, instead of a check
-    // that another process can invalidate before the read happens.
-    try { if (!statSync(fp).isFile()) return send(res, 404, { error: 'not found' }); }
+    // Read straight away and handle the failure. A stat followed by a read is
+    // still check-then-use: the answer can be stale by the time the read runs.
+    // Reading a directory fails with EISDIR, which is the same 404 to a client.
+    let data;
+    try { data = readFileSync(fp); }
     catch { return send(res, 404, { error: 'not found' }); }
-    let data = readFileSync(fp);
     if (path === '/' || path.endsWith('index.html')) {
       data = Buffer.from(data.toString('utf-8').replace('__BRIDGE_TOKEN__', TOKEN)); // Token-Injektion
     }
