@@ -4,7 +4,7 @@
 // is put on the bridge's PATH by playwright.config.mjs. All that is left here is
 // the store directory for the run.
 
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, rmSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
 const ROOT = resolve(new URL('../..', import.meta.url).pathname);
@@ -17,6 +17,11 @@ export default async function globalSetup() {
   for (const unter of ['', 'store', 'log', 'profiles']) {
     mkdirSync(join(ROOT, '.tmp-e2e-store', unter), { recursive: true });
   }
+
+  // Fresh click coverage per run. It lives outside test-results/ because
+  // Playwright wipes that directory at the start of a run.
+  rmSync(join(ROOT, '.tmp-coverage'), { recursive: true, force: true });
+  mkdirSync(join(ROOT, '.tmp-coverage'), { recursive: true });
 
   // Direct calls from specs (not through the bridge) should find it too.
   process.env.PATH = `${join(ROOT, 'tests', 'e2e', 'stub-cli')}:${process.env.PATH}`;

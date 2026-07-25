@@ -41,3 +41,4 @@ tests/e2e/__screenshots__/*/diff/
 
 # Test tooling
 .tmp-e2e-bin/
+.tmp-coverage/

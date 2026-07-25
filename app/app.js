@@ -301,11 +301,21 @@ route('dashboard', async (view, ctx) => {
   // Profile overrides: the profile shifts relevance tiers, which steer prioritisation
   // and emphasis in the article map.
   const overrides = new Map((ctx.profile?.personalisierung?.relevanz_overrides ?? []).map(o => [o.ref, o.stufe]));
+  // Article → unit, from the unit index. Without this the tiles carried a pointer
+  // cursor and a click handler that could never fire: the handler tests unit_id,
+  // and nothing ever set it.
+  const unitIdx = await fetch('content/units/index.json').then(r => r.ok ? r.json() : null).catch(() => null);
+  const artikelZuEinheit = new Map();
+  for (const u of unitIdx?.units ?? []) {
+    for (const ref of u.legal_refs ?? []) if (!artikelZuEinheit.has(ref)) artikelZuEinheit.set(ref, u.id);
+  }
+
   const articles = factsDb.relevanz_matrix.artikel.map(a => {
     const ks = [...new Set((a.kategorien ?? []).flatMap(k => KAT2K[k] ?? []))];
     const scores = ks.map(k => agg.get(k)?.score).filter(v => v != null);
     const stufe = overrides.get(a.ref) ?? a.relevanz?.betreiber_behoerde ?? 'kompakt';
     return { id: a.ref, label: a.ref, relevanz: stufe, overridden: overrides.has(a.ref),
+      unit_id: artikelZuEinheit.get(a.ref) ?? null,
       score: scores.length ? scores.reduce((x, y) => x + y, 0) / scores.length : null };
   });
   const kernN = articles.filter(a => a.relevanz === 'kern').length;
@@ -328,6 +338,7 @@ route('dashboard', async (view, ctx) => {
   view.innerHTML = `
     <div class="card"><div class="chead"><span class="t"><h3>Artikel-Landkarte</h3><span class="sub">Gesamter AI Act · ${kernN} Kern-Artikel für dein Profil${overrides.size ? ` (${overrides.size} profil-angepasst)` : ''}</span></span></div>
       <div class="hm-wrap" id="d-hm"></div>
+      <div class="dim" id="d-hm-hinweis">Kachel anklicken: führt zur Einheit, die den Artikel behandelt.</div>
       <div class="legend"><span><i style="background:#65d8b2"></i>Sehr sicher</span><span><i style="background:#9dcc9b"></i>Sicher</span><span><i style="background:#e1ad58"></i>Unsicher</span><span><i style="background:#d97568"></i>Kritisch</span><span><i style="background:#414956"></i>Ungelernt</span></div></div>
     <div class="card"><div class="chead"><span class="t"><h3>Kompetenzen</h3><span class="sub">Dein Kompetenzprofil</span></span></div>
       <div class="radar-wrap" id="d-radar"></div></div>
@@ -342,7 +353,16 @@ route('dashboard', async (view, ctx) => {
         <div><div class="chead" style="margin-bottom:4px"><span class="t"><h3>Examen</h3></span></div><div id="d-exam"></div></div>
       </div></div>
     </div>`;
-  renderHeatmap(view.querySelector('#d-hm'), articles, { onSelect: a => a.unit_id && navigate(`#/einheit/${a.unit_id}`) });
+  renderHeatmap(view.querySelector('#d-hm'), articles, {
+    onSelect: a => {
+      if (a.unit_id) return navigate(`#/einheit/${a.unit_id}`);
+      // Not every article has its own unit — say so instead of doing nothing.
+      // A tile that looks operable and stays silent is the worse outcome.
+      const hinweis = view.querySelector('#d-hm-hinweis');
+      if (hinweis) hinweis.textContent =
+        `${a.label}: keine eigene Einheit — im Überblick „Randwissen" behandelt (${a.relevanz}).`;
+    },
+  });
   renderRadar(view.querySelector('#d-radar'), axes);
   renderCurve(view.querySelector('#d-curve'), curve.ist, curve.soll);
   // Points per calendar week from dayStats (real data)
