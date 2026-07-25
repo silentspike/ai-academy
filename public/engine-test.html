@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Engine-Testseite — alle Fragetypen &amp; Widgets (AC1/AC5)</title>
+<link rel="stylesheet" href="app/styles.css">
+<style>
+  body { padding:24px; overflow:auto; }
+  main { max-width:920px; margin:0 auto; display:flex; flex-direction:column; gap:18px; }
+  h2 { font-size:1.05rem; margin-bottom:8px; }
+  .modebar { display:flex; gap:8px; align-items:center; position:sticky; top:0; z-index:5;
+    background:var(--bg); padding:8px 0; }
+</style>
+</head>
+<body>
+<div class="bg-layers"><div class="bg-aurora a"></div><div class="bg-aurora b"></div><div class="bg-grid"></div><div class="bg-vignette"></div></div>
+<main>
+  <h1 class="brand-text" style="font-size:1.4rem">Engine-Testseite</h1>
+  <div class="modebar">
+    <span class="dim">Prüfmodus:</span>
+    <button id="m-lernen" class="btn-primary">Lernen</button>
+    <button id="m-closed">Closed Book</button>
+    <span id="mode-state" class="mono dim"></span>
+  </div>
+
+  <div class="card"><h2>Glossar-Kontext (Tooltip-Test)</h2>
+    <p>Ein <span class="gloss" data-term="hochrisiko-ki-system" tabindex="0">Hochrisiko-KI-System</span> braucht vor
+    dem Einsatz eine Konformitätsbewertung. <span data-hilfsmittel class="mono">Originaltext Art. 6 (aufklappbar)</span></p>
+  </div>
+
+  <div class="card"><h2>1 · MC (mit „Nicht genug Informationen")</h2><div id="q-mc"></div></div>
+  <div class="card"><h2>2 · Mehrfachauswahl (wähle 2)</h2><div id="q-multi"></div></div>
+  <div class="card"><h2>3 · Fall-Einstufung (Fangfrage + Critical-Error-Gate)</h2><div id="q-case"></div></div>
+  <div class="card"><h2>4 · Freitext (Agent-Rubrik)</h2><div id="q-free"></div></div>
+  <div class="card"><h2>5 · Drag&amp;Drop: Risikopyramide</h2><div id="w-dnd"></div></div>
+  <div class="card"><h2>6 · Fristen-Timeline (Omnibus-Stand)</h2><div id="w-tl"></div></div>
+  <div class="card"><h2>7 · Anhang-III-Explorer</h2><div id="w-annex"></div></div>
+  <div class="card"><h2>8 · Art.-25-Rollenweiche</h2><div id="w-rolesw"></div></div>
+  <div class="card" style="height:420px;display:flex;flex-direction:column"><h2>9 · Charakter-Dialog (Bosskampf-UI)</h2><div id="w-dlg" style="flex:1;min-height:0"></div></div>
+  <div class="card"><h2>Ergebnis-Log</h2><pre id="log" class="mono" style="font-size:.75rem"></pre></div>
+</main>
+
+<script type="module">
+  import { renderQuestion, applyMode, MODES } from './app/engine-quiz.js';
+  import { renderAssignment, renderTimeline, renderAnnexExplorer, renderRoleSwitch } from './app/engine-widgets.js';
+  import { loadGlossary, attachTooltip } from './app/glossary.js';
+
+  const log = (...a) => {
+    document.getElementById('log').textContent += a.map(x => typeof x === 'string' ? x : JSON.stringify(x)).join(' ') + '\n';
+  };
+  const answered = (name) => (result, conf) => log(`[${name}]`, { verdict: result.verdict, score: result.score, confidence: conf, critical: !!result.critical_error });
+
+  loadGlossary([{ term: 'Hochrisiko-KI-System', aliases: ['hochrisiko-ki-system'],
+    simple: 'Ein KI-System, das unter Art. 6 fällt — entweder über Anhang I (Produktrecht) oder Anhang III (Einsatzbereiche).',
+    memory_hook: 'Hochrisiko = Anhang entscheidet, nicht das Bauchgefühl.', legal_basis: 'Art. 6 VO 2024/1689 idF 2026/1744' }]);
+  attachTooltip(document);
+
+  // Testdaten — FIKTIV, nur Engine-Verhalten (Content-Wahrheit kommt aus Task 8 mit Statusprozess)
+  renderQuestion(document.getElementById('q-mc'), {
+    id: 't-mc', type: 'mc', competency: 'K03', level: 'B',
+    prompt: 'Die Fachabteilung will einen Chatbot für Versichertenanfragen. Was ist die ERSTE Frage?',
+    options: [
+      { id: 'a', text: 'Welches LLM nehmen wir?', correct: false, rationale: '' },
+      { id: 'b', text: 'Was ist die Zweckbestimmung des Systems?', correct: true, rationale: 'Ohne Zweckbestimmung keine Einstufung — sie ist der Anker von Art. 6.' },
+      { id: 'c', text: 'Wie hoch ist das Budget?', correct: false },
+      { id: 'd', text: 'Für eine belastbare Antwort fehlen Informationen.', correct: false }
+    ]
+  }, { onAnswered: answered('MC') });
+
+  renderQuestion(document.getElementById('q-multi'), {
+    id: 't-multi', type: 'multi', competency: 'K05', level: 'A',
+    prompt: 'Welche ZWEI Rollen kennt der AI Act als zentrale Adressaten der Pflichtenkapitel?',
+    options: [
+      { id: 'a', text: 'Anbieter', correct: true },
+      { id: 'b', text: 'Betreiber', correct: true },
+      { id: 'c', text: 'Endnutzer im Privatbereich', correct: false },
+      { id: 'd', text: 'Cloud-Hoster', correct: false }
+    ]
+  }, { onAnswered: answered('MULTI') });
+
+  renderQuestion(document.getElementById('q-case'), {
+    id: 't-case', type: 'case', competency: 'K02', level: 'C',
+    scenario: 'Ein Anbieter bewirbt ein System, das Emotionen von Beschäftigten am Arbeitsplatz erkennt, um „Team-Stimmung" zu steuern. Alle Fakten liegen vor.',
+    prompt: 'Wie stufen Sie das System ein? (Achtung: Formulierungen genau lesen)',
+    trap: { is_trap: true, note: 'Emotionserkennung am Arbeitsplatz ist KEIN Hochrisiko-Fall — sie ist grundsätzlich verboten (Art. 5).' },
+    critical_error: { option_ids: ['c'], reason: 'Eine verbotene Praxis als zulässig einzustufen wäre im Beruf ein Compliance-Vorfall.', requires_complete_facts: true },
+    options: [
+      { id: 'a', text: 'Verbotene Praxis nach Art. 5', correct: true, rationale: 'Emotionserkennung am Arbeitsplatz fällt unter die Verbote.' },
+      { id: 'b', text: 'Hochrisiko nach Anhang III Nr. 4', correct: false },
+      { id: 'c', text: 'Zulässig mit Transparenzpflicht', correct: false },
+      { id: 'd', text: 'Für eine belastbare Einstufung fehlen Informationen', correct: false }
+    ]
+  }, { onAnswered: answered('CASE') });
+
+  renderQuestion(document.getElementById('q-free'), {
+    id: 't-free', type: 'freetext', competency: 'K04', level: 'C',
+    prompt: 'Stufen Sie ein und begründen Sie mit Fundstellen: Die ÖSVA plant ein System zur automatischen Vorprüfung von Leistungsanträgen.'
+  }, { onAnswered: answered('FREITEXT') });
+
+  renderAssignment(document.getElementById('w-dnd'), {
+    id: 't-dnd', layout: 'pyramid',
+    zones: [
+      { id: 'verboten', label: 'Verboten' }, { id: 'hoch', label: 'Hochrisiko' },
+      { id: 'transparenz', label: 'Transparenzpflicht' }, { id: 'frei', label: 'Keine spezifische Pflicht im geprüften Pfad' }
+    ],
+    items: [
+      { id: 'i1', text: 'Social Scoring durch Behörden', zone: 'verboten' },
+      { id: 'i2', text: 'KI-Triage von Leistungsanträgen', zone: 'hoch' },
+      { id: 'i3', text: 'Service-Chatbot mit Kennzeichnung', zone: 'transparenz' },
+      { id: 'i4', text: 'Rechtschreibkorrektur im Intranet', zone: 'frei' }
+    ]
+  }, { onAnswered: r => log('[DND]', r) });
+
+  renderTimeline(document.getElementById('w-tl'), [
+    { id: 'g1', date: '2024-08-01', label: 'In Kraft', changed_by_omnibus: false },
+    { id: 'g2', date: '2025-02-02', label: 'Verbote gelten', changed_by_omnibus: false },
+    { id: 'g3', date: '2025-08-02', label: 'GPAI-Regeln', changed_by_omnibus: false },
+    { id: 'g4', date: '2026-12-02', label: 'Neue Art.-5-Verbote', changed_by_omnibus: true },
+    { id: 'g5', date: '2027-12-02', label: 'Anhang-III-Hochrisiko', changed_by_omnibus: true },
+    { id: 'g6', date: '2028-08-02', label: 'Anhang-I-Hochrisiko', changed_by_omnibus: true },
+    { id: 'g7', date: '2030-08-02', label: 'Behörden-Altsysteme', changed_by_omnibus: true }
+  ], { onSelect: m => log('[TL]', m.id, m.label) });
+
+  renderAnnexExplorer(document.getElementById('w-annex'), [
+    { nr: '3', title: 'Bildung', simple: 'Zugang, Bewertung, Prüfungsüberwachung in formaler Bildung.', org_relevant: false, legal_basis: 'Anhang III Nr. 3' },
+    { nr: '4', title: 'Beschäftigung', simple: 'Recruiting, Beförderung, Leistungsüberwachung.', org_relevant: true, legal_basis: 'Anhang III Nr. 4' },
+    { nr: '5', title: 'Wesentliche Leistungen', simple: 'Zugang/Anspruch/Umfang öffentlicher Leistungen — Kernbereich für Sozialversicherungsträger.', org_relevant: true, examples: ['Anspruchsprüfung', 'Leistungsbemessung'], legal_basis: 'Anhang III Nr. 5 lit. a' }
+  ], { onSelect: a => log('[ANNEX]', a.nr) });
+
+  renderRoleSwitch(document.getElementById('w-rolesw'), [
+    { id: 's1', q: 'Versehen Sie ein fremdes Hochrisiko-System mit eigenem Namen/eigener Marke?', yes: 'RESULT:Sie werden zum Anbieter (Art. 25).', no: 's2' },
+    { id: 's2', q: 'Nehmen Sie eine wesentliche Änderung am System vor?', yes: 'RESULT:Sie werden zum Anbieter (Art. 25).', no: 's3' },
+    { id: 's3', q: 'Ändern Sie die Zweckbestimmung so, dass das System hochriskant wird?', yes: 'RESULT:Sie werden zum Anbieter (Art. 25).', no: 'RESULT:Sie bleiben Betreiber.' }
+  ], { onResult: r => log('[ROLESW]', r.result) });
+
+  // Dialog-UI (ohne LLM — Persona-Antworten simuliert; Szenario-Fakten deterministisch)
+  import { createScenarioRun, recordUserTurn, renderDialog } from './app/engine-dialog.js';
+  const scenario = {
+    id: 'sz-demo',
+    persona: { archetype: 'Der Drängler', name: 'M. Brunner', role: 'Leitung Leistungsabteilung',
+      avatar: 'assets/characters/crew/03-fachabteilung.png',
+      expressions: { neutral: 'assets/characters/crew/03-fachabteilung.png' } },
+    facts: [{ id: 'f0', text: 'Die Abteilung will einen Chatbot für Versichertenanfragen.', released_at_phase: 0 }],
+    phases: [{ id: 'p0', goal: 'Zweck klären', opening_hint: 'Du willst schnell ein Ergebnis.' }],
+    goals: [{ id: 'g1', text: 'Nach Zweckbestimmung fragen', competency: 'K02', matcher: 'zweck' }],
+    rubric_id: 'rub-demo'
+  };
+  const run = createScenarioRun(scenario, Date.now());
+  run.transcript.push({ who: 'persona', text: 'Wir brauchen diesen Chatbot bis Quartalsende — was muss ich tun, damit das schnell durchgeht?', ts: Date.now(), phase: 0 });
+  const paintDlg = () => renderDialog(document.getElementById('w-dlg'), scenario, run, {
+    suggestedMoves: ['Was genau ist die Zweckbestimmung?', 'Welche Daten verarbeitet das System?'],
+    onUserTurn: text => { recordUserTurn(scenario, run, text, Date.now());
+      run.transcript.push({ who: 'persona', text: '(Persona-Antwort käme vom LLM — Engine gibt nur freigegebene Fakten frei.)', ts: Date.now(), phase: 0 });
+      paintDlg(); log('[DLG]', { goals_hit: run.goals_hit }); }
+  });
+  paintDlg();
+
+  // Closed-Book-Umschalter (AC5)
+  const modeState = document.getElementById('mode-state');
+  const setMode = m => {
+    const r = applyMode(document.body, m);
+    modeState.textContent = `mode=${r.mode} hilfsmittel=${r.hilfsmittelSichtbar}`;
+    log('[MODE]', r);
+  };
+  document.getElementById('m-lernen').onclick = () => setMode(MODES.LERNEN);
+  document.getElementById('m-closed').onclick = () => setMode(MODES.CLOSED_BOOK);
+  setMode(MODES.LERNEN);
+</script>
+</body>
+</html>

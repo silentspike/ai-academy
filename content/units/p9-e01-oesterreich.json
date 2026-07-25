@@ -1,0 +1,206 @@
+{
+ "id": "p9-e01-oesterreich",
+ "phase": "p9",
+ "title": "Österreich: Zuständigkeiten, Behörden-Sanktionen, DSGVO-Schnittstellen",
+ "competency": "K15",
+ "level": "B",
+ "legal_status": "at-vollzug-offen",
+ "legal_basis": [
+  {
+   "ref": "Art. 70",
+   "instrument": "VO 2024/1689 idF 2026/1744",
+   "verified": "eigenpruefung-2026-07-24"
+  },
+  {
+   "ref": "Art. 99 Abs. 8",
+   "instrument": "VO 2024/1689 idF 2026/1744",
+   "verified": "eigenpruefung-2026-07-24"
+  },
+  {
+   "ref": "Art. 27",
+   "instrument": "VO 2024/1689 idF 2026/1744",
+   "verified": "eigenpruefung-2026-07-24"
+  }
+ ],
+ "change_log": [
+  {
+   "date": "2026-07-24",
+   "was": "Ersterstellung",
+   "quelle": "legal/arbeitskonsolidierung.md"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "Auslegungs-Box ErwG 168 ergänzt (Plan #4 Doppelverankerung)"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "Beispiel-Slot slot-15 ergänzt (§5.1: fixer Intent, profilvariable Einkleidung)"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "A-Stufen-Check ergänzt (§3 Mengengerüst 40/40/20)"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "Originaltext-Box auf wörtlichen Amtsblatt-Wortlaut korrigiert (Nacharbeit: war paraphrasiert)"
+  }
+ ],
+ "blocks": [
+  {
+   "type": "problem",
+   "html": "Der Jurist der ÖSVA fragt: „Und wer genau ist in ÖSTERREICH für uns zuständig — RTR, Datenschutzbehörde, oder wer?“ <b>Was ist Stand Juli 2026 gesichert, was ist offen — und wie kommunizieren Sie diese Unsicherheit professionell?</b>",
+   "einsteiger_worked_example": "Dreiteilung nach Quellenlage: GESICHERT: Bei der RTR ist die KI-Servicestelle eingerichtet (Information/Koordination); die DSB bleibt für DSGVO-Fragen zuständig; Art. 99 Abs. 8 verlangt ein eigenes Behörden-Sanktionsregime. OFFEN (at-vollzug-offen): finale Benennung/Aufgabenzuschnitt der Marktüberwachungsbehörde(n) und das Sanktions-Ausführungsgesetz. PROFESSIONELL: beide Ebenen getrennt ausweisen, Quelle + Datum nennen, Wiedervorlage setzen."
+  },
+  {
+   "type": "concept",
+   "html": "Für die ÖSVA-Praxis: <b>(1)</b> KI-Servicestelle (RTR) = erste Anlaufstelle für Information und Abstimmung. <b>(2)</b> Die <b>DSGVO-Schiene läuft parallel</b>: FRIA (Art. 27) und DSFA (Art. 35 DSGVO) überschneiden sich — Art. 27 erlaubt ausdrücklich, auf einer DSFA aufzubauen und sie zu ergänzen. <b>(3)</b> Personalvertretung: KI mit Beschäftigten-Bezug berührt dienstordnungs-/arbeitsverfassungsrechtliche Mitbestimmung — früh einbinden. <b>(4)</b> Alles AT-Vollzugs-Detail trägt in dieser Akademie den Status <span class=\"legal-status-warn\">⚠ at-vollzug-offen</span>, bis Gesetze/Verordnungen vorliegen."
+  },
+  {
+   "type": "beispiel",
+   "intent_id": "slot-15",
+   "intent": "zeige die Parallelität der Rechtsschichten",
+   "generisch": "Ein Vorhaben kann AI-Act-konform sein und trotzdem an der DSGVO-Rechtsgrundlage oder an der Mitbestimmung scheitern."
+  },
+  {
+   "type": "merkbild",
+   "html": "🧠 Merkbild: Österreich-Wissen ist <b>zweispurig</b> — die EU-Spur ist asphaltiert, die AT-Vollzugs-Spur teils noch Schotter. Wer beide Spuren sauber trennt, rutscht nie."
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p9-e01-a1",
+    "type": "mc",
+    "competency": "K15",
+    "level": "A",
+    "legal_status": "konsolidiert-2026-07-27",
+    "legal_basis": [
+     {
+      "ref": "Art. 99 Abs. 8",
+      "instrument": "VO 2024/1689 idF 2026/1744",
+      "verified": "eigenpruefung-a-checks-2026-07-25"
+     }
+    ],
+    "prompt": "Welcher Absatz des Art. 99 betrifft Sanktionen gegen Behörden und öffentliche Stellen?",
+    "options": [
+     {
+      "id": "a",
+      "text": "Abs. 8",
+      "correct": true,
+      "rationale": "Die Mitgliedstaaten regeln, in welchem Umfang öffentliche Stellen sanktioniert werden.",
+      "source_ref": "Art. 99 Abs. 8"
+     },
+     {
+      "id": "b",
+      "text": "Abs. 3",
+      "correct": false,
+      "rationale": "Verbots-Bußgeldrahmen.",
+      "source_ref": "Art. 99 Abs. 3"
+     },
+     {
+      "id": "c",
+      "text": "Abs. 6a",
+      "correct": false,
+      "rationale": "Midcap-Erleichterung des Omnibus.",
+      "source_ref": "Art. 99 Abs. 6a idF 2026/1744"
+     },
+     {
+      "id": "d",
+      "text": "Abs. 1",
+      "correct": false,
+      "rationale": "Allgemeiner Sanktionsauftrag.",
+      "source_ref": "Art. 99 Abs. 1"
+     }
+    ]
+   }
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p9-e01-c1",
+    "type": "mc",
+    "prompt": "Wie beantworten Sie die Zuständigkeits-Frage des Juristen professionell?",
+    "options": [
+     {
+      "id": "a",
+      "text": "„Die RTR ist für alles zuständig.“",
+      "correct": false,
+      "rationale": "Die KI-Servicestelle bei der RTR ist Info-/Koordinationsstelle; die vollständige Behördenarchitektur ist damit nicht gesagt.",
+      "source_ref": "Art. 70; AT-Vollzug"
+     },
+     {
+      "id": "b",
+      "text": "Gesichert: KI-Servicestelle bei der RTR, DSB für Datenschutz; offen: finaler Marktüberwachungs-Zuschnitt und Behörden-Sanktionsgesetz — mit Quellenstand und Wiedervorlage kommunizieren.",
+      "correct": true,
+      "rationale": "Die ehrliche Dreiteilung gesichert/offen/Prozess ist die belastbare Auskunft.",
+      "source_ref": "Art. 70; Art. 99 Abs. 8"
+     },
+     {
+      "id": "c",
+      "text": "„Das steht alles wörtlich im AI Act.“",
+      "correct": false,
+      "rationale": "Der AI Act delegiert die Behördenbenennung an die Mitgliedstaaten (Art. 70).",
+      "source_ref": "Art. 70"
+     },
+     {
+      "id": "d",
+      "text": "„Zuständig ist niemand, bis Brüssel entscheidet.“",
+      "correct": false,
+      "rationale": "Die Benennung ist mitgliedstaatliche Pflicht, keine EU-Entscheidung im Einzelfall.",
+      "source_ref": "Art. 70"
+     }
+    ],
+    "level": "B"
+   }
+  },
+  {
+   "type": "quelle",
+   "ref": "Art. 27 Abs. 4",
+   "changed_by_omnibus": false,
+   "text": "Wird eine der in diesem Artikel festgelegten Pflichten bereits infolge einer gemäß Artikel 35 der Verordnung (EU) 2016/679 oder Artikel 27 der Richtlinie (EU) 2016/680 durchgeführten Datenschutz-Folgenabschätzung erfüllt, so ergänzt die Grundrechte-Folgenabschätzung gemäß Absatz 1 des vorliegenden Artikels diese Datenschutz-Folgenabschätzung."
+  },
+  {
+   "type": "erwg",
+   "nr": "168",
+   "text": "Erwägungsgrund 168 — Die Mitgliedstaaten müssen wirksame, verhältnismäßige und abschreckende Sanktionen sicherstellen — die Durchsetzung ist Teil des Regelungskonzepts. Einsatz im Gespräch: Zur Einordnung des Sanktionsrisikos."
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p9-e01-c2",
+    "type": "mc",
+    "prompt": "FRIA und DSFA — was ist der effizienteste rechtskonforme Weg für die ÖSVA?",
+    "options": [
+     {
+      "id": "a",
+      "text": "Zwei komplett getrennte Dokumente ohne Querbezug.",
+      "correct": false,
+      "rationale": "Zulässig, aber unnötig doppelt — Art. 27 Abs. 4 sieht die Ergänzung ausdrücklich vor.",
+      "source_ref": "Art. 27 Abs. 4"
+     },
+     {
+      "id": "b",
+      "text": "Auf der DSFA aufsetzen und sie um die FRIA-Elemente (alle Grundrechte, Aufsicht, Abhilfe) ergänzen.",
+      "correct": true,
+      "rationale": "Der von Art. 27 Abs. 4 vorgezeichnete Ergänzungs-Ansatz spart Doppelarbeit und hält Konsistenz.",
+      "source_ref": "Art. 27 Abs. 4"
+     },
+     {
+      "id": "c",
+      "text": "Die DSFA ersetzt die FRIA vollständig.",
+      "correct": false,
+      "rationale": "Die DSFA deckt nicht alle FRIA-Elemente ab; Ergänzung bleibt Pflicht.",
+      "source_ref": "Art. 27"
+     },
+     {
+      "id": "d",
+      "text": "Beides erst nach Inbetriebnahme.",
+      "correct": false,
+      "rationale": "Beide Instrumente sind Vorab-Bewertungen.",
+      "source_ref": "Art. 27 Abs. 1; Art. 35 DSGVO"
+     }
+    ],
+    "level": "B"
+   }
+  }
+ ]
+}

@@ -1,0 +1,203 @@
+{
+ "id": "p4-e01-betreiberpflichten-fria",
+ "phase": "p4",
+ "title": "Betreiberpflichten und FRIA: Was auf die ÖSVA konkret zukommt",
+ "competency": "K08",
+ "level": "B",
+ "legal_status": "konsolidiert-2026-07-27",
+ "legal_basis": [
+  {
+   "ref": "Art. 26",
+   "instrument": "VO 2024/1689 idF 2026/1744",
+   "verified": "eigenpruefung-2026-07-24"
+  },
+  {
+   "ref": "Art. 27",
+   "instrument": "VO 2024/1689 idF 2026/1744",
+   "verified": "eigenpruefung-2026-07-24"
+  },
+  {
+   "ref": "Art. 111 Abs. 2 idF 2026/1744",
+   "instrument": "VO 2024/1689 idF 2026/1744",
+   "verified": "eigenpruefung-2026-07-24"
+  }
+ ],
+ "change_log": [
+  {
+   "date": "2026-07-24",
+   "was": "Ersterstellung",
+   "quelle": "legal/arbeitskonsolidierung.md"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "Auslegungs-Box ErwG 96 ergänzt (Plan #4 Doppelverankerung)"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "Beispiel-Slot slot-9 ergänzt (§5.1: fixer Intent, profilvariable Einkleidung)"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "A-Stufen-Check ergänzt (§3 Mengengerüst 40/40/20)"
+  }
+ ],
+ "blocks": [
+  {
+   "type": "problem",
+   "html": "Der Vorstand fragt: „Wenn unser Antragssystem ab Dezember 2027 als Hochrisiko gilt — was müssen WIR dann eigentlich TUN? Der Anbieter hat doch die Zertifikate.“ <b>Welche Pflichten bleiben trotz aller Anbieter-Zertifikate bei der ÖSVA?</b>",
+   "einsteiger_worked_example": "Prüfweg: 1) Rolle: Betreiberin → Art. 26. 2) Kernpflichten: bestimmungsgemäße Verwendung nach Gebrauchsanweisung (Abs. 1), menschliche Aufsicht durch kompetente Personen (Abs. 2), Input-Daten-Qualität soweit kontrolliert (Abs. 4), Betriebs-Überwachung + Meldungen (Abs. 5), Log-Aufbewahrung (Abs. 6), Beschäftigten-Information (Abs. 7), Betroffenen-Information bei Entscheidungen (Abs. 11). 3) Als Einrichtung öffentlichen Rechts: FRIA VOR Inbetriebnahme (Art. 27). Ergebnis: Zertifikate entlasten den Anbieter-Teil — der Betrieb bleibt unsere Baustelle."
+  },
+  {
+   "type": "concept",
+   "html": "<b>Art. 26</b> ist die Betreiber-Checkliste; <b>Art. 27</b> die <span class=\"gloss\">FRIA</span>: VOR der ersten Verwendung eines Anhang-III-Hochrisiko-Systems müssen Einrichtungen des öffentlichen Rechts die Grundrechtsfolgen bewerten — betroffene Prozesse, Nutzungsdauer/-frequenz, betroffene Personengruppen, spezifische Schadensrisiken, menschliche Aufsicht, Abhilfemaßnahmen. IT-Analogie: eine DSFA mit erweitertem Radar (ALLE Grundrechte, nicht nur Datenschutz). Und die Zeitfalle: <b>Alt-Systeme</b> von Behörden genießen die Übergangsfrist bis <b>2.8.2030</b> — verlieren sie aber bei <span class=\"gloss\">wesentliche Änderung</span>."
+  },
+  {
+   "type": "beispiel",
+   "intent_id": "slot-9",
+   "intent": "zeige den Unterschied zwischen Aufsicht auf dem Papier und echter Aufsicht",
+   "generisch": "Eine Person, die Vorschläge nur abnickt, erfüllt Art. 26 Abs. 2 nicht — sie braucht Befähigung, Befugnis und die reale Möglichkeit, zu stoppen."
+  },
+  {
+   "type": "merkbild",
+   "html": "🧠 Merkbild: <b>Art. 26 = Betriebshandbuch, Art. 27 = Startfreigabe.</b> Ohne Startfreigabe kein Take-off, ohne Betriebshandbuch kein Streckenflug."
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p4-e01-a1",
+    "type": "mc",
+    "competency": "K09",
+    "level": "A",
+    "legal_status": "konsolidiert-2026-07-27",
+    "legal_basis": [
+     {
+      "ref": "Art. 27",
+      "instrument": "VO 2024/1689 idF 2026/1744",
+      "verified": "eigenpruefung-a-checks-2026-07-25"
+     }
+    ],
+    "prompt": "Welcher Artikel regelt die Grundrechte-Folgenabschätzung?",
+    "options": [
+     {
+      "id": "a",
+      "text": "Art. 27",
+      "correct": true,
+      "rationale": "FRIA — für Behörden-Betreiber und bestimmte private Betreiber.",
+      "source_ref": "Art. 27"
+     },
+     {
+      "id": "b",
+      "text": "Art. 26",
+      "correct": false,
+      "rationale": "Allgemeine Betreiberpflichten.",
+      "source_ref": "Art. 26"
+     },
+     {
+      "id": "c",
+      "text": "Art. 35 DSGVO",
+      "correct": false,
+      "rationale": "Das ist die DSFA — die FRIA baut darauf auf (Art. 27 Abs. 4).",
+      "source_ref": "Art. 27 Abs. 4"
+     },
+     {
+      "id": "d",
+      "text": "Art. 43",
+      "correct": false,
+      "rationale": "Konformitätsbewertung.",
+      "source_ref": "Art. 43"
+     }
+    ]
+   }
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p4-e01-c1",
+    "type": "mc",
+    "prompt": "Wann muss die FRIA (Art. 27) durchgeführt werden?",
+    "options": [
+     {
+      "id": "a",
+      "text": "Innerhalb eines Jahres nach Inbetriebnahme.",
+      "correct": false,
+      "rationale": "Art. 27 verlangt die Bewertung VOR der ersten Verwendung.",
+      "source_ref": "Art. 27 Abs. 1"
+     },
+     {
+      "id": "b",
+      "text": "Vor der ersten Verwendung des Hochrisiko-Systems.",
+      "correct": true,
+      "rationale": "So ausdrücklich Art. 27 Abs. 1 — die FRIA ist Einsatz-Voraussetzung, nicht Nachdokumentation.",
+      "source_ref": "Art. 27 Abs. 1"
+     },
+     {
+      "id": "c",
+      "text": "Nur bei Beschwerden Betroffener.",
+      "correct": false,
+      "rationale": "Die FRIA ist anlassunabhängige Pflicht bestimmter Betreiber.",
+      "source_ref": "Art. 27 Abs. 1"
+     },
+     {
+      "id": "d",
+      "text": "Nur wenn die Aufsichtsbehörde sie anfordert.",
+      "correct": false,
+      "rationale": "Kein Anforderungs-Vorbehalt; die Meldung an die Marktüberwachung folgt der FRIA.",
+      "source_ref": "Art. 27 Abs. 3"
+     }
+    ],
+    "level": "B"
+   }
+  },
+  {
+   "type": "quelle",
+   "ref": "Art. 26 Abs. 2 (Auszug)",
+   "changed_by_omnibus": false,
+   "text": "Die Betreiber übertragen natürlichen Personen, die über die erforderliche Kompetenz, Ausbildung und Befugnis verfügen, die menschliche Aufsicht und lassen ihnen die erforderliche Unterstützung zukommen."
+  },
+  {
+   "type": "erwg",
+   "nr": "96",
+   "text": "Erwägungsgrund 96 — Betreiber, die Einrichtungen des öffentlichen Rechts sind oder öffentliche Dienste erbringen, sollen eine Grundrechte-Folgenabschätzung durchführen — wegen der besonderen Abhängigkeit der Betroffenen. Einsatz im Gespräch: Warum die FRIA gerade die öffentliche Hand trifft."
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p4-e01-c2",
+    "type": "case",
+    "scenario": "Das Alt-Antragssystem (in Betrieb seit 2024, Anhang III Nr. 5a) soll im Frühjahr 2027 ein neues LLM-Modul erhalten, das Ablehnungsentwürfe vollautomatisch erstellt.",
+    "prompt": "Welche zeitliche Konsequenz hat das Modul-Update?",
+    "options": [
+     {
+      "id": "a",
+      "text": "Keine — Altsysteme sind bis 2030 komplett geschützt.",
+      "correct": false,
+      "rationale": "Abs. 2 S. 2 ist kein Vollschutz: Er setzt einen ERFÜLLUNGShorizont (bis 2030 muss Konformität stehen), und die erhebliche Konzeptionsänderung (S. 1) beendet die Schonung vorher.",
+      "source_ref": "Art. 111 Abs. 2 idF 2026/1744"
+     },
+     {
+      "id": "b",
+      "text": "Die Vollautomatisierung ist eine wesentliche Änderung — das Privileg des Art. 111 Abs. 2 entfällt; die Hochrisiko-Pflichten greifen nach dem regulären Regime.",
+      "correct": true,
+      "rationale": "Die erhebliche Konzeptionsänderung beendet die Altsystem-Schonung des Abs. 2 S. 1; für Behörden-Systeme setzt S. 2 zusätzlich den harten Erfüllungshorizont 2.8.2030 — auch ohne jede Änderung. Beides zusammen heißt: Das Update zieht die Pflichten nach vorn.",
+      "source_ref": "Art. 111 Abs. 2 idF 2026/1744; Art. 3 Nr. 23"
+     },
+     {
+      "id": "c",
+      "text": "Das Update verschiebt alle Fristen auf 2030.",
+      "correct": false,
+      "rationale": "Genau umgekehrt: Die Änderung BEENDET die Übergangsfrist.",
+      "source_ref": "Art. 111 Abs. 2 idF 2026/1744"
+     },
+     {
+      "id": "d",
+      "text": "Für eine belastbare Einstufung fehlen Informationen.",
+      "correct": false,
+      "rationale": "Systemtyp, Alter, Änderung und deren Charakter sind vollständig beschrieben.",
+      "source_ref": "Art. 111 Abs. 2 idF 2026/1744"
+     }
+    ],
+    "level": "B"
+   }
+  }
+ ]
+}

@@ -1,0 +1,1893 @@
+{
+ "titel": "Fakten-DB + Rollen-Relevanz-Matrix (berechnete Grundlage, #3)",
+ "facts": [
+  {
+   "id": "fakt-frist-anhang3",
+   "kind": "frist",
+   "subject": "dem Geltungsbeginn der Hochrisiko-Pflichten für Anhang-III-Systeme",
+   "statement": "Geltungsbeginn Kapitel III Abschnitte 1–3 für Anhang-III-Hochrisiko (Art. 6 Abs. 2)",
+   "prompt": "Ab wann gelten die Hochrisiko-Pflichten (Kap. III Abschn. 1–3) für Anhang-III-Systeme?",
+   "correct": "2. Dezember 2027",
+   "distractor_pool": [
+    "2. August 2026",
+    "2. August 2027",
+    "2. Februar 2027",
+    "2. Dezember 2026",
+    "2. August 2028"
+   ],
+   "invertible": true,
+   "negation": "Die Anhang-III-Hochrisiko-Pflichten gelten unverändert seit dem 2. August 2026.",
+   "distractor_truths": [
+    "Der Geltungsbeginn wurde durch die VO 2026/1744 auf den 2.12.2027 verschoben.",
+    "Für Anhang-I-Hochrisiko gilt der 2. August 2028.",
+    "Art. 6 Abs. 5 (Leitlinien) galt bereits ab 2.2.2026."
+   ],
+   "competency": "K07",
+   "level": "A",
+   "legal_basis": [
+    {
+     "ref": "Art. 113 Abs. 3 lit. c i) idF 2026/1744",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-content-offen",
+     "transition_rule": "g4"
+    }
+   ],
+   "legal_status": "konsolidiert-2026-07-27"
+  },
+  {
+   "id": "fakt-frist-anhang1",
+   "kind": "frist",
+   "subject": "dem Geltungsbeginn für Anhang-I-Hochrisiko",
+   "statement": "Geltungsbeginn für Anhang-I-Hochrisiko (Art. 6 Abs. 1)",
+   "prompt": "Ab wann gelten die Hochrisiko-Pflichten für Anhang-I-Systeme (Produktrecht)?",
+   "correct": "2. August 2028",
+   "distractor_pool": [
+    "2. August 2027",
+    "2. Dezember 2027",
+    "2. August 2026",
+    "2. Dezember 2028"
+   ],
+   "invertible": true,
+   "negation": "Für Anhang-I-Systeme gilt der ursprüngliche Termin 2. August 2027 fort.",
+   "distractor_truths": [
+    "Die VO 2026/1744 verschob den Termin von 2.8.2027 auf 2.8.2028.",
+    "Anhang-III-Systeme haben den früheren Termin 2.12.2027.",
+    "Die Verbote gelten unabhängig davon seit 2.2.2025."
+   ],
+   "competency": "K07",
+   "level": "A",
+   "legal_basis": [
+    {
+     "ref": "Art. 113 Abs. 3 lit. c ii) idF 2026/1744",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-content-offen",
+     "transition_rule": "g5"
+    }
+   ],
+   "legal_status": "konsolidiert-2026-07-27"
+  },
+  {
+   "id": "fakt-frist-neue-verbote",
+   "kind": "frist",
+   "subject": "dem Anwendungsbeginn der neuen Art.-5-Verbote",
+   "statement": "Anwendungsbeginn der neuen Art.-5-Tatbestände (lit. ba/bb, Abs. 1a/1b)",
+   "prompt": "Ab wann sind die durch den Digital Omnibus ergänzten Art.-5-Verbote anwendbar?",
+   "correct": "2. Dezember 2026",
+   "distractor_pool": [
+    "27. Juli 2026",
+    "2. August 2026",
+    "2. Februar 2025",
+    "2. Dezember 2027"
+   ],
+   "invertible": true,
+   "negation": "Die neuen Art.-5-Verbote gelten seit Inkrafttreten der VO 2026/1744 am 27.7.2026.",
+   "distractor_truths": [
+    "In Kraft seit 27.7.2026, anwendbar erst ab 2.12.2026 (Art. 113 Abs. 3 lit. a n. F.).",
+    "Die Stamm-Verbote lit. a–h gelten seit 2.2.2025.",
+    "Der allgemeine Geltungsbeginn des AI Act war der 2.8.2026."
+   ],
+   "competency": "K07",
+   "level": "A",
+   "legal_basis": [
+    {
+     "ref": "Art. 113 Abs. 3 lit. a idF 2026/1744",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-content-offen",
+     "transition_rule": "g2"
+    }
+   ],
+   "legal_status": "konsolidiert-2026-07-27"
+  },
+  {
+   "id": "fakt-frist-behoerden-altsysteme",
+   "kind": "frist",
+   "subject": "der Übergangsfrist für Behörden-Altsysteme",
+   "statement": "Übergangsregel für Hochrisiko-Systeme, die für Behörden bestimmt sind",
+   "prompt": "Bis wann müssen bestimmungsgemäß von Behörden verwendete Hochrisiko-ALTsysteme die Pflichten erfüllen?",
+   "correct": "2. August 2030",
+   "distractor_pool": [
+    "2. Dezember 2027",
+    "2. August 2028",
+    "2. August 2026",
+    "sofort bei nächster Änderung"
+   ],
+   "invertible": true,
+   "negation": "Behörden-Altsysteme müssen die Hochrisiko-Pflichten bereits ab dem 2.12.2027 erfüllen.",
+   "distractor_truths": [
+    "Art. 111 Abs. 2 n. F. gewährt Behörden-Systemen die Frist bis 2.8.2030.",
+    "Für neue Anhang-III-Systeme gilt der 2.12.2027.",
+    "Bei wesentlicher Änderung entfällt das Altsystem-Privileg."
+   ],
+   "competency": "K07",
+   "level": "B",
+   "legal_basis": [
+    {
+     "ref": "Art. 111 Abs. 2 idF 2026/1744",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-content-offen",
+     "transition_rule": "u2"
+    }
+   ],
+   "legal_status": "konsolidiert-2026-07-27"
+  },
+  {
+   "id": "fakt-zuord-emotionserkennung",
+   "kind": "zuordnung",
+   "subject": "dem Verbots-Tatbestand der Emotionserkennung",
+   "statement": "Verortung des Emotionserkennungs-Verbots",
+   "prompt": "Emotionserkennung am Arbeitsplatz fällt unter …",
+   "correct": "Art. 5 Abs. 1 lit. f",
+   "distractor_pool": [
+    "Art. 5 Abs. 1 lit. c",
+    "Art. 50 Abs. 3",
+    "Anhang III Nr. 4",
+    "Art. 5 Abs. 1 lit. g"
+   ],
+   "invertible": false,
+   "competency": "K02",
+   "level": "A",
+   "legal_basis": [
+    {
+     "ref": "Art. 5 Abs. 1 lit. f",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-content-offen"
+    }
+   ],
+   "legal_status": "konsolidiert-2026-07-27"
+  },
+  {
+   "id": "fakt-def-zweckbestimmung",
+   "kind": "definition",
+   "subject": "der Zweckbestimmung",
+   "statement": "Definition der Zweckbestimmung",
+   "prompt": "'Zweckbestimmung' im Sinne des AI Act meint …",
+   "correct": "die vom ANBIETER vorgesehene Verwendung laut Gebrauchsanweisung, Werbung und Dokumentation",
+   "distractor_pool": [
+    "den tatsächlichen Einsatzzweck beim Betreiber",
+    "den im Kaufvertrag vereinbarten Zweck",
+    "den von der Aufsichtsbehörde genehmigten Zweck"
+   ],
+   "invertible": false,
+   "competency": "K02",
+   "level": "A",
+   "legal_basis": [
+    {
+     "ref": "Art. 3 Nr. 12",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-content-offen"
+    }
+   ],
+   "legal_status": "konsolidiert-2026-07-27"
+  },
+  {
+   "id": "fakt-frist-gpai",
+   "kind": "frist",
+   "subject": "dem Geltungsbeginn der GPAI-Regeln",
+   "statement": "Geltungsbeginn Kapitel V (GPAI)",
+   "prompt": "Seit wann gelten die GPAI-Modell-Regeln?",
+   "correct": "2. August 2025",
+   "distractor_pool": [
+    "2. Februar 2025",
+    "2. August 2026",
+    "2. Dezember 2026",
+    "2. August 2027"
+   ],
+   "invertible": true,
+   "competency": "K07",
+   "level": "A",
+   "legal_basis": [
+    {
+     "ref": "Art. 113 Abs. 3 lit. b",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-2026-07-24"
+    }
+   ],
+   "legal_status": "konsolidiert-2026-07-27",
+   "negation": "Die GPAI-Regeln gelten erst ab dem allgemeinen Geltungsbeginn 2.8.2026.",
+   "distractor_truths": [
+    "Kapitel V gilt seit 2.8.2025.",
+    "Der allgemeine Geltungsbeginn war der 2.8.2026.",
+    "Verbote gelten seit 2.2.2025."
+   ]
+  },
+  {
+   "id": "fakt-frist-altgenerator",
+   "kind": "frist",
+   "subject": "der Nachrüstfrist für Alt-Generatoren",
+   "statement": "Art.-50(2)-Kennzeichnung für Alt-Generatoren",
+   "prompt": "Bis wann müssen vor dem 2.8.2026 in Verkehr gebrachte Generatoren die maschinenlesbare Kennzeichnung nachrüsten?",
+   "correct": "2. Dezember 2026",
+   "distractor_pool": [
+    "2. August 2026",
+    "2. Dezember 2027",
+    "2. August 2028",
+    "sofort seit 27.7.2026"
+   ],
+   "invertible": true,
+   "competency": "K07",
+   "level": "B",
+   "legal_basis": [
+    {
+     "ref": "Art. 111 Abs. 4 idF 2026/1744",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-2026-07-24"
+    }
+   ],
+   "legal_status": "konsolidiert-2026-07-27",
+   "negation": "Alt-Generatoren sind dauerhaft von der Kennzeichnungspflicht befreit.",
+   "distractor_truths": [
+    "Art. 111 Abs. 4 setzt die Nachrüstfrist 2.12.2026.",
+    "Art. 50 gilt allgemein seit 2.8.2026.",
+    "Die Behörden-Altsystem-Regel (2030) betrifft Hochrisiko-Pflichten."
+   ]
+  },
+  {
+   "id": "fakt-zuord-scoring",
+   "kind": "zuordnung",
+   "subject": "dem Social-Scoring-Verbot",
+   "statement": "Verortung Social Scoring",
+   "prompt": "Social Scoring durch/für öffentliche Stellen fällt unter …",
+   "correct": "Art. 5 Abs. 1 lit. c",
+   "distractor_pool": [
+    "Art. 5 Abs. 1 lit. a",
+    "Anhang III Nr. 5",
+    "Art. 50 Abs. 1",
+    "Art. 5 Abs. 1 lit. d"
+   ],
+   "invertible": false,
+   "competency": "K02",
+   "level": "A",
+   "legal_basis": [
+    {
+     "ref": "Art. 5 Abs. 1 lit. c",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-2026-07-24"
+    }
+   ],
+   "legal_status": "konsolidiert-2026-07-27"
+  },
+  {
+   "id": "fakt-zuord-fria",
+   "kind": "zuordnung",
+   "subject": "der FRIA-Rechtsgrundlage",
+   "statement": "Verortung der Grundrechte-Folgenabschätzung",
+   "prompt": "Die FRIA-Pflicht bestimmter Betreiber steht in …",
+   "correct": "Art. 27",
+   "distractor_pool": [
+    "Art. 26",
+    "Art. 35",
+    "Art. 43",
+    "Art. 6 Abs. 3"
+   ],
+   "invertible": false,
+   "competency": "K05",
+   "level": "A",
+   "legal_basis": [
+    {
+     "ref": "Art. 27",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-2026-07-24"
+    }
+   ],
+   "legal_status": "konsolidiert-2026-07-27"
+  },
+  {
+   "id": "fakt-zuord-rollenkipp",
+   "kind": "zuordnung",
+   "subject": "dem Rollenwechsel zum Anbieter",
+   "statement": "Verortung des Rollen-Kipps",
+   "prompt": "Dass Betreiber unter Umständen zu Anbietern werden, regelt …",
+   "correct": "Art. 25 Abs. 1",
+   "distractor_pool": [
+    "Art. 3 Nr. 4",
+    "Art. 26 Abs. 1",
+    "Art. 111 Abs. 2",
+    "Art. 16"
+   ],
+   "invertible": false,
+   "competency": "K05",
+   "level": "A",
+   "legal_basis": [
+    {
+     "ref": "Art. 25 Abs. 1",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-2026-07-24"
+    }
+   ],
+   "legal_status": "konsolidiert-2026-07-27"
+  },
+  {
+   "id": "fakt-def-betreiber",
+   "kind": "definition",
+   "subject": "dem Betreiberbegriff",
+   "statement": "Definition Betreiber",
+   "prompt": "„Betreiber“ ist, wer ein KI-System …",
+   "correct": "in eigener Verantwortung beruflich verwendet",
+   "distractor_pool": [
+    "besitzt oder finanziert",
+    "entwickelt oder vertreibt",
+    "zertifiziert",
+    "im Privatbereich nutzt"
+   ],
+   "invertible": false,
+   "competency": "K02",
+   "level": "A",
+   "legal_basis": [
+    {
+     "ref": "Art. 3 Nr. 4",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-2026-07-24"
+    }
+   ],
+   "legal_status": "konsolidiert-2026-07-27"
+  },
+  {
+   "id": "fakt-def-inverkehr",
+   "kind": "definition",
+   "subject": "dem Inverkehrbringen",
+   "statement": "Definition Inverkehrbringen",
+   "prompt": "„Inverkehrbringen“ meint …",
+   "correct": "die ERSTMALIGE Bereitstellung auf dem Unionsmarkt",
+   "distractor_pool": [
+    "jede Lieferung an Kunden",
+    "die Inbetriebnahme beim Betreiber",
+    "den Vertragsabschluss",
+    "das Marketing"
+   ],
+   "invertible": false,
+   "competency": "K02",
+   "level": "A",
+   "legal_basis": [
+    {
+     "ref": "Art. 3 Nr. 9",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-2026-07-24"
+    }
+   ],
+   "legal_status": "konsolidiert-2026-07-27"
+  },
+  {
+   "id": "fakt-schwelle-sanktion-verbote",
+   "kind": "schwelle",
+   "subject": "der Sanktionsobergrenze für Verbots-Verstöße",
+   "statement": "Sanktionsrahmen Art.-5-Verstöße",
+   "prompt": "Verstöße gegen Art. 5 können kosten bis zu …",
+   "correct": "35 Mio. Euro oder 7 % des weltweiten Jahresumsatzes",
+   "distractor_pool": [
+    "15 Mio. Euro oder 3 %",
+    "7,5 Mio. Euro oder 1 %",
+    "10 Mio. Euro pauschal",
+    "1 % des Bilanzgewinns"
+   ],
+   "invertible": false,
+   "competency": "K10",
+   "level": "A",
+   "legal_basis": [
+    {
+     "ref": "Art. 99 Abs. 3",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-2026-07-24"
+    }
+   ],
+   "legal_status": "konsolidiert-2026-07-27"
+  },
+  {
+   "id": "fakt-schwelle-sanktion-pflichten",
+   "kind": "schwelle",
+   "subject": "der Sanktionsstufe für Kernpflichten",
+   "statement": "Sanktionsrahmen Pflichtverstöße",
+   "prompt": "Verstöße gegen die meisten übrigen Kernpflichten (z. B. Art. 26) können kosten bis zu …",
+   "correct": "15 Mio. Euro oder 3 % des weltweiten Jahresumsatzes",
+   "distractor_pool": [
+    "35 Mio. Euro oder 7 %",
+    "7,5 Mio. Euro oder 1 %",
+    "5 Mio. Euro pauschal",
+    "keine Geldbußen"
+   ],
+   "invertible": false,
+   "competency": "K10",
+   "level": "A",
+   "legal_basis": [
+    {
+     "ref": "Art. 99 Abs. 4",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-2026-07-24"
+    }
+   ],
+   "legal_status": "konsolidiert-2026-07-27"
+  },
+  {
+   "id": "fakt-zuord-erlaeuterung",
+   "kind": "zuordnung",
+   "subject": "dem Erläuterungsanspruch",
+   "statement": "Verortung Betroffenen-Erläuterung",
+   "prompt": "Den Anspruch auf Erläuterung bestimmter Hochrisiko-Einzelentscheidungen gibt …",
+   "correct": "Art. 86",
+   "distractor_pool": [
+    "Art. 85",
+    "Art. 50",
+    "Art. 22 DSGVO",
+    "Art. 13"
+   ],
+   "invertible": false,
+   "competency": "K10",
+   "level": "B",
+   "legal_basis": [
+    {
+     "ref": "Art. 86",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-2026-07-24"
+    }
+   ],
+   "legal_status": "konsolidiert-2026-07-27"
+  },
+  {
+   "id": "fakt-def-emotionserkennung",
+   "kind": "definition",
+   "subject": "der Emotionserkennung",
+   "statement": "Definition Emotionserkennungssystem",
+   "prompt": "Ein Emotionserkennungssystem leitet Emotionen/Absichten ab auf Grundlage …",
+   "correct": "biometrischer Daten",
+   "distractor_pool": [
+    "beliebiger Textdaten",
+    "von Metadaten",
+    "der Stimmlage allein, nie des Gesichts",
+    "von Fragebögen"
+   ],
+   "invertible": false,
+   "competency": "K02",
+   "level": "A",
+   "legal_basis": [
+    {
+     "ref": "Art. 3 Nr. 39",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-2026-07-24"
+    }
+   ],
+   "legal_status": "konsolidiert-2026-07-27"
+  },
+  {
+   "id": "fakt-zuord-reallabor",
+   "kind": "zuordnung",
+   "subject": "den Reallaboren",
+   "statement": "Verortung Reallabore",
+   "prompt": "KI-Reallabore regelt …",
+   "correct": "Art. 57",
+   "distractor_pool": [
+    "Art. 27",
+    "Art. 95",
+    "Art. 4a",
+    "Art. 60"
+   ],
+   "invertible": false,
+   "competency": "K10",
+   "level": "A",
+   "legal_basis": [
+    {
+     "ref": "Art. 57",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-2026-07-24"
+    }
+   ],
+   "legal_status": "konsolidiert-2026-07-27"
+  },
+  {
+   "id": "fakt-schwelle-fria-frist",
+   "kind": "frist",
+   "subject": "dem FRIA-Zeitpunkt",
+   "statement": "FRIA-Zeitpunkt",
+   "prompt": "Die FRIA ist durchzuführen …",
+   "correct": "vor der ersten Verwendung des Hochrisiko-Systems",
+   "distractor_pool": [
+    "binnen 6 Monaten nach Go-live",
+    "jährlich ab Inbetriebnahme",
+    "nur auf Behördenanforderung",
+    "bei der Beschaffung"
+   ],
+   "invertible": false,
+   "competency": "K05",
+   "level": "A",
+   "legal_basis": [
+    {
+     "ref": "Art. 27 Abs. 1",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-2026-07-24"
+    }
+   ],
+   "legal_status": "konsolidiert-2026-07-27"
+  },
+  {
+   "id": "fakt-zuord-profiling-sperre",
+   "kind": "zuordnung",
+   "subject": "der Profiling-Rückausnahme",
+   "statement": "Profiling in Art. 6 Abs. 3",
+   "prompt": "Anhang-III-Systeme mit Profiling natürlicher Personen sind …",
+   "correct": "immer hochriskant — die Abs.-3-Ausnahmen greifen nie",
+   "distractor_pool": [
+    "ausnahmefähig bei Dokumentation",
+    "nur transparenzpflichtig",
+    "stets verboten",
+    "nur bei Behörden hochriskant"
+   ],
+   "invertible": false,
+   "competency": "K03",
+   "level": "B",
+   "legal_basis": [
+    {
+     "ref": "Art. 6 Abs. 3 UAbs. 3",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-2026-07-24"
+    }
+   ],
+   "legal_status": "konsolidiert-2026-07-27"
+  }
+ ],
+ "relevanz_matrix": {
+  "rollen": {
+   "betreiber_behoerde": "Betreiber + Körperschaft öffentlichen Rechts (ÖSVA-Profil)"
+  },
+  "artikel": [
+   {
+    "ref": "Art. 1",
+    "titel": "Allgemeines (inkl. Art. 4 KI-Kompetenz)",
+    "kategorien": [
+     "fundament"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kern"
+    }
+   },
+   {
+    "ref": "Art. 2",
+    "titel": "Allgemeines (inkl. Art. 4 KI-Kompetenz)",
+    "kategorien": [
+     "fundament"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kern"
+    }
+   },
+   {
+    "ref": "Art. 3",
+    "titel": "Allgemeines (inkl. Art. 4 KI-Kompetenz)",
+    "kategorien": [
+     "fundament"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kern"
+    }
+   },
+   {
+    "ref": "Art. 4",
+    "titel": "Allgemeines (inkl. Art. 4 KI-Kompetenz)",
+    "kategorien": [
+     "fundament"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kern"
+    }
+   },
+   {
+    "ref": "Art. 4a",
+    "titel": "Bias-Datengrundlage (neu)",
+    "kategorien": [
+     "fundament",
+     "daten"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kern"
+    }
+   },
+   {
+    "ref": "Art. 5",
+    "titel": "Verbotene Praktiken",
+    "kategorien": [
+     "verbote"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kern"
+    }
+   },
+   {
+    "ref": "Art. 6",
+    "titel": "Einstufung",
+    "kategorien": [
+     "einstufung"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kern"
+    }
+   },
+   {
+    "ref": "Art. 7",
+    "titel": "Einstufung",
+    "kategorien": [
+     "einstufung"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kern"
+    }
+   },
+   {
+    "ref": "Art. 8",
+    "titel": "Hochrisiko-Anforderungen",
+    "kategorien": [
+     "pflichten"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kern"
+    }
+   },
+   {
+    "ref": "Art. 9",
+    "titel": "Hochrisiko-Anforderungen",
+    "kategorien": [
+     "pflichten"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kern"
+    }
+   },
+   {
+    "ref": "Art. 10",
+    "titel": "Hochrisiko-Anforderungen",
+    "kategorien": [
+     "pflichten"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kern"
+    }
+   },
+   {
+    "ref": "Art. 11",
+    "titel": "Hochrisiko-Anforderungen",
+    "kategorien": [
+     "pflichten"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kern"
+    }
+   },
+   {
+    "ref": "Art. 12",
+    "titel": "Hochrisiko-Anforderungen",
+    "kategorien": [
+     "pflichten"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kern"
+    }
+   },
+   {
+    "ref": "Art. 13",
+    "titel": "Hochrisiko-Anforderungen",
+    "kategorien": [
+     "pflichten"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kern"
+    }
+   },
+   {
+    "ref": "Art. 14",
+    "titel": "Hochrisiko-Anforderungen",
+    "kategorien": [
+     "pflichten"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kern"
+    }
+   },
+   {
+    "ref": "Art. 15",
+    "titel": "Hochrisiko-Anforderungen",
+    "kategorien": [
+     "pflichten"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kern"
+    }
+   },
+   {
+    "ref": "Art. 16",
+    "titel": "Anbieter-/Wertschöpfungskette",
+    "kategorien": [
+     "pflichten",
+     "rollen"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kern"
+    }
+   },
+   {
+    "ref": "Art. 17",
+    "titel": "Anbieter-/Wertschöpfungskette",
+    "kategorien": [
+     "pflichten",
+     "rollen"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kern"
+    }
+   },
+   {
+    "ref": "Art. 18",
+    "titel": "Anbieter-/Wertschöpfungskette",
+    "kategorien": [
+     "pflichten",
+     "rollen"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kern"
+    }
+   },
+   {
+    "ref": "Art. 19",
+    "titel": "Anbieter-/Wertschöpfungskette",
+    "kategorien": [
+     "pflichten",
+     "rollen"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kern"
+    }
+   },
+   {
+    "ref": "Art. 20",
+    "titel": "Anbieter-/Wertschöpfungskette",
+    "kategorien": [
+     "pflichten",
+     "rollen"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kern"
+    }
+   },
+   {
+    "ref": "Art. 21",
+    "titel": "Anbieter-/Wertschöpfungskette",
+    "kategorien": [
+     "pflichten",
+     "rollen"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kern"
+    }
+   },
+   {
+    "ref": "Art. 22",
+    "titel": "Anbieter-/Wertschöpfungskette",
+    "kategorien": [
+     "pflichten",
+     "rollen"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kern"
+    }
+   },
+   {
+    "ref": "Art. 23",
+    "titel": "Anbieter-/Wertschöpfungskette",
+    "kategorien": [
+     "pflichten",
+     "rollen"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kern"
+    }
+   },
+   {
+    "ref": "Art. 24",
+    "titel": "Anbieter-/Wertschöpfungskette",
+    "kategorien": [
+     "pflichten",
+     "rollen"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kern"
+    }
+   },
+   {
+    "ref": "Art. 25",
+    "titel": "Anbieter-/Wertschöpfungskette",
+    "kategorien": [
+     "pflichten",
+     "rollen"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kern"
+    }
+   },
+   {
+    "ref": "Art. 26",
+    "titel": "Betreiberpflichten + FRIA",
+    "kategorien": [
+     "pflichten"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kern"
+    }
+   },
+   {
+    "ref": "Art. 27",
+    "titel": "Betreiberpflichten + FRIA",
+    "kategorien": [
+     "pflichten"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kern"
+    }
+   },
+   {
+    "ref": "Art. 28",
+    "titel": "Notifizierung/benannte Stellen",
+    "kategorien": [
+     "verfahren"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "karte"
+    }
+   },
+   {
+    "ref": "Art. 29",
+    "titel": "Notifizierung/benannte Stellen",
+    "kategorien": [
+     "verfahren"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "karte"
+    }
+   },
+   {
+    "ref": "Art. 30",
+    "titel": "Notifizierung/benannte Stellen",
+    "kategorien": [
+     "verfahren"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "karte"
+    }
+   },
+   {
+    "ref": "Art. 31",
+    "titel": "Notifizierung/benannte Stellen",
+    "kategorien": [
+     "verfahren"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "karte"
+    }
+   },
+   {
+    "ref": "Art. 32",
+    "titel": "Notifizierung/benannte Stellen",
+    "kategorien": [
+     "verfahren"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "karte"
+    }
+   },
+   {
+    "ref": "Art. 33",
+    "titel": "Notifizierung/benannte Stellen",
+    "kategorien": [
+     "verfahren"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "karte"
+    }
+   },
+   {
+    "ref": "Art. 34",
+    "titel": "Notifizierung/benannte Stellen",
+    "kategorien": [
+     "verfahren"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "karte"
+    }
+   },
+   {
+    "ref": "Art. 35",
+    "titel": "Notifizierung/benannte Stellen",
+    "kategorien": [
+     "verfahren"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "karte"
+    }
+   },
+   {
+    "ref": "Art. 36",
+    "titel": "Notifizierung/benannte Stellen",
+    "kategorien": [
+     "verfahren"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "karte"
+    }
+   },
+   {
+    "ref": "Art. 37",
+    "titel": "Notifizierung/benannte Stellen",
+    "kategorien": [
+     "verfahren"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "karte"
+    }
+   },
+   {
+    "ref": "Art. 38",
+    "titel": "Notifizierung/benannte Stellen",
+    "kategorien": [
+     "verfahren"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "karte"
+    }
+   },
+   {
+    "ref": "Art. 39",
+    "titel": "Notifizierung/benannte Stellen",
+    "kategorien": [
+     "verfahren"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "karte"
+    }
+   },
+   {
+    "ref": "Art. 40",
+    "titel": "Normen, Konformität, CE",
+    "kategorien": [
+     "verfahren"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 41",
+    "titel": "Normen, Konformität, CE",
+    "kategorien": [
+     "verfahren"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 42",
+    "titel": "Normen, Konformität, CE",
+    "kategorien": [
+     "verfahren"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 43",
+    "titel": "Normen, Konformität, CE",
+    "kategorien": [
+     "verfahren"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 44",
+    "titel": "Normen, Konformität, CE",
+    "kategorien": [
+     "verfahren"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 45",
+    "titel": "Normen, Konformität, CE",
+    "kategorien": [
+     "verfahren"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 46",
+    "titel": "Normen, Konformität, CE",
+    "kategorien": [
+     "verfahren"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 47",
+    "titel": "Normen, Konformität, CE",
+    "kategorien": [
+     "verfahren"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 48",
+    "titel": "Normen, Konformität, CE",
+    "kategorien": [
+     "verfahren"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 49",
+    "titel": "Normen, Konformität, CE",
+    "kategorien": [
+     "verfahren"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 50",
+    "titel": "Transparenz",
+    "kategorien": [
+     "transparenz"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kern"
+    }
+   },
+   {
+    "ref": "Art. 51",
+    "titel": "GPAI",
+    "kategorien": [
+     "gpai"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 52",
+    "titel": "GPAI",
+    "kategorien": [
+     "gpai"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 53",
+    "titel": "GPAI",
+    "kategorien": [
+     "gpai"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 54",
+    "titel": "GPAI",
+    "kategorien": [
+     "gpai"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 55",
+    "titel": "GPAI",
+    "kategorien": [
+     "gpai"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 56",
+    "titel": "GPAI",
+    "kategorien": [
+     "gpai"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 57",
+    "titel": "Reallabore/Innovation",
+    "kategorien": [
+     "innovation"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 58",
+    "titel": "Reallabore/Innovation",
+    "kategorien": [
+     "innovation"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 59",
+    "titel": "Reallabore/Innovation",
+    "kategorien": [
+     "innovation"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 60",
+    "titel": "Reallabore/Innovation",
+    "kategorien": [
+     "innovation"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 60a",
+    "titel": "Testen unter Realbedingungen (eingefügt 2026/1744)",
+    "kategorien": [
+     "innovation"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 61",
+    "titel": "Reallabore/Innovation",
+    "kategorien": [
+     "innovation"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 62",
+    "titel": "Reallabore/Innovation",
+    "kategorien": [
+     "innovation"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 63",
+    "titel": "Reallabore/Innovation",
+    "kategorien": [
+     "innovation"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 64",
+    "titel": "Governance EU/national",
+    "kategorien": [
+     "aufsicht"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 65",
+    "titel": "Governance EU/national",
+    "kategorien": [
+     "aufsicht"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 66",
+    "titel": "Governance EU/national",
+    "kategorien": [
+     "aufsicht"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 67",
+    "titel": "Governance EU/national",
+    "kategorien": [
+     "aufsicht"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 68",
+    "titel": "Governance EU/national",
+    "kategorien": [
+     "aufsicht"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 69",
+    "titel": "Governance EU/national",
+    "kategorien": [
+     "aufsicht"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 70",
+    "titel": "Governance EU/national",
+    "kategorien": [
+     "aufsicht"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 71",
+    "titel": "EU-Datenbank/Marktüberwachung-Basis",
+    "kategorien": [
+     "aufsicht"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 72",
+    "titel": "EU-Datenbank/Marktüberwachung-Basis",
+    "kategorien": [
+     "aufsicht"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 73",
+    "titel": "EU-Datenbank/Marktüberwachung-Basis",
+    "kategorien": [
+     "aufsicht"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 74",
+    "titel": "EU-Datenbank/Marktüberwachung-Basis",
+    "kategorien": [
+     "aufsicht"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 75",
+    "titel": "Marktüberwachung/Durchsetzung",
+    "kategorien": [
+     "aufsicht"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 75a",
+    "titel": "Marktüberwachung (eingefügt 2026/1744)",
+    "kategorien": [
+     "aufsicht"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 75b",
+    "titel": "Marktüberwachung (eingefügt 2026/1744)",
+    "kategorien": [
+     "aufsicht"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 75c",
+    "titel": "Marktüberwachung (eingefügt 2026/1744)",
+    "kategorien": [
+     "aufsicht"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 75d",
+    "titel": "Marktüberwachung (eingefügt 2026/1744)",
+    "kategorien": [
+     "aufsicht"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 76",
+    "titel": "Marktüberwachung/Durchsetzung",
+    "kategorien": [
+     "aufsicht"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 77",
+    "titel": "Marktüberwachung/Durchsetzung",
+    "kategorien": [
+     "aufsicht"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 78",
+    "titel": "Marktüberwachung/Durchsetzung",
+    "kategorien": [
+     "aufsicht"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 79",
+    "titel": "Marktüberwachung/Durchsetzung",
+    "kategorien": [
+     "aufsicht"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 80",
+    "titel": "Marktüberwachung/Durchsetzung",
+    "kategorien": [
+     "aufsicht"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 81",
+    "titel": "Marktüberwachung/Durchsetzung",
+    "kategorien": [
+     "aufsicht"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 82",
+    "titel": "Marktüberwachung/Durchsetzung",
+    "kategorien": [
+     "aufsicht"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 83",
+    "titel": "Marktüberwachung/Durchsetzung",
+    "kategorien": [
+     "aufsicht"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 84",
+    "titel": "Marktüberwachung/Durchsetzung",
+    "kategorien": [
+     "aufsicht"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 85",
+    "titel": "Marktüberwachung/Durchsetzung",
+    "kategorien": [
+     "aufsicht"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 86",
+    "titel": "Marktüberwachung/Durchsetzung",
+    "kategorien": [
+     "aufsicht"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 87",
+    "titel": "Marktüberwachung/Durchsetzung",
+    "kategorien": [
+     "aufsicht"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 88",
+    "titel": "Marktüberwachung/Durchsetzung",
+    "kategorien": [
+     "aufsicht"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 89",
+    "titel": "Marktüberwachung/Durchsetzung",
+    "kategorien": [
+     "aufsicht"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 90",
+    "titel": "Marktüberwachung/Durchsetzung",
+    "kategorien": [
+     "aufsicht"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 91",
+    "titel": "Marktüberwachung/Durchsetzung",
+    "kategorien": [
+     "aufsicht"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 92",
+    "titel": "Marktüberwachung/Durchsetzung",
+    "kategorien": [
+     "aufsicht"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 93",
+    "titel": "Marktüberwachung/Durchsetzung",
+    "kategorien": [
+     "aufsicht"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 94",
+    "titel": "Marktüberwachung/Durchsetzung",
+    "kategorien": [
+     "aufsicht"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Art. 95",
+    "titel": "Verhaltenskodizes/Leitlinien",
+    "kategorien": [
+     "aufsicht"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "karte"
+    }
+   },
+   {
+    "ref": "Art. 96",
+    "titel": "Verhaltenskodizes/Leitlinien",
+    "kategorien": [
+     "aufsicht"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "karte"
+    }
+   },
+   {
+    "ref": "Art. 97",
+    "titel": "Verhaltenskodizes/Leitlinien",
+    "kategorien": [
+     "aufsicht"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "karte"
+    }
+   },
+   {
+    "ref": "Art. 98",
+    "titel": "Verhaltenskodizes/Leitlinien",
+    "kategorien": [
+     "aufsicht"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "karte"
+    }
+   },
+   {
+    "ref": "Art. 99",
+    "titel": "Sanktionen (inkl. Behördenregime Abs. 8)",
+    "kategorien": [
+     "sanktionen"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kern"
+    }
+   },
+   {
+    "ref": "Art. 100",
+    "titel": "Sanktionen (inkl. Behördenregime Abs. 8)",
+    "kategorien": [
+     "sanktionen"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kern"
+    }
+   },
+   {
+    "ref": "Art. 101",
+    "titel": "Sanktionen (inkl. Behördenregime Abs. 8)",
+    "kategorien": [
+     "sanktionen"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kern"
+    }
+   },
+   {
+    "ref": "Art. 102",
+    "titel": "Änderungen sektoraler Rechtsakte",
+    "kategorien": [
+     "rand"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "karte"
+    }
+   },
+   {
+    "ref": "Art. 103",
+    "titel": "Änderungen sektoraler Rechtsakte",
+    "kategorien": [
+     "rand"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "karte"
+    }
+   },
+   {
+    "ref": "Art. 104",
+    "titel": "Änderungen sektoraler Rechtsakte",
+    "kategorien": [
+     "rand"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "karte"
+    }
+   },
+   {
+    "ref": "Art. 105",
+    "titel": "Änderungen sektoraler Rechtsakte",
+    "kategorien": [
+     "rand"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "karte"
+    }
+   },
+   {
+    "ref": "Art. 106",
+    "titel": "Änderungen sektoraler Rechtsakte",
+    "kategorien": [
+     "rand"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "karte"
+    }
+   },
+   {
+    "ref": "Art. 107",
+    "titel": "Änderungen sektoraler Rechtsakte",
+    "kategorien": [
+     "rand"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "karte"
+    }
+   },
+   {
+    "ref": "Art. 108",
+    "titel": "Änderungen sektoraler Rechtsakte",
+    "kategorien": [
+     "rand"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "karte"
+    }
+   },
+   {
+    "ref": "Art. 109",
+    "titel": "Änderungen sektoraler Rechtsakte",
+    "kategorien": [
+     "rand"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "karte"
+    }
+   },
+   {
+    "ref": "Art. 110",
+    "titel": "Änderungen sektoraler Rechtsakte",
+    "kategorien": [
+     "rand"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "karte"
+    }
+   },
+   {
+    "ref": "Art. 111",
+    "titel": "Übergangsregeln (Altsysteme!)",
+    "kategorien": [
+     "fristen"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kern"
+    }
+   },
+   {
+    "ref": "Art. 112",
+    "titel": "Evaluierung",
+    "kategorien": [
+     "rand"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "karte"
+    }
+   },
+   {
+    "ref": "Art. 113",
+    "titel": "Geltungsbeginn",
+    "kategorien": [
+     "fristen"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kern"
+    }
+   },
+   {
+    "ref": "Anhang I",
+    "titel": "Anhang I",
+    "kategorien": [
+     "anhang"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Anhang II",
+    "titel": "Anhang II",
+    "kategorien": [
+     "anhang"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kern"
+    }
+   },
+   {
+    "ref": "Anhang III",
+    "titel": "Anhang III",
+    "kategorien": [
+     "anhang"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kern"
+    }
+   },
+   {
+    "ref": "Anhang IV",
+    "titel": "Anhang IV",
+    "kategorien": [
+     "anhang"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Anhang V",
+    "titel": "Anhang V",
+    "kategorien": [
+     "anhang"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "karte"
+    }
+   },
+   {
+    "ref": "Anhang VI",
+    "titel": "Anhang VI",
+    "kategorien": [
+     "anhang"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Anhang VII",
+    "titel": "Anhang VII",
+    "kategorien": [
+     "anhang"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "karte"
+    }
+   },
+   {
+    "ref": "Anhang VIII",
+    "titel": "Anhang VIII",
+    "kategorien": [
+     "anhang"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Anhang IX",
+    "titel": "Anhang IX",
+    "kategorien": [
+     "anhang"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "karte"
+    }
+   },
+   {
+    "ref": "Anhang X",
+    "titel": "Anhang X",
+    "kategorien": [
+     "anhang"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "karte"
+    }
+   },
+   {
+    "ref": "Anhang XI",
+    "titel": "Anhang XI",
+    "kategorien": [
+     "anhang"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Anhang XII",
+    "titel": "Anhang XII",
+    "kategorien": [
+     "anhang"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Anhang XIII",
+    "titel": "Anhang XIII",
+    "kategorien": [
+     "anhang"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   },
+   {
+    "ref": "Anhang XIV",
+    "titel": "Anhang XIV",
+    "kategorien": [
+     "anhang"
+    ],
+    "relevanz": {
+     "betreiber_behoerde": "kompakt"
+    }
+   }
+  ]
+ }
+}

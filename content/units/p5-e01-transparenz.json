@@ -1,0 +1,202 @@
+{
+ "id": "p5-e01-transparenz",
+ "phase": "p5",
+ "title": "Art. 50: Chatbots, Deepfakes und die Kennzeichnungs-Pflichten",
+ "competency": "K12",
+ "level": "B",
+ "legal_status": "konsolidiert-2026-07-27",
+ "legal_basis": [
+  {
+   "ref": "Art. 50",
+   "instrument": "VO 2024/1689 idF 2026/1744",
+   "verified": "eigenpruefung-2026-07-24"
+  },
+  {
+   "ref": "Art. 111 Abs. 4 idF 2026/1744",
+   "instrument": "VO 2024/1689 idF 2026/1744",
+   "verified": "eigenpruefung-2026-07-24"
+  }
+ ],
+ "change_log": [
+  {
+   "date": "2026-07-24",
+   "was": "Ersterstellung",
+   "quelle": "legal/arbeitskonsolidierung.md"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "Auslegungs-Box ErwG 134 ergänzt (Plan #4 Doppelverankerung)"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "Beispiel-Slot slot-11 ergänzt (§5.1: fixer Intent, profilvariable Einkleidung)"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "A-Stufen-Check ergänzt (§3 Mengengerüst 40/40/20)"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "Originaltext-Box auf wörtlichen Amtsblatt-Wortlaut korrigiert (Nacharbeit: war paraphrasiert)"
+  }
+ ],
+ "blocks": [
+  {
+   "type": "problem",
+   "html": "Drei Fälle aus einer Woche: (A) Versicherten-Chatbot, (B) KI-generierte Illustrationen fürs Mitgliedermagazin, (C) Emotionsauswertung in Kunden-Videocalls. <b>Wer muss hier wem was offenlegen — und seit wann gilt das eigentlich?</b>",
+   "einsteiger_worked_example": "Prüfweg: (A) Art. 50 Abs. 1: Interaktions-KI → Information, dass man mit KI interagiert (außer offensichtlich). (B) Abs. 2 (Anbieterseite: maschinenlesbare Kennzeichnung) + Abs. 4 (Betreiberseite bei Deepfake-artigen Inhalten: Offenlegung). (C) Abs. 3: Betreiber von Emotionserkennung informieren die BETROFFENEN. Zeitachse: Art. 50 gilt seit dem allgemeinen Geltungsbeginn 2.8.2026; Alt-Generatoren mussten die Abs.-2-Kennzeichnung bis 2.12.2026 nachrüsten (Art. 111 Abs. 4)."
+  },
+  {
+   "type": "concept",
+   "html": "<b>Art. 50</b> ist das Transparenz-Regime für „mittleres Risiko“: <b>Abs. 1</b> Interaktion mit KI offenlegen (Chatbots), <b>Abs. 2</b> synthetische Inhalte maschinenlesbar kennzeichnen (Anbieter von Generatoren), <b>Abs. 3</b> Emotionserkennung/biometrische Kategorisierung: Betroffene informieren, <b>Abs. 4</b> Deepfakes offenlegen (Betreiber). WICHTIG: Transparenz ist <b>kumulativ</b> zu Hochrisiko — ein System kann beides sein. Und: Transparenz heilt NIE ein Art.-5-Verbot."
+  },
+  {
+   "type": "beispiel",
+   "intent_id": "slot-11",
+   "intent": "zeige, dass Transparenz unabhängig von der Risikoklasse gilt",
+   "generisch": "Ein einfacher Auskunfts-Chatbot ist kein Hochrisiko-System — die Pflicht, die KI-Interaktion offenzulegen, besteht trotzdem."
+  },
+  {
+   "type": "merkbild",
+   "html": "🧠 Merkbild: Art. 50 ist die <b>Zutatenliste</b> der KI — sie macht das Produkt nicht gesund, aber ehrlich."
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p5-e01-a1",
+    "type": "mc",
+    "competency": "K12",
+    "level": "A",
+    "legal_status": "konsolidiert-2026-07-27",
+    "legal_basis": [
+     {
+      "ref": "Art. 50 Abs. 2",
+      "instrument": "VO 2024/1689 idF 2026/1744",
+      "verified": "eigenpruefung-a-checks-2026-07-25"
+     }
+    ],
+    "prompt": "Welcher Absatz des Art. 50 regelt die Kennzeichnung KI-erzeugter Inhalte?",
+    "options": [
+     {
+      "id": "a",
+      "text": "Abs. 2",
+      "correct": true,
+      "rationale": "Maschinenlesbare Markierung als künstlich erzeugt oder manipuliert.",
+      "source_ref": "Art. 50 Abs. 2"
+     },
+     {
+      "id": "b",
+      "text": "Abs. 1",
+      "correct": false,
+      "rationale": "Das ist die Interaktions-Offenlegung.",
+      "source_ref": "Art. 50 Abs. 1"
+     },
+     {
+      "id": "c",
+      "text": "Abs. 3",
+      "correct": false,
+      "rationale": "Emotionserkennung/biometrische Kategorisierung.",
+      "source_ref": "Art. 50 Abs. 3"
+     },
+     {
+      "id": "d",
+      "text": "Abs. 4",
+      "correct": false,
+      "rationale": "Deepfake-Offenlegung durch Betreiber.",
+      "source_ref": "Art. 50 Abs. 4"
+     }
+    ]
+   }
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p5-e01-c1",
+    "type": "mc",
+    "prompt": "Der geplante Versicherten-Chatbot spricht sehr menschenähnlich. Was verlangt Art. 50 Abs. 1?",
+    "options": [
+     {
+      "id": "a",
+      "text": "Nichts, solange der Bot höflich bleibt.",
+      "correct": false,
+      "rationale": "Der Ton ist irrelevant; es geht um die Offenlegung der KI-Natur.",
+      "source_ref": "Art. 50 Abs. 1"
+     },
+     {
+      "id": "b",
+      "text": "Die betroffenen Personen müssen informiert werden, dass sie mit einem KI-System interagieren — außer es ist aus den Umständen offensichtlich.",
+      "correct": true,
+      "rationale": "Kernpflicht des Abs. 1 mit der Offensichtlichkeits-Ausnahme.",
+      "source_ref": "Art. 50 Abs. 1"
+     },
+     {
+      "id": "c",
+      "text": "Eine FRIA vor Inbetriebnahme.",
+      "correct": false,
+      "rationale": "Die FRIA ist ein Hochrisiko-Instrument (Art. 27), nicht Teil des Art. 50.",
+      "source_ref": "Art. 27"
+     },
+     {
+      "id": "d",
+      "text": "Eine Genehmigung der KI-Servicestelle.",
+      "correct": false,
+      "rationale": "Ein Genehmigungsvorbehalt existiert für Chatbots nicht.",
+      "source_ref": "Art. 50 sys."
+     }
+    ],
+    "level": "B"
+   }
+  },
+  {
+   "type": "quelle",
+   "ref": "Art. 111 Abs. 4 (eingefügt durch VO 2026/1744)",
+   "changed_by_omnibus": true,
+   "text": "(4) Anbieter von KI-Systemen, einschließlich KI-Systemen mit allgemeinem Verwendungszweck, die synthetische Audio-, Bild-, Video- oder Textinhalte erzeugen, die vor dem 2. August 2026 in Verkehr gebracht wurden, treffen die erforderlichen Maßnahmen, um Artikel 50 Absatz 2 bis zum 2. Dezember 2026 nachzukommen."
+  },
+  {
+   "type": "erwg",
+   "nr": "134",
+   "text": "Erwägungsgrund 134 — Betreiber, die Bild-, Audio- oder Videoinhalte erzeugen oder manipulieren, die realen Personen ähneln, müssen offenlegen, dass die Inhalte künstlich erzeugt oder manipuliert wurden. Einsatz im Gespräch: Bei Avataren und Deepfake-nahen Marketing-Ideen."
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p5-e01-c2",
+    "type": "case",
+    "scenario": "Oktober 2026: Ein Referat nutzt seit Mitte 2025 einen intern gehosteten Alt-Bildgenerator ohne maschinenlesbare Kennzeichnung der Ausgaben.",
+    "prompt": "Was ist die korrekte Auskunft?",
+    "options": [
+     {
+      "id": "a",
+      "text": "Alt-Systeme sind dauerhaft von Art. 50 Abs. 2 befreit.",
+      "correct": false,
+      "rationale": "Art. 111 Abs. 4 gewährt nur einen Nachrüst-Zeitraum, keine Dauerbefreiung.",
+      "source_ref": "Art. 111 Abs. 4 idF 2026/1744"
+     },
+     {
+      "id": "b",
+      "text": "Die Kennzeichnung nach Art. 50 Abs. 2 muss bis 2.12.2026 nachgerüstet sein — der Countdown läuft bereits.",
+      "correct": true,
+      "rationale": "Exakt die Omnibus-Übergangsregel für Alt-Generatoren.",
+      "source_ref": "Art. 111 Abs. 4 idF 2026/1744"
+     },
+     {
+      "id": "c",
+      "text": "Erst ab 2.12.2027 relevant.",
+      "correct": false,
+      "rationale": "Der 2027-Termin betrifft die Anhang-III-Hochrisiko-Pflichten, nicht Art. 50.",
+      "source_ref": "Art. 113 Abs. 3 lit. c idF 2026/1744"
+     },
+     {
+      "id": "d",
+      "text": "Für eine belastbare Einstufung fehlen Informationen.",
+      "correct": false,
+      "rationale": "Systemtyp, Inbetriebnahme-Zeitpunkt und fehlende Kennzeichnung sind vollständig benannt.",
+      "source_ref": "Art. 111 Abs. 4 idF 2026/1744"
+     }
+    ],
+    "level": "B"
+   }
+  }
+ ]
+}

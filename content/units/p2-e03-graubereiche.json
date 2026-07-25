@@ -1,0 +1,207 @@
+{
+ "id": "p2-e03-graubereiche",
+ "phase": "p2",
+ "title": "Graubereiche: Verbot, Hochrisiko oder erlaubt?",
+ "competency": "K04",
+ "level": "C",
+ "legal_status": "konsolidiert-2026-07-27",
+ "legal_basis": [
+  {
+   "ref": "Art. 5 Abs. 1 lit. f, g, h",
+   "instrument": "VO 2024/1689 idF 2026/1744",
+   "applies_from": "2025-02-02",
+   "verified": "eigenpruefung-2026-07-24"
+  },
+  {
+   "ref": "Anhang III Nr. 1",
+   "instrument": "VO 2024/1689 idF 2026/1744",
+   "verified": "eigenpruefung-2026-07-24"
+  }
+ ],
+ "change_log": [
+  {
+   "date": "2026-07-24",
+   "was": "Ersterstellung (Durchstich)",
+   "quelle": "legal/arbeitskonsolidierung.md"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "Auslegungs-Box ErwG 29 ergänzt (Plan #4 Doppelverankerung)"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "Beispiel-Slot slot-6 ergänzt (§5.1: fixer Intent, profilvariable Einkleidung)"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "A-Stufen-Check ergänzt (§3 Mengengerüst 40/40/20)"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "Originaltext-Box auf wörtlichen Amtsblatt-Wortlaut korrigiert"
+  }
+ ],
+ "blocks": [
+  {
+   "type": "problem",
+   "html": "Dieselbe Technologie, drei Bewertungen: <b>Emotionserkennung</b> ist am Arbeitsplatz verboten, im Callcenter gegenüber KUNDEN transparenzpflichtig-riskant, in der Notfallmedizin womöglich zulässig. <b>Woran genau hängt der Unterschied?</b>",
+   "einsteiger_worked_example": "Prüfweg am Beispiel: (1) Technologie benennen (Emotionserkennung). (2) EINSATZKONTEXT bestimmen — Arbeitsplatz/Bildung? → lit. f prüfen. (3) Ausnahmezweck (medizinisch/Sicherheit)? (4) Kein Verbot → weiter zu Anhang III (z. B. Nr. 1 Biometrie). Die Bewertung hängt an Kontext + Zweck, nie an der Technologie allein."
+  },
+  {
+   "type": "concept",
+   "html": "Die drei häufigsten <b>falschen mentalen Modelle</b>, die Sie im Job korrigieren werden: (1) <i>„Kategorien sind exklusive Schubladen“</i> — nein, ein System kann zugleich transparenzpflichtig UND hochriskant sein; nur das Verbot ist exklusiv-final. (2) <i>„Transparenz ODER Hochrisiko“</i> — Art. 50 und Kapitel III sind kumulativ. (3) <i>„Nicht verboten und nicht Hochrisiko = frei“</i> — sauber formuliert heißt es: <b>keine spezifische Pflicht im geprüften Pfad</b>; DSGVO, Urheberrecht &amp; Co. laufen weiter."
+  },
+  {
+   "type": "beispiel",
+   "intent_id": "slot-6",
+   "intent": "zeige die Grenze zwischen zulässiger Analyse und Social Scoring",
+   "generisch": "Eine anlassbezogene Prüfung eines konkreten Verdachts ist zulässig; eine flächendeckende Vertrauens-Bewertung aller Kundinnen ist es nicht."
+  },
+  {
+   "type": "concept",
+   "html": "Grenzfall-Werkzeug: Bei lit. f/g/h entscheidet die <b>Ausnahme-Architektur</b>. lit. f: medizinisch/Sicherheit. lit. g: rechtmäßig gelabelte Datensätze im Strafverfolgungsbereich. lit. h: eng umgrenzte Strafverfolgungs-Ausnahmen mit Genehmigungsregime. Professionelle Antwort bei fehlendem Kontext: <b>„Für eine belastbare Einstufung fehlen Informationen — ich brauche Zweckbestimmung und Einsatzkontext.“</b> Das ist keine Schwäche, das ist die Kompetenz K06."
+  },
+  {
+   "type": "merkbild",
+   "html": "🧠 Merkbild: Verbote sind <b>kontextscharf</b> — dieselbe Klinge ist im OP ein Skalpell und in der U-Bahn eine Waffe."
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p2-e03-a1",
+    "type": "mc",
+    "competency": "K04",
+    "level": "A",
+    "legal_status": "konsolidiert-2026-07-27",
+    "legal_basis": [
+     {
+      "ref": "Art. 5 Abs. 1 lit. c",
+      "instrument": "VO 2024/1689 idF 2026/1744",
+      "verified": "eigenpruefung-a-checks-2026-07-25"
+     }
+    ],
+    "prompt": "Welcher Buchstabe des Art. 5 Abs. 1 erfasst Social Scoring?",
+    "options": [
+     {
+      "id": "a",
+      "text": "lit. c",
+      "correct": true,
+      "rationale": "Bewertung sozialen Verhaltens mit Schlechterstellung in sachfremdem Kontext.",
+      "source_ref": "Art. 5 Abs. 1 lit. c"
+     },
+     {
+      "id": "b",
+      "text": "lit. a",
+      "correct": false,
+      "rationale": "Das ist die Manipulation.",
+      "source_ref": "Art. 5 Abs. 1 lit. a"
+     },
+     {
+      "id": "c",
+      "text": "lit. f",
+      "correct": false,
+      "rationale": "Das ist Emotionserkennung.",
+      "source_ref": "Art. 5 Abs. 1 lit. f"
+     },
+     {
+      "id": "d",
+      "text": "lit. h",
+      "correct": false,
+      "rationale": "Das ist Echtzeit-Fernidentifizierung.",
+      "source_ref": "Art. 5 Abs. 1 lit. h"
+     }
+    ]
+   }
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p2-e03-c1",
+    "type": "case",
+    "scenario": "Die ÖSVA überlegt, in Kundenservice-Videocalls die Stimmung der ANRUFENDEN Versicherten zu erkennen, um Gespräche besser zu steuern.",
+    "prompt": "Ihre Ersteinschätzung?",
+    "options": [
+     {
+      "id": "a",
+      "text": "Verboten nach Art. 5 Abs. 1 lit. f.",
+      "correct": false,
+      "rationale": "lit. f erfasst Arbeitsplatz und Bildungseinrichtungen — Versicherte im Kundenkontakt fallen nicht unter diesen Tatbestand.",
+      "source_ref": "Art. 5 Abs. 1 lit. f"
+     },
+     {
+      "id": "b",
+      "text": "Kein Art.-5-Verbot; aber Emotionserkennungs-System → Transparenzpflicht und Anhang-III-Prüfung (Biometrie) erforderlich.",
+      "correct": true,
+      "rationale": "Außerhalb von Arbeitsplatz/Bildung ist Emotionserkennung nicht per se verboten; es greifen Art. 50 Abs. 3 (Information der Betroffenen) und die Hochrisiko-Prüfung über Anhang III Nr. 1.",
+      "source_ref": "Art. 50 Abs. 3; Anhang III Nr. 1"
+     },
+     {
+      "id": "c",
+      "text": "Frei verwendbar, da keine Beschäftigten betroffen sind.",
+      "correct": false,
+      "rationale": "„Nicht verboten“ heißt nicht „frei“: Transparenz- und Hochrisiko-Pfad sowie DSGVO (Art.-9-Daten möglich) sind weiter zu prüfen.",
+      "source_ref": "Art. 50; Anhang III Nr. 1"
+     },
+     {
+      "id": "d",
+      "text": "Für eine belastbare Einstufung fehlen Informationen.",
+      "correct": false,
+      "rationale": "Für die ERSTeinschätzung reichen die Angaben (Betroffene, Kontext, Zweck); Detailfragen folgen im Hochrisiko-Pfad.",
+      "source_ref": "Art. 5 Abs. 1 lit. f"
+     }
+    ],
+    "level": "C"
+   }
+  },
+  {
+   "type": "quelle",
+   "ref": "Anhang III Nr. 1 lit. c",
+   "changed_by_omnibus": false,
+   "text": "c) KI-Systeme, die bestimmungsgemäß zur Emotionserkennung verwendet werden sollen."
+  },
+  {
+   "type": "erwg",
+   "nr": "29",
+   "text": "Erwägungsgrund 29 — Manipulative Techniken wirken über die bewusste Wahrnehmung hinaus und untergraben Autonomie und Entscheidungsfreiheit; Zustimmung heilt das nicht. Einsatz im Gespräch: Gegen „die Nutzer stimmen doch zu“-Argumente bei Dark Patterns."
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p2-e03-c2",
+    "type": "mc",
+    "prompt": "Ein Ministerium fragt an, ob es ein KI-System einsetzen darf, das Personen im öffentlichen Raum in Echtzeit biometrisch identifiziert, „nur zur Suche nach vermissten Kindern“. Ihre professionellste Antwort?",
+    "options": [
+     {
+      "id": "a",
+      "text": "Grundsätzlich verboten (lit. h); genau dieser Zweck KANN unter die engen Ausnahmen fallen — das verlangt aber nationale Rechtsgrundlage und Genehmigungsverfahren, die zu prüfen sind.",
+      "correct": true,
+      "rationale": "lit. h verbietet Echtzeit-RBI zur Strafverfolgung, sieht aber abschließende Ausnahmen (u. a. gezielte Suche nach Vermissten/Opfern) unter strengen Verfahrensvoraussetzungen vor.",
+      "source_ref": "Art. 5 Abs. 1 lit. h i.V.m. Abs. 2–7"
+     },
+     {
+      "id": "b",
+      "text": "Klar zulässig — Kindesschutz geht vor.",
+      "correct": false,
+      "rationale": "Die Ausnahme ist kein Automatismus; ohne Rechtsgrundlage und Genehmigung bleibt es beim Verbot.",
+      "source_ref": "Art. 5 Abs. 1 lit. h"
+     },
+     {
+      "id": "c",
+      "text": "Klar verboten — Ausnahmen gibt es nicht.",
+      "correct": false,
+      "rationale": "lit. h enthält ausdrücklich eng umgrenzte Ausnahmetatbestände; „gibt es nicht“ ist fachlich falsch.",
+      "source_ref": "Art. 5 Abs. 1 lit. h"
+     },
+     {
+      "id": "d",
+      "text": "Das ist eine reine DSGVO-Frage.",
+      "correct": false,
+      "rationale": "Echtzeit-RBI ist ein originärer AI-Act-Tatbestand; die DSGVO tritt daneben, ersetzt die Prüfung aber nicht.",
+      "source_ref": "Art. 5 Abs. 1 lit. h"
+     }
+    ],
+    "level": "C"
+   }
+  }
+ ]
+}

@@ -1,0 +1,89 @@
+#!/usr/bin/env node
+// tools/gamification-tests.mjs — Tests für Task 7 (AC1, AC2 + Session-/Pacing-Logik).
+import { applyEvent, levelFor, dayCounts, newBadges, XP_RULES } from '../app/gamification.js';
+import { feasibilityCheck, targetCurve, driftCheck, DAY_MS } from '../app/pacing.js';
+import { createSession, canStartUnit, completeStep, blockCheck, marathonWarning, rotationHint } from '../app/session.js';
+import { newCard, review } from '../app/engine-leitner.js';
+
+let pass = 0, fail = 0;
+const t = (name, cond, detail = '') => {
+  if (cond) { pass++; console.log(`  ✓ ${name}`); }
+  else { fail++; console.error(`  ✗ ${name} ${detail}`); }
+};
+
+// ---------- AC1: XP und Mastery strikt getrennt ----------
+console.log('AC1 — XP/Mastery-Trennung');
+const st = { xp: 0 };
+const wrong = applyEvent(st, { kind: 'check_answered', level: 'B', correct: false, competency: 'K03' });
+t('Falsche Antwort: XP JA (straffreier Lernraum)', wrong.xpGain === XP_RULES.check_answered.B && st.xp === 14);
+t('Falsche Antwort: Mastery NEIN', wrong.masteryGain === null && !(st.mastery_events?.length));
+const sameDay = applyEvent(st, { kind: 'check_answered', level: 'C', correct: true, competency: 'K03', delayedDays: 0 });
+t('Richtig same-day: Mastery mit halbem Gewicht', sameDay.masteryGain.weight === 0.5 && sameDay.masteryGain.delayed === false);
+const delayed = applyEvent(st, { kind: 'check_answered', level: 'C', correct: true, competency: 'K03', delayedDays: 3 });
+t('Richtig verzögert: volles Gewicht', delayed.masteryGain.weight === 1 && delayed.masteryGain.delayed === true);
+t('XP-Strom unabhängig kumuliert (14+20+20)', st.xp === 54);
+t('Mastery-Strom getrennt gespeichert (2 Events)', st.mastery_events.length === 2);
+t('C gibt mehr XP als A', XP_RULES.check_answered.C > XP_RULES.check_answered.A);
+t('Level-Leiter: 1400 XP → Level 4 Anhang-III-Flüsterer', levelFor(1400).title === 'Anhang-III-Flüsterer');
+t('Endtitel profilabhängig', levelFor(20000, 'KI-Spezialist ÖSVA').title === 'KI-Spezialist ÖSVA');
+
+// Wochenziel-Zählkriterien (#29): Alibi-Tage zählen nicht
+t('Tag zählt: Review + 10 Fragen', dayCounts({ reviewDone: true, questions: 10 }) === true);
+t('Tag zählt: Review + 1 Einheit', dayCounts({ reviewDone: true, units: 1 }) === true);
+t('Tag zählt NICHT: nur eingeloggt', dayCounts({ reviewDone: false, questions: 30 }) === false);
+t('Tag zählt NICHT: Review ohne Substanz', dayCounts({ reviewDone: true, questions: 4 }) === false);
+
+// Badges
+const bst = { stats: { units: 1, questions: 120 }, badges: [] };
+const fresh = newBadges(bst);
+t('Badges vergeben (Aktenkundig + Dreistellig)', fresh.length === 2 && bst.badges.includes('hundert'));
+t('Badges idempotent', newBadges(bst).length === 0);
+
+// ---------- AC2: Machbarkeits-Check ----------
+console.log('AC2 — Machbarkeits-Check');
+const NOW = Date.parse('2026-07-24T08:00:00Z');
+const stoff = { totalUnits: 120, minutesPerUnit: 25, doneUnits: 0 };
+// Machbar: 60 min/Tag, 6 Tage/Woche, Ziel in 39 Tagen, 80 Einheiten (Phase 1-5)
+const okProfile = { minutesPerDay: 60, daysPerWeek: 6, milestones: [{ id: 'm1', label: '1.9. Kern', date: '2026-09-01', scope_units: 80 }] };
+const okRes = feasibilityCheck(okProfile, stoff, NOW)[0];
+t(`Machbares Ziel erkannt (braucht ${okRes.neededMinutesPerDay} min/Tag)`, okRes.feasible === true);
+// Unmachbar: 15 min/Tag, 3 Tage/Woche, alles bis 1.9.
+const badProfile = { minutesPerDay: 15, daysPerWeek: 3, milestones: [{ id: 'm1', label: '1.9. alles', date: '2026-09-01', scope_units: 120 }] };
+const badRes = feasibilityCheck(badProfile, stoff, NOW)[0];
+t('Unerreichbares Ziel → Warnung', badRes.feasible === false);
+t('Warnung nennt konkrete Zahl (min/Tag)', /~\d+ min\/Tag/.test(badRes.message), badRes.message);
+t('Zahl plausibel (>100 min/Tag nötig)', badRes.neededMinutesPerDay > 100, String(badRes.neededMinutesPerDay));
+// Soll-Kurve monoton 0→1
+const curve = targetCurve(okProfile, stoff, NOW);
+t('Soll-Kurve startet 0, endet 1', curve[0].target === 0 && Math.abs(curve[curve.length - 1].target - 1) < 1e-9);
+t('Soll-Kurve monoton', curve.every((p, i) => i === 0 || p.target >= curve[i - 1].target));
+// Drift
+const drift = driftCheck(okProfile, stoff, 0.05, NOW - 20 * DAY_MS, NOW);
+t('Drift erkannt → 3 Entscheidungsoptionen (Tempo/Woche/Termin)', drift.onTrack === false && drift.options.length === 3);
+t('Kein Fehlalarm bei Kurs', driftCheck(okProfile, stoff, 0.6, NOW - 20 * DAY_MS, NOW).onTrack === true);
+
+// ---------- Session-Ritual + Intensiv ----------
+console.log('Session-Ritual & Intensiv-Blöcke');
+const cards = [];
+const T0 = Date.parse('2026-07-20T00:00:00Z');
+for (let i = 0; i < 6; i++) { const c = newCard(`c${i}`, {}, T0); review(c, { correct: true }, T0 + DAY_MS); cards.push(c); }
+const sess = createSession({ cards }, T0 + 9 * DAY_MS);
+t('Ritual startet mit Pflicht-Review', sess.step === 'review');
+t('Einheiten gesperrt vor Review', canStartUnit(sess) === false);
+completeStep(sess, 'review');
+t('Nach Review: Einheiten frei', canStartUnit(sess) === true && sess.step === 'units');
+completeStep(sess, 'units'); completeStep(sess, 'units');
+t('Nach 2 Einheiten → Drill', sess.step === 'drill');
+t('Drill schwächen-gewichtet 3+1+1', sess.drill.mix.weak === 3 && sess.drill.mix.random === 1 && sess.drill.mix.cBonus === 1);
+completeStep(sess, 'drill');
+t('Nach Drill → Abschluss-Karte', sess.step === 'wrapup');
+const bc = blockCheck(sess, sess.started + 61 * 60_000);
+t('Intensiv: Mini-Block nach 60 min', bc.due === true && bc.miniQuiz === 5);
+t('Intensiv: kein Block direkt danach', blockCheck(sess, sess.started + 62 * 60_000).due === false);
+t('Marathon-Warnung nach 4h', marathonWarning(sess, sess.started + 4.5 * 3_600_000).warn === true);
+rotationHint(sess, 'mc', 1); rotationHint(sess, 'mc', 2);
+t('Rotations-Banner nach 3. gleichem Format', rotationHint(sess, 'mc', 3).hint === true);
+t('Rotations-Banner nur Vorschlag, reset bei Wechsel', rotationHint(sess, 'dnd', 4).hint === false);
+
+console.log(`\n${pass} PASS, ${fail} FAIL`);
+process.exit(fail ? 1 : 0);

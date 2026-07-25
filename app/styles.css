@@ -1,0 +1,328 @@
+/* app/styles.css — Basis-Stylesheet nach DESIGN-SYSTEM.md (SSOT für Token).
+   Komponenten-CSS wächst in Schritt 3 hier weiter — Token NIE lokal überschreiben. */
+
+/* ---------- 2. Typografie: lokale Fonts (kein CDN) ---------- */
+@font-face { font-family:'Space Grotesk'; src:url('../assets/fonts/space-grotesk-latin-400-normal.woff2') format('woff2'); font-weight:400; font-display:swap; }
+@font-face { font-family:'Space Grotesk'; src:url('../assets/fonts/space-grotesk-latin-500-normal.woff2') format('woff2'); font-weight:500; font-display:swap; }
+@font-face { font-family:'Space Grotesk'; src:url('../assets/fonts/space-grotesk-latin-700-normal.woff2') format('woff2'); font-weight:700; font-display:swap; }
+@font-face { font-family:'Space Grotesk'; src:url('../assets/fonts/space-grotesk-latin-ext-400-normal.woff2') format('woff2'); font-weight:400; unicode-range:U+0100-024F,U+1E00-1EFF; font-display:swap; }
+@font-face { font-family:'Space Grotesk'; src:url('../assets/fonts/space-grotesk-latin-ext-700-normal.woff2') format('woff2'); font-weight:700; unicode-range:U+0100-024F,U+1E00-1EFF; font-display:swap; }
+@font-face { font-family:'Inter'; src:url('../assets/fonts/inter-latin-400-normal.woff2') format('woff2'); font-weight:400; font-display:swap; }
+@font-face { font-family:'Inter'; src:url('../assets/fonts/inter-latin-500-normal.woff2') format('woff2'); font-weight:500; font-display:swap; }
+@font-face { font-family:'Inter'; src:url('../assets/fonts/inter-latin-600-normal.woff2') format('woff2'); font-weight:600; font-display:swap; }
+@font-face { font-family:'Inter'; src:url('../assets/fonts/inter-latin-700-normal.woff2') format('woff2'); font-weight:700; font-display:swap; }
+@font-face { font-family:'JetBrains Mono'; src:url('../assets/fonts/jetbrains-mono-latin-400-normal.woff2') format('woff2'); font-weight:400; font-display:swap; }
+@font-face { font-family:'JetBrains Mono'; src:url('../assets/fonts/jetbrains-mono-latin-700-normal.woff2') format('woff2'); font-weight:700; font-display:swap; }
+@font-face { font-family:'Fraunces'; src:url('../assets/fonts/fraunces-latin-500-normal.woff2') format('woff2'); font-weight:500; font-display:swap; }
+@font-face { font-family:'Fraunces'; src:url('../assets/fonts/fraunces-latin-600-normal.woff2') format('woff2'); font-weight:600; font-display:swap; }
+@font-face { font-family:'Poppins'; src:url('../assets/fonts/poppins-latin-500-normal.woff2') format('woff2'); font-weight:500; font-display:swap; }
+@font-face { font-family:'Poppins'; src:url('../assets/fonts/poppins-latin-600-normal.woff2') format('woff2'); font-weight:600; font-display:swap; }
+@font-face { font-family:'Poppins'; src:url('../assets/fonts/poppins-latin-700-normal.woff2') format('woff2'); font-weight:700; font-display:swap; }
+@font-face { font-family:'Fraunces'; src:url('../assets/fonts/fraunces-latin-600-italic.woff2') format('woff2'); font-weight:600; font-style:italic; font-display:swap; }
+@font-face { font-family:'Caveat'; src:url('../assets/fonts/caveat-latin-400-normal.woff2') format('woff2'); font-weight:400; font-display:swap; }
+@font-face { font-family:'Caveat'; src:url('../assets/fonts/caveat-latin-600-normal.woff2') format('woff2'); font-weight:600; font-display:swap; }
+
+/* ---------- 1. Farb-Token + 3. Spacing (DESIGN-SYSTEM §1/§3) ---------- */
+:root {
+  --bg:#070a10; --bg-deep:#090e16; --panel:#111722; --panel-2:#171d2a;
+  --line:rgba(151,169,202,.10); --line-strong:rgba(151,169,202,.22);
+  --text:#e5eaf3; --dim:#949dac; --faint:#68717f;
+  --emerald:#65d8b2; --gold:#e1ad58; --cyan:#22d3ee; --violet:#8a70ef; --amber:#e1ad58; --red:#d97568;
+  --risk-high:#d98a58; --heat-2:#9dcc9b; --heat-0:#414956;
+  --grad-brand:linear-gradient(90deg,#987cff 0%,#ba8fd8 42%,#e5b45f 100%);
+  --grad-reward:linear-gradient(90deg,var(--gold),var(--violet));
+  --grad-card:radial-gradient(circle at 20% 0%,rgba(80,99,137,.08),transparent 40%),linear-gradient(180deg,rgba(22,28,41,.98),rgba(12,17,26,.98));
+  --grad-card-soft:linear-gradient(180deg,rgba(26,32,46,.95),rgba(14,19,29,.95));
+  --card-shadow:inset 0 1px 0 rgba(255,255,255,.035),inset 0 -1px 0 rgba(0,0,0,.45),0 10px 28px rgba(0,0,0,.28);
+  --font-display:'Space Grotesk',system-ui,sans-serif;
+  --font-text:'Inter',system-ui,sans-serif;
+  --font-mono:'JetBrains Mono',ui-monospace,monospace;
+  --font-script:'Caveat',cursive;
+  --font-brand:'Fraunces',Georgia,serif;
+  --font-num:'Poppins','Space Grotesk',sans-serif;
+  --fs-xs:.75rem; --fs-sm:.85rem; --fs-base:1rem; --fs-lg:1.15rem; --fs-xl:1.4rem; --fs-2xl:1.8rem; --fs-hero:2.6rem;
+  --sp-1:.25rem; --sp-2:.5rem; --sp-3:.75rem; --sp-4:1rem; --sp-5:1.5rem; --sp-6:2rem; --sp-7:3rem; --sp-8:4rem;
+  --r-card:14px; --r-ctl:8px;
+  --ease-out:cubic-bezier(.16,1,.3,1); --ease-snap:cubic-bezier(.34,1.56,.64,1);
+  --glow-focus:0 0 0 1px var(--line-strong),0 0 24px -8px rgba(34,211,238,.25);
+}
+
+* { margin:0; box-sizing:border-box; }
+html { color-scheme:dark; }
+body {
+  background:var(--bg); color:var(--text);
+  font:400 var(--fs-base)/1.65 var(--font-text);
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3 { font-family:var(--font-display); line-height:1.2; font-weight:700; }
+.mono, code, .legal-ref { font-family:var(--font-mono); font-size:.92em; }
+.brand-text { background:var(--grad-brand); -webkit-background-clip:text; background-clip:text; color:transparent; }
+
+/* ---------- Lebendiger Layer-Hintergrund (DESIGN-SYSTEM §5, Plan §6.3) ----------
+   Drei Schichten hinter allem Inhalt: Aurora-Blobs (sehr langsam) → Grid-Textur → Vignette.
+   Nur transform/opacity animiert; reduced-motion schaltet Bewegung ab. */
+.bg-layers { position:fixed; inset:0; z-index:-1; overflow:hidden; pointer-events:none; }
+.bg-aurora { position:absolute; width:55vmax; height:55vmax; border-radius:50%;
+  filter:blur(90px); opacity:.2; will-change:transform; }
+.bg-aurora.a { background:radial-gradient(circle,#0d4234 0%,transparent 65%); top:-18%; left:-12%;
+  animation:aur-a 120s var(--ease-out) infinite alternate; }
+.bg-aurora.b { background:radial-gradient(circle,#0b3d4d 0%,transparent 65%); bottom:-22%; right:-14%;
+  animation:aur-b 140s var(--ease-out) infinite alternate; }
+.bg-aurora.c { background:radial-gradient(circle,#33240f 0%,transparent 68%); top:38%; left:52%;
+  opacity:.22; animation:aur-c 95s var(--ease-out) infinite alternate; }
+@keyframes aur-a { to { transform:translate(5%,4%) scale(1.06); } }
+@keyframes aur-b { to { transform:translate(-4%,-5%) scale(1.05); } }
+@keyframes aur-c { to { transform:translate(-5%,3%) scale(.95); } }
+.bg-grid { position:absolute; inset:0; opacity:.5;
+  background-image:linear-gradient(rgba(159,177,211,.025) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(159,177,211,.025) 1px,transparent 1px);
+  background-size:44px 44px;
+  mask-image:radial-gradient(ellipse at 55% 20%,black 0%,transparent 72%);
+}
+.bg-noise { position:absolute; inset:0; opacity:.05; mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E"); }
+.bg-vignette { position:absolute; inset:0;
+  background:radial-gradient(ellipse 120% 90% at 50% 0%,transparent 55%,rgba(7,10,16,.75) 100%); }
+@media (prefers-reduced-motion:reduce) {
+  .bg-aurora { animation:none !important; }
+  *, *::before, *::after { transition-duration:.01ms !important; animation-duration:.01ms !important; }
+}
+
+/* ---------- 4. Basiskomponenten ---------- */
+.card { background:var(--grad-card); border:1px solid var(--line); border-radius:13px; padding:var(--sp-5);
+        box-shadow:var(--card-shadow); }
+.card.elevated { background:var(--panel-2); }
+button, .btn {
+  background:transparent; color:var(--text); border:1px solid var(--line);
+  border-radius:var(--r-ctl); padding:var(--sp-2) var(--sp-4);
+  font:500 var(--fs-sm)/1.4 var(--font-text); cursor:pointer;
+  transition:border-color 120ms,background 120ms,transform 120ms var(--ease-snap);
+}
+button:hover, .btn:hover { border-color:var(--line-strong); background:var(--panel-2); }
+button:active, .btn:active { transform:scale(.97); }
+button:focus-visible, .btn:focus-visible, a:focus-visible { outline:2px solid var(--cyan); outline-offset:2px; }
+button:disabled { opacity:.45; cursor:not-allowed; }
+.btn-primary { background:linear-gradient(90deg,var(--emerald),#2bb37f); color:#06281e; border:none; font-weight:600; }
+.btn-primary:hover { background:linear-gradient(90deg,var(--emerald),#2bb37f); filter:brightness(1.08); }
+
+.state-correct { border-color:var(--emerald) !important; background:rgba(52,211,153,.08) !important; }
+.state-partial { border-color:var(--amber) !important; background:rgba(251,191,36,.08) !important; }
+.state-wrong   { border-color:var(--red) !important; background:rgba(248,113,113,.08) !important; }
+.state-locked  { color:var(--faint); }
+
+.eval-label { font-family:var(--font-mono); font-size:var(--fs-xs); color:var(--faint); }
+.legal-status-warn { color:var(--amber); }
+
+/* Icon-Zustände (DESIGN-SYSTEM §6) */
+.ico { width:1.25rem; height:1.25rem; vertical-align:-0.22rem; }
+.ico-glow { filter:drop-shadow(0 0 6px rgba(52,211,153,.45)); }
+
+/* ---------- 5. Quiz-Engine (Schritt 3) ---------- */
+.q { display:flex; flex-direction:column; gap:12px; }
+.q-scenario { font-size:.9rem; color:var(--dim); padding:var(--sp-3) var(--sp-4); }
+.q-prompt { font-size:1.02rem; font-weight:500; }
+.q-options { display:flex; flex-direction:column; gap:8px; }
+.q-opt { display:flex; align-items:center; gap:10px; text-align:left; padding:.65rem .8rem;
+  border-radius:10px; font-size:.92rem; line-height:1.45; }
+.q-opt.sel { border-color:var(--violet); background:rgba(138,112,239,.08); }
+.q-key { width:1.35rem; height:1.35rem; border-radius:6px; border:1px solid var(--line-strong);
+  display:grid; place-items:center; font-family:var(--font-mono); font-size:.72rem;
+  color:var(--faint); flex:none; }
+.q-neg { color:var(--red); letter-spacing:.03em; }
+.q-freetext { width:100%; background:var(--panel); color:var(--text); border:1px solid var(--line);
+  border-radius:10px; padding:.7rem .8rem; font:400 .92rem/1.5 var(--font-text); resize:vertical; }
+.q-freetext:focus-visible { outline:2px solid var(--cyan); outline-offset:1px; }
+.q-privacy { font-size:.74rem; color:var(--faint); }
+.q-confidence { display:flex; gap:8px; align-items:center; font-size:.85rem; color:var(--dim); }
+.q-confidence button { padding:.3rem .7rem; font-size:.8rem; }
+.q-feedback { border-radius:10px; padding:.7rem .9rem; font-size:.9rem; border:1px solid var(--line); }
+.q-correct { border-color:rgba(101,216,178,.4); background:rgba(101,216,178,.07); }
+.q-partial { border-color:rgba(225,173,88,.4); background:rgba(225,173,88,.07); }
+.q-wrong { border-color:rgba(217,117,104,.4); background:rgba(217,117,104,.07); }
+.q-trapnote { margin-top:.4rem; color:var(--amber); font-size:.82rem; }
+.q-critical { margin-top:.4rem; color:var(--red); font-weight:600; font-size:.85rem; }
+
+/* Glossar (#6): unterstrichen; Closed Book → aus */
+.gloss { text-decoration:underline dotted rgba(101,216,178,.6); text-underline-offset:3px; cursor:help; }
+.gloss.gloss-off { text-decoration:none; cursor:inherit; }
+.gloss-tip { position:fixed; z-index:60; max-width:320px; background:var(--panel-2);
+  border:1px solid var(--line-strong); border-radius:10px; padding:.7rem .85rem;
+  font-size:.83rem; line-height:1.5; box-shadow:0 14px 40px rgba(0,0,0,.5); }
+.gloss-tip b { color:var(--emerald); }
+.gloss-tip .hook { color:var(--dim); font-size:.78rem; }
+.gloss-tip .mono { color:var(--faint); font-size:.7rem; }
+
+/* Drag&Drop (#45a) */
+.dnd { display:flex; flex-direction:column; gap:14px; }
+.dnd-pool { display:flex; flex-wrap:wrap; gap:8px; min-height:2.4rem; padding:8px;
+  border:1px dashed var(--line-strong); border-radius:10px; }
+.dnd-chip { padding:.35rem .7rem; border-radius:8px; background:var(--panel-2);
+  border:1px solid var(--line-strong); font-size:.85rem; cursor:grab; user-select:none; }
+.dnd-chip:active { cursor:grabbing; }
+.dnd-zones { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:10px; }
+.dnd-zones.dnd-pyramid { grid-template-columns:1fr; justify-items:center; }
+.dnd-pyramid .dnd-zone:nth-child(1) { width:34%; } .dnd-pyramid .dnd-zone:nth-child(2) { width:52%; }
+.dnd-pyramid .dnd-zone:nth-child(3) { width:72%; } .dnd-pyramid .dnd-zone:nth-child(4) { width:92%; }
+.dnd-zone { min-height:4.2rem; border:1px solid var(--line); border-radius:10px; padding:8px;
+  display:flex; flex-wrap:wrap; gap:6px; align-content:flex-start; background:rgba(151,169,202,.03); }
+.dnd-zone.over { border-color:var(--cyan); background:rgba(34,211,238,.06); }
+.dnd-zlabel { width:100%; font-size:.72rem; letter-spacing:.08em; text-transform:uppercase; color:var(--faint); }
+.dnd-feedback { font-size:.88rem; color:var(--dim); }
+
+/* Dialog / Bosskampf (#45b) */
+.dlg { display:flex; flex-direction:column; gap:10px; height:100%; min-height:0; }
+.dlg-head { display:flex; gap:10px; align-items:center; }
+.dlg-avatar { width:52px; height:52px; border-radius:50%; object-fit:cover;
+  border:1.5px solid var(--line-strong); box-shadow:0 0 14px rgba(138,112,239,.2); }
+.dlg-who { display:flex; flex-direction:column; line-height:1.3; }
+.dlg-who span { color:var(--dim); font-size:.78rem; }
+.dlg-feed { flex:1; min-height:0; overflow-y:auto; display:flex; flex-direction:column; gap:8px; padding:4px 2px; }
+.bubble { max-width:78%; padding:.55rem .8rem; border-radius:12px; font-size:.9rem; line-height:1.5; }
+.bubble.them { align-self:flex-start; background:var(--panel-2); border:1px solid var(--line);
+  border-bottom-left-radius:4px; }
+.bubble.me { align-self:flex-end; background:rgba(138,112,239,.14); border:1px solid rgba(138,112,239,.3);
+  border-bottom-right-radius:4px; }
+.bubble.typing i { display:inline-block; width:.4rem; height:.4rem; border-radius:50%;
+  background:var(--faint); margin-right:.2rem; animation:typing 1s infinite; }
+.bubble.typing i:nth-child(2) { animation-delay:.15s; } .bubble.typing i:nth-child(3) { animation-delay:.3s; }
+@keyframes typing { 0%,60%,100% { transform:none; opacity:.4; } 30% { transform:translateY(-3px); opacity:1; } }
+.dlg-moves { display:flex; flex-wrap:wrap; gap:6px; }
+.dlg-move { font-size:.8rem; padding:.35rem .7rem; border-radius:999px; }
+.dlg-inputrow { display:flex; gap:8px; }
+.dlg-inputrow textarea { flex:1; background:var(--panel); color:var(--text); border:1px solid var(--line);
+  border-radius:10px; padding:.55rem .7rem; font:400 .9rem/1.4 var(--font-text); resize:none; }
+.dlg-assessment .dlg-goal { padding:.3rem 0; font-size:.88rem; border-bottom:1px solid var(--line); }
+.dlg-goal.hit { color:var(--emerald); } .dlg-goal.miss { color:var(--dim); }
+.dlg-goal .mono { color:var(--faint); font-size:.72rem; margin-left:.4rem; }
+
+/* Diagramm-Legenden (aus dem Gate-2a-Preview übernommen — gelten app-weit) */
+.legend { display:flex; gap:14px; margin-top:10px; font-size:11px; color:var(--dim); flex-wrap:wrap; }
+.legend i { width:.62rem; height:.62rem; border-radius:3px; display:inline-block;
+  vertical-align:-1px; margin-right:.35rem; box-shadow:inset 0 1px 0 rgba(255,255,255,.15); }
+.legend.center { justify-content:center; }
+
+/* Timeline / Anhang-III-Explorer / Rollenweiche (#45c) */
+.tl { width:100%; height:auto; }
+.tl-m { cursor:pointer; }
+.annex { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:8px; margin-bottom:12px; }
+.annex-item { display:flex; align-items:center; gap:8px; text-align:left; padding:.55rem .7rem; border-radius:10px; }
+.annex-item.rel { border-color:rgba(101,216,178,.4); }
+.annex-nr { font-family:var(--font-num); font-weight:600; color:var(--emerald); }
+.annex-t { font-size:.85rem; }
+.annex-flag { margin-left:auto; font-size:.66rem; color:var(--emerald); }
+.annex-detail { font-size:.9rem; }
+.rolesw { display:flex; flex-direction:column; gap:8px; }
+.rolesw-step { display:flex; align-items:center; gap:10px; padding:.55rem .8rem;
+  border:1px solid var(--line); border-radius:10px; font-size:.9rem; }
+.rolesw-step.done { color:var(--dim); }
+.rolesw-step.done b { margin-left:auto; color:var(--violet); }
+.rolesw-step button { margin-left:auto; }
+.rolesw-step button + button { margin-left:6px; }
+.rolesw-result { border-color:rgba(101,216,178,.4); }
+.dim { color:var(--dim); }
+
+/* ---- Zuordnungs-Fragen (Typ assign, Task 9) ---- */
+.q-assign-row{display:grid;grid-template-columns:minmax(160px,1fr) 2fr;gap:10px;margin-bottom:10px;align-items:start}
+.q-assign-left{font-weight:600;font-size:.85rem;padding:8px 10px;background:var(--layer2,#111827);border-radius:8px}
+.q-assign-opts{display:flex;flex-wrap:wrap;gap:6px}
+.q-assign-opt{font-size:.78rem;padding:6px 10px}
+.q-assign-opt.sel{outline:2px solid var(--emerald,#34d399)}
+
+/* ---- Persönlicher Lernnachweis (#35) ---- */
+.nachweis{background:#fff;color:#111;padding:28px;border-radius:8px}
+.nachweis h2{color:#111}
+.nachweis-disclaimer{border:1.5px solid #b45309;background:#fef3c7;color:#78350f;padding:10px 12px;border-radius:6px;font-size:.82rem}
+@media print{
+  /* App-Chrome weg, Nachweis im Normalfluss — visibility/absolute scheitert an
+     transformierten Ancestors (Reveal-Animation), daher display-basiert. */
+  .rail,.topbar,.sidebar,nav,aside,header,button,.gloss-tip{display:none!important}
+  html,body{background:#fff!important}
+  body>*:not(:has(.nachweis)){display:none!important}
+  .app,.app-shell,#view,.view,main{display:block!important;height:auto!important;overflow:visible!important;transform:none!important;animation:none!important;grid-template-columns:none!important;grid-template-rows:none!important;background:#fff!important;box-shadow:none!important}
+  .card:not(:has(.nachweis)){display:none!important}
+  .card:has(.nachweis){background:#fff!important;border:none!important;box-shadow:none!important;padding:0!important}
+  .nachweis{border-radius:0}
+}
+
+/* ---- Art.-50-Hinweis + Bewertungs-Labels (Task 11, §5.0) ---- */
+.ai-notice-overlay{position:fixed;inset:0;background:rgba(4,6,12,.82);display:flex;align-items:center;justify-content:center;z-index:900}
+.ai-notice{max-width:520px;margin:16px}
+.grade-label{display:block;margin-top:6px;font-size:.68rem;opacity:.65}
+
+/* ---- Session-Ritual (#32/#33) ---- */
+.ritual{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.ritual-step{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:10px;background:var(--layer2,#111827);border:1px solid rgba(255,255,255,.06);text-decoration:none;color:inherit;transition:border-color .2s,transform .15s}
+.ritual-step:hover:not(.locked){border-color:var(--emerald,#34d399);transform:translateX(2px)}
+.ritual-step.active{border-color:var(--emerald,#34d399);box-shadow:0 0 0 1px rgba(52,211,153,.25)}
+.ritual-step.done .ritual-num{background:rgba(52,211,153,.18);color:var(--emerald,#34d399)}
+.ritual-step.locked{opacity:.45;cursor:not-allowed}
+.ritual-num{flex:0 0 26px;height:26px;display:grid;place-items:center;border-radius:50%;background:rgba(255,255,255,.06);font-size:.8rem;font-weight:600}
+.ritual-txt{display:flex;flex-direction:column;gap:1px;font-size:.86rem}
+.ritual-txt .dim{font-size:.74rem}
+.ritual-warn{margin-top:10px;padding:9px 12px;border-radius:8px;background:rgba(225,173,88,.12);border:1px solid rgba(225,173,88,.35);font-size:.82rem}
+.block-note{border-color:rgba(225,173,88,.35)!important}
+.wrap-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:12px 0}
+.wrap-stats div{background:var(--layer2,#111827);border-radius:10px;padding:12px;text-align:center}
+.wrap-stats b{display:block;font-size:1.5rem;font-family:'Space Grotesk',system-ui}
+.wrap-stats span{font-size:.72rem;opacity:.7}
+
+/* ---- Sidebar: Phasen-Baum + Zähler (#42) ---- */
+.phase-tree{display:flex;flex-direction:column;gap:1px}
+.ph.phase{padding:5px 8px;font-size:.79rem;gap:9px}
+.pring{position:relative;flex:0 0 22px;height:22px;border-radius:50%;display:grid;place-items:center}
+.pring::after{content:'';position:absolute;inset:3px;border-radius:50%;background:var(--layer1,#0d1420)}
+.pring i{position:relative;z-index:1;font-style:normal;font-size:.62rem;opacity:.85;font-family:'JetBrains Mono',monospace}
+.ph.phase .lbl{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pcheck{color:var(--emerald,#34d399);font-size:.8rem}
+.ph.phase-passed .lbl{opacity:.75}
+.count.aufhol{background:rgba(225,173,88,.18);color:var(--gold,#e1ad58);margin-left:3px}
+.ph.state-locked{opacity:.5}
+
+/* ---- Lernen-Ansicht (#3/#19) ---- */
+.lern-sect{margin:14px 0 4px;font-size:.7rem;letter-spacing:.09em;opacity:.55;text-transform:uppercase}
+.lern-row{display:flex;align-items:center;gap:8px}
+.lern-row .ph{flex:1}
+.ph.done .lbl{opacity:.65}
+.ph.skipped .lbl{opacity:.65;font-style:italic}
+.btn-mini{font-size:.68rem;padding:4px 9px;border-radius:7px;border:1px solid rgba(255,255,255,.12);text-decoration:none;color:inherit;opacity:.7}
+.btn-mini:hover{opacity:1;border-color:var(--emerald,#34d399)}
+.lern-test{margin:6px 0 2px;font-size:.74rem;opacity:.7}
+
+/* ---- ErwG-Explorer (#4, Phase 10) ---- */
+.erwg-filter{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.chip{font-size:.7rem;padding:4px 10px;border-radius:999px;background:var(--layer2,#111827);border:1px solid rgba(255,255,255,.08);color:inherit;cursor:pointer}
+.chip.active{border-color:var(--emerald,#34d399);color:var(--emerald,#34d399)}
+.erwg-list{display:flex;flex-direction:column;gap:6px;max-height:460px;overflow-y:auto;padding-right:4px}
+.erwg-item{background:var(--layer2,#111827);border-radius:9px;padding:9px 12px;font-size:.83rem}
+.erwg-item summary{cursor:pointer;line-height:1.45}
+.erwg-item blockquote{margin:8px 0 2px;padding:8px 10px;border-left:2px solid rgba(52,211,153,.4);font-size:.74rem;opacity:.8}
+.erwg-einsatz{font-size:.78rem;margin:8px 0 0;opacity:.9}
+.unit-erwg{border-left:3px solid rgba(182,165,255,.5)}
+
+/* ---- Erstkontakt-Hero + Badge-Galerie (§6.3, #28) ---- */
+.hero-overlay{position:fixed;inset:0;background:radial-gradient(80% 60% at 50% 40%,rgba(52,211,153,.10),rgba(4,6,12,.96));display:grid;place-items:center;z-index:1000}
+.hero-card{max-width:520px;text-align:center;padding:28px}
+.hero-card img{max-width:260px;border-radius:14px;margin-bottom:18px}
+.hero-card h1{font-family:'Space Grotesk',system-ui;font-size:2.1rem;margin:0 0 10px}
+.hero-card p{opacity:.8;line-height:1.6;margin-bottom:20px}
+.badge-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px}
+.badge-tile{text-align:center;opacity:.28;filter:grayscale(1);transition:opacity .2s}
+.badge-tile.have{opacity:1;filter:none}
+.badge-tile img{width:100%;aspect-ratio:1;object-fit:contain;border-radius:9px}
+.badge-tile span{display:block;font-size:.58rem;line-height:1.15;margin-top:3px}
+
+/* Overlay-Rangfolge (Task-12-Nacharbeit): Zeremonie > Art.-50-Hinweis > Hero */
+.stage-ceremony{z-index:1200}
+.toast-ceremony{z-index:1150}
+.ai-notice-overlay{z-index:1100}
+.hero-overlay{z-index:1000}
+.unit-beispiel{border-left:3px solid rgba(52,211,153,.35)}
+.q-selfexplain{margin-top:10px;padding:10px;border-radius:9px;background:rgba(255,255,255,.03)}
+.q-selfexplain label{display:block;font-size:.8rem;margin-bottom:6px}
+.q-selfexplain textarea{width:100%;margin-top:5px}
+.feas-note{grid-column:1/-1;border-color:rgba(225,173,88,.35)!important;font-size:.86rem}
+
+/* ---- Asynchroner Coach-Nachschlag (#21/#24) ---- */
+.coach-note{margin-top:10px;padding:10px 12px;border-radius:9px;background:rgba(182,165,255,.06);border-left:3px solid rgba(182,165,255,.45);font-size:.85rem}
+.coach-head{font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;opacity:.6;margin-bottom:4px}

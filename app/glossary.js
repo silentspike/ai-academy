@@ -1,0 +1,83 @@
+// app/glossary.js — Glossar-Tooltips (Plan #6, #41):
+// Fachbegriffe überall unterstrichen; Erklärung per Hover UND Klick (A11y-Basic).
+// In Prüfungen (Closed Book) zentral deaktiviert über engine-quiz.applyMode → .gloss-off.
+
+let TERMS = new Map();
+
+const rxEscape = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/** glossary.json: [{term, aliases:[…], simple, memory_hook, legal_basis}] */
+export function loadGlossary(entries) {
+  TERMS = new Map();
+  for (const e of entries) {
+    TERMS.set(e.term.toLowerCase(), e);
+    for (const a of e.aliases ?? []) TERMS.set(a.toLowerCase(), e);
+  }
+  return TERMS.size;
+}
+
+/** Markiert bekannte Begriffe in einem Container (idempotent; überspringt Prüf-Container). */
+export function decorate(root) {
+  if (!TERMS.size) return 0;
+  const doc = root.ownerDocument;
+  const walker = doc.createTreeWalker(root, 4 /* NodeFilter.SHOW_TEXT */);
+  const pattern = new RegExp(`\\b(${[...TERMS.keys()].map(rxEscape).join('|')})\\b`, 'gi');
+  const targets = [];
+  while (walker.nextNode()) {
+    const n = walker.currentNode;
+    if (n.parentElement.closest('.gloss, script, style, textarea, [data-no-gloss]')) continue;
+    if (pattern.test(n.textContent)) targets.push(n);
+    pattern.lastIndex = 0;
+  }
+  let count = 0;
+  for (const n of targets) {
+    const frag = doc.createDocumentFragment();
+    let last = 0; const text = n.textContent;
+    for (const m of text.matchAll(pattern)) {
+      frag.appendChild(doc.createTextNode(text.slice(last, m.index)));
+      const s = doc.createElement('span');
+      s.className = 'gloss';
+      s.tabIndex = 0;
+      s.dataset.term = m[0].toLowerCase();
+      s.textContent = m[0];
+      frag.appendChild(s);
+      last = m.index + m[0].length;
+      count++;
+    }
+    frag.appendChild(doc.createTextNode(text.slice(last)));
+    n.replaceWith(frag);
+  }
+  return count;
+}
+
+/** Ein globaler Tooltip; öffnet auf Hover UND Klick/Enter, schließt bei Escape/Blur. */
+export function attachTooltip(doc) {
+  let tip = doc.querySelector('.gloss-tip');
+  if (!tip) {
+    tip = doc.createElement('div');
+    tip.className = 'gloss-tip';
+    tip.hidden = true;
+    doc.body.appendChild(tip);
+  }
+  const show = el => {
+    if (el.classList.contains('gloss-off')) return;         // Closed Book (#13)
+    const e = TERMS.get(el.dataset.term);
+    if (!e) return;
+    tip.innerHTML = `<b>${e.term}</b><p>${e.simple}</p>` +
+      (e.memory_hook ? `<p class="hook">🧠 ${e.memory_hook}</p>` : '') +
+      (e.legal_basis ? `<span class="mono">${e.legal_basis}</span>` : '');
+    const r = el.getBoundingClientRect();
+    tip.style.left = Math.min(r.left, doc.documentElement.clientWidth - 340) + 'px';
+    tip.style.top = (r.bottom + 8) + 'px';
+    tip.hidden = false;
+  };
+  const hide = () => { tip.hidden = true; };
+  doc.addEventListener('mouseover', ev => { const g = ev.target.closest?.('.gloss'); if (g) show(g); });
+  doc.addEventListener('mouseout', ev => { if (ev.target.closest?.('.gloss')) hide(); });
+  doc.addEventListener('click', ev => { const g = ev.target.closest?.('.gloss'); g ? show(g) : hide(); });
+  doc.addEventListener('keydown', ev => {
+    if (ev.key === 'Escape') hide();
+    if (ev.key === 'Enter' && ev.target.classList?.contains('gloss')) show(ev.target);
+  });
+  return tip;
+}

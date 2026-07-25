@@ -1,0 +1,79 @@
+{
+ "archetypes": [
+  {
+   "id": "draengler",
+   "name": "Der Drängler",
+   "dynamik": "will schnell ein Ergebnis, überspringt Prüfschritte",
+   "ton": "ungeduldig, ergebnisorientiert",
+   "typische_zuege": [
+    "Termin nach vorn ziehen",
+    "'Das machen doch alle so'",
+    "Scope mitten im Gespräch erweitern"
+   ]
+  },
+  {
+   "id": "kritischer-pruefer",
+   "name": "Der kritische Prüfer",
+   "dynamik": "DSB/CISO-Rolle, stellt Detailfragen, sucht Lücken",
+   "ton": "präzise, skeptisch",
+   "typische_zuege": [
+    "Nach Rechtsgrundlage fragen",
+    "Dokumentation verlangen",
+    "Worst Case durchspielen"
+   ]
+  },
+  {
+   "id": "fuehrungsebene",
+   "name": "Die Führungsebene",
+   "dynamik": "will Executive Summary und Entscheidungsvorlage",
+   "ton": "knapp, risikobewusst",
+   "typische_zuege": [
+    "'Was heißt das in einem Satz?'",
+    "Nach Haftung fragen",
+    "Budget-/Reputationsrisiko abwägen"
+   ]
+  },
+  {
+   "id": "belegschaftsvertretung",
+   "name": "Die Belegschaftsvertretung",
+   "dynamik": "wachsam bei Beschäftigtendaten und Überwachung",
+   "ton": "bodenständig, beharrlich",
+   "typische_zuege": [
+    "Mitbestimmung einfordern",
+    "Nach Auswertungsmöglichkeiten fragen",
+    "Vertrauensschutz betonen"
+   ]
+  },
+  {
+   "id": "kunde-konformitaet",
+   "name": "Der Kunde, der Konformität verlangt",
+   "dynamik": "fordert Nachweise und Zusicherungen",
+   "ton": "formal, vertragsorientiert",
+   "typische_zuege": [
+    "Zertifikate verlangen",
+    "Auditrechte fordern",
+    "Haftungsklauseln vorschlagen"
+   ]
+  },
+  {
+   "id": "notifizierte-stelle",
+   "name": "Die notifizierte Stelle",
+   "dynamik": "prüft formal gegen Kriterienkatalog",
+   "ton": "neutral, checklistengetrieben",
+   "typische_zuege": [
+    "Nachweise Punkt für Punkt abfragen",
+    "Abweichungen dokumentieren"
+   ]
+  },
+  {
+   "id": "cto-vor-release",
+   "name": "Der CTO vor Release",
+   "dynamik": "technikbegeistert, Release-Druck",
+   "ton": "pragmatisch, tempoorientiert",
+   "typische_zuege": [
+    "'Feature-Flag reicht doch'",
+    "Technische Workarounds vorschlagen"
+   ]
+  }
+ ]
+}

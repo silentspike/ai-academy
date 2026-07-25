@@ -1,0 +1,197 @@
+{
+ "id": "p6-e01-gpai",
+ "phase": "p6",
+ "title": "GPAI: Modelle, systemisches Risiko und die Feintuning-Falle",
+ "competency": "K13",
+ "level": "B",
+ "legal_status": "konsolidiert-2026-07-27",
+ "legal_basis": [
+  {
+   "ref": "Art. 51–56",
+   "instrument": "VO 2024/1689 idF 2026/1744",
+   "verified": "eigenpruefung-2026-07-24"
+  },
+  {
+   "ref": "Art. 3 Nr. 63",
+   "instrument": "VO 2024/1689 idF 2026/1744",
+   "verified": "eigenpruefung-2026-07-24"
+  }
+ ],
+ "change_log": [
+  {
+   "date": "2026-07-24",
+   "was": "Ersterstellung",
+   "quelle": "legal/arbeitskonsolidierung.md"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "Auslegungs-Box ErwG 102 ergänzt (Plan #4 Doppelverankerung)"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "Beispiel-Slot slot-12 ergänzt (§5.1: fixer Intent, profilvariable Einkleidung)"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "A-Stufen-Check ergänzt (§3 Mengengerüst 40/40/20)"
+  }
+ ],
+ "blocks": [
+  {
+   "type": "problem",
+   "html": "Die IT will ein Open-Source-LLM mit ÖSVA-Daten feintunen und intern breit ausrollen. Jemand wirft ein: „Dann sind WIR doch GPAI-Anbieter mit allen Modell-Pflichten!“ <b>Stimmt das — und worauf kommt es wirklich an?</b>",
+   "einsteiger_worked_example": "Prüfweg: 1) GPAI-MODELL-Regeln (Art. 51 ff.) adressieren Modell-ANBIETER. 2) Wer ein fremdes Modell feintunt, kann je nach Umfang der Änderung als Anbieter des (geänderten) Modells gelten — maßgeblich sind Substanz und Zweck des Eingriffs, nicht das Wort „Feintuning“. 3) Getrennt davon: Das SYSTEM obendrauf (Chatbot etc.) läuft durch die normale System-Prüfung (Art. 5/6/50). Ergebnis: Zwei Ebenen — Modell-Pflichten und System-Pflichten — nie vermischen."
+  },
+  {
+   "type": "concept",
+   "html": "<span class=\"gloss\">GPAI-Modell</span> (Art. 3 Nr. 63): erhebliche Allgemeinheit, vielfältige Aufgaben, integrierbar. Pflichten der Modell-Anbieter: Doku + Downstream-Informationen + Urheberrechts-Policy (Art. 53), bei <b>systemischem Risiko</b> (Schwellen/Kriterien Art. 51, u. a. Trainings-Compute) zusätzlich Evaluierung, Risikominderung, Vorfallsmeldung, Cybersicherheit (Art. 55). Zeitachse: GPAI-Regeln gelten seit <b>2.8.2025</b>. Merken: <b>Modell ≠ System</b> — die ÖSVA wird realistisch System-Betreiberin, Modell-Anbieterin nur bei substanziellen eigenen Modell-Eingriffen."
+  },
+  {
+   "type": "beispiel",
+   "intent_id": "slot-12",
+   "intent": "zeige die Zwei-Ebenen-Analyse Modell/System",
+   "generisch": "Ein zugekauftes Sprachmodell bleibt fremdes Modell; sobald es mit eigenen Daten feingetunt und intern bereitgestellt wird, entstehen eigene Pflichten auf der Modell-Ebene."
+  },
+  {
+   "type": "merkbild",
+   "html": "🧠 Merkbild: <b>Motor vs. Auto.</b> Art. 51 ff. regulieren Motorenhersteller; wer den Motor nur einbaut, baut Autos — und wird nach Auto-Regeln geprüft."
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p6-e01-a1",
+    "type": "mc",
+    "competency": "K13",
+    "level": "A",
+    "legal_status": "konsolidiert-2026-07-27",
+    "legal_basis": [
+     {
+      "ref": "Art. 113 Abs. 3 lit. b",
+      "instrument": "VO 2024/1689 idF 2026/1744",
+      "verified": "eigenpruefung-a-checks-2026-07-25"
+     }
+    ],
+    "prompt": "Ab wann gelten die GPAI-Pflichten des Kapitels V?",
+    "options": [
+     {
+      "id": "a",
+      "text": "2. August 2025",
+      "correct": true,
+      "rationale": "Zweite Geltungsstufe.",
+      "source_ref": "Art. 113 Abs. 3 lit. b"
+     },
+     {
+      "id": "b",
+      "text": "2. Februar 2025",
+      "correct": false,
+      "rationale": "Verbote.",
+      "source_ref": "Art. 113 Abs. 3 lit. a"
+     },
+     {
+      "id": "c",
+      "text": "2. Dezember 2027",
+      "correct": false,
+      "rationale": "Anhang III.",
+      "source_ref": "Art. 113 idF 2026/1744"
+     },
+     {
+      "id": "d",
+      "text": "2. August 2030",
+      "correct": false,
+      "rationale": "Behörden-Altsystem-Horizont.",
+      "source_ref": "Art. 111 Abs. 2 idF 2026/1744"
+     }
+    ]
+   }
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p6-e01-c1",
+    "type": "mc",
+    "prompt": "Welche Aussage zur Ebenen-Trennung ist korrekt?",
+    "options": [
+     {
+      "id": "a",
+      "text": "Wer irgendein LLM nutzt, übernimmt automatisch die GPAI-Modell-Pflichten.",
+      "correct": false,
+      "rationale": "Die Art. 53/55 adressieren Modell-Anbieter, nicht Nutzer/Betreiber der Systeme.",
+      "source_ref": "Art. 53"
+     },
+     {
+      "id": "b",
+      "text": "Modell-Pflichten (Art. 53/55) und System-Pflichten (Art. 5/6/50) laufen auf getrennten Ebenen — ein Chatbot auf GPAI-Basis bleibt als System eigenständig zu prüfen.",
+      "correct": true,
+      "rationale": "Genau die Zwei-Ebenen-Systematik des Kapitels V.",
+      "source_ref": "Art. 51–55; Art. 6"
+     },
+     {
+      "id": "c",
+      "text": "GPAI-Systeme sind immer Hochrisiko.",
+      "correct": false,
+      "rationale": "GPAI-Basis erzeugt keine automatische Hochrisiko-Einstufung des Systems.",
+      "source_ref": "Art. 6"
+     },
+     {
+      "id": "d",
+      "text": "GPAI-Regeln gelten erst ab 2027.",
+      "correct": false,
+      "rationale": "Sie gelten seit 2.8.2025 (Art. 113 Abs. 3 lit. b).",
+      "source_ref": "Art. 113 Abs. 3 lit. b"
+     }
+    ],
+    "level": "B"
+   }
+  },
+  {
+   "type": "quelle",
+   "ref": "Art. 3 Nr. 63 (Auszug)",
+   "changed_by_omnibus": false,
+   "text": "…ein KI-Modell — einschließlich der Fälle, in denen ein solches … mit einer großen Datenmenge unter umfassender Selbstüberwachung trainiert wird —, das eine erhebliche allgemeine Verwendbarkeit aufweist und in der Lage ist, unabhängig von der Art des Inverkehrbringens ein breites Spektrum unterschiedlicher Aufgaben kompetent zu erfüllen…"
+  },
+  {
+   "type": "erwg",
+   "nr": "102",
+   "text": "Erwägungsgrund 102 — Freie und quelloffene Lizenzen können Innovation fördern; Erleichterungen gelten aber nur unter bestimmten Bedingungen und nie pauschal. Einsatz im Gespräch: Gegen den „Open Source = pflichtenfrei“-Mythos."
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p6-e01-c2",
+    "type": "mc",
+    "prompt": "Die Fachpresse meldet, ein Modell-Anbieter habe die Compute-Schwelle für systemisches Risiko überschritten. Was folgt daraus für DIESEN Anbieter?",
+    "options": [
+     {
+      "id": "a",
+      "text": "Nichts, solange keine Beschwerden vorliegen.",
+      "correct": false,
+      "rationale": "Die Art.-55-Pflichten knüpfen an die Einstufung, nicht an Beschwerden.",
+      "source_ref": "Art. 55"
+     },
+     {
+      "id": "b",
+      "text": "Zusätzliche Pflichten: Modell-Evaluierung, Risikominderung, Meldung schwerwiegender Vorfälle, Cybersicherheit.",
+      "correct": true,
+      "rationale": "Das Zusatzprogramm für GPAI mit systemischem Risiko nach Art. 55.",
+      "source_ref": "Art. 55"
+     },
+     {
+      "id": "c",
+      "text": "Ein Verwendungsverbot des Modells in der EU.",
+      "correct": false,
+      "rationale": "Systemisches Risiko ist kein Verbot, sondern ein verschärftes Pflichtenregime.",
+      "source_ref": "Art. 55"
+     },
+     {
+      "id": "d",
+      "text": "Nur eine Registrierung in der EU-Datenbank für Hochrisiko-Systeme.",
+      "correct": false,
+      "rationale": "Die Art.-71-Datenbank betrifft Hochrisiko-SYSTEME; hier geht es um Modell-Pflichten.",
+      "source_ref": "Art. 71"
+     }
+    ],
+    "level": "B"
+   }
+  }
+ ]
+}

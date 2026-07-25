@@ -1,0 +1,221 @@
+{
+ "id": "p2-e02-zeitschichten",
+ "phase": "p2",
+ "title": "Zwei Zeitschichten: Die neuen Verbote des Digital Omnibus",
+ "competency": "K06",
+ "level": "B",
+ "legal_status": "konsolidiert-2026-07-27",
+ "legal_basis": [
+  {
+   "ref": "Art. 5 Abs. 1 lit. ba/bb, Abs. 1a/1b",
+   "instrument": "VO 2024/1689 idF 2026/1744",
+   "applies_from": "2026-12-02",
+   "transition_rule": "g2",
+   "verified": "eigenpruefung-2026-07-24"
+  },
+  {
+   "ref": "Art. 113 Abs. 3 lit. a",
+   "instrument": "VO 2024/1689 idF 2026/1744",
+   "verified": "eigenpruefung-2026-07-24"
+  }
+ ],
+ "change_log": [
+  {
+   "date": "2026-07-24",
+   "was": "Ersterstellung (Durchstich)",
+   "quelle": "legal/fristen-uebergangsmatrix.json g2"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "Auslegungs-Box ErwG 28 ergänzt (Plan #4 Doppelverankerung)"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "Beispiel-Slot slot-5 ergänzt (§5.1: fixer Intent, profilvariable Einkleidung)"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "A-Stufen-Check ergänzt (§3 Mengengerüst 40/40/20)"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "Originaltext-Box auf wörtlichen Amtsblatt-Wortlaut korrigiert"
+  }
+ ],
+ "blocks": [
+  {
+   "type": "problem",
+   "html": "Ein Kollege sagt im Meeting: „Art. 5? Kenne ich — die <b>8 roten Linien</b>, gilt alles seit Februar 2025.“ Heute ist der 27. Juli 2026. <b>Was stimmt an dieser Aussage nicht mehr?</b>",
+   "einsteiger_worked_example": "Prüfweg: (1) Stammfassung lit. a–h → seit 2.2.2025 anwendbar. (2) VO 2026/1744 hat lit. ba/bb + Abs. 1a/1b ERGÄNZT. (3) Art. 113 Abs. 3 lit. a n. F.: Diese NEUEN Tatbestände gelten erst ab 2.12.2026. Ergebnis: „8 seit Februar 2025“ ist eine veraltete Halbwahrheit — es sind zwei Zeitschichten."
+  },
+  {
+   "type": "concept",
+   "html": "Der <span class=\"gloss\">Digital Omnibus</span> (VO 2026/1744, in Kraft seit 27.7.2026) hat Art. 5 <b>erweitert</b>: <b>lit. ba</b> verbietet KI-erzeugte/manipulierte Inhalte, die intime Körperteile einer <b>bestimmbaren Person</b> oder diese Person bei sexuellen Handlungen zeigen — ohne freie, spezifische, aufgeklärte, eindeutige und <b>ausdrückliche Zustimmung</b>. <b>lit. bb</b> verbietet die Erzeugung von Missbrauchsdarstellungen i. S. d. RL 2011/93/EU. Beide gelten <b>ab 2.12.2026</b> — beschlossen, aber noch nicht anwendbar. Für Auskünfte heißt das: <i>„verboten ab Dezember“</i>, nicht <i>„verboten“</i>."
+  },
+  {
+   "type": "beispiel",
+   "intent_id": "slot-5",
+   "intent": "zeige zwei Zeitschichten in einem System",
+   "generisch": "Ein System mit Emotions- UND Deepfake-Funktion: die eine Funktion ist heute verboten, die andere erst ab 2.12.2026."
+  },
+  {
+   "type": "concept",
+   "html": "Die Feinsteuerung: <b>Abs. 1a</b> begrenzt das Verbot für Anbieter — Inverkehrbringen ist nur erfasst, wenn die Erzeugung solcher Inhalte <b>Zweckbestimmung</b> ist ODER ohne erhebliche technische Änderungen absehbar reproduzierbar UND zumutbare Schutzvorkehrungen fehlen. <b>Abs. 1b</b> ist die Bagatell-Klausel. Wichtig für die Prüferbrille: <b>Abs. 1a ist KEINE Erlaubnis</b>, sondern die Tatbestandsgrenze des neuen Verbots — ein Allzweck-Bildgenerator mit wirksamen Schutzvorkehrungen fällt nicht automatisch unter lit. ba."
+  },
+  {
+   "type": "merkbild",
+   "html": "🧠 Merkbild: Art. 5 ist ein <b>Haus mit Anbau</b> — Altbau bewohnt seit Feb 2025, der Anbau (ba/bb) wird erst am <b>2.12.2026</b> aufgesperrt. Wer heute sagt „gilt alles“, verwechselt Schlüsselübergabe mit Einzug."
+  },
+  {
+   "type": "widget",
+   "widget": "timeline",
+   "payload": {
+    "focus": [
+     "g1",
+     "g2"
+    ]
+   }
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p2-e02-a1",
+    "type": "mc",
+    "competency": "K06",
+    "level": "A",
+    "legal_status": "konsolidiert-2026-07-27",
+    "legal_basis": [
+     {
+      "ref": "Art. 113 Abs. 3 lit. a",
+      "instrument": "VO 2024/1689 idF 2026/1744",
+      "verified": "eigenpruefung-a-checks-2026-07-25"
+     }
+    ],
+    "prompt": "Seit wann gelten die Stamm-Verbote des Art. 5?",
+    "options": [
+     {
+      "id": "a",
+      "text": "2. Februar 2025",
+      "correct": true,
+      "rationale": "Erste Geltungsstufe der Verordnung.",
+      "source_ref": "Art. 113 Abs. 3 lit. a"
+     },
+     {
+      "id": "b",
+      "text": "2. August 2025",
+      "correct": false,
+      "rationale": "Das ist der GPAI-Start.",
+      "source_ref": "Art. 113 Abs. 3 lit. b"
+     },
+     {
+      "id": "c",
+      "text": "2. Dezember 2026",
+      "correct": false,
+      "rationale": "Das sind die NEUEN Verbote.",
+      "source_ref": "Art. 113 Abs. 3 lit. a idF 2026/1744"
+     },
+     {
+      "id": "d",
+      "text": "27. Juli 2026",
+      "correct": false,
+      "rationale": "Das ist das Inkrafttreten des Omnibus.",
+      "source_ref": "VO 2026/1744"
+     }
+    ]
+   }
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p2-e02-c1",
+    "type": "mc",
+    "prompt": "Heute ist der 15. Oktober 2026. Ein System, das gezielt intime Deepfakes bestimmbarer Personen erzeugt, wird in Verkehr gebracht. Welche Aussage ist korrekt?",
+    "options": [
+     {
+      "id": "a",
+      "text": "Das neue Art.-5-Verbot (lit. ba) greift bereits.",
+      "correct": false,
+      "rationale": "Die neuen Tatbestände sind zwar in Kraft, aber erst ab 2.12.2026 anwendbar (Art. 113 Abs. 3 lit. a n. F.).",
+      "source_ref": "Art. 113 Abs. 3 lit. a idF 2026/1744"
+     },
+     {
+      "id": "b",
+      "text": "Das AI-Act-Verbot lit. ba greift erst ab 2.12.2026 — andere Rechtsgrundlagen (z. B. StGB, DSGVO) bleiben davon unberührt.",
+      "correct": true,
+      "rationale": "Anwendbarkeitsbeginn der neuen Verbote ist der 2.12.2026; bis dahin ist das Verhalten nicht nach Art. 5 lit. ba sanktionierbar, kann aber nach anderem Recht verboten sein.",
+      "source_ref": "Art. 113 Abs. 3 lit. a idF 2026/1744"
+     },
+     {
+      "id": "c",
+      "text": "Es gilt eine Übergangsfrist bis 2.8.2030.",
+      "correct": false,
+      "rationale": "Die 2030-Frist ist die Behörden-Altsystem-Regel des Art. 111 Abs. 2 für HOCHRISIKO-Systeme — sie hat mit Art.-5-Verboten nichts zu tun.",
+      "source_ref": "Art. 111 Abs. 2 idF 2026/1744"
+     },
+     {
+      "id": "d",
+      "text": "Für eine belastbare Einstufung fehlen Informationen.",
+      "correct": false,
+      "rationale": "Datum, Zweckbestimmung und Handlung (Inverkehrbringen) sind vollständig angegeben.",
+      "source_ref": "Art. 5 Abs. 1 lit. ba"
+     }
+    ],
+    "level": "B"
+   }
+  },
+  {
+   "type": "quelle",
+   "ref": "Art. 5 Abs. 1 lit. ba (eingefügt durch VO 2026/1744)",
+   "changed_by_omnibus": true,
+   "text": "ba) das Inverkehrbringen, die Inbetriebnahme oder die Verwendung eines KI-Systems, das realistische Bild-, Video-, Ton- oder ähnliche Inhalte erzeugt oder manipuliert, in denen intime Körperteile einer bestimmbaren natürlichen Person dargestellt werden oder eine an eindeutig sexuellen Handlungen beteiligte bestimmbare Person dargestellt wird, ohne dass die betreffende Person eine aus freien Stücken erfolgende, spezifische, aufgeklärte, eindeutige und ausdrückliche Zustimmung zu dieser Erzeugung oder Manipulation erteilt hat;"
+  },
+  {
+   "type": "erwg",
+   "nr": "28",
+   "text": "Erwägungsgrund 28 — Die Verbote adressieren KI als Instrument manipulativer, ausbeuterischer und sozialer Kontrollpraktiken — sie sind Ausdruck eines unannehmbaren Risikos, nicht bloß strenger Regulierung. Einsatz im Gespräch: Zur Begründung, warum Verbote einwilligungsfest sind."
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p2-e02-c2",
+    "type": "mc",
+    "prompt": "Welche Aussage zu Art. 5 Abs. 1a (neu) ist NICHT korrekt?",
+    "trap": {
+     "is_trap": true,
+     "note": "Invertierte Frage — gesucht ist die falsche Aussage. Abs. 1a wird gern als „Freifahrtschein“ fehlgelesen."
+    },
+    "options": [
+     {
+      "id": "a",
+      "text": "Abs. 1a erlaubt intime Deepfakes, solange ein Wasserzeichen gesetzt wird.",
+      "correct": true,
+      "rationale": "FALSCH und damit gesucht: Abs. 1a ist eine Tatbestandsgrenze (Zweckbestimmung/Reproduzierbarkeit/Schutzvorkehrungen), kein Erlaubnistatbestand — Kennzeichnung heilt kein Verbot.",
+      "source_ref": "Art. 5 Abs. 1a idF 2026/1744"
+     },
+     {
+      "id": "b",
+      "text": "Abs. 1a knüpft das Anbieter-Verbot an Zweckbestimmung oder absehbare Reproduzierbarkeit ohne Schutzvorkehrungen.",
+      "correct": false,
+      "rationale": "Korrekte Wiedergabe der beiden Alternativen des Abs. 1a.",
+      "source_ref": "Art. 5 Abs. 1a idF 2026/1744"
+     },
+     {
+      "id": "c",
+      "text": "Die Verwendung ist nur bei zweckgerichteter Nutzung verboten.",
+      "correct": false,
+      "rationale": "Korrekt — für die Verwendungsvariante verlangt Abs. 1a Zweckgerichtetheit.",
+      "source_ref": "Art. 5 Abs. 1a idF 2026/1744"
+     },
+     {
+      "id": "d",
+      "text": "Abs. 1b nimmt Bagatell-Manipulationen aus, die Sichtbarkeit und Handlungscharakter nicht verändern.",
+      "correct": false,
+      "rationale": "Korrekte Wiedergabe der Bagatell-Klausel.",
+      "source_ref": "Art. 5 Abs. 1b idF 2026/1744"
+     }
+    ],
+    "level": "B"
+   }
+  }
+ ]
+}

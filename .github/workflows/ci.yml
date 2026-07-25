@@ -1,0 +1,76 @@
+name: checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Läuft ausschließlich auf GitHub-hosted Runnern.
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gates:
+    name: Gates (Syntax, Schema, Hygiene)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+
+      - name: Syntax-Check (parallel)
+        run: |
+          find bridge tutor tools app scripts -name '*.mjs' -o -name '*.js' \
+            | xargs -P "$(nproc)" -I{} node --check {}
+
+      - name: Content-Schema-Validierung
+        run: node tools/validate-content.mjs
+
+      - name: Fragen-Skript-Abgleich
+        run: node tools/check-questions.mjs
+
+      - name: Struktur-Hygiene (ohne Begriffe — verrät nichts)
+        run: |
+          fail=0
+          for verboten in data legal; do
+            if git ls-files --error-unmatch "$verboten" > /dev/null 2>&1; then
+              echo "FEHLER: '$verboten/' ist versioniert — gehört nie ins öffentliche Repo."
+              fail=1
+            fi
+          done
+          if git ls-files | grep -qE '(^|/)\.(env|private-terms)$|\.(key|pem)$'; then
+            echo "FEHLER: Secret-artige Datei ist versioniert."
+            fail=1
+          fi
+          exit $fail
+
+      - name: Verbotene Key-Umgebungsnamen
+        # Das Produkt nutzt ausschließlich Abo/OAuth über die CLI. Ein API-Key-Pfad
+        # darf nicht zurückkehren. Diese Regel ist selbst kein Geheimnis.
+        run: |
+          ! grep -RniE "ANTHROPIC_API_KEY|OPENAI_API_KEY|GEMINI_API_KEY" \
+            --include="*.json" --include="*.js" --include="*.mjs" --include="*.html" \
+            --include="*.service" --include="*.sh" --include="*.bat" \
+            --exclude=build-release.mjs \
+            app/ public/ content/ bridge/ tutor/ tools/ scripts/ 2>/dev/null
+
+      - name: Private Begriffe (Muster aus Secret, nicht aus dem Repo)
+        env:
+          PRIVATE_TERMS_REGEX: ${{ secrets.PRIVATE_TERMS_REGEX }}
+        run: |
+          if [ -z "$PRIVATE_TERMS_REGEX" ]; then
+            echo "::notice::PRIVATE_TERMS_REGEX nicht gesetzt — Schritt übersprungen."
+            exit 0
+          fi
+          # Nur Fundstellen ausgeben, nie die Zeile: das Protokoll ist öffentlich.
+          if grep -RniE "$PRIVATE_TERMS_REGEX" \
+               --include="*.json" --include="*.js" --include="*.mjs" --include="*.html" \
+               --include="*.md" --include="*.yml" --include="*.service" --include="*.sh" \
+               app/ public/ content/ bridge/ tutor/ tools/ scripts/ docs/ *.md 2>/dev/null \
+               | cut -d: -f1,2 > /tmp/treffer; then
+            echo "FEHLER: private Begriffe gefunden (Fundstellen, Inhalt bewusst nicht protokolliert):"
+            head -20 /tmp/treffer
+            exit 1
+          fi
+          echo "sauber"

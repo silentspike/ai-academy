@@ -1,0 +1,168 @@
+[
+ {
+  "term": "KI-System",
+  "aliases": [
+   "AI-System"
+  ],
+  "simple": "Maschinengestütztes System, das aus Eingaben Ausgaben wie Vorhersagen, Empfehlungen oder Entscheidungen ableitet und dabei mit unterschiedlicher Autonomie arbeitet.",
+  "memory_hook": "Denk an eine Blackbox mit Lernfähigkeit — nicht jede Software, aber alles was 'ableitet' statt nur 'ausführt'.",
+  "legal_basis": "Art. 3 Nr. 1"
+ },
+ {
+  "term": "Anbieter",
+  "aliases": [
+   "Provider"
+  ],
+  "simple": "Wer ein KI-System entwickelt oder entwickeln lässt und unter eigenem Namen in Verkehr bringt oder in Betrieb nimmt.",
+  "memory_hook": "Anbieter = Name auf dem Etikett.",
+  "legal_basis": "Art. 3 Nr. 3"
+ },
+ {
+  "term": "Betreiber",
+  "aliases": [
+   "Deployer"
+  ],
+  "simple": "Wer ein KI-System in eigener Verantwortung verwendet (außer im persönlichen, nicht beruflichen Bereich).",
+  "memory_hook": "Betreiber = wer den Einschaltknopf im Betrieb drückt.",
+  "legal_basis": "Art. 3 Nr. 4"
+ },
+ {
+  "term": "Inverkehrbringen",
+  "aliases": [],
+  "simple": "Die erstmalige Bereitstellung eines KI-Systems auf dem Unionsmarkt.",
+  "memory_hook": "Wie ein Produkt-Launch: das erste Mal zählt.",
+  "legal_basis": "Art. 3 Nr. 9"
+ },
+ {
+  "term": "Inbetriebnahme",
+  "aliases": [],
+  "simple": "Die Bereitstellung eines KI-Systems zur Erstverwendung direkt an Betreiber oder zur Eigenverwendung.",
+  "memory_hook": "Selbstgebaut und selbst genutzt? Auch das ist erfasst.",
+  "legal_basis": "Art. 3 Nr. 11"
+ },
+ {
+  "term": "Zweckbestimmung",
+  "aliases": [
+   "intended purpose"
+  ],
+  "simple": "Die vom Anbieter vorgesehene Verwendung laut Gebrauchsanweisung, Werbung und Dokumentation.",
+  "memory_hook": "Die Zweckbestimmung ist der Anker JEDER Einstufung — ohne sie keine Prüfung.",
+  "legal_basis": "Art. 3 Nr. 12"
+ },
+ {
+  "term": "Hochrisiko-KI-System",
+  "aliases": [],
+  "simple": "KI-System, das unter Art. 6 fällt: über Anhang I (Produktrecht) oder Anhang III (Einsatzbereiche).",
+  "memory_hook": "Hochrisiko = der Anhang entscheidet, nicht das Bauchgefühl.",
+  "legal_basis": "Art. 6"
+ },
+ {
+  "term": "Profiling",
+  "aliases": [],
+  "simple": "Automatisierte Verarbeitung zur Bewertung persönlicher Aspekte einer Person (i. S. d. DSGVO).",
+  "memory_hook": "Aus Daten ein Persönlichkeitsbild rechnen.",
+  "legal_basis": "Art. 3 Nr. 52"
+ },
+ {
+  "term": "Emotionserkennung",
+  "aliases": [],
+  "simple": "KI-System zur Feststellung oder Ableitung von Emotionen oder Absichten auf Grundlage biometrischer Daten.",
+  "memory_hook": "Gesicht/Stimme rein, Gefühlslage raus.",
+  "legal_basis": "Art. 3 Nr. 39"
+ },
+ {
+  "term": "biometrische Kategorisierung",
+  "aliases": [],
+  "simple": "Zuordnung von Personen zu Kategorien aufgrund biometrischer Daten (z. B. Geschlecht, Ethnie, Gesundheit).",
+  "memory_hook": "Nicht 'wer bist du?', sondern 'was bist du?' — das macht es heikel.",
+  "legal_basis": "Art. 3 Nr. 40"
+ },
+ {
+  "term": "Fernidentifizierung",
+  "aliases": [
+   "RBI",
+   "biometrische Fernidentifizierung"
+  ],
+  "simple": "Identifizierung von Personen aus der Distanz durch Abgleich biometrischer Daten mit einer Datenbank — ohne deren aktive Mitwirkung.",
+  "memory_hook": "Kamera schaut in die Menge und ruft Namen zu — das ist RBI.",
+  "legal_basis": "Art. 3 Nr. 41"
+ },
+ {
+  "term": "Social Scoring",
+  "aliases": [],
+  "simple": "Bewertung/Klassifizierung von Personen anhand ihres sozialen Verhaltens mit ungerechtfertigter Schlechterstellung.",
+  "memory_hook": "Punktekonto fürs Leben — für öffentliche Stellen tabu.",
+  "legal_basis": "Art. 5 Abs. 1 lit. c"
+ },
+ {
+  "term": "FRIA",
+  "aliases": [
+   "Grundrechte-Folgenabschätzung"
+  ],
+  "simple": "Pflicht bestimmter Betreiber (v. a. öffentliches Recht), vor Einsatz eines Hochrisiko-Systems die Grundrechtsfolgen zu bewerten.",
+  "memory_hook": "Wie eine DSFA, nur für ALLE Grundrechte.",
+  "legal_basis": "Art. 27"
+ },
+ {
+  "term": "Konformitätsbewertung",
+  "aliases": [],
+  "simple": "Verfahren, mit dem nachgewiesen wird, dass ein Hochrisiko-System die Anforderungen des Kapitels III erfüllt.",
+  "memory_hook": "IT-Analogie: der Abnahmetest vor dem Go-Live.",
+  "legal_basis": "Art. 43"
+ },
+ {
+  "term": "benannte Stelle",
+  "aliases": [
+   "notifizierte Stelle"
+  ],
+  "simple": "Unabhängige Prüforganisation für bestimmte Konformitätsbewertungen.",
+  "memory_hook": "Das externe Audit-Team mit Behördenmandat.",
+  "legal_basis": "Art. 3 Nr. 22"
+ },
+ {
+  "term": "GPAI-Modell",
+  "aliases": [
+   "Basismodell",
+   "general purpose AI"
+  ],
+  "simple": "KI-Modell mit erheblicher Allgemeinheit, das viele Aufgaben erfüllen und in Systeme integriert werden kann.",
+  "memory_hook": "Der Motor, nicht das Auto.",
+  "legal_basis": "Art. 3 Nr. 63"
+ },
+ {
+  "term": "Digital Omnibus",
+  "aliases": [
+   "VO 2026/1744"
+  ],
+  "simple": "Änderungsverordnung vom 8.7.2026 (Amtsblatt 24.7.2026), die u. a. Fristen verschiebt und Art. 4, 4a, 5, 111, 113 ändert.",
+  "memory_hook": "Der Omnibus nimmt mehrere Gesetzesänderungen auf einmal mit — daher der Name.",
+  "legal_basis": "VO (EU) 2026/1744"
+ },
+ {
+  "term": "wesentliche Änderung",
+  "aliases": [
+   "substantial modification"
+  ],
+  "simple": "Veränderung eines KI-Systems nach Inverkehrbringen, die die Konformität beeinträchtigt oder die Zweckbestimmung ändert.",
+  "memory_hook": "Der Punkt, an dem aus 'Update' ein 'neues Produkt' wird — Art.-25-Falle!",
+  "legal_basis": "Art. 3 Nr. 23"
+ },
+ {
+  "term": "KI-Kompetenz",
+  "aliases": [
+   "AI literacy"
+  ],
+  "simple": "Fähigkeiten, Kenntnisse und Verständnis für den sachkundigen Einsatz von KI (Art. 4: Unterstützungsmaßnahmen, kein garantiertes Niveau).",
+  "memory_hook": "Seit dem Omnibus: fördern statt garantieren.",
+  "legal_basis": "Art. 4 idF 2026/1744"
+ },
+ {
+  "term": "Reallabor",
+  "aliases": [
+   "regulatory sandbox"
+  ],
+  "simple": "Kontrollierter Rahmen einer Behörde zum Entwickeln und Testen von KI unter Aufsicht.",
+  "memory_hook": "Sandkasten mit Aufsicht — Fehler erlaubt, Lernen Pflicht.",
+  "legal_basis": "Art. 57"
+ }
+]

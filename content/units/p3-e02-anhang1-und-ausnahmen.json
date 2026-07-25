@@ -1,0 +1,198 @@
+{
+ "id": "p3-e02-anhang1-und-ausnahmen",
+ "phase": "p3",
+ "title": "Anhang I und die Art.-6-Ausnahmen: Wann Hochrisiko doch nicht greift",
+ "competency": "K03",
+ "level": "C",
+ "legal_status": "konsolidiert-2026-07-27",
+ "legal_basis": [
+  {
+   "ref": "Art. 6 Abs. 1, 3",
+   "instrument": "VO 2024/1689 idF 2026/1744",
+   "verified": "eigenpruefung-2026-07-24"
+  },
+  {
+   "ref": "Anhang I",
+   "instrument": "VO 2024/1689 idF 2026/1744",
+   "verified": "eigenpruefung-2026-07-24"
+  }
+ ],
+ "change_log": [
+  {
+   "date": "2026-07-24",
+   "was": "Ersterstellung",
+   "quelle": "legal/arbeitskonsolidierung.md"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "Auslegungs-Box ErwG 53 ergänzt (Plan #4 Doppelverankerung)"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "Beispiel-Slot slot-8 ergänzt (§5.1: fixer Intent, profilvariable Einkleidung)"
+  },
+  {
+   "datum": "2026-07-25",
+   "aenderung": "A-Stufen-Check ergänzt (§3 Mengengerüst 40/40/20)"
+  }
+ ],
+ "blocks": [
+  {
+   "type": "problem",
+   "html": "Der Anbieter Ihres Dokumenten-Tools beruhigt: „Unser System fällt zwar unter Anhang III, aber es ist ja <i>nur vorbereitend</i> — Ausnahme, keine Hochrisiko-Pflichten!“ <b>Wie prüfen Sie diese Behauptung, statt sie zu glauben?</b>",
+   "einsteiger_worked_example": "Prüfweg: 1) Art. 6 Abs. 3: Ausnahme möglich, wenn KEIN erhebliches Risiko für Gesundheit/Sicherheit/Grundrechte — konkretisiert durch vier Fallgruppen (eng auszulegen!): a) enge Verfahrensaufgabe, b) Verbesserung des Ergebnisses einer zuvor abgeschlossenen menschlichen Tätigkeit, c) Erkennung von Entscheidungsmustern/Abweichungen OHNE die menschliche Bewertung ohne Prüfung zu ersetzen, d) vorbereitende Aufgabe. 2) ABER: Profiling natürlicher Personen → IMMER Hochrisiko (Abs. 3 UAbs. 3). 3) Dokumentationspflicht der Ausnahme-Einschätzung (Abs. 4). Ergebnis: „vorbereitend“ ist ein PRÜFAUFTRAG, kein Freifahrtschein."
+  },
+  {
+   "type": "concept",
+   "html": "Zwei Wege nach Hochrisiko: <b>Anhang I</b> (Art. 6 Abs. 1 — Produktrecht: Maschinen, Medizinprodukte, Aufzüge …, wenn das KI-System Sicherheitsbauteil ist oder selbst dem Produktrecht unterliegt; Geltung ab <b>2.8.2028</b>) und <b>Anhang III</b> (Art. 6 Abs. 2 — Einsatzbereiche; Geltung ab <b>2.12.2027</b>). Die <b>Abs.-3-Ausnahmen</b> sind das Feinwerkzeug: eng, dokumentationspflichtig, und mit der harten Rückausnahme <b>Profiling ⇒ immer Hochrisiko</b>."
+  },
+  {
+   "type": "beispiel",
+   "intent_id": "slot-8",
+   "intent": "zeige die Profiling-Rückausnahme des Art. 6 Abs. 3",
+   "generisch": "Eine reine Vorsortierung nach Eingangsdatum kann unter die Ausnahme fallen; sobald personenbezogene Merkmale profiliert werden, greift sie nicht mehr."
+  },
+  {
+   "type": "merkbild",
+   "html": "🧠 Merkbild: Art. 6 Abs. 3 ist die <b>Nadelöhr-Tür</b> im Minenfeld-Zaun — es gibt sie, sie ist schmal, sie wird protokolliert, und mit dem Rucksack „Profiling“ passt niemand hindurch."
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p3-e02-a1",
+    "type": "mc",
+    "competency": "K03",
+    "level": "A",
+    "legal_status": "konsolidiert-2026-07-27",
+    "legal_basis": [
+     {
+      "ref": "Art. 6 Abs. 3",
+      "instrument": "VO 2024/1689 idF 2026/1744",
+      "verified": "eigenpruefung-a-checks-2026-07-25"
+     }
+    ],
+    "prompt": "Wie viele Fallgruppen nennt Art. 6 Abs. 3 für die Hochrisiko-Ausnahme?",
+    "options": [
+     {
+      "id": "a",
+      "text": "Vier (lit. a–d)",
+      "correct": true,
+      "rationale": "Enge Verfahrensaufgabe, Ergebnisverbesserung, Musterkennung, vorbereitende Aufgabe — plus Profiling-Rückausnahme.",
+      "source_ref": "Art. 6 Abs. 3"
+     },
+     {
+      "id": "b",
+      "text": "Zwei",
+      "correct": false,
+      "rationale": "Zu wenige.",
+      "source_ref": "Art. 6 Abs. 3"
+     },
+     {
+      "id": "c",
+      "text": "Sechs",
+      "correct": false,
+      "rationale": "Zu viele.",
+      "source_ref": "Art. 6 Abs. 3"
+     },
+     {
+      "id": "d",
+      "text": "Keine — es gibt keine Ausnahme.",
+      "correct": false,
+      "rationale": "Abs. 3 existiert genau dafür.",
+      "source_ref": "Art. 6 Abs. 3"
+     }
+    ]
+   }
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p3-e02-c1",
+    "type": "case",
+    "scenario": "Das angebotene System erstellt aus Versichertendaten individuelle „Risiko-Profile“ zur Antragspriorisierung. Der Anbieter beruft sich auf die Ausnahme „nur vorbereitende Aufgabe“ (Art. 6 Abs. 3).",
+    "prompt": "Trägt die Ausnahme?",
+    "options": [
+     {
+      "id": "a",
+      "text": "Nein — bei Profiling natürlicher Personen greift die Abs.-3-Ausnahme nie; das System bleibt Hochrisiko.",
+      "correct": true,
+      "rationale": "Art. 6 Abs. 3 UAbs. 3: Ein Anhang-III-System, das Profiling natürlicher Personen vornimmt, gilt stets als hochriskant.",
+      "source_ref": "Art. 6 Abs. 3 UAbs. 3"
+     },
+     {
+      "id": "b",
+      "text": "Ja — vorbereitende Aufgaben sind ausgenommen.",
+      "correct": false,
+      "rationale": "Die Fallgruppe existiert, wird aber durch die Profiling-Rückausnahme verdrängt.",
+      "source_ref": "Art. 6 Abs. 3"
+     },
+     {
+      "id": "c",
+      "text": "Ja, wenn der Anbieter die Einschätzung dokumentiert.",
+      "correct": false,
+      "rationale": "Dokumentation ist NOTWENDIGE Bedingung der Ausnahme, heilt aber die Profiling-Sperre nicht.",
+      "source_ref": "Art. 6 Abs. 4"
+     },
+     {
+      "id": "d",
+      "text": "Für eine belastbare Einstufung fehlen Informationen.",
+      "correct": false,
+      "rationale": "„Risiko-Profile aus Versichertendaten“ IST Profiling — die entscheidende Tatsache liegt vor.",
+      "source_ref": "Art. 3 Nr. 52"
+     }
+    ],
+    "level": "C"
+   }
+  },
+  {
+   "type": "quelle",
+   "ref": "Art. 6 Abs. 3 (Auszug)",
+   "changed_by_omnibus": false,
+   "text": "Abweichend von Absatz 2 gilt ein in Anhang III genanntes KI-System nicht als hochriskant, wenn es kein erhebliches Risiko der Beeinträchtigung in Bezug auf die Gesundheit, Sicherheit oder Grundrechte natürlicher Personen birgt … Ungeachtet des Unterabsatzes 1 gilt ein in Anhang III aufgeführtes KI-System immer dann als hochriskant, wenn es ein Profiling natürlicher Personen vornimmt."
+  },
+  {
+   "type": "erwg",
+   "nr": "53",
+   "text": "Erwägungsgrund 53 — Nicht jedes System in einem Anhang-III-Bereich birgt ein bedeutendes Risiko — daraus folgt die eng umgrenzte Ausnahme des Art. 6 Abs. 3 mit Dokumentationspflicht. Einsatz im Gespräch: Beim Prüfen, ob die Abs.-3-Ausnahme wirklich trägt."
+  },
+  {
+   "type": "check",
+   "question": {
+    "id": "p3-e02-c2",
+    "type": "mc",
+    "prompt": "Ein KI-Modul steuert die Dosier-Einheit eines Medizinprodukts. Über welchen Pfad läuft die Hochrisiko-Prüfung?",
+    "options": [
+     {
+      "id": "a",
+      "text": "Anhang III Nr. 5 (Gesundheitsleistungen)",
+      "correct": false,
+      "rationale": "Nr. 5 betrifft Leistungs-VERWALTUNG; hier geht es um Produktsicherheit.",
+      "source_ref": "Anhang III Nr. 5"
+     },
+     {
+      "id": "b",
+      "text": "Anhang I — als Sicherheitsbauteil eines Produkts unter Harmonisierungsrecht (MDR); zeitlich ab 2.8.2028.",
+      "correct": true,
+      "rationale": "Art. 6 Abs. 1 i. V. m. Anhang I: Sicherheitsbauteil + Konformitätsbewertungspflicht des Produkts; Omnibus-Termin 2.8.2028.",
+      "source_ref": "Art. 6 Abs. 1; Anhang I"
+     },
+     {
+      "id": "c",
+      "text": "Gar nicht — Medizinprodukte sind ausgenommen.",
+      "correct": false,
+      "rationale": "Das Gegenteil: Medizinprodukte-Recht ist gerade Anhang-I-Materie.",
+      "source_ref": "Anhang I"
+     },
+     {
+      "id": "d",
+      "text": "Art. 5 — Gesundheits-KI ist verboten.",
+      "correct": false,
+      "rationale": "Kein Verbots-Tatbestand betrifft therapeutische Dosierung als solche.",
+      "source_ref": "Art. 5"
+     }
+    ],
+    "level": "C"
+   }
+  }
+ ]
+}
