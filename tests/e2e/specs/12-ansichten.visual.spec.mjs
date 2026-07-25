@@ -67,7 +67,65 @@ test.describe('views', () => {
         const leer = [...document.querySelectorAll('#view button, #view a[href]')]
           .filter(n => n.offsetParent !== null && (n.getBoundingClientRect().width === 0 || n.getBoundingClientRect().height === 0))
           .map(n => (n.innerText || n.getAttribute('aria-label') || '?').slice(0, 30));
+        // Contrast, per WCAG 1.4.3. A dark theme makes it easy to end up with
+        // text that looks fine to the person who chose the colour and is hard
+        // work for everyone else — and this is a product people read for hours.
+        const relLum = (r, g, b) => {
+          const f = (c) => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+          return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+        };
+        const parse = (farbe) => {
+          const m = /rgba?\(([^)]+)\)/.exec(farbe);
+          if (!m) return null;
+          const [r, g, b, a] = m[1].split(',').map(Number);
+          return { r, g, b, a: a === undefined ? 1 : a };
+        };
+        // Returns null when the nearest painted background is a gradient: the
+        // ratio cannot be determined from a single colour then, and reporting it
+        // anyway produced 1.3:1 for the primary buttons — dark text on a green
+        // gradient, which reads perfectly well. A measurement that cannot be made
+        // is not a finding.
+        const hintergrundVon = (n) => {
+          for (let e = n; e && e !== document.documentElement; e = e.parentElement) {
+            const cs = getComputedStyle(e);
+            if (cs.backgroundImage && cs.backgroundImage !== 'none') return null;
+            const c = parse(cs.backgroundColor);
+            if (c && c.a > 0.5) return c;
+          }
+          return { r: 10, g: 14, b: 23, a: 1 };            // page background
+        };
+        const schwach = [];
+        for (const n of document.querySelectorAll('#view *')) {
+          if (n.children.length) continue;
+          const text = (n.innerText || '').trim();
+          if (text.length < 4) continue;
+          const cs = getComputedStyle(n);
+          if (cs.visibility === 'hidden' || cs.display === 'none' || Number(cs.opacity) < 0.1) continue;
+          const vg = parse(cs.color);
+          if (!vg) continue;
+          const hg = hintergrundVon(n);
+          if (!hg) continue;                               // gradient — not measurable
+          const l1 = relLum(vg.r, vg.g, vg.b), l2 = relLum(hg.r, hg.g, hg.b);
+          const verhaeltnis = (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+          // 3:1 for large text (18.66px bold or 24px), 4.5:1 otherwise.
+          const px = parseFloat(cs.fontSize);
+          const gross = px >= 24 || (px >= 18.66 && Number(cs.fontWeight) >= 700);
+          const grenze = gross ? 3 : 4.5;
+          if (verhaeltnis < grenze) {
+            schwach.push(`${text.slice(0, 30)} — ${verhaeltnis.toFixed(1)}:1 (min ${grenze})`);
+          }
+        }
+
+        // Placeholders that reached the screen. NaN, undefined and [object Object]
+        // are what a missing field looks like to a reader, and no amount of
+        // looking at colours finds them — this caught "Kapiteltest bestanden
+        // (NaN %)" on the learning overview.
+        const sichtbar = document.getElementById('view')?.innerText ?? '';
+        const platzhalter = [...new Set(sichtbar.match(/\b(NaN|undefined|null)\b|\[object [A-Za-z]+\]/g) ?? [])];
+
         return {
+          platzhalter,
+          schwacherKontrast: schwach.slice(0, 10),
           seiteQuerScroll: doc.scrollWidth > doc.clientWidth + 2,
           querlaufende: quer.slice(0, 8),
           gekuerzteTexte: gekuerzt.slice(0, 8),

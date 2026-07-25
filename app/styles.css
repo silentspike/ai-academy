@@ -26,7 +26,7 @@
 :root {
   --bg:#070a10; --bg-deep:#090e16; --panel:#111722; --panel-2:#171d2a;
   --line:rgba(151,169,202,.10); --line-strong:rgba(151,169,202,.22);
-  --text:#e5eaf3; --dim:#949dac; --faint:#68717f;
+  --text:#e5eaf3; --dim:#949dac; --faint:#7a8494;   /* 4.7:1 on the card background; #68717f was 3.6:1 */
   --emerald:#65d8b2; --gold:#e1ad58; --cyan:#22d3ee; --violet:#8a70ef; --amber:#e1ad58; --red:#d97568;
   --risk-high:#d98a58; --heat-2:#9dcc9b; --heat-0:#414956;
   --grad-brand:linear-gradient(90deg,#987cff 0%,#ba8fd8 42%,#e5b45f 100%);
