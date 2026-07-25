@@ -18,10 +18,13 @@ import { readdirSync, existsSync, mkdirSync, writeFileSync, statSync } from 'nod
 import { join, resolve, basename } from 'node:path';
 import { execFileSync } from 'node:child_process';
 
+// Parsed properly: taking "the first argument without a dash" swallowed the
+// VALUE of --out and then looked for screenshots in the output directory.
 const args = process.argv.slice(2);
-const QUELLE = resolve(args.find(a => !a.startsWith('--')) ?? 'test-results/ansichten');
 const outIdx = args.indexOf('--out');
-const ZIEL = resolve(outIdx >= 0 ? args[outIdx + 1] : 'test-results/kontaktbogen');
+const ZIEL = resolve(outIdx >= 0 && args[outIdx + 1] ? args[outIdx + 1] : 'test-results/kontaktbogen');
+const frei = args.filter((a, i) => !a.startsWith('--') && i !== outIdx + 1);
+const QUELLE = resolve(frei[0] ?? 'test-results/ansichten');
 const PRO_BOGEN = 12;
 
 if (!existsSync(QUELLE)) {

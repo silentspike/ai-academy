@@ -11,7 +11,7 @@
 // occurred twice in this project and no unit test can see it.
 
 import { mkdirSync, writeFileSync, readFileSync, existsSync, readdirSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 
 // Deliberately NOT under test-results/: Playwright wipes that directory when a
 // run starts, so a single-spec run would erase what previous specs recorded and
@@ -23,8 +23,13 @@ import { join } from 'node:path';
 // overwriting each other — a run reported 11 operated controls where the same
 // suite had recorded 119. Losing measurements is worse than having none, because
 // the number still looks like an answer.
-const VERZEICHNIS = '.tmp-coverage';
-const DATEI = `${VERZEICHNIS}/clicks-${process.pid}.json`;
+// Anchored to the repository root, not to the working directory: a relative path
+// depends on where the worker happens to run, and in CI the files ended up
+// somewhere the upload step never looked — the artifact came out empty and the
+// evaluation reported "no coverage recorded" for a suite that had just run.
+const WURZEL = resolve(new URL('../..', import.meta.url).pathname);
+const VERZEICHNIS = join(WURZEL, '.tmp-coverage');
+const DATEI = join(VERZEICHNIS, `clicks-${process.pid}.json`);
 
 /** Selectors for anything a user can operate. */
 export const INTERAKTIV = [

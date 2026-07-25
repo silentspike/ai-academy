@@ -92,7 +92,12 @@ export async function startApp({ mountId = 'view' } = {}) {
   const render = () => {
     const [path, ...args] = (location.hash.replace(/^#\/?/, '') || 'dashboard').split('/');
     const view = document.getElementById(mountId);
-    const fn = routes.get(path) ?? routes.get('dashboard');
+    // Explicit check: the route comes from the address bar, and the value out of
+    // the map is called straight away. The map only ever holds what we register,
+    // but relying on that is exactly the assumption an analyser cannot verify —
+    // and neither can a reader.
+    const kandidat = routes.get(path) ?? routes.get('dashboard');
+    const fn = typeof kandidat === 'function' ? kandidat : null;
     view.classList.remove('dash-grid');      // Routen setzen ihr Layout selbst
     view.innerHTML = '';
     view.classList.remove('reveal');

@@ -438,7 +438,11 @@ const server = http.createServer(async (req, res) => {
         // Loads the local user profile from data/profiles/ (gitignored). Profile names are the
         // user's business — no profile name appears in the code.
         const dir = join(STORE, 'profiles');
-        const files = existsSync(dir) ? (await import('node:fs')).readdirSync(dir).filter(f => f.endsWith('.json')).sort() : [];
+        // Read and handle failure, rather than asking first and reading after:
+        // between the two the directory can change, and the check buys nothing.
+        let files = [];
+        try { files = (await import('node:fs')).readdirSync(dir).filter(f => f.endsWith('.json')).sort(); }
+        catch { files = []; }
         if (files.length) return send(res, 200, readFileSync(join(dir, files[0]), 'utf-8'), 'application/json; charset=utf-8');
         // No curated profile is the normal case — the repository ships none and
         // share users create theirs in the wizard (§5.1). Answering 404 would put
@@ -456,7 +460,10 @@ const server = http.createServer(async (req, res) => {
     const allowedRoots = [resolve(OPT.webroot), join(ROOT, 'assets'), join(ROOT, 'content'), join(ROOT, 'app')];
     if (path.startsWith('/app/')) fp = join(ROOT, normalize(path).replace(/^([/\\])+/, ''));
     if (!allowedRoots.some(r => resolve(fp).startsWith(r + '/') || resolve(fp) === r)) return send(res, 403, { error: 'path' });
-    if (!existsSync(fp) || !statSync(fp).isFile()) return send(res, 404, { error: 'not found' });
+    // Same here: stat and let a missing file fall through, instead of a check
+    // that another process can invalidate before the read happens.
+    try { if (!statSync(fp).isFile()) return send(res, 404, { error: 'not found' }); }
+    catch { return send(res, 404, { error: 'not found' }); }
     let data = readFileSync(fp);
     if (path === '/' || path.endsWith('index.html')) {
       data = Buffer.from(data.toString('utf-8').replace('__BRIDGE_TOKEN__', TOKEN)); // Token-Injektion
