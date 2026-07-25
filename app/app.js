@@ -342,12 +342,12 @@ route('zeremonie', (view, ctx, [tier]) => {
     const lv = levelFor(ctx.state.xp, ctx.state.levelEndtitel);
     if (tier === 'gross') ceremony(document, CEREMONY.GROSS, {
       title: 'Level-Up!', text: `Du bist jetzt Level ${lv.level + 1} — bleib dran.`,
-      image: 'assets/characters/crew/01-coach.png',
+      image: 'assets/characters/crew/01-coach.webp',
       stats: [{ k: 'XP gesamt', v: ctx.state.xp + 120 }, { k: 'Einheiten', v: 12 }, { k: 'Beste Serie', v: '86%' }]
     });
     else if (tier === 'mittel') ceremony(document, CEREMONY.MITTEL, {
       title: 'Badge: Dreistellig', text: '100 Fragen beantwortet. Verlässlich unspektakulär.',
-      image: 'assets/characters/crew/01-coach.png'
+      image: 'assets/characters/crew/01-coach.webp'
     });
     else ceremony(document, CEREMONY.KLEIN, { xp: 14, anchor: view.querySelector('#z-go').parentElement });
   });
@@ -497,7 +497,7 @@ route('boss', async (view, ctx, [scenarioId]) => {
   // Fakten, Rubrik, Fallen und Schwierigkeit bleiben unverändert.
   const eink = (ctx.profile?.personalisierung?.szenario_einkleidungen ?? []).find(e => e.scenario_id === scenario.id);
   const crew = CREW[scenario.persona_archetype] ?? CREW['draengler'];
-  const cimg = k => `assets/characters/crew/${crew.img}-${k}.png`;
+  const cimg = k => `assets/characters/crew/${crew.img}-${k}.webp`;
   scenario.persona = {
     archetype: arch?.name ?? scenario.persona_archetype,
     name: crew.name, role: eink?.rolle ?? crew.role,

@@ -38,7 +38,3 @@ tests/e2e/__screenshots__/*/diff/
 .DS_Store
 *.swp
 *~
-
-# TEMPORAER bis Task 14 (Asset-Optimierung 182 MB -> unter 25 MB).
-# Vor dem Commit der Bilder wird dieser Eintrag entfernt.
-assets/

@@ -23,7 +23,7 @@ export function checkRewards(state, doc = document, { anchor = null, phaseComple
   const lvl = levelFor(state.xp ?? 0, titel);
   if ((state.level ?? 1) < lvl.level) {
     state.level = lvl.level;
-    ceremony(doc, CEREMONY.GROSS, { title: `Level ${lvl.level} — ${lvl.title}`, text: 'Aktivitäts-XP treiben Level und Badges; dein Können zeigt das Kompetenz-Radar (#28).', image: 'assets/badges/endstufe-krone.png', stats: [{ k: 'XP', v: state.xp ?? 0 }, { k: 'Level', v: lvl.level }] });
+    ceremony(doc, CEREMONY.GROSS, { title: `Level ${lvl.level} — ${lvl.title}`, text: 'Aktivitäts-XP treiben Level und Badges; dein Können zeigt das Kompetenz-Radar (#28).', image: 'assets/badges/endstufe-krone.webp', stats: [{ k: 'XP', v: state.xp ?? 0 }, { k: 'Level', v: lvl.level }] });
     fired.push({ tier: 'gross', kind: 'level', level: lvl.level, title: lvl.title });
   } else if (state.level == null) {
     state.level = lvl.level;
@@ -51,7 +51,7 @@ export function checkRewards(state, doc = document, { anchor = null, phaseComple
     fired.push({ tier: 'gross', kind: 'phase', phase: phaseCompleted });
   }
   if (examPassed) {
-    ceremony(doc, CEREMONY.GROSS, { title: 'Examen bestanden', text: 'Teil A (Closed Book) und Capstone (Open Book) — der Lernnachweis steht bereit.', image: 'assets/badges/endstufe-krone.png' });
+    ceremony(doc, CEREMONY.GROSS, { title: 'Examen bestanden', text: 'Teil A (Closed Book) und Capstone (Open Book) — der Lernnachweis steht bereit.', image: 'assets/badges/endstufe-krone.webp' });
     fired.push({ tier: 'gross', kind: 'examen' });
   }
   void anchor;
@@ -60,23 +60,23 @@ export function checkRewards(state, doc = document, { anchor = null, phaseComple
 
 const COVER = { p1: 'p1-fundament', p2: 'p2-verbote', p3: 'p3-einstufung', p4: 'p4-pflichten', p5: 'p5-transparenz',
   p6: 'p6-gpai', p7: 'p7-aufsicht', p8: 'p8-randwissen', p9: 'p9-oesterreich', p10: 'p10-auslegung' };
-function coverArt(p) { return `assets/covers/${COVER[p] ?? p}.png`; }
+function coverArt(p) { return `assets/covers/${COVER[p] ?? p}.webp`; }
 
 // Badge-ID → vorhandenes Artwork (Task-12-Nacharbeit: die Galerie lud 404er, weil
 // IDs und Dateinamen auseinanderliefen).
 const BADGE_ART = {
-  'erste-schritte': 'erste-einheit.png',
-  'streakless': 'wochenziel.png',
-  'phase1': 'phase1-fundament.png',
-  'verbote': 'verbote-erkannt.png',
-  'hundert': 'hundert-fragen.png',
-  'grenzfall': 'risikopyramide.png',
-  'ehrlich': 'kalibriert.png',
-  'bosskiller': 'bosskampf.png',
-  'retention7': 'retention.png',
-  'omnibus': 'omnibus.png',
+  'erste-schritte': 'erste-einheit.webp',
+  'streakless': 'wochenziel.webp',
+  'phase1': 'phase1-fundament.webp',
+  'verbote': 'verbote-erkannt.webp',
+  'hundert': 'hundert-fragen.webp',
+  'grenzfall': 'risikopyramide.webp',
+  'ehrlich': 'kalibriert.webp',
+  'bosskiller': 'bosskampf.webp',
+  'retention7': 'retention.webp',
+  'omnibus': 'omnibus.webp',
 };
-function badgeArt(id) { return `assets/badges/${BADGE_ART[id] ?? 'wissens-tresor.png'}`; }
+function badgeArt(id) { return `assets/badges/${BADGE_ART[id] ?? 'wissens-tresor.webp'}`; }
 
 /** Badge-Galerie (#28): verdiente und offene Badges sichtbar machen. */
 export function renderBadgeGallery(mount, state) {
@@ -96,7 +96,7 @@ export function heroOnce(state, doc = document) {
   const ov = doc.createElement('div');
   ov.className = 'hero-overlay';
   ov.innerHTML = `<div class="hero-card">
-      <img src="assets/covers/hero.png" alt="" onerror="this.remove()">
+      <img src="assets/covers/hero.webp" alt="" onerror="this.remove()">
       <h1>AI-Act-Akademie</h1>
       <p>Den EU AI Act nicht nachlesen, sondern anwenden können — Einstufung, Pflichten, Fristen.
          Auf dem Rechtsstand, der wirklich gilt.</p>
