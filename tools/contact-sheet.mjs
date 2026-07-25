@@ -49,6 +49,24 @@ function messe(pfad) {
   return { mittel, streuung, max, min, breite, hoehe, farben, bytes: statSync(pfad).size };
 }
 
+// Layout faults measured in the browser (12-ansichten.visual writes one JSON per
+// view). A picture cannot show that a container scrolls sideways or that a label
+// is truncated — the DOM can, and those are the faults that matter.
+function layoutBefunde(bild) {
+  const jsonPfad = join(QUELLE, bild.replace(/\.png$/, '.json'));
+  if (!existsSync(jsonPfad)) return [];
+  let d;
+  try { d = JSON.parse(readFileSync(jsonPfad, 'utf8')); } catch { return []; }
+  const raus = [];
+  if (d.seiteQuerScroll) raus.push({ art: 'Seite scrollt quer', hinweis: 'horizontaler Überlauf' });
+  for (const q of d.querlaufende ?? []) raus.push({ art: 'läuft über', hinweis: q });
+  for (const g of d.gekuerzteTexte ?? []) raus.push({ art: 'Text gekürzt', hinweis: g });
+  for (const n of d.nullflaechen ?? []) raus.push({ art: 'Bedienelement ohne Fläche', hinweis: n });
+  for (const k of d.konsolenfehler ?? []) raus.push({ art: 'Konsolenfehler', hinweis: k });
+  if ((d.textLaenge ?? 0) < 40) raus.push({ art: 'kaum Text', hinweis: `${d.textLaenge} Zeichen` });
+  return raus;
+}
+
 const befunde = [];
 const messwerte = [];
 for (const b of bilder) {
@@ -57,6 +75,7 @@ for (const b of bilder) {
   try { m = messe(pfad); }
   catch (e) { befunde.push({ bild: b, art: 'unlesbar', hinweis: e.message.slice(0, 80) }); continue; }
   messwerte.push({ bild: b, ...m });
+  for (const f of layoutBefunde(b)) befunde.push({ bild: b, ...f });
 
   // A view that rendered nothing: almost no variation across the whole frame.
   if (m.streuung < 0.02) befunde.push({ bild: b, art: 'praktisch leer', hinweis: `Streuung ${m.streuung.toFixed(3)}` });
@@ -82,10 +101,14 @@ if (messwerte.length > 3) {
   }
 }
 
-// Sheets of twelve, with the file name under each frame.
+// Anything flagged goes on the first sheet: a reviewer looking at one image
+// should see the questionable frames first, not hunt for them across four sheets.
+const auffaellig = new Set(befunde.map(f => f.bild));
+const sortiert = [...bilder].sort((a, b) => (auffaellig.has(b) ? 1 : 0) - (auffaellig.has(a) ? 1 : 0));
+
 const bogen = [];
-for (let i = 0; i < bilder.length; i += PRO_BOGEN) {
-  const teil = bilder.slice(i, i + PRO_BOGEN);
+for (let i = 0; i < sortiert.length; i += PRO_BOGEN) {
+  const teil = sortiert.slice(i, i + PRO_BOGEN);
   const nr = String(bogen.length + 1).padStart(2, '0');
   const ziel = join(ZIEL, `bogen-${nr}.jpg`);
   // -label and the styling settings apply to images that FOLLOW them. Placed
@@ -114,6 +137,22 @@ if (befunde.length) {
 }
 bericht.push('## Bögen', '', ...bogen.map(b => `- \`${b.datei}\` — ${b.bilder.length} Aufnahmen`), '');
 writeFileSync(join(ZIEL, 'BEFUND.md'), bericht.join('\n'));
+
+// Manifest: which frame sits where, so a specific one can be pulled up without
+// opening every sheet.
+writeFileSync(join(ZIEL, 'manifest.json'), JSON.stringify({
+  erzeugt: 'tools/contact-sheet.mjs',
+  proBogen: PRO_BOGEN,
+  spalten: 4,
+  boegen: bogen.map(b => ({
+    datei: b.datei,
+    bilder: b.bilder.map((n, i) => ({
+      name: n, zeile: Math.floor(i / 4) + 1, spalte: (i % 4) + 1,
+      auffaellig: auffaellig.has(n),
+    })),
+  })),
+  befunde,
+}, null, 1));
 
 console.log(`Kontaktbögen: ${bogen.length} aus ${bilder.length} Aufnahmen → ${ZIEL}`);
 if (befunde.length) {

@@ -121,7 +121,15 @@ body { padding:0; background:#04060b; overflow:hidden; display:grid; place-items
 .dash-grid.single > .card { max-width:none; margin:0; }
 .demo-note { position:absolute; top:-2px; right:6px; z-index:2; font-size:.66rem; color:var(--faint); }
 .dash-grid .card { display:flex; flex-direction:column; min-height:0; padding:16px 18px; }
-.dash-grid .right-col { display:grid; grid-template-rows:auto minmax(0,1fr); gap:12px; min-height:0; }
+/* Three cards, three rows. With two defined rows the third had no track and
+   spilled over its neighbour — the badges ended up on top of the exam block and
+   the bottom row was cut off by the card edge.
+   The middle row keeps a floor of 120px: with minmax(0,1fr) it collapsed to
+   nothing as soon as space got tight, and the badge card vanished entirely,
+   which is worse than an overlap. Its content scrolls instead. */
+.dash-grid .right-col { display:grid; grid-template-rows:auto minmax(120px,1fr) auto; gap:12px; min-height:0; }
+.dash-grid .right-col > .card { min-height:0; overflow:hidden; }
+.dash-grid .right-col #d-badges { min-height:0; overflow-y:auto; padding-right:4px; }
 .duo { display:grid; grid-template-columns:1fr 1fr; gap:16px; flex:1; min-height:0; }
 .duo #d-xp svg { width:100%; height:auto; max-height:130px; }
 .dash-grid .hm-wrap { flex:1; min-height:0; display:flex; flex-direction:column; }
