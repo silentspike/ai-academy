@@ -1,6 +1,6 @@
 # AI-Academy
 
-[![checks](https://github.com/obtFusi/ai-academy/actions/workflows/ci.yml/badge.svg)](https://github.com/obtFusi/ai-academy/actions/workflows/ci.yml)
+[![checks](https://github.com/silentspike/ai-academy/actions/workflows/ci.yml/badge.svg)](https://github.com/silentspike/ai-academy/actions/workflows/ci.yml)
 [![Code: Apache-2.0](https://img.shields.io/badge/Code-Apache--2.0-blue.svg)](LICENSE)
 [![Inhalte: CC BY 4.0](https://img.shields.io/badge/Inhalte-CC%20BY%204.0-lightgrey.svg)](LICENSE-CONTENT)
 [![Rechtsstand](https://img.shields.io/badge/Rechtsstand-27.7.2026-green.svg)](docs/INTENDED-PURPOSE.md)
@@ -58,7 +58,7 @@ abwarten, Einrichtung durchlaufen (Fach- und Lernprofil), loslernen.
 ### Aus dem Quellstand
 
 ```bash
-git clone https://github.com/obtFusi/ai-academy.git
+git clone https://github.com/silentspike/ai-academy.git
 cd ai-academy
 node bridge/bridge.mjs                # liefert Anwendung und Schnittstelle gemeinsam aus
 node bridge/bridge.mjs --no-llm       # nur ansehen, ohne Modellanbindung
