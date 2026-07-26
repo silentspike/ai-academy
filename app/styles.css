@@ -229,10 +229,31 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 .q-assign-opt{font-size:.78rem;padding:6px 10px}
 .q-assign-opt.sel{outline:2px solid var(--emerald,#34d399)}
 
-/* ---- Persönlicher Lernnachweis (#35) ---- */
-.nachweis{background:#fff;color:#111;padding:28px;border-radius:8px}
-.nachweis h2{color:#111}
-.nachweis-disclaimer{border:1.5px solid #b45309;background:#fef3c7;color:#78350f;padding:10px 12px;border-radius:6px;font-size:.82rem}
+/* ---- Persönlicher Lernnachweis (#35) ----
+   A white sheet inside a dark application: every colour has to be set again
+   here, or it inherits. The transparency section did exactly that and came out
+   as light grey text on white — the part of the document that is supposed to be
+   the honest one was the part nobody could read. */
+.nachweis{background:#fff;color:#1a1a1a;padding:clamp(28px,4vw,44px);border-radius:10px;
+  max-width:820px;margin:0 auto;font-family:var(--font-text)}
+.nachweis h2{color:#0f172a;font-family:var(--font-display);font-size:clamp(1.3rem,2.6vw,1.75rem);
+  line-height:1.2;margin:0 0 4px;letter-spacing:-.01em}
+.nachweis .nw-unter{color:#64748b;font-size:.82rem;margin:0 0 20px}
+.nachweis h3{color:#0f172a;font-family:var(--font-display);font-size:1rem;margin:0 0 10px}
+.nachweis p{color:#1a1a1a}
+.nachweis b{color:#0f172a}
+.nachweis .dim,.nachweis .dim *{color:#475569}
+.nachweis hr{border:0;border-top:1px solid #e2e8f0;margin:26px 0 20px}
+.nachweis .mono{font-family:var(--font-mono);font-size:.82em;color:#475569}
+.nachweis-disclaimer{border:1.5px solid #b45309;background:#fef3c7;color:#78350f;
+  padding:12px 14px;border-radius:7px;font-size:.82rem;line-height:1.55;margin:0 0 22px}
+/* Facts as a list, not as five paragraphs that read like a letter. */
+.nw-fakten{display:grid;grid-template-columns:auto 1fr;gap:9px 18px;margin:0 0 4px;font-size:.9rem}
+.nw-fakten dt{color:#64748b;font-size:.78rem;padding-top:2px}
+.nw-fakten dd{margin:0;color:#1a1a1a}
+.nw-fakten dd b{font-family:var(--font-num);font-size:1.05em}
+.nw-fuss{display:flex;justify-content:flex-end;margin-top:18px}
+@media (max-width:560px){ .nw-fakten{grid-template-columns:1fr;gap:3px 0} .nw-fakten dd{margin-bottom:8px} }
 @media print{
   /* App-Chrome weg, Nachweis im Normalfluss — visibility/absolute scheitert an
      transformierten Ancestors (Reveal-Animation), daher display-basiert. */
@@ -246,8 +267,40 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 }
 
 /* ---- Art.-50-Hinweis + Bewertungs-Labels (Task 11, §5.0) ---- */
-.ai-notice-overlay{position:fixed;inset:0;background:rgba(4,6,12,.82);display:flex;align-items:center;justify-content:center;z-index:900}
-.ai-notice{max-width:520px;margin:16px}
+/* Article 50 notice — the first thing anyone sees, so it should not look like a
+   consent banner someone clicks away. Set as a page: a small label, a real
+   headline, and the four questions as a definition list rather than one wall of
+   text, because the four things it says are four different things. */
+.ai-notice-overlay{position:fixed;inset:0;background:rgba(4,6,12,.86);backdrop-filter:blur(3px);
+  display:grid;place-items:center;z-index:900;padding:24px;overflow-y:auto}
+.ai-notice{max-width:min(640px,100%);margin:auto;padding:clamp(22px,4vw,38px);
+  border-radius:16px;box-shadow:0 30px 80px rgba(0,0,0,.55)}
+.ai-notice .ain-kopf{border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:18px}
+.ai-notice .ain-marke{display:inline-block;font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--emerald);border:1px solid rgba(52,211,153,.32);border-radius:999px;padding:3px 11px;margin-bottom:12px}
+.ai-notice h2{font-family:var(--font-display,inherit);font-size:clamp(1.35rem,3.4vw,1.85rem);
+  line-height:1.15;margin:0 0 6px;letter-spacing:-.01em}
+.ai-notice .ain-unter{margin:0;color:var(--faint);font-size:.86rem}
+.ai-notice .ain-neu{background:rgba(225,173,88,.10);border:1px solid rgba(225,173,88,.30);
+  border-radius:9px;padding:9px 13px;font-size:.82rem;color:var(--gold);margin:0 0 18px}
+.ai-notice .ain-liste{margin:0;display:grid;gap:15px}
+.ai-notice .ain-liste dt{font-size:.7rem;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--faint);margin-bottom:4px}
+.ai-notice .ain-liste dd{margin:0;font-size:.88rem;line-height:1.62;
+  /* Justified with hyphenation: the column is narrow and the ragged edge made
+     four short paragraphs look like scraps. Without hyphens justification tears
+     holes into lines this narrow. */
+  text-align:justify;hyphens:auto;-webkit-hyphens:auto;text-wrap:pretty}
+.ai-notice .ain-liste dd b{color:var(--text)}
+.ai-notice .ain-liste dd i{font-style:normal;color:var(--emerald);font-size:.94em}
+.ai-notice .ain-fuss{display:flex;justify-content:flex-end;margin-top:24px;padding-top:18px;
+  border-top:1px solid var(--line)}
+.ai-notice .ain-fuss .btn-primary{padding:10px 26px;font-size:.9rem}
+@media (max-width:560px){
+  .ai-notice .ain-liste dd{text-align:left}   /* zu schmal für Blocksatz */
+  .ai-notice .ain-fuss{justify-content:stretch}
+  .ai-notice .ain-fuss .btn-primary{width:100%}
+}
 .grade-label{display:block;margin-top:6px;font-size:.68rem;opacity:.65}
 
 /* ---- Session-Ritual (#32/#33) ---- */
@@ -266,6 +319,19 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 .wrap-stats div{background:var(--layer2,#111827);border-radius:10px;padding:12px;text-align:center}
 .wrap-stats b{display:block;font-size:1.5rem;font-family:'Space Grotesk',system-ui}
 .wrap-stats span{font-size:.72rem;opacity:.7}
+.wrap-kurs{margin:18px 0 0;padding:14px 16px;border-radius:10px;border:1px solid var(--line);
+  background:rgba(255,255,255,.02);font-size:.9rem}
+.wrap-kurs.gut{border-color:rgba(52,211,153,.28);background:rgba(52,211,153,.06)}
+.wrap-kurs.drift{border-color:rgba(225,173,88,.30);background:rgba(225,173,88,.06)}
+.wrap-kurs p{margin:0 0 6px} .wrap-kurs p:last-child{margin:0}
+.wrap-kurs ul{margin:8px 0 12px;padding-left:20px} .wrap-kurs li{margin-bottom:4px}
+/* Replaces an <hr> that sat flush against the sentence above it and read like a
+   rule struck through the text. */
+.wrap-morgen{display:flex;align-items:baseline;gap:12px;margin-top:20px;padding-top:16px;
+  border-top:1px solid var(--line);font-size:.88rem}
+.wrap-morgen .wm-tag{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--faint);flex:none}
+@media (max-width:640px){ .wrap-stats{grid-template-columns:repeat(2,1fr)} }
 
 /* ---- Sidebar: Phasen-Baum + Zähler (#42) ---- */
 .phase-tree{display:flex;flex-direction:column;gap:1px}
@@ -282,7 +348,13 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 /* ---- Lernen-Ansicht (#3/#19) ---- */
 .lern-sect{margin:14px 0 4px;font-size:.7rem;letter-spacing:.09em;opacity:.55;text-transform:uppercase}
 .lern-row{display:flex;align-items:center;gap:8px}
-.lern-row .ph{flex:1}
+.lern-row .ph{flex:1;gap:12px}
+/* Running text, so the glossary spans inside a title stay in the line instead of
+   each becoming a row of its own. */
+.lern-row .u-titel{flex:1;min-width:0;line-height:1.45}
+.lern-row .u-komp{font-family:var(--font-mono);font-size:.7rem;color:var(--faint);
+  flex:none;align-self:center}
+.lern-row .ring{flex:none;align-self:center}
 .ph.done .lbl{opacity:.65}
 .ph.skipped .lbl{opacity:.65;font-style:italic}
 .btn-mini{font-size:.68rem;padding:4px 9px;border-radius:7px;border:1px solid rgba(255,255,255,.12);text-decoration:none;color:inherit;opacity:.7}
@@ -338,3 +410,29 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 /* ---- Asynchroner Coach-Nachschlag (#21/#24) ---- */
 .coach-note{margin-top:10px;padding:10px 12px;border-radius:9px;background:rgba(182,165,255,.06);border-left:3px solid rgba(182,165,255,.45);font-size:.85rem}
 .coach-head{font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;opacity:.6;margin-bottom:4px}
+
+
+/* ---------------------------------------------------------------- forms
+   A <label> is an inline element. `<label>Text<br><input></label>` therefore
+   lays label and field out like words in a sentence: the caption of one field
+   ends up beside the input of the previous one. Every form in the product was
+   built that way — onboarding, settings, the self-explanation box — and it
+   survived a screenshot review because at thumbnail size a broken form still
+   looks like a form.
+
+   Fields are blocks now, in a grid that gives two columns where there is room. */
+.feld{display:block}
+.feld .feld-name{display:block;font-size:.76rem;letter-spacing:.02em;color:var(--dim);
+  margin-bottom:6px;font-weight:500}
+.feld .feld-name .dim{font-weight:400;letter-spacing:0}
+.feld input,.feld select,.feld textarea{width:100%;box-sizing:border-box}
+.formular{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:16px 20px;margin:18px 0 4px;align-items:start}
+.formular .feld-breit{grid-column:1/-1}
+.formular + .formular-fuss,.formular-fuss{display:flex;justify-content:flex-end;gap:10px;
+  margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}
+@media (max-width:640px){
+  .formular{grid-template-columns:1fr}
+  .formular-fuss{justify-content:stretch}
+  .formular-fuss .btn-primary{width:100%}
+}

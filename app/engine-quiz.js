@@ -228,7 +228,7 @@ export function renderQuestion(mount, question, opts = {}) {
       if (komplex && !opts.noSelfExplain) {
         const se = doc.createElement('div');
         se.className = 'q-selfexplain';
-        se.innerHTML = `<label>Warum diese Antwort? <span class="dim">(kurz für dich selbst — wird nicht bewertet)</span>
+        se.innerHTML = `<label class="feld"><span class="feld-name">Warum diese Antwort? <span class="dim">(kurz für dich selbst — wird nicht bewertet)</span></span>
           <textarea rows="2" placeholder="Meine Begründung in einem Satz …"></textarea></label>
           <button class="btn">Begründung festhalten</button>`;
         el.appendChild(se);

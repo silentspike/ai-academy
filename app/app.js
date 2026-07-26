@@ -71,21 +71,7 @@ export async function startApp({ mountId = 'view' } = {}) {
   const { heroOnce } = await import('./rewards.js');
   if (heroOnce(state, document)) { await ctx.saveState(); }
 
-  // Article 50 transparency applied to our own product: once, BEFORE the first tutor interaction.
-  if (!state.aiNoticeAck) {
-    const ov = document.createElement('div');
-    ov.className = 'ai-notice-overlay';
-    ov.innerHTML = `<div class="card ai-notice"><h3>Hinweis zum KI-Tutor (Art. 50)</h3>
-      <p>In dieser Akademie antwortet und bewertet ein <b>KI-System</b> (verbunden über deine Local Bridge;
-      Modell siehe Self-Check). Freitexte gehen an den LLM-Anbieter — keine echten Personendaten oder
-      Organisations-Interna eingeben. LLM-Bewertungen können streuen; jede Bewertung trägt ihr Label
-      (deterministisch / LLM-unterstützt), und gegen jede LLM-Bewertung gibt es einen Einspruch mit
-      frischer Zweitprüfung. Zweckbestimmung: persönliche, nicht formale Weiterbildung
-      (docs/INTENDED-PURPOSE.md).</p>
-      <button class="btn-primary">Verstanden</button></div>`;
-    document.body.appendChild(ov);
-    ov.querySelector('button').onclick = () => { state.aiNoticeAck = Date.now(); ctx.saveState(); ov.remove(); };
-  }
+  await zeigeKiHinweis(state, ctx);
 
   await introSequence(state);
 
@@ -118,6 +104,68 @@ export async function startApp({ mountId = 'view' } = {}) {
   import('./topbar-tools.js').then(({ verdrahteTopbar }) => verdrahteTopbar(ctx))
     .catch(e => console.warn('Topbar-Werkzeuge nicht geladen:', e.message));
   return ctx;
+}
+
+/**
+ * Version of the transparency notice. Raise it whenever what the notice SAYS
+ * stops being true — a different model class, another grading procedure, a
+ * changed data flow. Not for wording touch-ups.
+ */
+export const KI_HINWEIS_VERSION = 2;
+
+/**
+ * Article 50 transparency, applied to our own product: shown once, BEFORE the
+ * first tutor interaction (§5.0).
+ *
+ * Acknowledgement is stored with the version it was given for. It used to store
+ * only a timestamp, so a notice whose content had since changed counted as
+ * acknowledged forever — the one case where showing it again is the entire
+ * point.
+ */
+export async function zeigeKiHinweis(state, ctx, doc = document) {
+  const bestaetigt = typeof state.aiNoticeAck === 'object' ? (state.aiNoticeAck?.version ?? 0)
+    : (state.aiNoticeAck ? 1 : 0);          // Altstände: Zeitstempel = Fassung 1
+  if (bestaetigt >= KI_HINWEIS_VERSION) return false;
+  const erneut = bestaetigt > 0;
+
+  const ov = doc.createElement('div');
+  ov.className = 'ai-notice-overlay';
+  ov.innerHTML = `<div class="card ai-notice">
+    <div class="ain-kopf">
+      <span class="ain-marke">Art. 50 · Transparenz</span>
+      <h2>Hier antwortet eine Maschine</h2>
+      <p class="ain-unter">Was das heißt, bevor du loslegst${erneut ? ' — und was sich seither geändert hat' : ''}.</p>
+    </div>
+    ${erneut ? '<p class="ain-neu">Dieser Hinweis hat sich geändert, seit du ihn zuletzt bestätigt hast.</p>' : ''}
+    <dl class="ain-liste">
+      <dt>Wer antwortet</dt>
+      <dd>Ein <b>KI-System</b>, verbunden über deine lokale Bridge. Welches Modell gerade
+          bewertet, steht in der Selbstprüfung und an jeder einzelnen Bewertung.</dd>
+      <dt>Was übertragen wird</dt>
+      <dd>Deine Freitexte gehen an den Anbieter des Modells. Gib dort <b>keine echten
+          Personendaten und keine Organisations-Interna</b> ein.</dd>
+      <dt>Wie verlässlich Noten sind</dt>
+      <dd>Maschinelle Bewertungen streuen. Jede trägt deshalb ihr Label —
+          <i>deterministisch</i> oder <i>KI-unterstützt</i> — und gegen jede kannst du
+          Einspruch erheben; darüber entscheidet eine frische Zweitprüfung, die die
+          erste Bewertung nicht kennt.</dd>
+      <dt>Wofür das hier gedacht ist</dt>
+      <dd>Persönliche, freiwillige Weiterbildung. <b>Kein akkreditierter Abschluss</b> und
+          keine Grundlage für Entscheidungen über Personen (<span class="mono">docs/INTENDED-PURPOSE.md</span>).</dd>
+    </dl>
+    <div class="ain-fuss">
+      <button class="btn-primary">Verstanden</button>
+    </div>
+  </div>`;
+  doc.body.appendChild(ov);
+  return new Promise(res => {
+    ov.querySelector('button').onclick = async () => {
+      state.aiNoticeAck = { version: KI_HINWEIS_VERSION, at: Date.now() };
+      await ctx.saveState();
+      ov.remove();
+      res(true);
+    };
+  });
 }
 
 /** Every field the application relies on, with a safe starting value. */
@@ -530,9 +578,13 @@ route('lernen', async (view, ctx, [phaseFilter]) => {
       const status = done.has(u.id) ? 'done' : skipped.has(u.id) ? 'skipped' : '';
       const row = document.createElement('div');
       row.className = 'lern-row';
+      // u-titel, nicht lbl: `.ph .lbl` ist ein Spalten-Flex für die Sidebar, wo
+      // Name und Fortschrittsbalken übereinander gehören. Auf einen Fließtext
+      // angewandt wird jedes Kind-Element zur eigenen Zeile — jeder Titel mit
+      // einem Glossarbegriff darin zerfiel in drei Zeilen.
       row.innerHTML = `<a class="ph ${status}" href="#/einheit/${u.id}">
           <span class="ring">${done.has(u.id) ? '✓' : skipped.has(u.id) ? '»' : u.level}</span>
-          <span class="lbl">${u.title}</span><span class="dim">${u.competency ?? ''}</span></a>
+          <span class="u-titel">${u.title}</span><span class="u-komp">${u.competency ?? ''}</span></a>
         ${status ? '' : `<a class="btn-mini" href="#/challenge/${u.id}" title="Challenge-Test: 6 Fragen, 80 % — bei Bestehen wird die Einheit übersprungen (#19)">Challenge</a>`}`;
       list.appendChild(row);
     }
@@ -597,9 +649,9 @@ route('karten', async (view, ctx) => {
     const c = queue[0];
     view.innerHTML = `<div class="card"><h3>Wiederholung</h3>
       <p class="dim">Kern: ${q.kern.length} · Aufholen heute: ${aufholToday.length}</p>
-      <div class="card unit-block"><div class="unit-tag">${c.competency ?? ''}</div>
-        <p><b>${c.front ?? c.id}</b></p>
-        <div id="k-back" hidden><p>${c.back ?? ''}</p>
+      <div class="card unit-block karte-blatt"><div class="unit-tag">${c.competency ?? ''}${c.level ? ' · Stufe ' + c.level : ''}</div>
+        <p class="karte-front">${c.front ?? '<span class="karte-leer">Diese Karte hat keinen Fragetext — sie stammt aus einem Import oder einem Testlauf.</span>'}</p>
+        <div id="k-back" hidden><p class="karte-back">${c.back ?? '<span class="karte-leer">Keine Antwort hinterlegt.</span>'}</p>
           <div class="q-confidence"><span>Gewusst?</span>
             <button data-r="richtig-sicher">richtig · sicher</button>
             <button data-r="richtig-unsicher">richtig · unsicher</button>
@@ -750,13 +802,15 @@ route('einstellungen', (view, ctx) => {
   const c = document.createElement('div');
   c.className = 'card';
   c.innerHTML = `<div class="chead"><span class="t"><h3>Einstellungen</h3><span class="sub">Lernprofil — nachträglich änderbar; die Soll-Kurve zieht automatisch nach</span></span></div>
-    <label>Minuten pro Tag<br><input id="s-min" type="number" min="10" max="480" value="${st.pace?.minutesPerDay ?? 45}"></label>
-    <label>Lerntage pro Woche<br><input id="s-days" type="number" min="1" max="7" value="${st.pace?.daysPerWeek ?? 5}"></label>
-    <label>Wochenziel (Tage mit Lernen)<br><input id="s-goal" type="number" min="1" max="7" value="${st.week?.goalDays ?? 5}"></label>
-    <label>Meilenstein 1 (Datum)<br><input id="s-m1" type="date" value="${ms[0]?.date ?? ''}"></label>
-    <label>Meilenstein 2 (Datum)<br><input id="s-m2" type="date" value="${ms[1]?.date ?? ''}"></label>
-    <button class="btn-primary" id="s-save">Speichern</button> <span class="dim" id="s-msg"></span>
-    <hr><p class="dim">Rechtsstand ${LEGAL_STATE.replace('Rechtsstand ', '')} · Bewertungs-Regime wechselt bei Modell-/Rubrik-Änderung automatisch in eine neue Score-Serie (#17).</p>`;
+    <div class="formular">
+    <label class="feld"><span class="feld-name">Minuten pro Tag</span><input id="s-min" type="number" min="10" max="480" value="${st.pace?.minutesPerDay ?? 45}"></label>
+    <label class="feld"><span class="feld-name">Lerntage pro Woche</span><input id="s-days" type="number" min="1" max="7" value="${st.pace?.daysPerWeek ?? 5}"></label>
+    <label class="feld"><span class="feld-name">Wochenziel (Tage mit Lernen)</span><input id="s-goal" type="number" min="1" max="7" value="${st.week?.goalDays ?? 5}"></label>
+    <label class="feld"><span class="feld-name">Meilenstein 1 (Datum)</span><input id="s-m1" type="date" value="${ms[0]?.date ?? ''}"></label>
+    <label class="feld"><span class="feld-name">Meilenstein 2 (Datum)</span><input id="s-m2" type="date" value="${ms[1]?.date ?? ''}"></label>
+    </div>
+    <div class="formular-fuss"><span class="dim" id="s-msg"></span><button class="btn-primary" id="s-save">Speichern</button></div>
+    <p class="dim fussnote">Rechtsstand ${LEGAL_STATE.replace('Rechtsstand ', '')} · Bewertungs-Regime wechselt bei Modell-/Rubrik-Änderung automatisch in eine neue Score-Serie (#17).</p>`;
   view.appendChild(c);
   c.querySelector('#s-save').onclick = () => {
     st.pace = { minutesPerDay: +c.querySelector('#s-min').value, daysPerWeek: +c.querySelector('#s-days').value };

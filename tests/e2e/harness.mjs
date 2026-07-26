@@ -93,6 +93,26 @@ function lernhistorie(tage = 30, quote = 0.72) {
   return raus;
 }
 
+/** Question and answer per card — drawn from the real subject matter. */
+const KARTEN_TEXTE = [
+  ['Ab wann gelten die Pflichten aus Kapitel III Abschnitt 1–3 für Anhang-III-Hochrisikosysteme?',
+   'Seit dem Digital Omnibus erst ab 2.12.2027 — vorher stand dort der 2.8.2026.'],
+  ['Was unterscheidet einen Betreiber von einem Anbieter?',
+   'Der Anbieter bringt das System in Verkehr, der Betreiber verwendet es in eigener Verantwortung. Art. 25 beschreibt, wann ein Betreiber zum Anbieter wird.'],
+  ['Wann kippt ein Betreiber in die Anbieterrolle?',
+   'Unter anderem bei wesentlicher Änderung, bei Anbringen des eigenen Namens oder bei Zweckänderung — Art. 25 Abs. 1.'],
+  ['Was verlangt Art. 27 von Einrichtungen des öffentlichen Rechts?',
+   'Eine Grundrechte-Folgenabschätzung vor der ersten Verwendung eines Anhang-III-Hochrisikosystems.'],
+  ['Begründet Art. 4a eine Pflicht zur Bias-Korrektur?',
+   'Nein. Er schafft eine eng konditionierte Rechtsgrundlage für besondere Datenkategorien und sagt ausdrücklich, dass daraus keine Verpflichtung folgt.'],
+  ['Bis wann müssen Behörden ihre Alt-Hochrisikosysteme anpassen?',
+   'Bis 2.8.2030 — Art. 111 Abs. 2 in der Fassung des Digital Omnibus.'],
+  ['Welche Angabe fehlt, wenn eine Einstufung nicht möglich ist?',
+   'Meist die Zweckbestimmung. Ohne sie ist „nicht abschließend bestimmbar" die richtige Antwort, kein Ratewert.'],
+  ['Was kennzeichnet Art. 50 gegenüber der Hochrisiko-Einstufung?',
+   'Transparenzpflichten gelten zusätzlich und unabhängig — ein System kann transparenzpflichtig sein, ohne hochriskant zu sein.'],
+];
+
 /**
  * Completion events for finished units, spread over the period.
  *
@@ -127,6 +147,11 @@ function karten(anzahl = 40) {
       competency: KOMPETENZEN[i % KOMPETENZEN.length],
       level: ['A', 'B', 'C'][i % 3],
       unit_id: EINHEITEN[i % EINHEITEN.length],
+      // front/back, not just an id: the review view falls back to the id when
+      // the text is missing, so a card without them renders as "c15" — which is
+      // what the screenshots showed, and what nobody noticed for a week.
+      front: KARTEN_TEXTE[i % KARTEN_TEXTE.length][0],
+      back: KARTEN_TEXTE[i % KARTEN_TEXTE.length][1],
       history: [{ ts: zuletzt, correct: i % 4 !== 0, confidence: i % 3 ? 'sicher' : 'unsicher' }],
     });
   }

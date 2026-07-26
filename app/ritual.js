@@ -184,18 +184,26 @@ route('wrapup', async (view, ctx) => {
     };
   }
 
+  // "0 Minuten heute" neben "6 Karten wiederholt" widerspricht sich: die Dauer
+  // zählt ab dem Sitzungsbeginn, und ein wiederhergestellter Stand fängt bei
+  // null an. Lieber weglassen als eine Zahl zeigen, die der Zeile daneben
+  // widerspricht.
+  const dauer = w.bilanz.minutes >= 1 ? `${w.bilanz.minutes} Minuten heute` : 'Bilanz des Tages';
   view.appendChild(card(`<div class="chead"><span class="t"><h3>Abschluss-Karte</h3>
-    <span class="sub">${w.bilanz.minutes} Minuten heute</span></span></div>
+    <span class="sub">${dauer}</span></span></div>
     <div class="wrap-stats">
       <div><b>${w.bilanz.reviewed}</b><span>Karten wiederholt</span></div>
       <div><b>${w.bilanz.units}</b><span>Einheiten</span></div>
       <div><b>${w.bilanz.drillDone ? '✓' : '—'}</b><span>Tages-Drill</span></div>
-      <div><b>${st.xp ?? 0}</b><span>XP gesamt</span></div>
+      <div><b>${(st.xp ?? 0).toLocaleString('de-AT')}</b><span>XP gesamt</span></div>
     </div>
+    <div class="wrap-kurs ${w.drift.onTrack ? 'gut' : 'drift'}">
     ${w.drift.onTrack
-      ? '<p>Auf Kurs gegenüber der Soll-Kurve.</p>'
-      : `<p><b>Drift:</b> ${(w.drift.drift * 100).toFixed(0)} % hinter der Soll-Kurve — bewusst entscheiden statt schleifen lassen:</p>
+      ? '<p><b>Auf Kurs</b> gegenüber der Soll-Kurve.</p>'
+      : `<p><b>${(w.drift.drift * 100).toFixed(0)} % hinter der Soll-Kurve</b> — bewusst entscheiden statt schleifen lassen:</p>
          <ul>${(w.drift.options ?? []).map(o => `<li>${o.text}</li>`).join('')}</ul>
          <a class="btn" href="#/einstellungen">Einstellungen öffnen</a>`}
-    <hr><p><b>Morgen:</b> ${w.morgen.dueTomorrow} Karten fällig${w.morgen.nextUnit ? ` · weiter mit „${w.morgen.nextUnit}"` : ''}.</p>`));
+    </div>
+    <div class="wrap-morgen"><span class="wm-tag">Morgen</span>
+      <span>${w.morgen.dueTomorrow} Karten fällig${w.morgen.nextUnit ? ` · weiter mit „${w.morgen.nextUnit}"` : ''}</span></div>`));
 });
