@@ -326,17 +326,33 @@ route('lernnachweis', async (view, ctx) => {
   const einspruchQuote = st.appeals?.length ? `${st.appeals.filter(a => a.granted).length}/${st.appeals.length}` : '0/0';
   view.appendChild(card(`
     <div class="nachweis" id="nachweis">
-      <h2>Persönlicher Lernnachweis — AI-Act-Akademie</h2>
+      <h2>Persönlicher Lernnachweis</h2>
+      <p class="nw-unter">AI-Act-Akademie · ausgestellt am ${new Date().toLocaleDateString('de-AT')}</p>
       <p class="nachweis-disclaimer"><b>Persönlicher, unbeaufsichtigter Lernnachweis.</b> Identität und Prüfungsbedingungen
       wurden nicht durch eine unabhängige Stelle verifiziert. Teile der Bewertung sind KI-unterstützt.
       Kein akkreditiertes Zertifikat; nicht für Personal- oder Zulassungsentscheidungen bestimmt.</p>
-      <p><b>Bestes Examensergebnis:</b> ${bestAll ? `${(bestAll.pct * 100).toFixed(0)} %${typeof bestAll.a === 'number' && typeof bestAll.b === 'number' ? ` (A ${(bestAll.a * 100).toFixed(0)} % / B ${(bestAll.b * 100).toFixed(0)} %)` : ''}${bestAll.day ? ` am ${bestAll.day}` : ''}` : 'noch kein bestandenes Examen'}</p>
-      <p><b>Level:</b> ${st.level ?? 1} · <b>XP:</b> ${st.xp ?? 0} (Aktivität, nicht Kompetenz — strikt getrennt, #28)</p>
-      <p><b>Rechtsstand:</b> ${RECHTSSTAND} (VO 2024/1689 idF 2026/1744) · <b>Content:</b> c1 · <b>Bewertung:</b> ${model} / Rubrik ${pv}</p>
+      <dl class="nw-fakten">
+        <dt>Bestes Examensergebnis</dt>
+        <dd>${bestAll ? `<b>${(bestAll.pct * 100).toFixed(0)} %</b>${typeof bestAll.a === 'number' && typeof bestAll.b === 'number' ? ` — Teil A ${(bestAll.a * 100).toFixed(0)} %, Teil B ${(bestAll.b * 100).toFixed(0)} %` : ''}${bestAll.day ? `, am ${bestAll.day}` : ''}` : 'noch kein bestandenes Examen'}</dd>
+        <dt>Level und Punkte</dt>
+        <dd>Level <b>${st.level ?? 1}</b> · <b>${(st.xp ?? 0).toLocaleString('de-AT')}</b> XP
+            <span class="dim">— Aktivität, nicht Kompetenz (#28)</span></dd>
+        <dt>Kapiteltests</dt>
+        <dd><b>${Object.values(st.chapterTests ?? {}).filter(t => t.passed).length}</b> von 9 bestanden</dd>
+        <dt>Rechtsstand</dt>
+        <dd>${RECHTSSTAND} <span class="dim">(VO 2024/1689 idF 2026/1744)</span></dd>
+        <dt>Bewertung</dt>
+        <dd><span class="mono">${model}</span> · Rubrik <span class="mono">${pv}</span> · Content <span class="mono">c1</span></dd>
+      </dl>
       <hr>
       <h3>Transparenz-Rückseite</h3>
-      <p class="dim">Score-Serien (first/latest/best je Regime): ${Object.values(abgeleitet).filter(s => typeof s.first?.pct === 'number').map(s => `${(s.first.pct * 100).toFixed(0)}/${(s.latest.pct * 100).toFixed(0)}/${(s.best.pct * 100).toFixed(0)} %`).join(' · ') || '—'}<br>
-      Einspruchsquote: ${einspruchQuote} · Kapiteltests bestanden: ${Object.values(st.chapterTests ?? {}).filter(t => t.passed).length}/9</p>
+      <dl class="nw-fakten">
+        <dt>Score-Serien</dt>
+        <dd>${Object.values(abgeleitet).filter(s => typeof s.first?.pct === 'number').map(s => `${(s.first.pct * 100).toFixed(0)} / ${(s.latest.pct * 100).toFixed(0)} / ${(s.best.pct * 100).toFixed(0)} %`).join(' · ') || '—'}
+            <span class="dim">— erster / letzter / bester Versuch je Bewertungsregime</span></dd>
+        <dt>Einsprüche</dt>
+        <dd>${einspruchQuote} <span class="dim">— stattgegeben von gestellt</span></dd>
+      </dl>
     </div>
-    <button class="btn" onclick="window.print()">Drucken</button>`));
+    <div class="nw-fuss"><button class="btn" onclick="window.print()">Drucken</button></div>`));
 });

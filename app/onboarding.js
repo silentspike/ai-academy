@@ -82,13 +82,15 @@ route('onboarding', async (view, ctx) => {
     // 1 Fachprofil
     () => {
       const f = draft.fachprofil;
-      const c = card(`<label>Organisation/Branche<br><input id="ob-org" value="${f.organisation ?? ''}" placeholder="z. B. Regionalbank, Krankenhaus, Handelskette"></label>
-        <label>Rolle der Organisation<br><select id="ob-rolle"><option value="betreiber">Betreiber (KI wird eingesetzt)</option><option value="anbieter">Anbieter (KI wird entwickelt)</option><option value="beides">Beides</option></select></label>
-        <label>Land<br><select id="ob-land"><option>AT</option><option>DE</option><option>EU-sonstig</option></select></label>
-        <label>Ihre Job-Rolle<br><input id="ob-job" value="${f.job_rolle ?? ''}" placeholder="z. B. KI-Koordinatorin, IT-Leitung"></label>
-        <label>Vorwissen<br><select id="ob-vor"><option value="einsteiger">Einsteiger:in (Worked Examples zuerst)</option><option value="mittel">Mittel</option><option value="erfahren">Erfahren (Problem-first)</option></select></label>
-        <label>Fach-Domäne / Datenarten<br><input id="ob-dom" value="${f.domaene ?? ''}" placeholder="z. B. Bonitätsdaten, Patientendaten"></label>
-        <button class="btn-primary">Weiter</button>`);
+      const c = card(`<div class="formular">
+        <label class="feld feld-breit"><span class="feld-name">Organisation/Branche</span><input id="ob-org" value="${f.organisation ?? ''}" placeholder="z. B. Regionalbank, Krankenhaus, Handelskette"></label>
+        <label class="feld"><span class="feld-name">Rolle der Organisation</span><select id="ob-rolle"><option value="betreiber">Betreiber (KI wird eingesetzt)</option><option value="anbieter">Anbieter (KI wird entwickelt)</option><option value="beides">Beides</option></select></label>
+        <label class="feld"><span class="feld-name">Land</span><select id="ob-land"><option>AT</option><option>DE</option><option>EU-sonstig</option></select></label>
+        <label class="feld"><span class="feld-name">Ihre Job-Rolle</span><input id="ob-job" value="${f.job_rolle ?? ''}" placeholder="z. B. KI-Koordinatorin, IT-Leitung"></label>
+        <label class="feld"><span class="feld-name">Vorwissen</span><select id="ob-vor"><option value="einsteiger">Einsteiger:in (Worked Examples zuerst)</option><option value="mittel">Mittel</option><option value="erfahren">Erfahren (Problem-first)</option></select></label>
+        <label class="feld feld-breit"><span class="feld-name">Fach-Domäne / Datenarten</span><input id="ob-dom" value="${f.domaene ?? ''}" placeholder="z. B. Bonitätsdaten, Patientendaten"></label>
+      </div>
+      <div class="formular-fuss"><button class="btn-primary">Weiter</button></div>`);
       view.appendChild(c);
       c.querySelector('button').onclick = () => {
         draft.fachprofil = {
@@ -105,11 +107,13 @@ route('onboarding', async (view, ctx) => {
     },
     // 2 Lernprofil
     () => {
-      const c = card(`<label>Lernmotiv<br><select id="ob-motiv"><option value="jobstart">Jobstart</option><option value="pruefung">Prüfung</option><option value="projekt">Projekt</option><option value="interesse">Interesse</option></select></label>
-        <label>Zieltermin (optional)<br><input id="ob-ziel" type="date"></label>
-        <label>Minuten pro Tag<br><input id="ob-min" type="number" value="30" min="10" max="480"></label>
-        <label>Lerntage pro Woche<br><input id="ob-tage" type="number" value="4" min="1" max="7"></label>
-        <button class="btn-primary">Weiter</button>`);
+      const c = card(`<div class="formular">
+        <label class="feld"><span class="feld-name">Lernmotiv</span><select id="ob-motiv"><option value="jobstart">Jobstart</option><option value="pruefung">Prüfung</option><option value="projekt">Projekt</option><option value="interesse">Interesse</option></select></label>
+        <label class="feld"><span class="feld-name">Zieltermin (optional)</span><input id="ob-ziel" type="date"></label>
+        <label class="feld"><span class="feld-name">Minuten pro Tag</span><input id="ob-min" type="number" value="30" min="10" max="480"></label>
+        <label class="feld"><span class="feld-name">Lerntage pro Woche</span><input id="ob-tage" type="number" value="4" min="1" max="7"></label>
+      </div>
+      <div class="formular-fuss"><button class="btn-primary">Weiter</button></div>`);
       view.appendChild(c);
       c.querySelector('button').onclick = () => {
         const ziel = c.querySelector('#ob-ziel').value;
