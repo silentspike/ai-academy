@@ -119,9 +119,9 @@ export async function startApp({ mountId = 'view' } = {}) {
 /** Every field the application relies on, with a safe starting value. */
 function leererZustand() {
   return {
-    xp: 0, level: 1, week: { goalDays: 5, doneDays: [] },
+    xp: 0, level: 1, week: { goalDays: 5 },
     milestones: [], cards: [], events: [], phase_progress: {},
-    units_done: [], chapterTests: {}, examAttempts: [], dayStats: {}, notes: {},
+    unit_done: [], unit_skipped: [], chapterTests: {}, examAttempts: [], dayStats: {}, notes: {},
     created: Date.now(),
   };
 }
@@ -143,8 +143,15 @@ async function loadState(storage) {
   const s = { ...basis, ...gespeichert };
   // The weekly goal is a nested object; a shallow merge would keep an incomplete one.
   s.week = { ...basis.week, ...(gespeichert.week ?? {}) };
-  if (!Array.isArray(s.week.doneDays)) s.week.doneDays = [];
-  for (const feld of ['milestones', 'cards', 'events', 'units_done', 'examAttempts']) {
+  // Older states carried a units_done key that nothing ever wrote to. The list
+  // the application actually keeps is unit_done — so the normalisation below was
+  // guarding a field no view reads, while a damaged unit_done went through
+  // untouched and took the sidebar down on the next paint.
+  if (Array.isArray(gespeichert.units_done) && !Array.isArray(gespeichert.unit_done)) {
+    s.unit_done = gespeichert.units_done;
+  }
+  delete s.units_done;
+  for (const feld of ['milestones', 'cards', 'events', 'unit_done', 'unit_skipped', 'examAttempts']) {
     if (!Array.isArray(s[feld])) s[feld] = [];
   }
   for (const feld of ['phase_progress', 'chapterTests', 'dayStats', 'notes']) {
@@ -162,6 +169,7 @@ const PHASEN = [
   ['p6', 'GPAI'], ['p7', 'Aufsicht'], ['p8', 'Randwissen'], ['p9', 'Ländermodul AT'], ['p10', 'Auslegung'],
 ];
 let UNIT_INDEX = null;                       // phase → [unitId] (einmalig geladen)
+
 
 export async function paintSidebar(state) {
   const tree = document.getElementById('phase-tree');
@@ -238,7 +246,9 @@ export function paintTopbar(state) {
   const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
   set('tb-xp', `${state.xp.toLocaleString('de-AT')} XP`);
   set('tb-level', String(state.level));
-  set('tb-week', `${state.week.doneDays.length}/${state.week.goalDays} Tagen`);
+  // Derived from dayStats, not from a parallel list — see weekProgress().
+  const woche = weekProgress(state, Date.now());
+  set('tb-week', `${woche.done}/${woche.goal} Tagen`);
   const ms = state.milestones[0];
   if (ms) {
     const days = Math.ceil((Date.parse(ms.date) - Date.now()) / 86_400_000);
@@ -257,7 +267,8 @@ function markActiveNav(path) {
 import { renderHeatmap, renderRadar, renderCurve, renderXpBars, renderExamHistory } from './dashboard.js';
 import { aggregateCompetencies, radarData } from './competency.js';
 import { splitQueues } from './engine-leitner.js';
-import { ceremony, CEREMONY, levelFor } from './gamification.js';
+import { ceremony, CEREMONY, levelFor, weekProgress, wochenpunkte } from './gamification.js';
+import { einheitenGesamt } from './content-index.js';
 
 route('dashboard', async (view, ctx) => {
   // Erhaltungsmodus (#36): nach bestandenem Examen Tagesdosis + Wochen-Szenario anzeigen
@@ -280,7 +291,7 @@ route('dashboard', async (view, ctx) => {
   if (s.milestones?.length && s.pace) {
     try {
       const { feasibilityCheck } = await import('./pacing.js');
-      const UNITS = 17;
+      const UNITS = await einheitenGesamt();
       const feas = feasibilityCheck({ ...s.pace, milestones: s.milestones },
         { totalUnits: UNITS, minutesPerUnit: 25, doneUnits: (s.unit_done?.length ?? 0) + (s.unit_skipped?.length ?? 0) }, Date.now());
       const eng = (Array.isArray(feas) ? feas : [feas]).filter(f => f && f.feasible === false);
@@ -326,7 +337,10 @@ route('dashboard', async (view, ctx) => {
   const kernN = articles.filter(a => a.relevanz === 'kern').length;
   const axes = radarData(compDef.kompetenzen, agg);
   // Actual curve: cumulative unit progress per week from events; target: linear to the milestones
-  const UNITS_TOTAL = 16;
+  // 16 here, 17 in the feasibility check, 16 again in the ritual — three numbers
+  // for one quantity, and the index has 17. The curve therefore overstated
+  // progress while the pacing warning was computed against a different base.
+  const UNITS_TOTAL = await einheitenGesamt();
   const unitEvents = (s.events ?? []).filter(e => e.kind === 'unit_completed');
   // Count legacy progress without recorded events as a baseline
   const unitBaseline = Math.max(0, (s.unit_done?.length ?? 0) - unitEvents.length);
@@ -379,7 +393,10 @@ route('dashboard', async (view, ctx) => {
     weekXp.set(key, (weekXp.get(key) ?? 0) + (st.xp ?? 0));
   }
   const xpBars = [...weekXp.entries()].slice(-4).map(([label, xp]) => ({ label: label.split('-')[1], xp }));
-  import('./rewards.js').then(({ renderBadgeGallery }) => renderBadgeGallery(view.querySelector('#d-badges'), s));
+  import('./rewards.js').then(async ({ renderBadgeGallery }) => {
+    const r = renderBadgeGallery(view.querySelector('#d-badges'), s);
+    if (r.nachgetragen.length) await ctx.saveState();      // retroactive awards must persist
+  });
   renderXpBars(view.querySelector('#d-xp'), xpBars.length ? xpBars : [{ label: 'W1', xp: s.xp ?? 0 }]);
   const series = Object.entries(s.scoreSeries ?? {}).map(([k, v]) => ({
     regime: k.split('|').slice(0, 4).join(' · '),
