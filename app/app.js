@@ -69,9 +69,15 @@ export async function startApp({ mountId = 'view' } = {}) {
 
   // Erstkontakt-Hero (§6.3): allererster Start → Artwork + Produktversprechen
   const { heroOnce } = await import('./rewards.js');
-  if (heroOnce(state, document)) { await ctx.saveState(); }
-
-  await zeigeKiHinweis(state, ctx);
+  const hero = heroOnce(state, document);
+  if (hero) {
+    // Chained, not awaited: the notice follows the hero, but the interface keeps
+    // building behind it. Awaiting held up mount() until someone clicked, so
+    // nothing rendered — and if nobody ever clicked, nothing ever would.
+    hero.then(async () => { await ctx.saveState(); await zeigeKiHinweis(state, ctx); });
+  } else {
+    await zeigeKiHinweis(state, ctx);
+  }
 
   await introSequence(state);
 
@@ -343,6 +349,7 @@ export function setzeSetupModus(ctx, doc = document) {
   if (!imSetup) return false;
 
   const schritt = ctx.state?.onboardingDraft?.step ?? 0;
+  box.style.setProperty('--fortschritt', `${Math.round(schritt / (SETUP_SCHRITTE.length - 1) * 100)}%`);
   box.innerHTML = `<div class="sf-titel">Einrichtung</div>` + SETUP_SCHRITTE.map((name, i) => {
     const zustand = i < schritt ? 'fertig' : i === schritt ? 'jetzt' : '';
     return `<div class="setup-schritt ${zustand}"><span class="sf-nr">${i < schritt ? '✓' : i + 1}</span>${name}</div>`;
@@ -388,7 +395,7 @@ import { renderHeatmap, renderRadar, renderCurve, renderXpBars, renderExamHistor
 import { aggregateCompetencies, radarData } from './competency.js';
 import { splitQueues } from './engine-leitner.js';
 import { ceremony, CEREMONY, levelFor, weekProgress, wochenpunkte } from './gamification.js';
-import { einheitenGesamt } from './content-index.js';
+import { einheitenGesamt, coverPfad } from './content-index.js';
 
 route('dashboard', async (view, ctx) => {
   // Erhaltungsmodus (#36): nach bestandenem Examen Tagesdosis + Wochen-Szenario anzeigen
@@ -614,7 +621,11 @@ route('lernen', async (view, ctx, [phaseFilter]) => {
   const done = new Set(st.unit_done ?? []);
   const skipped = new Set(st.unit_skipped ?? []);
   const phases = phaseFilter ? [phaseFilter] : Object.keys(PHASE_LABEL);
-  view.innerHTML = `<div class="card"><div class="chead"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-lernen"/></svg></span><span class="t"><h3>Lernen${phaseFilter ? ` — ${PHASE_LABEL[phaseFilter] ?? phaseFilter}` : ''}</h3>
+  const cover = phaseFilter ? coverPfad(phaseFilter) : null;
+  view.innerHTML = `<div class="card${cover ? ' hat-cover' : ''}">
+    ${cover ? `<div class="phasen-cover"><img src="${cover}" alt="" loading="lazy" onerror="this.closest('.phasen-cover').remove()">
+      <div class="pc-verlauf"></div><div class="pc-titel">${PHASE_LABEL[phaseFilter] ?? phaseFilter}</div></div>` : ''}
+    <div class="chead"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-lernen"/></svg></span><span class="t"><h3>Lernen${phaseFilter ? ` — ${PHASE_LABEL[phaseFilter] ?? phaseFilter}` : ''}</h3>
     <span class="sub">${phaseFilter ? '<a href="#/lernen">alle Phasen</a>' : 'Vollständiger Stoff, nach Rollen-Relevanz geordnet — jede Phase ist jederzeit zugänglich, die Reihenfolge ist eine Empfehlung. Überspringen erfordert einen Challenge-Test.'}</span></span></div>
     <div id="unit-list"></div></div>`;
   const list = view.querySelector('#unit-list');

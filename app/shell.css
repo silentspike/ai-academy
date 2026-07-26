@@ -21,13 +21,23 @@ body { padding:0; background:#04060b; overflow:hidden; display:grid; place-items
    designed on. */
 .app-shell { margin:0; width:calc(100vw - 24px); height:calc(100dvh - 24px);
   border-radius:16px; overflow:hidden;
-  background:radial-gradient(circle at 58% 0%,rgba(56,73,111,.10),transparent 38%),
-             linear-gradient(180deg,#0a0f18 0%,#070b12 100%);
+  /* Not fully opaque: the aurora sits inside the shell and has to reach the eye. */
+  background:radial-gradient(circle at 58% 0%,rgba(56,73,111,.12),transparent 40%),
+             linear-gradient(180deg,rgba(10,15,24,.92) 0%,rgba(7,11,18,.94) 100%);
   border:1px solid rgba(159,177,211,.10);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.025), 0 24px 80px rgba(0,0,0,.55);
   position:relative; }
+/* The aurora layers were built, placed in the markup — and then dimmed to
+   opacity .11 behind an opaque shell, which is below the threshold where anyone
+   sees anything. The design reference calls for "kaum merklich" at up to .5;
+   .11 under a 90px blur on a near-black ground is not subtle, it is absent.
+   Flächentiefe kommt laut Referenz aus Layern über Farbe — dafür muss der
+   Untergrund durchscheinen. */
 .app-shell .bg-layers { position:absolute; z-index:0; }
-.app-shell .bg-aurora.a { opacity:.11; left:-24%; }
+.app-shell .bg-aurora { opacity:.32; }
+.app-shell .bg-aurora.a { left:-20%; }
+.app-shell .bg-aurora.c { opacity:.26; }
+.app-shell .bg-grid { opacity:.6; }
 .app { position:relative; z-index:1; display:grid;
   grid-template-columns:var(--rail-w) var(--sidebar-w) minmax(0,1fr);
   grid-template-rows:var(--topbar-h) minmax(0,1fr);
@@ -335,17 +345,31 @@ body { padding:0; background:#04060b; overflow:hidden; display:grid; place-items
 .chead .csym { flex:none; width:38px; height:38px; border-radius:11px; display:grid; place-items:center;
   background:linear-gradient(150deg, rgba(52,211,153,.16), rgba(52,211,153,.05));
   border:1px solid rgba(52,211,153,.24); }
-.chead .csym svg { width:19px; height:19px; color:var(--emerald); }
+.chead .csym svg { width:19px; height:19px; color:var(--emerald);
+  /* Duotone-Glow per DESIGN-SYSTEM §6: the glow belongs on the icon, and the
+     symbol carries its own light. A flat glyph in a box is not the style that
+     was chosen over a Lucide base. */
+  filter:drop-shadow(0 0 6px rgba(52,211,153,.45)); }
+.chead .csym { position:relative; overflow:hidden; }
+.chead .csym::after { content:''; position:absolute; inset:-40% -40% auto auto; width:120%; height:120%;
+  background:radial-gradient(circle at 70% 20%, rgba(52,211,153,.22), transparent 62%); pointer-events:none; }
+.chead.violett .csym::after { background:radial-gradient(circle at 70% 20%, rgba(138,112,239,.24), transparent 62%); }
+.chead.gold .csym::after { background:radial-gradient(circle at 70% 20%, rgba(225,173,88,.22), transparent 62%); }
 .chead.violett .csym { background:linear-gradient(150deg, rgba(138,112,239,.18), rgba(138,112,239,.05));
   border-color:rgba(138,112,239,.28); }
-.chead.violett .csym svg { color:var(--violet, #b6a5ff); }
+.chead.violett .csym svg { color:var(--violet, #b6a5ff); filter:drop-shadow(0 0 6px rgba(138,112,239,.45)); }
 .chead.gold .csym { background:linear-gradient(150deg, rgba(225,173,88,.16), rgba(225,173,88,.05));
   border-color:rgba(225,173,88,.28); }
-.chead.gold .csym svg { color:var(--gold); }
+.chead.gold .csym svg { color:var(--gold); filter:drop-shadow(0 0 6px rgba(225,173,88,.42)); }
 /* The first heading of a view is the page title, not a card label. */
 .dashboard.single > .card:first-child .chead .t h3 {
-  font-family:var(--font-display); font-size:clamp(1.15rem,2.2vw,1.45rem); font-weight:600;
-  letter-spacing:-.01em; line-height:1.2; }
+  font-family:var(--font-display); font-size:clamp(1.25rem,2.4vw,1.6rem); font-weight:600;
+  letter-spacing:-.015em; line-height:1.18; }
+/* Three levels, three different signals — size AND weight AND colour. Before,
+   caption, value and hint were three greys at nearly the same size, and the eye
+   found no way through the page. */
+.dashboard.single > .card:first-child .chead .t .sub {
+  font-size:.8rem; color:var(--faint); font-weight:400; margin-top:3px; display:block; }
 .dashboard.single > .card:first-child .chead { margin-bottom:14px; }
 .dashboard.single > .card:first-child .chead .csym { width:44px; height:44px; border-radius:13px; }
 .dashboard.single > .card:first-child .chead .csym svg { width:22px; height:22px; }
@@ -464,8 +488,16 @@ body { padding:0; background:#04060b; overflow:hidden; display:grid; place-items
 .setup-fortschritt { padding:4px 2px 0; }
 .setup-fortschritt .sf-titel { font-size:.66rem; letter-spacing:.1em; text-transform:uppercase;
   color:var(--faint); margin:0 0 12px; }
-.setup-schritt { display:flex; align-items:center; gap:11px; padding:7px 8px; border-radius:9px;
-  font-size:.82rem; color:var(--faint); }
+/* A connecting line through the numbers: a list of seven rows says where you
+   are, a track says how far. */
+.setup-fortschritt { position:relative; }
+.setup-fortschritt::before { content:''; position:absolute; left:calc(8px + .7rem); top:34px; bottom:22px;
+  width:1.5px; background:linear-gradient(180deg,var(--emerald) 0%,rgba(151,169,202,.14) var(--fortschritt,0%),
+  rgba(151,169,202,.14) 100%); border-radius:2px; }
+.setup-schritt { position:relative; display:flex; align-items:center; gap:11px; padding:7px 8px;
+  border-radius:9px; font-size:.82rem; color:var(--faint);
+  animation:reihe-auf 260ms var(--ease-out) both; }
+.setup-schritt .sf-nr { background:var(--bg-deep,#070b12); }
 .setup-schritt .sf-nr { flex:none; width:1.4rem; height:1.4rem; border-radius:50%;
   display:grid; place-items:center; font-size:.68rem; font-family:var(--font-num);
   border:1px solid rgba(151,169,202,.22); }
@@ -476,3 +508,46 @@ body { padding:0; background:#04060b; overflow:hidden; display:grid; place-items
   color:var(--text); font-weight:600; }
 .setup-schritt.jetzt .sf-nr { border-color:rgba(138,112,239,.5); color:var(--violet,#b6a5ff);
   background:rgba(138,112,239,.14); }
+
+
+/* ---------------------------------------------------------------- staggered reveal
+   DESIGN-SYSTEM §5: 60ms per element, at most eight, 320ms for the route itself.
+   Only transform and opacity, and off entirely under reduced motion. */
+.dashboard > .card { animation:karte-auf 320ms var(--ease-out) both; }
+.dashboard > .card:nth-child(1) { animation-delay:0ms; }
+.dashboard > .card:nth-child(2) { animation-delay:60ms; }
+.dashboard > .card:nth-child(3) { animation-delay:120ms; }
+.dashboard > .card:nth-child(4) { animation-delay:180ms; }
+.dashboard > .card:nth-child(5) { animation-delay:240ms; }
+.dashboard > .card:nth-child(6) { animation-delay:300ms; }
+.dashboard > .card:nth-child(7) { animation-delay:360ms; }
+.dashboard > .card:nth-child(n+8) { animation-delay:420ms; }
+@keyframes karte-auf { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+
+/* Rows inside a list get the same treatment, capped so a long list does not
+   turn into a slow cascade. */
+.lern-row { animation:reihe-auf 260ms var(--ease-out) both; }
+.lern-row:nth-child(-n+8) { animation-delay:calc(40ms * var(--i, 0)); }
+@keyframes reihe-auf { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+
+@media (prefers-reduced-motion:reduce) {
+  .dashboard > .card, .lern-row { animation:none !important; }
+}
+
+
+/* ---------------------------------------------------------------- primary action
+   One action on the page, sitting in the corner at the size of a secondary
+   control. Weight follows importance. */
+.formular-fuss .btn-primary, .ain-fuss .btn-primary {
+  padding:11px 30px; font-size:.92rem; border-radius:10px;
+  box-shadow:0 6px 20px -8px rgba(52,211,153,.55);
+  transition:transform 120ms var(--ease-snap), box-shadow 160ms var(--ease-out), filter 120ms;
+}
+.formular-fuss .btn-primary:hover, .ain-fuss .btn-primary:hover {
+  transform:translateY(-1px); box-shadow:0 10px 26px -8px rgba(52,211,153,.65);
+}
+.formular-fuss .btn-primary:active { transform:translateY(0); }
+@media (prefers-reduced-motion:reduce) {
+  .formular-fuss .btn-primary, .ain-fuss .btn-primary { transition:none; }
+  .formular-fuss .btn-primary:hover { transform:none; }
+}

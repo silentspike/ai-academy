@@ -351,7 +351,7 @@ export const test = base.extend({
 
   /** Loads a state fixture and reloads, so the application starts from it. */
   zustand: async ({ page, speicher, echterStore }, use) => {
-    await use(async (name) => {
+    await use(async (name, opt = {}) => {
       if (typeof name === 'string' && !FIXTURES[name]) throw new Error(`Unknown fixture: ${name}`);
       const daten = typeof name === 'string' ? FIXTURES[name]() : name;
 
@@ -378,7 +378,10 @@ export const test = base.extend({
       // waiting for the network to fall silent waits forever.
       await page.reload({ waitUntil: 'load' });
       await page.waitForFunction(() => !!document.querySelector('.sidebar, .rail, nav, main'), { timeout: 15_000 });
-      await schliesseOverlays(page);
+      // Dismissing here is right for almost every test — but a test ABOUT the
+      // first-launch overlays cannot have them clicked away during setup. Since
+      // the hero now persists its acknowledgement, they would never come back.
+      if (!opt.overlaysStehenLassen) await schliesseOverlays(page);
     });
   },
 });

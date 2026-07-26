@@ -63,11 +63,11 @@ h1,h2,h3 { font-family:var(--font-display); line-height:1.2; font-weight:700; }
    Drei Schichten hinter allem Inhalt: Aurora-Blobs (sehr langsam) → Grid-Textur → Vignette.
    Nur transform/opacity animiert; reduced-motion schaltet Bewegung ab. */
 .bg-layers { position:fixed; inset:0; z-index:-1; overflow:hidden; pointer-events:none; }
-.bg-aurora { position:absolute; width:55vmax; height:55vmax; border-radius:50%;
-  filter:blur(90px); opacity:.2; will-change:transform; }
-.bg-aurora.a { background:radial-gradient(circle,#0d4234 0%,transparent 65%); top:-18%; left:-12%;
+.bg-aurora { position:absolute; width:62vmax; height:62vmax; border-radius:50%;
+  filter:blur(80px); opacity:.34; will-change:transform; }
+.bg-aurora.a { background:radial-gradient(circle,#14624c 0%,transparent 66%); top:-18%; left:-12%;
   animation:aur-a 120s var(--ease-out) infinite alternate; }
-.bg-aurora.b { background:radial-gradient(circle,#0b3d4d 0%,transparent 65%); bottom:-22%; right:-14%;
+.bg-aurora.b { background:radial-gradient(circle,#0f5670 0%,transparent 66%); bottom:-22%; right:-14%;
   animation:aur-b 140s var(--ease-out) infinite alternate; }
 .bg-aurora.c { background:radial-gradient(circle,#33240f 0%,transparent 68%); top:38%; left:52%;
   opacity:.22; animation:aur-c 95s var(--ease-out) infinite alternate; }
@@ -446,9 +446,35 @@ button:disabled { opacity:.45; cursor:not-allowed; }
    centre — exactly where the text sits — at 10 % opacity, so the page behind
    showed through and both layers of text ran into each other. Opaque base
    colour first, the emerald glow on top of it. */
-.hero-overlay{position:fixed;inset:0;background-color:rgba(4,6,12,.96);background-image:radial-gradient(80% 60% at 50% 40%,rgba(52,211,153,.14),transparent 72%);display:grid;place-items:center;z-index:1000}
-.hero-card{max-width:520px;text-align:center;padding:28px}
-.hero-card img{max-width:260px;border-radius:14px;margin-bottom:18px}
+/* First contact (§6.3). The one moment where the product gets to say what it is
+   before anyone has clicked anything — so the artwork carries the frame rather
+   than sitting on it as a thumbnail. */
+.hero-overlay{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:28px;
+  background-color:rgba(4,6,12,.97);
+  background-image:radial-gradient(70% 55% at 50% 30%,rgba(52,211,153,.16),transparent 70%),
+                   radial-gradient(60% 50% at 78% 82%,rgba(138,112,239,.13),transparent 72%);
+  animation:hero-auf 420ms var(--ease-out) both}
+.hero-overlay.geht{animation:hero-weg 260ms var(--ease-out) both}
+@keyframes hero-auf{from{opacity:0}to{opacity:1}}
+@keyframes hero-weg{to{opacity:0;transform:scale(1.015)}}
+.hero-card{max-width:720px;text-align:center;padding:0;position:relative}
+.hero-card img{width:100%;max-width:720px;border-radius:18px;margin-bottom:26px;display:block;
+  border:1px solid rgba(159,177,211,.12);box-shadow:0 30px 90px -30px rgba(0,0,0,.9);
+  animation:hero-bild 720ms var(--ease-out) both}
+@keyframes hero-bild{from{opacity:0;transform:scale(1.05)}to{opacity:1;transform:none}}
+.hero-card h1{font-family:var(--font-display);font-size:clamp(2rem,5vw,3rem);line-height:1.08;
+  letter-spacing:-.025em;margin-bottom:14px;
+  background:var(--grad-brand);-webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:hero-text 620ms 140ms var(--ease-out) both}
+.hero-card p{font-size:clamp(.95rem,1.6vw,1.1rem);line-height:1.65;color:var(--dim);
+  max-width:56ch;margin:0 auto 30px;animation:hero-text 620ms 240ms var(--ease-out) both}
+.hero-card .btn-primary{padding:13px 38px;font-size:1rem;border-radius:11px;
+  box-shadow:0 10px 34px -12px rgba(52,211,153,.7);
+  animation:hero-text 620ms 340ms var(--ease-out) both}
+@keyframes hero-text{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){
+  .hero-overlay,.hero-overlay.geht,.hero-card img,.hero-card h1,.hero-card p,.hero-card .btn-primary{animation:none}
+}
 .hero-card h1{font-family:'Space Grotesk',system-ui;font-size:2.1rem;margin:0 0 10px}
 .hero-card p{opacity:.8;line-height:1.6;margin-bottom:20px}
 /* Tile size follows the card. At 64px fixed, a 4K card fitted twelve columns of
@@ -504,3 +530,21 @@ button:disabled { opacity:.45; cursor:not-allowed; }
   .formular-fuss{justify-content:stretch}
   .formular-fuss .btn-primary{width:100%}
 }
+
+
+/* ---------------------------------------------------------------- phase artwork
+   The covers exist and were shown only in the ceremony after a phase was over.
+   Here they sit where the work happens, as a header band rather than a picture
+   in the way: image, gradient into the card, title on top. */
+.card.hat-cover { padding-top:0; overflow:hidden; }
+.phasen-cover { position:relative; margin:calc(var(--sp-5) * -1) calc(var(--sp-5) * -1) var(--sp-4);
+  height:clamp(120px,17vh,190px); overflow:hidden; }
+.phasen-cover img { width:100%; height:100%; object-fit:cover; display:block;
+  animation:cover-auf 520ms var(--ease-out) both; }
+@keyframes cover-auf { from { opacity:0; transform:scale(1.04); } to { opacity:1; transform:none; } }
+.phasen-cover .pc-verlauf { position:absolute; inset:0;
+  background:linear-gradient(180deg,rgba(10,14,23,.15) 0%,rgba(10,14,23,.55) 55%,var(--panel) 100%); }
+.phasen-cover .pc-titel { position:absolute; left:var(--sp-5); bottom:14px;
+  font-family:var(--font-display); font-size:clamp(1.1rem,2.2vw,1.5rem); font-weight:600;
+  letter-spacing:-.01em; text-shadow:0 2px 14px rgba(0,0,0,.6); }
+@media (prefers-reduced-motion:reduce) { .phasen-cover img { animation:none; } }
