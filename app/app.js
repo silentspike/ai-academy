@@ -161,6 +161,14 @@ async function loadState(storage) {
   for (const feld of ['phase_progress', 'chapterTests', 'dayStats', 'notes']) {
     if (!s[feld] || typeof s[feld] !== 'object') s[feld] = {};
   }
+  // Award what the record already earned — once, here, before anything renders.
+  // Six of the badges are derived from data rather than counted as they happen,
+  // so a restored record, an import, or work done before the derivation existed
+  // would otherwise show grey tiles for work that was done. Doing it while
+  // drawing the gallery instead put a write inside a render.
+  const { newBadges } = await import('./gamification.js');
+  s.badges = s.badges ?? [];
+  if (newBadges(s).length) await storage.set('state', s);
   return s;
 }
 
@@ -470,10 +478,7 @@ route('dashboard', async (view, ctx) => {
     weekXp.set(key, (weekXp.get(key) ?? 0) + (st.xp ?? 0));
   }
   const xpBars = [...weekXp.entries()].slice(-4).map(([label, xp]) => ({ label: label.split('-')[1], xp }));
-  import('./rewards.js').then(async ({ renderBadgeGallery }) => {
-    const r = renderBadgeGallery(view.querySelector('#d-badges'), s);
-    if (r.nachgetragen.length) await ctx.saveState();      // retroactive awards must persist
-  });
+  import('./rewards.js').then(({ renderBadgeGallery }) => renderBadgeGallery(view.querySelector('#d-badges'), s));
   renderXpBars(view.querySelector('#d-xp'), xpBars.length ? xpBars : [{ label: 'W1', xp: s.xp ?? 0 }]);
   const series = Object.entries(s.scoreSeries ?? {}).map(([k, v]) => ({
     regime: k.split('|').slice(0, 4).join(' · '),
