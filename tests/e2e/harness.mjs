@@ -22,7 +22,7 @@ export const JETZT = Date.parse('2026-07-25T09:00:00+02:00');
  * Injected before any application code runs. Pins Date, seeds Math.random and
  * disables animation. Without this an image comparison compares noise.
  */
-function determinismusSkript(jetzt) {
+function determinismusSkript(jetzt, bewegungAus = true) {
   return `(() => {
     const FIXIERT = ${jetzt};
     const EchtesDate = Date;
@@ -43,11 +43,17 @@ function determinismusSkript(jetzt) {
     window.print = () => { gedruckt++; };
     Object.defineProperty(window, '__druckAufrufe', { get: () => gedruckt });
 
-    const stil = document.createElement('style');
-    stil.textContent = '*,*::before,*::after{animation-duration:0s!important;animation-delay:0s!important;' +
-      'transition-duration:0s!important;transition-delay:0s!important;scroll-behavior:auto!important}';
-    if (document.head) document.head.appendChild(stil);
-    else document.addEventListener('DOMContentLoaded', () => document.head.appendChild(stil));
+    // Motion off, so a screenshot compares the product and not the moment it was
+    // taken. A spec that measures motion has to opt out — otherwise it measures
+    // this stylesheet (every duration and every delay reads 0s) and calls a
+    // working cascade broken.
+    if (${bewegungAus}) {
+      const stil = document.createElement('style');
+      stil.textContent = '*,*::before,*::after{animation-duration:0s!important;animation-delay:0s!important;' +
+        'transition-duration:0s!important;transition-delay:0s!important;scroll-behavior:auto!important}';
+      if (document.head) document.head.appendChild(stil);
+      else document.addEventListener('DOMContentLoaded', () => document.head.appendChild(stil));
+    }
   })();`;
 }
 
@@ -288,11 +294,14 @@ export const test = base.extend({
    */
   echterStore: [false, { option: true }],
 
+  /** Specs that MEASURE motion set this; everything else runs with motion off. */
+  mitBewegung: [false, { option: true }],
+
   /** The per-test store contents, shared between the route handler and `zustand`. */
   speicher: async ({}, use) => { await use({ progress: {}, notes: {} }); },
 
-  page: async ({ page, echterStore, speicher }, use, testInfo) => {
-    await page.addInitScript(determinismusSkript(JETZT));
+  page: async ({ page, echterStore, speicher, mitBewegung }, use, testInfo) => {
+    await page.addInitScript(determinismusSkript(JETZT, !mitBewegung));
 
     // Block image requests unless this spec compares images: a ceremony cover is
     // several hundred kilobytes and contributes nothing to a functional check.
