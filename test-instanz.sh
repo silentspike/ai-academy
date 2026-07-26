@@ -10,6 +10,7 @@
 #   ./test-instanz.sh                    startet eine Testinstanz
 #   ./test-instanz.sh --zuruecksetzen    wirft den Teststand weg und startet neu
 #   ./test-instanz.sh --store <pfad>     anderer Ablageort
+#   ./test-instanz.sh --kein-browser     Adresse nur ausgeben, nichts oeffnen
 #
 # Der laufende Betrieb auf Port 8791 bleibt unberuehrt.
 
@@ -18,9 +19,15 @@ cd "$(dirname "$0")"
 
 STORE="${AKADEMIE_TEST_STORE:-$PWD/data-test}"
 ZURUECKSETZEN=0
+# Browser oeffnen ist fuer den Empfaenger gedacht, der nach dem Doppelklick nicht
+# Port und Kopplungsmerkmal abtippen will. Wer die Instanz von aussen steuert —
+# playwright-cli, ein Testlauf — bekommt sonst ein zweites Fenster dazu, das
+# niemand angefordert hat.
+BROWSER=--open
 while [ $# -gt 0 ]; do
   case "$1" in
     --zuruecksetzen) ZURUECKSETZEN=1; shift ;;
+    --kein-browser) BROWSER=""; shift ;;
     --store) STORE="$2"; shift 2 ;;
     -h|--help) sed -n '2,16p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "Unbekannte Option: $1"; exit 2 ;;
@@ -54,8 +61,9 @@ echo "  Ablage:  $STORE"
 echo "  Betrieb: unberuehrt (Port 8791, $ECHT)"
 echo
 echo "  Zum Beenden: Strg+C. Zum Wegwerfen: ./test-instanz.sh --zuruecksetzen"
+[ -z "$BROWSER" ] && echo "  Kein Browser wird geoeffnet — Adresse steht unten." 
 echo
 
 # Port 0 = das Betriebssystem waehlt einen freien. Kein fester Zweitport, der
 # irgendwann mit etwas anderem kollidiert.
-BRIDGE_TOKEN="$TOKEN" exec node bridge/bridge.mjs --store "$STORE" --port 0 --open
+BRIDGE_TOKEN="$TOKEN" exec node bridge/bridge.mjs --store "$STORE" --port 0 $BROWSER

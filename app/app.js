@@ -150,8 +150,9 @@ export async function zeigeKiHinweis(state, ctx, doc = document) {
           Einspruch erheben; darüber entscheidet eine frische Zweitprüfung, die die
           erste Bewertung nicht kennt.</dd>
       <dt>Wofür das hier gedacht ist</dt>
-      <dd>Persönliche, freiwillige Weiterbildung. <b>Kein akkreditierter Abschluss</b> und
-          keine Grundlage für Entscheidungen über Personen (<span class="mono">docs/INTENDED-PURPOSE.md</span>).</dd>
+      <dd>Persönliche, freiwillige Weiterbildung — <b>nicht für den Einsatz durch
+          Bildungseinrichtungen oder Arbeitgeber</b>, um Personen zu bewerten. Kein
+          akkreditierter Abschluss.</dd>
     </dl>
     <div class="ain-fuss">
       <button class="btn-primary">Verstanden</button>
