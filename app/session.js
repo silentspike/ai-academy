@@ -6,17 +6,31 @@ import { splitQueues, planAufhol, dueRetentionChecks } from './engine-leitner.js
 // 4-Takt (#32): Pflicht-Review → 2–3 Einheiten → Tages-Drill → Abschluss-Karte
 export const STEPS = ['review', 'units', 'drill', 'wrapup'];
 
+/** Local day key, the same form dayStats is keyed by. */
+function tagesschluessel(ms) {
+  const d = new Date(ms);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
 export function createSession(state, nowMs, { weakScores } = {}) {
   const q = splitQueues(state.cards ?? [], nowMs);
   const aufholToday = planAufhol(q.aufholMeta, { perDay: 15, weakScores }).today;
+  /**
+   * Two records said different things about the same fact: dayStats can hold
+   * reviewDone for today while a freshly built session starts with the review
+   * open. Whoever did their review in the morning and returned after a reload —
+   * or restored a record without its session — found the mandatory review
+   * waiting again, and units locked behind it. The statistics decide.
+   */
+  const heuteErledigt = state.dayStats?.[tagesschluessel(nowMs)]?.reviewDone === true;
   return {
     started: nowMs,
-    step: 'review',
+    step: heuteErledigt ? 'units' : 'review',
     review: {
       kern: q.kern.map(c => c.id),
       aufhol: aufholToday.map(c => c.id),
       retentionChecks: dueRetentionChecks(state.cards ?? [], nowMs).map(c => c.id),
-      done: false
+      done: heuteErledigt
     },
     unitsPlanned: 2, unitsDone: 0,
     drill: { size: 5, mix: { weak: 3, random: 1, cBonus: 1 }, done: false },  // schwächen-gewichtet (#32)

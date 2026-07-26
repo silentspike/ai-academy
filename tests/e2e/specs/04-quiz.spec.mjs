@@ -108,7 +108,7 @@ test.describe('question engine', () => {
       const { StorageAdapter } = await import('./app/storage-adapter.js');
       return await StorageAdapter.bridgeStore({}).get('state');
     });
-    expect(Array.isArray(st.units_done), 'units_done is not a list').toBe(true);
+    expect(Array.isArray(st.unit_done), 'unit_done is not a list').toBe(true);
     expect(vorher.length).toBeGreaterThan(10);
     await erfasse(page, '#/placement');
   });

@@ -113,15 +113,19 @@ export async function startApp({ mountId = 'view' } = {}) {
   render();
   paintTopbar(state);
   paintSidebar(state);
+  // Search, due list and profile menu. Wired once — the menus read live data
+  // when they open, so they cannot show a value captured at startup.
+  import('./topbar-tools.js').then(({ verdrahteTopbar }) => verdrahteTopbar(ctx))
+    .catch(e => console.warn('Topbar-Werkzeuge nicht geladen:', e.message));
   return ctx;
 }
 
 /** Every field the application relies on, with a safe starting value. */
 function leererZustand() {
   return {
-    xp: 0, level: 1, week: { goalDays: 5, doneDays: [] },
+    xp: 0, level: 1, week: { goalDays: 5 },
     milestones: [], cards: [], events: [], phase_progress: {},
-    units_done: [], chapterTests: {}, examAttempts: [], dayStats: {}, notes: {},
+    unit_done: [], unit_skipped: [], chapterTests: {}, examAttempts: [], dayStats: {}, notes: {},
     created: Date.now(),
   };
 }
@@ -143,13 +147,28 @@ async function loadState(storage) {
   const s = { ...basis, ...gespeichert };
   // The weekly goal is a nested object; a shallow merge would keep an incomplete one.
   s.week = { ...basis.week, ...(gespeichert.week ?? {}) };
-  if (!Array.isArray(s.week.doneDays)) s.week.doneDays = [];
-  for (const feld of ['milestones', 'cards', 'events', 'units_done', 'examAttempts']) {
+  // Older states carried a units_done key that nothing ever wrote to. The list
+  // the application actually keeps is unit_done — so the normalisation below was
+  // guarding a field no view reads, while a damaged unit_done went through
+  // untouched and took the sidebar down on the next paint.
+  if (Array.isArray(gespeichert.units_done) && !Array.isArray(gespeichert.unit_done)) {
+    s.unit_done = gespeichert.units_done;
+  }
+  delete s.units_done;
+  for (const feld of ['milestones', 'cards', 'events', 'unit_done', 'unit_skipped', 'examAttempts']) {
     if (!Array.isArray(s[feld])) s[feld] = [];
   }
   for (const feld of ['phase_progress', 'chapterTests', 'dayStats', 'notes']) {
     if (!s[feld] || typeof s[feld] !== 'object') s[feld] = {};
   }
+  // Award what the record already earned — once, here, before anything renders.
+  // Six of the badges are derived from data rather than counted as they happen,
+  // so a restored record, an import, or work done before the derivation existed
+  // would otherwise show grey tiles for work that was done. Doing it while
+  // drawing the gallery instead put a write inside a render.
+  const { newBadges } = await import('./gamification.js');
+  s.badges = s.badges ?? [];
+  if (newBadges(s).length) await storage.set('state', s);
   return s;
 }
 
@@ -163,6 +182,7 @@ const PHASEN = [
 ];
 let UNIT_INDEX = null;                       // phase → [unitId] (einmalig geladen)
 
+
 export async function paintSidebar(state) {
   const tree = document.getElementById('phase-tree');
   if (!tree) return;
@@ -173,15 +193,25 @@ export async function paintSidebar(state) {
   }
   const done = new Set(state.unit_done ?? []);
   const skipped = new Set(state.unit_skipped ?? []);
-  tree.innerHTML = PHASEN.map(([pid, label]) => {
+  // The phase currently being worked on: the first that is not finished. Without
+  // it the tree is ten equal rows and says nothing about where the user stands.
+  // The chapter test is what closes a phase (#12). Marking a phase active because
+  // a single unit inside it is still open would put the arrow next to a phase
+  // that already carries a tick — two contradictory signals on one row.
+  const aktivePhase = PHASEN.find(([pid]) => !state.chapterTests?.[pid]?.passed)?.[0] ?? null;
+
+  tree.innerHTML = PHASEN.map(([pid, label], i) => {
     const units = UNIT_INDEX[pid] ?? [];
     const fertig = units.filter(u => done.has(u.id) || skipped.has(u.id)).length;
     const pct = units.length ? fertig / units.length : 0;
     const test = state.chapterTests?.[pid];
     const deg = Math.round(pct * 360);
-    return `<a class="ph phase${test?.passed ? ' phase-passed' : ''}" href="#/lernen/${pid}" title="${units.length} Einheiten · ${fertig} erledigt${test?.passed ? ' · Kapiteltest bestanden' : ''}">
+    const aktiv = pid === aktivePhase;
+    return `<a class="ph phase${test?.passed ? ' phase-passed' : ''}${aktiv ? ' phase-aktiv' : ''}" href="#/lernen/${pid}" title="${units.length} Einheiten · ${fertig} erledigt${test?.passed ? ' · Kapiteltest bestanden' : ''}">
       <span class="pring" style="background:conic-gradient(var(--emerald,#34d399) ${deg}deg, rgba(255,255,255,.08) 0)"><i>${pid.slice(1)}</i></span>
-      <span class="lbl">${label}</span>${test?.passed ? '<span class="pcheck">✓</span>' : ''}</a>`;
+      <span class="lbl"><span class="ph-name">Phase ${i + 1} · ${label}</span>
+        <span class="ph-bar"><i style="width:${Math.round(pct * 100)}%"></i></span></span>
+      ${test?.passed ? '<span class="pcheck">✓</span>' : aktiv ? '<span class="pcheck ph-pfeil">›</span>' : ''}</a>`;
   }).join('');
 
   const q = splitQueues(state.cards ?? [], Date.now());
@@ -238,7 +268,21 @@ export function paintTopbar(state) {
   const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
   set('tb-xp', `${state.xp.toLocaleString('de-AT')} XP`);
   set('tb-level', String(state.level));
-  set('tb-week', `${state.week.doneDays.length}/${state.week.goalDays} Tagen`);
+  // The level title is the reward the ladder is built around (#28); showing the
+  // bare number withholds it.
+  set('tb-level-titel', levelFor(state.xp ?? 0, state.levelEndtitel).title);
+  // Derived from dayStats, not from a parallel list — see weekProgress().
+  const woche = weekProgress(state, Date.now());
+  set('tb-week', `${woche.done}/${woche.goal} Tagen`);
+  const punkte = document.getElementById('tb-wochenpunkte');
+  if (punkte) {
+    punkte.replaceChildren(...wochenpunkte(state, Date.now()).map(p => {
+      const i = document.createElement('i');
+      i.className = 'wp' + (p.gelernt ? ' an' : '') + (p.zukunft ? ' spaeter' : '');
+      i.title = `${p.kurz}: ${p.gelernt ? 'gelernt' : p.zukunft ? 'noch offen' : 'kein Lerntag'}`;
+      return i;
+    }));
+  }
   const ms = state.milestones[0];
   if (ms) {
     const days = Math.ceil((Date.parse(ms.date) - Date.now()) / 86_400_000);
@@ -257,7 +301,8 @@ function markActiveNav(path) {
 import { renderHeatmap, renderRadar, renderCurve, renderXpBars, renderExamHistory } from './dashboard.js';
 import { aggregateCompetencies, radarData } from './competency.js';
 import { splitQueues } from './engine-leitner.js';
-import { ceremony, CEREMONY, levelFor } from './gamification.js';
+import { ceremony, CEREMONY, levelFor, weekProgress, wochenpunkte } from './gamification.js';
+import { einheitenGesamt } from './content-index.js';
 
 route('dashboard', async (view, ctx) => {
   // Erhaltungsmodus (#36): nach bestandenem Examen Tagesdosis + Wochen-Szenario anzeigen
@@ -280,7 +325,7 @@ route('dashboard', async (view, ctx) => {
   if (s.milestones?.length && s.pace) {
     try {
       const { feasibilityCheck } = await import('./pacing.js');
-      const UNITS = 17;
+      const UNITS = await einheitenGesamt();
       const feas = feasibilityCheck({ ...s.pace, milestones: s.milestones },
         { totalUnits: UNITS, minutesPerUnit: 25, doneUnits: (s.unit_done?.length ?? 0) + (s.unit_skipped?.length ?? 0) }, Date.now());
       const eng = (Array.isArray(feas) ? feas : [feas]).filter(f => f && f.feasible === false);
@@ -326,7 +371,10 @@ route('dashboard', async (view, ctx) => {
   const kernN = articles.filter(a => a.relevanz === 'kern').length;
   const axes = radarData(compDef.kompetenzen, agg);
   // Actual curve: cumulative unit progress per week from events; target: linear to the milestones
-  const UNITS_TOTAL = 16;
+  // 16 here, 17 in the feasibility check, 16 again in the ritual — three numbers
+  // for one quantity, and the index has 17. The curve therefore overstated
+  // progress while the pacing warning was computed against a different base.
+  const UNITS_TOTAL = await einheitenGesamt();
   const unitEvents = (s.events ?? []).filter(e => e.kind === 'unit_completed');
   // Count legacy progress without recorded events as a baseline
   const unitBaseline = Math.max(0, (s.unit_done?.length ?? 0) - unitEvents.length);
@@ -344,14 +392,26 @@ route('dashboard', async (view, ctx) => {
     <div class="card"><div class="chead"><span class="t"><h3>Artikel-Landkarte</h3><span class="sub">Gesamter AI Act · ${kernN} Kern-Artikel für dein Profil${overrides.size ? ` (${overrides.size} profil-angepasst)` : ''}</span></span></div>
       <div class="hm-wrap" id="d-hm"></div>
       <div class="dim" id="d-hm-hinweis">Kachel anklicken: führt zur Einheit, die den Artikel behandelt.</div>
-      <div class="legend"><span><i style="background:#65d8b2"></i>Sehr sicher</span><span><i style="background:#9dcc9b"></i>Sicher</span><span><i style="background:#e1ad58"></i>Unsicher</span><span><i style="background:#d97568"></i>Kritisch</span><span><i style="background:#414956"></i>Ungelernt</span></div></div>
+      <div class="legend"><span><i style="background:#65d8b2"></i>Sehr sicher</span><span><i style="background:#9dcc9b"></i>Sicher</span><span><i style="background:#e1ad58"></i>Unsicher</span><span><i style="background:#d97568"></i>Kritisch</span><span><i style="background:#414956"></i>Ungelernt</span></div>
+      <div class="hm-summe"><span>&Sigma; <b>${articles.length}</b> Artikel · davon <b>${kernN}</b> im Kernbereich deines Profils</span>
+        <span>Stand: <b>${LEGAL_STATE.replace('Rechtsstand ', '')}</b></span></div></div>
     <div class="card"><div class="chead"><span class="t"><h3>Kompetenzen</h3><span class="sub">Dein Kompetenzprofil</span></span></div>
-      <div class="radar-wrap" id="d-radar"></div></div>
-    <div class="card"><div class="chead"><span class="t"><h3>Lernkurve vs. Soll</h3></span></div>
-      <div class="curve-wrap" id="d-curve"></div></div>
+      <div class="radar-wrap" id="d-radar"></div>
+      <div class="viz-legende"><span style="color:var(--emerald)"><i></i>Dein Profil</span><span><i class="gestrichelt"></i>Soll-Profil</span></div></div>
+    <div class="card"><div class="chead"><span class="t"><h3>Lernkurve vs. Soll</h3></span>
+        <span class="zeitraum"><select id="d-curve-range" aria-label="Zeitraum der Lernkurve">
+          <option value="4">Letzte 4 Wochen</option><option value="12" selected>Letzte 12 Wochen</option><option value="0">Gesamter Verlauf</option>
+        </select></span></div>
+      <div class="curve-wrap" id="d-curve"></div>
+      <div class="viz-legende"><span style="color:var(--emerald)"><i></i>Dein Lernfortschritt</span><span><i class="gestrichelt"></i>Soll-Verlauf</span></div></div>
     <div class="right-col">
       <div class="card due-mini"><div class="chead" style="margin-bottom:4px"><span class="t"><h3>Fällige Karten</h3></span></div>
         <div class="due-mini-nums"><div><span>Kern</span><b style="color:#b6a5ff">${q.kern.length}</b></div><div><span>Aufholen</span><b style="color:var(--gold)">${q.aufhol.length}</b></div></div></div>
+      <div class="card coach-block"><div class="chead" style="margin-bottom:8px"><span class="t"><h3>Coach</h3><span class="sub">Tagesfokus aus deinem Stand</span></span></div>
+        <div class="coach-karte">
+          <img src="assets/characters/crew/01-coach-zufrieden.webp" alt="" loading="lazy" onerror="this.style.display='none'">
+          <div class="coach-text" id="d-coach"></div>
+        </div></div>
       <div class="card"><div class="chead" style="margin-bottom:4px"><span class="t"><h3>Badges</h3><span class="sub">Aktivität — nicht Kompetenz (#28)</span></span></div><div id="d-badges"></div></div>
       <div class="card duo-card"><div class="duo">
         <div><div class="chead" style="margin-bottom:4px"><span class="t"><h3>XP · Wochen</h3></span></div><div id="d-xp"></div></div>
@@ -369,7 +429,46 @@ route('dashboard', async (view, ctx) => {
     },
   });
   renderRadar(view.querySelector('#d-radar'), axes);
-  renderCurve(view.querySelector('#d-curve'), curve.ist, curve.soll);
+
+  // Time range for the curve. Over months a full history compresses the recent
+  // weeks — the part the user is actually steering by — into a few pixels.
+  const zeichneKurve = (wochen) => {
+    const n = Number(wochen) || 0;
+    const ist = n > 0 ? curve.ist.slice(-n) : curve.ist;
+    const soll = n > 0 ? curve.soll.slice(-n) : curve.soll;
+    renderCurve(view.querySelector('#d-curve'), ist, soll);
+  };
+  const bereich = view.querySelector('#d-curve-range');
+  zeichneKurve(bereich?.value ?? 12);
+  bereich?.addEventListener('change', () => zeichneKurve(bereich.value));
+
+  // Coach: speaks from the state, not from a stock phrase. Weakest competency,
+  // what is due, and whether the target curve still works out.
+  const coach = view.querySelector('#d-coach');
+  if (coach) {
+    const schwach = [...agg.entries()]
+      .filter(([, c]) => c.score != null && c.n >= 3)
+      .sort((a, b) => a[1].score - b[1].score)[0];
+    const nameVon = (id) => compDef.kompetenzen.find(k => k.id === id)?.name ?? id;
+    const letzterIst = curve.ist.at(-1)?.value ?? 0;
+    const letzterSoll = curve.soll.at(-1)?.value ?? 0;
+    const teile = [];
+    teile.push(letzterIst >= letzterSoll
+      ? `Du liegst mit <b>${Math.round(letzterIst * 100)} %</b> auf oder über der Soll-Linie — weiter so.`
+      : `Du liegst bei <b>${Math.round(letzterIst * 100)} %</b>, die Soll-Linie steht bei ${Math.round(letzterSoll * 100)} %. Aufholbar, wenn du dranbleibst.`);
+    if (schwach) {
+      teile.push(`Schwächster Punkt gerade: <b>${nameVon(schwach[0])}</b> (${Math.round(schwach[1].score * 100)} %${schwach[1].weakest ? `, vor allem auf Stufe ${schwach[1].weakest}` : ''}).`);
+    }
+    const sicherFalsch = [...agg.values()].reduce((a, c) => a + c.sureButWrong, 0);
+    if (sicherFalsch >= 5) {
+      teile.push(`<b>${sicherFalsch}×</b> warst du dir sicher und lagst daneben — das ist der Stoff, der im Gespräch weh tut.`);
+    }
+    if (q.kern.length) {
+      teile.push(`Heute fällig: <b>${q.kern.length}</b> Karte${q.kern.length === 1 ? '' : 'n'} im Kern${q.aufhol.length ? `, ${q.aufhol.length} zum Aufholen` : ''}.`);
+    }
+    else teile.push('Keine Karten fällig — guter Moment für eine neue Einheit.');
+    coach.innerHTML = teile.map(t => `<p>${t}</p>`).join('') + '<span class="sig">— Deine Coach</span>';
+  }
   // Points per calendar week from dayStats (real data)
   const dayXp = Object.entries(s.dayStats ?? {});
   const weekXp = new Map();
@@ -455,7 +554,7 @@ route('einheit', async (view, ctx, [unitId]) => {
     const c = document.createElement('div');
     c.className = 'card';
     c.innerHTML = `<h3>Erst wiederholen, dann Neues</h3>
-      <p>Heute sind <b>${s.review.kern.length}</b> Karten regulär fällig. Verteilte Wiederholung VOR neuem Stoff ist der robusteste Lern-Hebel — deshalb ist dieser Schritt Pflicht (§3, #32).</p>
+      <p>Heute ${s.review.kern.length === 1 ? 'ist' : 'sind'} <b>${s.review.kern.length}</b> Karte${s.review.kern.length === 1 ? '' : 'n'} regulär fällig. Verteilte Wiederholung VOR neuem Stoff ist der robusteste Lern-Hebel — deshalb ist dieser Schritt Pflicht (§3, #32).</p>
       <a class="btn-primary" href="#/karten">Zum Pflicht-Review</a> <a class="btn" href="#/heute">Ritual-Übersicht</a>`;
     view.appendChild(c);
     return;

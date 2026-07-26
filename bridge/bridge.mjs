@@ -12,6 +12,7 @@
 
 import http from 'node:http';
 import { spawn, spawnSync } from 'node:child_process';
+import { oeffneBrowser } from './browser-oeffnen.mjs';
 import { randomUUID, randomBytes } from 'node:crypto';
 import { mkdirSync, mkdtempSync, rmSync, readFileSync, writeFileSync, renameSync, appendFileSync } from 'node:fs';
 import { join, extname, normalize, resolve, dirname } from 'node:path';
@@ -39,6 +40,7 @@ const OPT = {
   noLlm: args.includes('--no-llm'),
   model: argVal('--model', null),                  // Default hängt am aktiven CLI (unten aufgelöst)
   logFull: args.includes('--log-full'),            // Default: redigierte Logs (Threat T6)
+  open: args.includes('--open'),                   // Browser mit der fertigen Adresse öffnen
 };
 
 // ---------------------------------------------------------------- CLI detection
@@ -496,7 +498,9 @@ const server = http.createServer(async (req, res) => {
 server.requestTimeout = 300000;
 server.listen(OPT.port, '127.0.0.1', () => {
   const port = server.address().port;
-  console.log(`AI-Act-Akademie Bridge — http://127.0.0.1:${port}/?token=${TOKEN}`);
+  const url = `http://127.0.0.1:${port}/?token=${TOKEN}`;
+  console.log(`AI-Act-Akademie Bridge — ${url}`);
   console.log(`CLIs erkannt: ${Object.keys(CLIS).join(', ') || 'keine'} · aktiv: ${ACTIVE_CLI || 'KEIN LLM'} · Modell: ${ACTIVE_CLI ? OPT.model : '-'}`);
   console.log(`Store: ${STORE} · Webroot: ${resolve(OPT.webroot)}`);
+  if (OPT.open) oeffneBrowser(url);
 });
