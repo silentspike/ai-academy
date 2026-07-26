@@ -12,12 +12,15 @@ test.describe('lifecycle', () => {
   test.describe.configure({ timeout: 120_000 });
 
   test('a first launch leads into onboarding, not into an empty view', async ({ page, zustand }) => {
-    await zustand(FIXTURES.leer());
-    await page.goto('/', { waitUntil: 'load' });
+    // The overlays stay: this test is about them, and the setup would otherwise
+    // click them away — which now persists, so they would not return.
+    await zustand(FIXTURES.leer(), { overlaysStehenLassen: true });
 
     // Before the first tutor interaction the product has to say that an AI system
-    // answers and grades (§5.0, Article 50 applied to itself). It appears after
-    // the state has loaded, so it is waited for rather than sampled.
+    // answers and grades (§5.0, Article 50 applied to itself). The staged first
+    // contact comes first (§6.3) and the notice follows it.
+    await page.waitForSelector('.hero-overlay', { timeout: 15_000 });
+    await page.click('.hero-overlay button');
     await page.waitForSelector('.ai-notice-overlay, .hero-overlay', { timeout: 15_000 });
     await page.waitForFunction(
       () => /KI-System|Art\.?\s*50/i.test(document.body.innerText), { timeout: 15_000 })
