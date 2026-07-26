@@ -12,6 +12,7 @@ import { aggregateCompetencies, weakestCompetencies } from './competency.js';
 import { driftCheck } from './pacing.js';
 import { renderQuestion } from './engine-quiz.js';
 import { applyEvent } from './gamification.js';
+import { einheitenGesamt } from './content-index.js';
 
 const dayKey = (ms = Date.now()) => {
   const d = new Date(ms);
@@ -152,7 +153,7 @@ route('wrapup', async (view, ctx) => {
   const st = ctx.state;
   const s = todaySession(st);
   // Progress = completed units divided by total, for drift against the target curve
-  const UNITS_TOTAL = 16;
+  const UNITS_TOTAL = await einheitenGesamt();
   const progress = Math.min(1, (st.unit_done?.length ?? 0) / UNITS_TOTAL);
   let drift = { onTrack: true, drift: 0 };
   if (st.milestones?.length && st.pace) {

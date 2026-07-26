@@ -80,6 +80,11 @@ function badgeArt(id) { return `assets/badges/${BADGE_ART[id] ?? 'wissens-tresor
 
 /** Badge gallery: makes earned and outstanding badges visible. */
 export function renderBadgeGallery(mount, state) {
+  // Award anything already earned before drawing. The gallery used to show only
+  // what checkRewards had granted at the moment of the triggering event, so a
+  // restored or imported state — or a badge whose criterion the derived view
+  // only now satisfies — stayed grey although the work was done.
+  const nachgetragen = newBadges(state);
   const have = new Set(state.badges ?? []);
   mount.innerHTML = `<div class="badge-grid">${BADGES.map(b => `
     <div class="badge-tile${have.has(b.id) ? ' have' : ''}" title="${b.desc}">
@@ -87,7 +92,7 @@ export function renderBadgeGallery(mount, state) {
       <span>${b.title}</span>
     </div>`).join('')}</div>
    <p class="dim">${have.size}/${BADGES.length} verdient · XP belohnt Arbeit, das Kompetenz-Radar zeigt Können (#28 — beides bleibt getrennt).</p>`;
-  return have.size;
+  return { verdient: have.size, gesamt: BADGES.length, nachgetragen: nachgetragen.map(b => b.id) };
 }
 
 /** First-contact hero: a one-off opening moment before the first learning session. */
