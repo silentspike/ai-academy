@@ -225,7 +225,7 @@ export const FIXTURES = {
     // fixture claimed a finished course while the certificate said "no exam
     // passed yet" — a state a real learner can never be in, and every test built
     // on it would have been testing nothing.
-    st.scoreSeries = { '2026-07-27|c1|1.2.0|claude-opus-4-8': { runs: [{ pct: 0.86 }, { pct: 0.88 }] } };
+    st.scoreSeries = { '2026-07-27|c1|1.2.0|claude-opus-5': { runs: [{ pct: 0.86 }, { pct: 0.88 }] } };
     st.xp = 6100; st.level = 5;
     return st;
   },
