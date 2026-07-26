@@ -13,8 +13,13 @@ body { padding:0; background:#04060b; overflow:hidden; display:grid; place-items
 .intro-greet { color:var(--dim); font-size:.95rem; animation:intro-in .9s var(--ease-out) both; animation-delay:.25s; }
 @keyframes intro-in { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
 
-/* App-Shell: Gesamthöhe ≤800px, vertikal zentriert */
-.app-shell { margin:0; width:calc(100vw - 24px); height:min(calc(100dvh - 24px), 768px);
+/* The shell fills the window.
+   It used to be capped at 768px — the height of a 1366x768 laptop, hard-coded.
+   On a 1920x1200 display that left 432px of black, on 4K it left 1392px: two
+   thirds of the screen unused, and the content squeezed into an inner scroll
+   area while there was room to spare. A layout may not assume the screen it was
+   designed on. */
+.app-shell { margin:0; width:calc(100vw - 24px); height:calc(100dvh - 24px);
   border-radius:16px; overflow:hidden;
   background:radial-gradient(circle at 58% 0%,rgba(56,73,111,.10),transparent 38%),
              linear-gradient(180deg,#0a0f18 0%,#070b12 100%);
@@ -24,9 +29,61 @@ body { padding:0; background:#04060b; overflow:hidden; display:grid; place-items
 .app-shell .bg-layers { position:absolute; z-index:0; }
 .app-shell .bg-aurora.a { opacity:.11; left:-24%; }
 .app { position:relative; z-index:1; display:grid;
-  grid-template-columns:64px 260px minmax(0,1fr);
-  grid-template-rows:58px minmax(0,1fr);
+  grid-template-columns:var(--rail-w) var(--sidebar-w) minmax(0,1fr);
+  grid-template-rows:var(--topbar-h) minmax(0,1fr);
   height:100%; }
+
+/* ---------------------------------------------------------------- responsive
+   Three things scale with the window, and each has a reason:
+
+   --sidebar-w   the phase tree. Useful, but not worth a third of the width on a
+                 900px screen. It narrows, then gives way to the icon rail.
+   --rail-w      navigation. Stays to the end — losing it strands the user.
+   --lese-max    line length. At 1920 and above, paragraphs ran to 104 characters;
+                 comfortable reading is 45 to 75, and this is a product people
+                 read for hours.
+
+   Font size and spacing grow with the viewport instead of staying at the size
+   that happened to look right on the machine this was built on. */
+:root {
+  --rail-w: 64px;
+  --sidebar-w: 260px;
+  --topbar-h: 58px;
+  --lese-max: 68ch;
+  --karten-abstand: 12px;
+}
+
+/* Large displays: use the area, but do not stretch the text across it. */
+@media (min-width: 2200px) {
+  :root {
+    --rail-w: 76px;
+    --sidebar-w: 320px;
+    --topbar-h: 66px;
+    --karten-abstand: 18px;
+    font-size: 18px;
+  }
+}
+@media (min-width: 3200px) {
+  :root { --rail-w: 88px; --sidebar-w: 380px; --topbar-h: 74px; --karten-abstand: 22px; font-size: 20px; }
+}
+
+/* Narrow: the phase tree shrinks, then folds away. The rail stays. */
+@media (max-width: 1240px) { :root { --sidebar-w: 210px; } }
+@media (max-width: 1040px) {
+  :root { --sidebar-w: 0px; }
+  .sidebar { display: none; }
+}
+@media (max-width: 720px) {
+  :root { --rail-w: 52px; --topbar-h: 52px; --karten-abstand: 8px; }
+  .app-shell { width: 100vw; height: 100dvh; border-radius: 0; border: 0; }
+}
+
+/* Short windows: let the page scroll rather than hiding what does not fit. */
+@media (max-height: 560px) {
+  body { overflow: auto; place-items: start center; }
+  .app-shell { height: auto; min-height: calc(100dvh - 24px); }
+  .app { grid-template-rows: var(--topbar-h) auto; }
+}
 
 /* Icon-Rail */
 .rail { grid-column:1; grid-row:1/3; border-right:1px solid var(--line);
@@ -49,7 +106,19 @@ body { padding:0; background:#04060b; overflow:hidden; display:grid; place-items
 
 /* Topbar: durchgehendes Instrumentenband */
 .topbar { grid-column:2/4; grid-row:1; display:flex; align-items:center; gap:9px;
-  padding:0 14px 0 16px; border-bottom:1px solid var(--line); }
+  padding:0 14px 0 16px; border-bottom:1px solid var(--line); min-width:0; }
+/* Narrow windows: the pills wrap instead of shrinking below their own text. With
+   nowrap on a flex item that is allowed to shrink, the labels ran into each
+   other — "0/5 Tagen" and "Ziel:" overlapped at 600px. The row that matters
+   least gives way first. */
+@media (max-width: 900px) {
+  .topbar { flex-wrap:wrap; row-gap:6px; padding:6px 10px; height:auto; align-content:center; }
+  .app { grid-template-rows:auto minmax(0,1fr); }
+  .pill { flex:1 1 auto; min-width:max-content; height:34px; font-size:.74rem; padding:0 .7rem; }
+}
+@media (max-width: 640px) {
+  .pill.pill-ziel, .pill.pill-recht { display:none; }
+}
 .pill { display:flex; align-items:center; gap:.5rem; height:40px; padding:0 .95rem;
   flex:1 1 auto; min-width:0; line-height:1;
   background:var(--grad-card-soft); border:1px solid var(--line); border-radius:10px;
@@ -111,13 +180,28 @@ body { padding:0; background:#04060b; overflow:hidden; display:grid; place-items
 /* Hauptbereich */
 .dashboard { grid-column:3; grid-row:2; padding:12px; min-height:0; }
 .dashboard.single { overflow-y:auto; }
-.dashboard.single > .card { max-width:880px; margin:0 auto 12px; }
+/* Single-column views (units, phases, exams). The card may be wide — widgets,
+   tables and timelines need the room — but running text inside it is capped at a
+   readable measure. In rem, so it follows the font size, which itself grows on
+   large displays.
+   Before this, paragraphs ran to 104 characters at 1920 and wider. */
+/* Descendant selectors, not child: #view sits between main.dashboard and the
+   cards, so `>` matched nothing and the cap silently did not apply. */
+.dashboard.single .card { max-width:min(64rem, 100%); margin:0 auto var(--karten-abstand); }
+.dashboard.single .card p,
+.dashboard.single .card li,
+.dashboard.single .card .q-prompt,
+.dashboard.single .card .q-opt { max-width:var(--lese-max); }
+@media (min-width: 2200px) { .dashboard.single .card { max-width:min(76rem, 100%); } }
 .reveal { animation:view-in .3s var(--ease-out); }
 @keyframes view-in { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
 
 /* Dashboard-Grid (Gate-2a-Komposition) */
 .dash-grid { display:grid; grid-template-columns:minmax(0,1.22fr) minmax(320px,1fr);
-  grid-template-rows:minmax(0,1.08fr) minmax(0,.92fr); gap:12px; overflow:hidden; position:relative; }
+  grid-template-rows:minmax(0,1.08fr) minmax(0,.92fr); gap:var(--karten-abstand);
+  overflow:hidden; position:relative; }
+/* One column below 1100px: two columns of 320px minimum do not fit, and forcing
+   them turns every card into a sliver. */
 .dash-grid.single > .card { max-width:none; margin:0; }
 .demo-note { position:absolute; top:-2px; right:6px; z-index:2; font-size:.66rem; color:var(--faint); }
 .dash-grid .card { display:flex; flex-direction:column; min-height:0; padding:16px 18px; }
@@ -127,9 +211,35 @@ body { padding:0; background:#04060b; overflow:hidden; display:grid; place-items
    The middle row keeps a floor of 120px: with minmax(0,1fr) it collapsed to
    nothing as soon as space got tight, and the badge card vanished entirely,
    which is worse than an overlap. Its content scrolls instead. */
-.dash-grid .right-col { display:grid; grid-template-rows:auto minmax(120px,1fr) auto; gap:12px; min-height:0; }
-.dash-grid .right-col > .card { min-height:0; overflow:hidden; }
+/* Three cards, and on a short window they do not all fit. Then the column
+   scrolls — the alternative is what happened before: the bottom card kept 140px
+   for 159px of content and silently cut the rest off. Content the user cannot
+   reach is worse than a scrollbar. */
+.dash-grid .right-col { display:grid; grid-auto-rows:min-content; gap:12px;
+  min-height:0; overflow-y:auto; align-content:start; }
+/* Each card as tall as its content, the column scrolls when they do not all fit.
+   Fixed row tracks distributed the available height evenly instead, which left
+   every card too short at once: 94px for 107px and 159px of content. */
+.dash-grid .right-col > .card { min-height:min-content; overflow:visible; }
 .dash-grid .right-col #d-badges { min-height:0; overflow-y:auto; padding-right:4px; }
+
+/* After the base rules, not before: same specificity means the later rule wins,
+   and this block sat above them — so the stacked layout was overwritten by the
+   two-column defaults it was meant to replace. "Fällige Karten" ended up 34px
+   tall around 107px of content, with its heading outside the card. */
+@media (max-width: 1100px) {
+  .dash-grid { grid-template-columns:minmax(0,1fr); grid-template-rows:auto; overflow-y:auto; }
+  .dash-grid .right-col { grid-template-rows:auto auto auto; }
+  /* Stacked, the cards size to their content. Keeping the clipped, height-capped
+     behaviour of the two-column layout cut "Fällige Karten" in half and pushed
+     its heading outside its own card. */
+  .dash-grid .card,
+  .dash-grid .right-col > .card { overflow:visible; min-height:auto; }
+  .dash-grid .right-col #d-badges { overflow-x:auto; }
+  .dash-grid .hm-wrap,
+  .dash-grid .radar-wrap,
+  .dash-grid .curve-wrap { flex:none; min-height:auto; }
+}
 .duo { display:grid; grid-template-columns:1fr 1fr; gap:16px; flex:1; min-height:0; }
 .duo #d-xp svg { width:100%; height:auto; max-height:130px; }
 .dash-grid .hm-wrap { flex:1; min-height:0; display:flex; flex-direction:column; }
