@@ -5,7 +5,7 @@
 // The scan runs OVER THE PACKAGE CONTENT, not the repository — what ships is what was checked.
 // Aufruf: node tools/build-release.mjs [--version vX.Y.Z] [--out dist/]
 import { execSync, execFileSync } from 'node:child_process';
-import { readFileSync, mkdirSync, rmSync, cpSync, writeFileSync, readdirSync, statSync } from 'node:fs';
+import { readFileSync, mkdirSync, rmSync, cpSync, writeFileSync, readdirSync, statSync, chmodSync } from 'node:fs';
 import { join } from 'node:path';
 const ROOT = new URL('..', import.meta.url).pathname;
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : d; };
@@ -14,7 +14,11 @@ const OUT = arg('--out', join(ROOT, 'dist'));
 
 // Package content (allowlist — data/, legal/, tests/ and .git never ship)
 const INCLUDE = ['public', 'app', 'content', 'assets', 'bridge', 'tutor', 'tools', 'scripts', 'docs',
-  'README.md', 'SETUP-AGENT.md', 'TROUBLESHOOT-AGENT.md', 'UPDATE-PROZESS.md', 'content/SCHEMA.md'];
+  'README.md', 'SETUP-AGENT.md', 'TROUBLESHOOT-AGENT.md', 'UPDATE-PROZESS.md', 'content/SCHEMA.md',
+  // One start script per platform. Without them the package assumes a terminal
+  // and a working directory, which is a fair assumption for exactly one of the
+  // three operating systems the product claims to support.
+  'start.sh', 'start.command', 'start.bat'];
 // Gate-3-Muster, zweigeteilt:
 //  (a) PUBLIC — forbidden key environment names. The product uses subscription
 //      sign-in through the CLI only; an API key path must never return. The rule is
@@ -52,6 +56,11 @@ for (const item of INCLUDE) {
 // Remove runtime leftovers from the staging directory
 rmSync(join(stage, 'public/.playwright-cli'), { recursive: true, force: true });
 rmSync(join(stage, '.playwright-cli'), { recursive: true, force: true });
+// cpSync keeps the mode, but a package built from a fresh checkout on a system
+// that ignores the executable bit would ship a .command nobody can double-click.
+for (const skript of ['start.sh', 'start.command']) {
+  try { chmodSync(join(stage, skript), 0o755); } catch { /* fehlt bereits gemeldet */ }
+}
 writeFileSync(join(stage, 'VERSION'), VERSION + '\n');
 
 // Gate 3: protected-term scan over the STAGED content

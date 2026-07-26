@@ -75,7 +75,22 @@ git clone https://github.com/silentspike/ai-academy.git
 cd ai-academy
 node bridge/bridge.mjs                # liefert Anwendung und Schnittstelle gemeinsam aus
 node bridge/bridge.mjs --no-llm       # nur ansehen, ohne Modellanbindung
+node bridge/bridge.mjs --open         # dasselbe, öffnet zusätzlich den Browser
 ```
+
+**Ohne Terminal:** Im Paket liegt für jedes System ein Startprogramm. Es prüft,
+ob Node.js vorhanden und neu genug ist, startet die Bridge und öffnet den Browser
+mit der fertigen Adresse — der Port wird zufällig vergeben und die Adresse trägt
+das Kopplungsmerkmal, deshalb kann sie nicht fest hinterlegt werden.
+
+| System | Datei | Aufruf |
+|---|---|---|
+| Linux | `start.sh` | im Dateimanager ausführen oder `./start.sh` |
+| macOS | `start.command` | im Finder doppelklicken |
+| Windows | `start.bat` | im Explorer doppelklicken |
+
+Fehlt Node.js, sagt das Startprogramm es und nennt den Weg zur Installation,
+statt kommentarlos ein Fenster zu schliessen.
 
 Die Bridge nennt eine Adresse samt Kopplungsmerkmal. Im Browser öffnen,
 Selbstprüfung abwarten, Einrichtung durchlaufen, loslernen.

@@ -181,15 +181,25 @@ export async function paintSidebar(state) {
   }
   const done = new Set(state.unit_done ?? []);
   const skipped = new Set(state.unit_skipped ?? []);
-  tree.innerHTML = PHASEN.map(([pid, label]) => {
+  // The phase currently being worked on: the first that is not finished. Without
+  // it the tree is ten equal rows and says nothing about where the user stands.
+  // The chapter test is what closes a phase (#12). Marking a phase active because
+  // a single unit inside it is still open would put the arrow next to a phase
+  // that already carries a tick — two contradictory signals on one row.
+  const aktivePhase = PHASEN.find(([pid]) => !state.chapterTests?.[pid]?.passed)?.[0] ?? null;
+
+  tree.innerHTML = PHASEN.map(([pid, label], i) => {
     const units = UNIT_INDEX[pid] ?? [];
     const fertig = units.filter(u => done.has(u.id) || skipped.has(u.id)).length;
     const pct = units.length ? fertig / units.length : 0;
     const test = state.chapterTests?.[pid];
     const deg = Math.round(pct * 360);
-    return `<a class="ph phase${test?.passed ? ' phase-passed' : ''}" href="#/lernen/${pid}" title="${units.length} Einheiten · ${fertig} erledigt${test?.passed ? ' · Kapiteltest bestanden' : ''}">
+    const aktiv = pid === aktivePhase;
+    return `<a class="ph phase${test?.passed ? ' phase-passed' : ''}${aktiv ? ' phase-aktiv' : ''}" href="#/lernen/${pid}" title="${units.length} Einheiten · ${fertig} erledigt${test?.passed ? ' · Kapiteltest bestanden' : ''}">
       <span class="pring" style="background:conic-gradient(var(--emerald,#34d399) ${deg}deg, rgba(255,255,255,.08) 0)"><i>${pid.slice(1)}</i></span>
-      <span class="lbl">${label}</span>${test?.passed ? '<span class="pcheck">✓</span>' : ''}</a>`;
+      <span class="lbl"><span class="ph-name">Phase ${i + 1} · ${label}</span>
+        <span class="ph-bar"><i style="width:${Math.round(pct * 100)}%"></i></span></span>
+      ${test?.passed ? '<span class="pcheck">✓</span>' : aktiv ? '<span class="pcheck ph-pfeil">›</span>' : ''}</a>`;
   }).join('');
 
   const q = splitQueues(state.cards ?? [], Date.now());
@@ -246,9 +256,21 @@ export function paintTopbar(state) {
   const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
   set('tb-xp', `${state.xp.toLocaleString('de-AT')} XP`);
   set('tb-level', String(state.level));
+  // The level title is the reward the ladder is built around (#28); showing the
+  // bare number withholds it.
+  set('tb-level-titel', levelFor(state.xp ?? 0, state.levelEndtitel).title);
   // Derived from dayStats, not from a parallel list — see weekProgress().
   const woche = weekProgress(state, Date.now());
   set('tb-week', `${woche.done}/${woche.goal} Tagen`);
+  const punkte = document.getElementById('tb-wochenpunkte');
+  if (punkte) {
+    punkte.replaceChildren(...wochenpunkte(state, Date.now()).map(p => {
+      const i = document.createElement('i');
+      i.className = 'wp' + (p.gelernt ? ' an' : '') + (p.zukunft ? ' spaeter' : '');
+      i.title = `${p.kurz}: ${p.gelernt ? 'gelernt' : p.zukunft ? 'noch offen' : 'kein Lerntag'}`;
+      return i;
+    }));
+  }
   const ms = state.milestones[0];
   if (ms) {
     const days = Math.ceil((Date.parse(ms.date) - Date.now()) / 86_400_000);
@@ -358,14 +380,26 @@ route('dashboard', async (view, ctx) => {
     <div class="card"><div class="chead"><span class="t"><h3>Artikel-Landkarte</h3><span class="sub">Gesamter AI Act · ${kernN} Kern-Artikel für dein Profil${overrides.size ? ` (${overrides.size} profil-angepasst)` : ''}</span></span></div>
       <div class="hm-wrap" id="d-hm"></div>
       <div class="dim" id="d-hm-hinweis">Kachel anklicken: führt zur Einheit, die den Artikel behandelt.</div>
-      <div class="legend"><span><i style="background:#65d8b2"></i>Sehr sicher</span><span><i style="background:#9dcc9b"></i>Sicher</span><span><i style="background:#e1ad58"></i>Unsicher</span><span><i style="background:#d97568"></i>Kritisch</span><span><i style="background:#414956"></i>Ungelernt</span></div></div>
+      <div class="legend"><span><i style="background:#65d8b2"></i>Sehr sicher</span><span><i style="background:#9dcc9b"></i>Sicher</span><span><i style="background:#e1ad58"></i>Unsicher</span><span><i style="background:#d97568"></i>Kritisch</span><span><i style="background:#414956"></i>Ungelernt</span></div>
+      <div class="hm-summe"><span>&Sigma; <b>${articles.length}</b> Artikel · davon <b>${kernN}</b> im Kernbereich deines Profils</span>
+        <span>Stand: <b>${LEGAL_STATE.replace('Rechtsstand ', '')}</b></span></div></div>
     <div class="card"><div class="chead"><span class="t"><h3>Kompetenzen</h3><span class="sub">Dein Kompetenzprofil</span></span></div>
-      <div class="radar-wrap" id="d-radar"></div></div>
-    <div class="card"><div class="chead"><span class="t"><h3>Lernkurve vs. Soll</h3></span></div>
-      <div class="curve-wrap" id="d-curve"></div></div>
+      <div class="radar-wrap" id="d-radar"></div>
+      <div class="viz-legende"><span style="color:var(--emerald)"><i></i>Dein Profil</span><span><i class="gestrichelt"></i>Soll-Profil</span></div></div>
+    <div class="card"><div class="chead"><span class="t"><h3>Lernkurve vs. Soll</h3></span>
+        <span class="zeitraum"><select id="d-curve-range" aria-label="Zeitraum der Lernkurve">
+          <option value="4">Letzte 4 Wochen</option><option value="12" selected>Letzte 12 Wochen</option><option value="0">Gesamter Verlauf</option>
+        </select></span></div>
+      <div class="curve-wrap" id="d-curve"></div>
+      <div class="viz-legende"><span style="color:var(--emerald)"><i></i>Dein Lernfortschritt</span><span><i class="gestrichelt"></i>Soll-Verlauf</span></div></div>
     <div class="right-col">
       <div class="card due-mini"><div class="chead" style="margin-bottom:4px"><span class="t"><h3>Fällige Karten</h3></span></div>
         <div class="due-mini-nums"><div><span>Kern</span><b style="color:#b6a5ff">${q.kern.length}</b></div><div><span>Aufholen</span><b style="color:var(--gold)">${q.aufhol.length}</b></div></div></div>
+      <div class="card coach-block"><div class="chead" style="margin-bottom:8px"><span class="t"><h3>Coach</h3><span class="sub">Tagesfokus aus deinem Stand</span></span></div>
+        <div class="coach-karte">
+          <img src="assets/characters/crew/01-coach-zufrieden.webp" alt="" loading="lazy" onerror="this.style.display='none'">
+          <div class="coach-text" id="d-coach"></div>
+        </div></div>
       <div class="card"><div class="chead" style="margin-bottom:4px"><span class="t"><h3>Badges</h3><span class="sub">Aktivität — nicht Kompetenz (#28)</span></span></div><div id="d-badges"></div></div>
       <div class="card duo-card"><div class="duo">
         <div><div class="chead" style="margin-bottom:4px"><span class="t"><h3>XP · Wochen</h3></span></div><div id="d-xp"></div></div>
@@ -383,7 +417,46 @@ route('dashboard', async (view, ctx) => {
     },
   });
   renderRadar(view.querySelector('#d-radar'), axes);
-  renderCurve(view.querySelector('#d-curve'), curve.ist, curve.soll);
+
+  // Time range for the curve. Over months a full history compresses the recent
+  // weeks — the part the user is actually steering by — into a few pixels.
+  const zeichneKurve = (wochen) => {
+    const n = Number(wochen) || 0;
+    const ist = n > 0 ? curve.ist.slice(-n) : curve.ist;
+    const soll = n > 0 ? curve.soll.slice(-n) : curve.soll;
+    renderCurve(view.querySelector('#d-curve'), ist, soll);
+  };
+  const bereich = view.querySelector('#d-curve-range');
+  zeichneKurve(bereich?.value ?? 12);
+  bereich?.addEventListener('change', () => zeichneKurve(bereich.value));
+
+  // Coach: speaks from the state, not from a stock phrase. Weakest competency,
+  // what is due, and whether the target curve still works out.
+  const coach = view.querySelector('#d-coach');
+  if (coach) {
+    const schwach = [...agg.entries()]
+      .filter(([, c]) => c.score != null && c.n >= 3)
+      .sort((a, b) => a[1].score - b[1].score)[0];
+    const nameVon = (id) => compDef.kompetenzen.find(k => k.id === id)?.name ?? id;
+    const letzterIst = curve.ist.at(-1)?.value ?? 0;
+    const letzterSoll = curve.soll.at(-1)?.value ?? 0;
+    const teile = [];
+    teile.push(letzterIst >= letzterSoll
+      ? `Du liegst mit <b>${Math.round(letzterIst * 100)} %</b> auf oder über der Soll-Linie — weiter so.`
+      : `Du liegst bei <b>${Math.round(letzterIst * 100)} %</b>, die Soll-Linie steht bei ${Math.round(letzterSoll * 100)} %. Aufholbar, wenn du dranbleibst.`);
+    if (schwach) {
+      teile.push(`Schwächster Punkt gerade: <b>${nameVon(schwach[0])}</b> (${Math.round(schwach[1].score * 100)} %${schwach[1].weakest ? `, vor allem auf Stufe ${schwach[1].weakest}` : ''}).`);
+    }
+    const sicherFalsch = [...agg.values()].reduce((a, c) => a + c.sureButWrong, 0);
+    if (sicherFalsch >= 5) {
+      teile.push(`<b>${sicherFalsch}×</b> warst du dir sicher und lagst daneben — das ist der Stoff, der im Gespräch weh tut.`);
+    }
+    if (q.kern.length) {
+      teile.push(`Heute fällig: <b>${q.kern.length}</b> Karte${q.kern.length === 1 ? '' : 'n'} im Kern${q.aufhol.length ? `, ${q.aufhol.length} zum Aufholen` : ''}.`);
+    }
+    else teile.push('Keine Karten fällig — guter Moment für eine neue Einheit.');
+    coach.innerHTML = teile.map(t => `<p>${t}</p>`).join('') + '<span class="sig">— Deine Coach</span>';
+  }
   // Points per calendar week from dayStats (real data)
   const dayXp = Object.entries(s.dayStats ?? {});
   const weekXp = new Map();

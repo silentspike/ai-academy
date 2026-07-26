@@ -1,4 +1,9 @@
-// app/dashboard.js — Dashboard-Cockpit (Plan #44): Artikel-Heatmap (klickbar),
+// app/dashboard.js
+//
+// Every renderer here REPLACES the contents of its mount. They used to append,
+// which was invisible as long as each chart was drawn exactly once per route
+// change — and produced a chart with two overlapping data sets the moment
+// anything redrew in place, such as the curve's time-range selector. — Dashboard-Cockpit (Plan #44): Artikel-Heatmap (klickbar),
 // Competency radar with levels A/B/C, progress against target, due counts for core and
 // catch-up queues, weekly points history, exam history as first/latest/best per score
 // series. Hand-built SVG in the glow style; layout follows the approved design preview.
@@ -46,7 +51,7 @@ export function renderHeatmap(mount, articles, opts = {}) {
     cell.addEventListener('click', () => opts.onSelect?.(a));
     wrap.appendChild(cell);
   }
-  mount.appendChild(wrap);
+  mount.replaceChildren(wrap);
   return wrap;
 }
 
@@ -90,7 +95,7 @@ export function renderRadar(mount, axes, opts = {}) {
     const ax = axes.find(a => a.label === t.textContent);
     if (ax) opts.onSelect?.(ax);
   });
-  mount.appendChild(svg);
+  mount.replaceChildren(svg);
   return svg;
 }
 
@@ -127,7 +132,7 @@ export function renderCurve(mount, points, targets) {
     <circle cx="${lx}" cy="${ly}" r="2.9" fill="#6cd9b6"/>
     <g><rect x="${lx - 28}" y="${ly - 28}" rx="7" width="46" height="22" fill="rgba(31,38,53,.85)" stroke="rgba(151,169,202,.25)"/>
     <text x="${lx - 5}" y="${ly - 13}" font-family="Poppins" font-size="12" font-weight="600" fill="#6cd9b6" text-anchor="middle">${Math.round(points[li].value * 100)}%</text></g>`;
-  mount.appendChild(svg);
+  mount.replaceChildren(svg);
   return svg;
 }
 
@@ -146,7 +151,7 @@ export function renderXpBars(mount, weeks) {
         <rect x="${bx}" y="${by}" width="${bw}" height="2.5" rx="1" fill="#cfc3ff"/>
         <text x="${bx + bw / 2}" y="110" font-family="Inter" font-size="9" fill="rgba(218,226,240,.5)" text-anchor="middle">${w.label}</text>`;
     }).join('');
-  mount.appendChild(svg);
+  mount.replaceChildren(svg);
   return svg;
 }
 
@@ -167,6 +172,6 @@ export function renderExamHistory(mount, series) {
       </div>`;
     wrap.appendChild(row);
   }
-  mount.appendChild(wrap);
+  mount.replaceChildren(wrap);
   return wrap;
 }
