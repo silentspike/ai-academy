@@ -40,10 +40,13 @@ async function runQuestions(view, questions, { mode, kind, llm, onDone }) {
     mount.innerHTML = '';
     if (i >= questions.length) { onDone(results); return; }
     const q = questions[i];
-    const head = card(`<div class="chead"><span class="t"><h3>Frage ${i + 1}/${questions.length}</h3><span class="sub">${q.competency} · Stufe ${q.level}${mode === 'exam' ? ' · Closed Book' : mode === 'open' ? ' · Verordnungstext erlaubt' : ''}</span></span></div>`);
+    // Counter and question on ONE surface — as two cards they read as unrelated
+    // blocks, and only the first one was inside the reading column.
+    const head = card(`<div class="q-meta"><span class="q-zaehler">Frage ${i + 1}<i>/${questions.length}</i></span>
+      <span class="q-marken"><span class="q-marke">${q.competency}</span><span class="q-marke">Stufe ${q.level}</span>${mode === 'exam' ? '<span class="q-marke streng">Closed Book</span>' : mode === 'open' ? '<span class="q-marke">Verordnungstext erlaubt</span>' : ''}</span></div>`);
     mount.appendChild(head);
     const qm = document.createElement('div');
-    mount.appendChild(qm);
+    head.appendChild(qm);
     renderQuestion(qm, q, {
       onAnswered: async (res, conf) => {
         if (res.verdict === 'pending_agent') {
@@ -108,11 +111,18 @@ route('test', async (view, ctx, [phaseId]) => {
   if (!boss?.passed) {
     const { scenarios } = await data();
     const sz = scenarios.find(x => x.id.startsWith('sz-' + phaseId + '-'));
-    view.appendChild(card(`<div class="chead gold"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-lock"/></svg></span>
+    const g = card(`<div class="chead gold"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-lock"/></svg></span>
       <span class="t"><h3>Kapiteltest ${phaseId.toUpperCase()}</h3><span class="sub">Noch gesperrt — erst das Fachgespräch</span></span></div>
-      <p>Vor dem Test steht der Bosskampf: das Fachgespräch der Phase mit Mindesturteil „solide" (≥ 50 % der Gesprächsziele, keine Critical-Falle).</p>
-      ${sz ? `<button class="btn-primary" onclick="location.hash='#/boss/${sz.id}'">Zum Bosskampf: ${sz.title}</button>` : '<p class="dim">Kein Szenario für diese Phase hinterlegt.</p>'}
-      ${boss ? `<p class="dim">Letzter Versuch: ${boss.achieved}/${boss.total} Ziele — Wiederholung mit anderem Gesprächsverlauf möglich.</p>` : ''}`));
+      <div class="tor-weg">
+        <div class="tor-schritt jetzt"><span class="tor-nr">1</span><b>Bosskampf</b><span>Fachgespräch der Phase — Mindesturteil „solide“: ≥ 50 % der Gesprächsziele, keine Critical-Falle</span></div>
+        <div class="tor-pfeil" aria-hidden="true">→</div>
+        <div class="tor-schritt"><span class="tor-nr">2</span><b>Kapiteltest</b><span>Teil 1 Triage ohne Hilfsmittel, Teil 2 Quellenarbeit am Verordnungstext</span></div>
+      </div>
+      <p class="tor-warum">Die Generalprobe steht vor der Prüfung: wer das Gespräch nicht trägt, reißt im Test die Anwendungsfragen — und ein verbrannter Versuch kostet mehr als eine Wiederholung (§4.2).</p>
+      <div class="ex-start-zeile">${sz ? `<button class="btn-primary" onclick="location.hash='#/boss/${sz.id}'">Zum Bosskampf: ${sz.title}</button>` : '<p class="dim">Kein Szenario für diese Phase hinterlegt.</p>'}</div>
+      ${boss ? `<p class="dim" style="margin-top:12px">Letzter Versuch: ${boss.achieved}/${boss.total} Ziele — Wiederholung mit anderem Gesprächsverlauf möglich.</p>` : ''}`);
+    g.classList.add('examen-buehne');
+    view.appendChild(g);
     return;
   }
   const used = new Set(st.usedTestQuestions[phaseId] ?? []);
@@ -174,9 +184,21 @@ route('examen', async (view, ctx) => {
   const mw = sessionStatus(st).marathon;
   if (mw.warn) view.appendChild(card(`<p class="ritual-warn">⚠ ${mw.text}</p>`));
 
-  const head = card(`<div class="chead gold"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-fach-trophy"/></svg></span><span class="t"><h3>Abschlussexamen</h3>
-    <span class="sub">Teil A: 40 Fragen / 60 min Closed Book · Teil B: Capstone ~30 min Open Book · max. 1 Antritt/Tag</span></span></div>
-    <p class="dim">Rechtsstand ${RECHTSSTAND} · <a href="docs/CRITICAL-ERRORS.md" target="_blank">Critical-Error-Liste</a> · <a href="docs/CUT-SCORE-BLUEPRINT.md" target="_blank">Cut-Score-Begründung</a></p>`);
+  // The moment the whole product builds towards. It rendered as a small box in
+  // a large empty area — the same weight as a settings panel.
+  const head = card(`<div class="examen-buehne">
+      <div class="chead gold"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-fach-trophy"/></svg></span>
+        <span class="t"><h3>Abschlussexamen</h3>
+        <span class="sub">Der Nachweis, dass es sitzt</span></span></div>
+      <div class="ex-teile">
+        <div class="ex-teil"><span class="ex-nr">A</span><b>40 Fragen · 60 Minuten</b>
+          <span>Closed Book — keine Hilfsmittel, wie im Meeting</span></div>
+        <div class="ex-teil"><span class="ex-nr">B</span><b>Capstone · ~30 Minuten</b>
+          <span>Open Book — ein Fall mit dem Verordnungstext am Tisch</span></div>
+      </div>
+      <p class="ex-regel">Beide Teile müssen bestanden werden · höchstens ein Antritt pro Kalendertag</p>
+      <p class="dim ex-fuss">Rechtsstand ${RECHTSSTAND} · <a href="docs/CRITICAL-ERRORS.md" target="_blank">Critical-Error-Liste</a> · <a href="docs/CUT-SCORE-BLUEPRINT.md" target="_blank">Cut-Score-Begründung</a></p>
+    </div>`);
   view.appendChild(head);
 
   if (!llm.summativeAllowed) { head.insertAdjacentHTML('beforeend', `<p><b>Gesperrt:</b> ${llm.gate.reason}</p>`); return; }
@@ -185,7 +207,8 @@ route('examen', async (view, ctx) => {
     paintSeries(view, st.scoreSeries);
     return;
   }
-  head.insertAdjacentHTML('beforeend', '<button class="btn-primary" id="ex-start">Examen starten (Teil A)</button>');
+  head.querySelector('.examen-buehne').insertAdjacentHTML('beforeend',
+    '<div class="ex-start-zeile"><button class="btn-primary" id="ex-start">Examen starten — Teil A</button></div>');
   paintSeries(view, st.scoreSeries);
   head.querySelector('#ex-start').onclick = () => {
     head.remove();

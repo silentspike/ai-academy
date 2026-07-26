@@ -513,8 +513,12 @@ const server = http.createServer(async (req, res) => {
     let data;
     try { data = readFileSync(fp); }
     catch { return send(res, 404, { error: 'not found' }); }
-    if (path === '/' || path.endsWith('index.html')) {
-      data = Buffer.from(data.toString('utf-8').replace('__BRIDGE_TOKEN__', TOKEN)); // Token-Injektion
+    // Token injection into every served HTML page, not just index.html. The
+    // self-check page carries the same placeholder and never got a value: every
+    // check against the bridge answered 403 "token", so the traffic light meant
+    // to clear the first learning session was permanently red.
+    if (path === '/' || extname(fp) === '.html') {
+      data = Buffer.from(data.toString('utf-8').replaceAll('__BRIDGE_TOKEN__', TOKEN));
     }
     return send(res, 200, data, MIME[extname(fp)] || 'application/octet-stream');
   } catch (e) {

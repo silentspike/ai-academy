@@ -273,7 +273,19 @@ export const test = base.extend({
    * the rendering area is not what the suite assumes. Better a red test than a
    * green suite full of screenshots judged at the wrong width.
    */
-  /** Specs that need the bridge's own store set this to true. */
+  /**
+   * Which store a spec talks to.
+   *   false    — per-test interception (default): reads and writes stay in `speicher`
+   *   true     — the bridge's own store, reads AND writes (only 08-store)
+   *   'lesen'  — the bridge's own store for reads, writes are swallowed
+   *
+   * The third mode exists because of a defect this suite produced itself: the
+   * hardening spec claimed "these checks only read" — and that is true of the
+   * spec. It is not true of the application it loads, which persists its state
+   * on startup. Two specs then wrote to the one store the bridge keeps, in two
+   * workers, and the export round trip in 08-store read a neighbour's fixture
+   * (expected 4242, got 1314 — the mid-phase-3 fixture, points and all).
+   */
   echterStore: [false, { option: true }],
 
   /** The per-test store contents, shared between the route handler and `zustand`. */
@@ -306,7 +318,19 @@ export const test = base.extend({
     // the adapter, fetch, the JSON round trip, the token header. Only the file
     // behind it is private to this test. The bridge's own store is covered by
     // the persistence spec, which opts out via `echterStore` and runs serially.
-    if (!echterStore) {
+    if (echterStore === 'lesen') {
+      // Reads reach the bridge — that is what the token and traversal checks are
+      // about. Writes are acknowledged and dropped, so the application cannot
+      // touch a store another spec owns.
+      const nurLesen = async (route) => {
+        if (route.request().method() === 'PUT') {
+          return route.fulfill({ status: 200, contentType: 'application/json', body: '{"ok":true}' });
+        }
+        return route.fallback();
+      };
+      await page.route('**/api/progress', nurLesen);
+      await page.route('**/api/notes', nurLesen);
+    } else if (!echterStore) {
       const bediene = (name) => async (route) => {
         const req = route.request();
         const json = (obj) => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(obj) });
@@ -355,7 +379,7 @@ export const test = base.extend({
       if (typeof name === 'string' && !FIXTURES[name]) throw new Error(`Unknown fixture: ${name}`);
       const daten = typeof name === 'string' ? FIXTURES[name]() : name;
 
-      if (echterStore) {
+      if (echterStore === true) {
         // Write while no application is running. Writing through the live page
         // loses the same race as below: the page persists its own state right
         // after and overwrites the fixture (measured: 1234 came back as 738).

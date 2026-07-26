@@ -11,7 +11,7 @@ import { splitQueues } from './engine-leitner.js';
 import { aggregateCompetencies, weakestCompetencies } from './competency.js';
 import { driftCheck } from './pacing.js';
 import { renderQuestion } from './engine-quiz.js';
-import { applyEvent } from './gamification.js';
+import { applyEvent, zaehleHoch } from './gamification.js';
 import { einheitenGesamt } from './content-index.js';
 
 const dayKey = (ms = Date.now()) => {
@@ -126,8 +126,12 @@ route('drill', async (view, ctx) => {
       return;
     }
     const q = questions[i];
-    mount.appendChild(card(`<span class="dim">Frage ${i + 1}/${questions.length} · ${q.competency} · Stufe ${q.level}${q.variant_of ? ' · <b>Variante</b> (generiert aus der Fakten-DB, nie in Prüfungen)' : ''}</span>`));
-    const qm = document.createElement('div'); mount.appendChild(qm);
+    // One surface per question: the counter used to sit in a card of its own and
+    // the question in none, so the two read as unrelated blocks of different width.
+    const box = card(`<div class="q-meta"><span class="q-zaehler">Frage ${i + 1}<i>/${questions.length}</i></span>
+      <span class="q-marken"><span class="q-marke">${q.competency}</span><span class="q-marke">Stufe ${q.level}</span>${q.variant_of ? '<span class="q-marke variante" title="Aus der Fakten-DB erzeugt — nie in Prüfungen">Variante</span>' : ''}</span></div>`);
+    mount.appendChild(box);
+    const qm = document.createElement('div'); box.appendChild(qm);
     renderQuestion(qm, q, {
       onAnswered: (res, conf) => {
         if (res.verdict === 'correct') correct++;
@@ -189,13 +193,13 @@ route('wrapup', async (view, ctx) => {
   // null an. Lieber weglassen als eine Zahl zeigen, die der Zeile daneben
   // widerspricht.
   const dauer = w.bilanz.minutes >= 1 ? `${w.bilanz.minutes} Minuten heute` : 'Bilanz des Tages';
-  view.appendChild(card(`<div class="chead gold"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-star"/></svg></span><span class="t"><h3>Abschluss-Karte</h3>
+  const wk = card(`<div class="chead gold"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-star"/></svg></span><span class="t"><h3>Abschluss-Karte</h3>
     <span class="sub">${dauer}</span></span></div>
     <div class="wrap-stats">
-      <div><b>${w.bilanz.reviewed}</b><span>Karten wiederholt</span></div>
-      <div><b>${w.bilanz.units}</b><span>Einheiten</span></div>
-      <div><b>${w.bilanz.drillDone ? '✓' : '—'}</b><span>Tages-Drill</span></div>
-      <div><b>${(st.xp ?? 0).toLocaleString('de-AT')}</b><span>XP gesamt</span></div>
+      <div><b data-zahl="${w.bilanz.reviewed}">0</b><span>Karten wiederholt</span></div>
+      <div><b data-zahl="${w.bilanz.units}">0</b><span>Einheiten</span></div>
+      <div><b class="${w.bilanz.drillDone ? 'wert-ja' : 'wert-offen'}">${w.bilanz.drillDone ? 'erledigt' : 'offen'}</b><span>Tages-Drill</span></div>
+      <div><b data-zahl="${st.xp ?? 0}">0</b><span>XP gesamt</span></div>
     </div>
     <div class="wrap-kurs ${w.drift.onTrack ? 'gut' : 'drift'}">
     ${w.drift.onTrack
@@ -205,5 +209,9 @@ route('wrapup', async (view, ctx) => {
          <a class="btn" href="#/einstellungen">Einstellungen öffnen</a>`}
     </div>
     <div class="wrap-morgen"><span class="wm-tag">Morgen</span>
-      <span>${w.morgen.dueTomorrow} Karten fällig${w.morgen.nextUnit ? ` · weiter mit „${w.morgen.nextUnit}"` : ''}</span></div>`));
+      <span>${w.morgen.dueTomorrow} Karten fällig${w.morgen.nextUnit ? ` · weiter mit „${w.morgen.nextUnit}"` : ''}</span></div>`);
+  view.appendChild(wk);
+  // Die Bilanz zählt hoch statt zu erscheinen — der Moment, für den der Tag
+  // gearbeitet hat (§6.3 Motion, gestufte Zeremonien).
+  for (const b of wk.querySelectorAll('.wrap-stats b[data-zahl]')) zaehleHoch(b, Number(b.dataset.zahl));
 });
