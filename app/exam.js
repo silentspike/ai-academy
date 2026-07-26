@@ -108,7 +108,8 @@ route('test', async (view, ctx, [phaseId]) => {
   if (!boss?.passed) {
     const { scenarios } = await data();
     const sz = scenarios.find(x => x.id.startsWith('sz-' + phaseId + '-'));
-    view.appendChild(card(`<h3>Kapiteltest ${phaseId.toUpperCase()} — gesperrt</h3>
+    view.appendChild(card(`<div class="chead gold"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-lock"/></svg></span>
+      <span class="t"><h3>Kapiteltest ${phaseId.toUpperCase()}</h3><span class="sub">Noch gesperrt — erst das Fachgespräch</span></span></div>
       <p>Vor dem Test steht der Bosskampf: das Fachgespräch der Phase mit Mindesturteil „solide" (≥ 50 % der Gesprächsziele, keine Critical-Falle).</p>
       ${sz ? `<button class="btn-primary" onclick="location.hash='#/boss/${sz.id}'">Zum Bosskampf: ${sz.title}</button>` : '<p class="dim">Kein Szenario für diese Phase hinterlegt.</p>'}
       ${boss ? `<p class="dim">Letzter Versuch: ${boss.achieved}/${boss.total} Ziele — Wiederholung mit anderem Gesprächsverlauf möglich.</p>` : ''}`));
@@ -173,7 +174,7 @@ route('examen', async (view, ctx) => {
   const mw = sessionStatus(st).marathon;
   if (mw.warn) view.appendChild(card(`<p class="ritual-warn">⚠ ${mw.text}</p>`));
 
-  const head = card(`<div class="chead"><span class="t"><h3>Abschlussexamen</h3>
+  const head = card(`<div class="chead gold"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-fach-trophy"/></svg></span><span class="t"><h3>Abschlussexamen</h3>
     <span class="sub">Teil A: 40 Fragen / 60 min Closed Book · Teil B: Capstone ~30 min Open Book · max. 1 Antritt/Tag</span></span></div>
     <p class="dim">Rechtsstand ${RECHTSSTAND} · <a href="docs/CRITICAL-ERRORS.md" target="_blank">Critical-Error-Liste</a> · <a href="docs/CUT-SCORE-BLUEPRINT.md" target="_blank">Cut-Score-Begründung</a></p>`);
   view.appendChild(head);
@@ -276,7 +277,7 @@ route('challenge', async (view, ctx, [unitId]) => {
   const ch = buildChallengeTest({ id: unit.id, competencies: [unit.competency] }, pool,
     { salt: 'ch' + ((st.challengeAttempts?.[unit.id] ?? 0) + 1) });
 
-  const intro = card(`<div class="chead"><span class="t"><h3>Challenge-Test — ${unit.title}</h3>
+  const intro = card(`<div class="chead gold"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-pruefung"/></svg></span><span class="t"><h3>Challenge-Test — ${unit.title}</h3>
     <span class="sub">${ch.questions.length} Fragen zur Kompetenz ${unit.competency} · Hürde ${ch.passRequired * 100} % · Closed Book</span></span></div>
     <p>Bestehst du, wird die Einheit als <b>übersprungen</b> markiert (Karten laufen trotzdem durchs Leitner-System, der Kapiteltest bleibt Pflicht, #12/#19).</p>
     <button class="btn-primary" id="ch-start">Challenge starten</button>`);

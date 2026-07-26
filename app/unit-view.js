@@ -50,7 +50,7 @@ export async function renderUnit(mount, unitId, ctx) {
   const wrap = doc.createElement('div');
   wrap.className = 'unit';
   wrap.innerHTML = `<div class="card unit-head">
-      <div class="chead"><span class="t"><h3>${escapeHtml(unit.title)}</h3>
+      <div class="chead"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-lernen"/></svg></span><span class="t"><h3>${escapeHtml(unit.title)}</h3>
       <span class="sub">${unit.phase.toUpperCase()} · ${unit.competency} · Stufe ${unit.level} · <span class="mono legal-ref">${escapeHtml(unit.legal_basis[0]?.ref ?? '')}</span></span></span>
       <span class="actions"><span class="pill mono" style="height:26px;padding:0 .5rem" title="Rechtsstand">${unit.legal_status === 'konsolidiert-2026-07-27' ? 'RS 27.7.2026' : '⚠ ' + escapeHtml(unit.legal_status)}</span></span></div></div>`;
 

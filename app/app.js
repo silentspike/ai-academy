@@ -437,16 +437,16 @@ route('dashboard', async (view, ctx) => {
   const curve = { ist, soll };
   const q = splitQueues(s.cards ?? [], Date.now());
   view.innerHTML = `
-    <div class="card"><div class="chead"><span class="t"><h3>Artikel-Landkarte</h3><span class="sub">Gesamter AI Act · ${kernN} Kern-Artikel für dein Profil${overrides.size ? ` (${overrides.size} profil-angepasst)` : ''}</span></span></div>
+    <div class="card"><div class="chead"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-fach-heatmap"/></svg></span><span class="t"><h3>Artikel-Landkarte</h3><span class="sub">Gesamter AI Act · ${kernN} Kern-Artikel für dein Profil${overrides.size ? ` (${overrides.size} profil-angepasst)` : ''}</span></span></div>
       <div class="hm-wrap" id="d-hm"></div>
       <div class="dim" id="d-hm-hinweis">Kachel anklicken: führt zur Einheit, die den Artikel behandelt.</div>
       <div class="legend"><span><i style="background:#65d8b2"></i>Sehr sicher</span><span><i style="background:#9dcc9b"></i>Sicher</span><span><i style="background:#e1ad58"></i>Unsicher</span><span><i style="background:#d97568"></i>Kritisch</span><span><i style="background:#414956"></i>Ungelernt</span></div>
       <div class="hm-summe"><span>&Sigma; <b>${articles.length}</b> Artikel · davon <b>${kernN}</b> im Kernbereich deines Profils</span>
         <span>Stand: <b>${LEGAL_STATE.replace('Rechtsstand ', '')}</b></span></div></div>
-    <div class="card"><div class="chead"><span class="t"><h3>Kompetenzen</h3><span class="sub">Dein Kompetenzprofil</span></span></div>
+    <div class="card"><div class="chead violett"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-dashboard-radar"/></svg></span><span class="t"><h3>Kompetenzen</h3><span class="sub">Dein Kompetenzprofil</span></span></div>
       <div class="radar-wrap" id="d-radar"></div>
       <div class="viz-legende"><span style="color:var(--emerald)"><i></i>Dein Profil</span><span><i class="gestrichelt"></i>Soll-Profil</span></div></div>
-    <div class="card"><div class="chead"><span class="t"><h3>Lernkurve vs. Soll</h3></span>
+    <div class="card"><div class="chead"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-fach-timeline"/></svg></span><span class="t"><h3>Lernkurve vs. Soll</h3></span>
         <span class="zeitraum"><select id="d-curve-range" aria-label="Zeitraum der Lernkurve">
           <option value="4">Letzte 4 Wochen</option><option value="12" selected>Letzte 12 Wochen</option><option value="0">Gesamter Verlauf</option>
         </select></span></div>
@@ -566,7 +566,7 @@ route('lernen', async (view, ctx, [phaseFilter]) => {
   const done = new Set(st.unit_done ?? []);
   const skipped = new Set(st.unit_skipped ?? []);
   const phases = phaseFilter ? [phaseFilter] : Object.keys(PHASE_LABEL);
-  view.innerHTML = `<div class="card"><div class="chead"><span class="t"><h3>Lernen${phaseFilter ? ` — ${PHASE_LABEL[phaseFilter] ?? phaseFilter}` : ''}</h3>
+  view.innerHTML = `<div class="card"><div class="chead"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-lernen"/></svg></span><span class="t"><h3>Lernen${phaseFilter ? ` — ${PHASE_LABEL[phaseFilter] ?? phaseFilter}` : ''}</h3>
     <span class="sub">${phaseFilter ? '<a href="#/lernen">alle Phasen</a>' : 'Nach Rollen-Relevanz priorisiert (#3) — Skips erfordern einen Challenge-Test (#19)'}</span></span></div>
     <div id="unit-list"></div></div>`;
   const list = view.querySelector('#unit-list');
@@ -643,12 +643,11 @@ route('karten', async (view, ctx) => {
     const aufholToday = planAufhol(q.aufholMeta, { perDay: 15 }).today;
     const queue = [...q.kern, ...aufholToday];
     if (!queue.length) {
-      view.innerHTML = `<div class="card"><h3>Wiederholung</h3><p class="dim">Nichts fällig. Kern: 0 · Aufholen heute: 0${(ctx.state.cards ?? []).length ? ` · ${(ctx.state.cards).length} Karten im System (nächste Fälligkeit folgt)` : ''}.</p></div>`;
+      view.innerHTML = `<div class="card"><div class="chead"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-karten"/></svg></span><span class="t"><h3>Wiederholung</h3><span class="sub">Nichts fällig</span></span></div><p class="dim">Kern: 0 · Aufholen heute: 0${(ctx.state.cards ?? []).length ? ` · ${(ctx.state.cards).length} Karten im System — die nächste Fälligkeit folgt automatisch` : ''}.</p></div>`;
       return;
     }
     const c = queue[0];
-    view.innerHTML = `<div class="card"><h3>Wiederholung</h3>
-      <p class="dim">Kern: ${q.kern.length} · Aufholen heute: ${aufholToday.length}</p>
+    view.innerHTML = `<div class="card"><div class="chead"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-karten"/></svg></span><span class="t"><h3>Wiederholung</h3><span class="sub">Kern ${q.kern.length} · Aufholen heute ${aufholToday.length}</span></span></div>
       <div class="card unit-block karte-blatt"><div class="unit-tag">${c.competency ?? ''}${c.level ? ' · Stufe ' + c.level : ''}</div>
         <p class="karte-front">${c.front ?? '<span class="karte-leer">Diese Karte hat keinen Fragetext — sie stammt aus einem Import oder einem Testlauf.</span>'}</p>
         <div id="k-back" hidden><p class="karte-back">${c.back ?? '<span class="karte-leer">Keine Antwort hinterlegt.</span>'}</p>
@@ -801,7 +800,7 @@ route('einstellungen', (view, ctx) => {
   const ms = st.milestones ?? [];
   const c = document.createElement('div');
   c.className = 'card';
-  c.innerHTML = `<div class="chead"><span class="t"><h3>Einstellungen</h3><span class="sub">Lernprofil — nachträglich änderbar; die Soll-Kurve zieht automatisch nach</span></span></div>
+  c.innerHTML = `<div class="chead violett"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-einstellungen"/></svg></span><span class="t"><h3>Einstellungen</h3><span class="sub">Lernprofil — nachträglich änderbar; die Soll-Kurve zieht automatisch nach</span></span></div>
     <div class="formular">
     <label class="feld"><span class="feld-name">Minuten pro Tag</span><input id="s-min" type="number" min="10" max="480" value="${st.pace?.minutesPerDay ?? 45}"></label>
     <label class="feld"><span class="feld-name">Lerntage pro Woche</span><input id="s-days" type="number" min="1" max="7" value="${st.pace?.daysPerWeek ?? 5}"></label>

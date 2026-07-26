@@ -56,7 +56,7 @@ route('onboarding', async (view, ctx) => {
 
   const render = () => {
     view.innerHTML = '';
-    view.appendChild(card(`<div class="chead"><span class="t"><h3>Onboarding — Schritt ${draft.step + 1}/7: ${steps[draft.step]}</h3>
+    view.appendChild(card(`<div class="chead violett"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-act-play"/></svg></span><span class="t"><h3>Onboarding — Schritt ${draft.step + 1}/7: ${steps[draft.step]}</h3>
       <span class="sub">${steps.map((s, i) => i === draft.step ? `<b>${s}</b>` : s).join(' · ')}</span></span></div>`));
     STEPS[draft.step]();
   };
