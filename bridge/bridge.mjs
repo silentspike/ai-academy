@@ -59,7 +59,47 @@ const ACTIVE_CLI = OPT.noLlm ? null
   : OPT.cli !== 'auto' ? (CLIS[OPT.cli] ? OPT.cli : null)
   : (CLIS.claude ? 'claude' : CLIS.codex ? 'codex' : null);
 // The default model follows the active CLI; running codex used to report a Claude model.
-if (!OPT.model) OPT.model = ACTIVE_CLI === 'codex' ? 'codex (gpt-frontier)' : 'claude-opus-4-8';
+// An alias, not a version. `opus` resolves to the newest Opus at call time, so
+// the product does not quietly keep grading on a model that has been superseded
+// — which is what happened: it sat on claude-opus-4-8 long after that stopped
+// being current. The alias is what gets requested; what actually answered is
+// read back from the response and logged (see AUFGELOESTES_MODELL), because a
+// score series may only be compared within one grading regime (#17) and an
+// alias would hide the change that starts a new one.
+if (!OPT.model) OPT.model = ACTIVE_CLI === 'codex' ? 'codex (gpt-frontier)' : 'opus';
+
+/** The model that actually answered, as reported by the CLI. Null until the first call. */
+let AUFGELOESTES_MODELL = null;
+export function modellKennung() { return AUFGELOESTES_MODELL ?? OPT.model; }
+
+/**
+ * Which model answered, out of what the CLI reports.
+ *
+ * modelUsage lists more than one: the CLI runs its own small steps on a light
+ * model alongside the one that was asked for, and in a short grading call that
+ * helper can account for MORE output tokens than the answer itself. Taking the
+ * first key logged Haiku as the grader of an Opus run — and "most tokens" would
+ * have been just as wrong.
+ *
+ * So match against what was requested. If nothing matches, the CLI answered on
+ * something else entirely — a fallback, most likely — and that is worth seeing
+ * rather than papering over: the busiest entry is reported and flagged.
+ */
+export function loeseModellAuf(modelUsage, angefordert) {
+  const schluessel = Object.keys(modelUsage ?? {});
+  if (!schluessel.length) return null;
+  const wunsch = String(angefordert ?? '').toLowerCase();
+  // 'opus' matches 'claude-opus-5'; a full name matches itself.
+  const passend = schluessel.filter(k => k.toLowerCase().includes(wunsch) || wunsch.includes(k.toLowerCase()));
+  if (passend.length === 1) return passend[0];
+  if (passend.length > 1) {
+    // Several match the alias (an older and a newer Opus, say): the one that did the work.
+    return passend.sort((a, b) => (modelUsage[b].outputTokens ?? 0) - (modelUsage[a].outputTokens ?? 0))[0];
+  }
+  const ersatz = schluessel.sort((a, b) => (modelUsage[b].outputTokens ?? 0) - (modelUsage[a].outputTokens ?? 0))[0];
+  logLine('modell-abweichung', { angefordert, geantwortet: ersatz, alle: schluessel });
+  return ersatz;
+}
 
 // Model access runs EXCLUSIVELY through the subscription sign-in of the CLIs
 // (claude/codex). There is deliberately no code path that reads a provider key;
@@ -184,6 +224,11 @@ function runCli({ system, prompt, sessionName = null, isolate = false, timeoutMs
           const envl = JSON.parse(out);
           if (envl.is_error) throw new Error('CLI meldet Fehler');
           text = envl.result; sessionId = envl.session_id;
+          const genutzt = loeseModellAuf(envl.modelUsage, OPT.model);
+          if (genutzt && genutzt !== AUFGELOESTES_MODELL) {
+            if (AUFGELOESTES_MODELL) logLine('modellwechsel', { von: AUFGELOESTES_MODELL, nach: genutzt });
+            AUFGELOESTES_MODELL = genutzt;
+          }
         }
         if (sessionName && sessionId) {
           namedSessions[sessionName] = { ...(namedSessions[sessionName] || {}), sessionId, turns: (namedSessions[sessionName]?.turns || 0) + 1 };
@@ -252,8 +297,8 @@ async function gradeSummative({ question, rubric, modelAnswer, answer, sources, 
   logPrompt('summative', prompt);
   const result = await llmJson({ system: PRUEFER_SYSTEM, prompt, isolate: true });
   txResolve(txId, result);
-  logLine('grade', { txId, kind: txKind, verdict: result.verdict, score: result.score, max: result.max, critical: !!result.critical_error, model: OPT.model, prompts: PROMPTS_VERSION });
-  return { txId, result, label: { type: 'LLM-unterstützt', model: OPT.model, rubricVersion: PROMPTS_VERSION } };
+  logLine('grade', { txId, kind: txKind, verdict: result.verdict, score: result.score, max: result.max, critical: !!result.critical_error, model: modellKennung(), prompts: PROMPTS_VERSION });
+  return { txId, result, label: { type: 'LLM-unterstützt', model: modellKennung(), rubricVersion: PROMPTS_VERSION } };
 }
 
 // Prompt log — the full prompt only with --log-full, otherwise hash and length
@@ -316,7 +361,7 @@ const server = http.createServer(async (req, res) => {
         return send(res, 200, {
           ok: true, name: 'ai-act-akademie-bridge', promptsVersion: PROMPTS_VERSION,
           clis: Object.keys(CLIS), activeCli: ACTIVE_CLI,
-          model: OPT.model,
+          model: modellKennung(),
           llm: !!ACTIVE_CLI, queueDepth,
           sessions: Object.fromEntries(Object.entries(namedSessions).map(([k, v]) => [k, { turns: v.turns }])),
         });
@@ -327,7 +372,7 @@ const server = http.createServer(async (req, res) => {
       if (seg === 'auth-check') {
         if (!ACTIVE_CLI) return send(res, 200, { ok: false, reason: 'kein unterstütztes CLI gefunden (claude/codex)' });
         const { text } = await runCli({ system: 'Antworte exakt mit: OK', prompt: 'Sag OK.', isolate: true, timeoutMs: 90000 });
-        return send(res, 200, { ok: /\bOK\b/.test(text), cli: ACTIVE_CLI, model: OPT.model });
+        return send(res, 200, { ok: /\bOK\b/.test(text), cli: ACTIVE_CLI, model: modellKennung() });
       }
       if (seg === 'grade' && req.method === 'POST') {
         const b = await readBody(req);
@@ -376,7 +421,7 @@ const server = http.createServer(async (req, res) => {
         const prompt = buildBossJudgePrompt({ scenarioCore: b.scenarioCore, rubric: b.rubric, transcript: b.transcript });
         logPrompt('summative', prompt);
         const result = await llmJson({ system: PRUEFER_SYSTEM, prompt, isolate: true });
-        logLine('boss-judge', { verdict: result.verdict, model: OPT.model });
+        logLine('boss-judge', { verdict: result.verdict, model: modellKennung() });
         return send(res, 200, { result });
       }
       if (seg === 'dialog/end-session' && req.method === 'POST') {
@@ -400,7 +445,7 @@ const server = http.createServer(async (req, res) => {
         const prompt = buildAppealPrompt({ question: b.question, rubric: b.rubric, modelAnswer: b.modelAnswer || '', answer: b.answer, appealReason: b.appealReason, sources: b.sources || '' });
         logPrompt('summative', prompt);
         const result = await llmJson({ system: PRUEFER_SYSTEM, prompt, isolate: true });
-        logLine('appeal', { verdict: result.verdict, model: OPT.model });
+        logLine('appeal', { verdict: result.verdict, model: modellKennung() });
         return send(res, 200, { result });
       }
       if (seg === 'personalize' && req.method === 'POST') {
@@ -500,7 +545,7 @@ server.listen(OPT.port, '127.0.0.1', () => {
   const port = server.address().port;
   const url = `http://127.0.0.1:${port}/?token=${TOKEN}`;
   console.log(`AI-Act-Akademie Bridge — ${url}`);
-  console.log(`CLIs erkannt: ${Object.keys(CLIS).join(', ') || 'keine'} · aktiv: ${ACTIVE_CLI || 'KEIN LLM'} · Modell: ${ACTIVE_CLI ? OPT.model : '-'}`);
+  console.log(`CLIs erkannt: ${Object.keys(CLIS).join(', ') || 'keine'} · aktiv: ${ACTIVE_CLI || 'KEIN LLM'} · Modell: ${ACTIVE_CLI ? OPT.model + ' (aufgeloest beim ersten Aufruf)' : '-'}`);
   console.log(`Store: ${STORE} · Webroot: ${resolve(OPT.webroot)}`);
   if (OPT.open) oeffneBrowser(url);
 });
