@@ -11,6 +11,7 @@ import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { browserBefehl } from '../bridge/browser-oeffnen.mjs';
+import { isFrontierModel } from '../app/llm-adapter.js';
 
 /**
  * loeseModellAuf lives in bridge.mjs, which starts a server on import — so the
@@ -68,6 +69,18 @@ for (const datei of ['start.sh', 'start.command']) {
 const bat = readFileSync(join(ROOT, 'start.bat'), 'utf8');
 t('start.bat wechselt ins eigene Verzeichnis', /cd \/d "%~dp0"/.test(bat));
 t('start.bat hält das Fenster bei fehlendem Node offen', /pause/.test(bat));
+
+console.log('\nFrontier-Gate');
+// The bridge asks for an alias so it cannot get stuck on a superseded version.
+// The gate read the alias as an unknown model and locked every summative
+// function — the entire examination system, over a naming convention. Caught by
+// the exam specs, not by anything here, which is why it is here now.
+for (const m of ['opus', 'sonnet', 'fable', 'claude-opus-5', 'claude-opus-4-8', 'claude-sonnet-5', 'gpt-5', 'codex']) {
+  t(`\u201e${m}\u201c gilt als unterstuetzt`, isFrontierModel(m) === true);
+}
+for (const m of ['claude-haiku-4-5-20251001', 'haiku', 'llama-3', 'mistral-large', 'gemini-2', '', null, 'opus-lite']) {
+  t(`\u201e${m}\u201c gilt NICHT als unterstuetzt`, isFrontierModel(m) === false);
+}
 
 console.log('\nTestinstanz');
 {
