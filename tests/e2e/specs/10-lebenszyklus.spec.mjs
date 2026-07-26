@@ -100,6 +100,11 @@ test.describe('lifecycle', () => {
     let schritte = 0;
     for (let i = 0; i < 10; i++) {
       const weiter = page.locator('#view button:has-text("Weiter"):not([disabled])').first();
+      // Step 1 asks the bridge which model answers before it offers anything to
+      // click. Without waiting, the loop broke on the first pass and reported
+      // "onboarding cannot be advanced at all" for a wizard that was merely
+      // still checking the connection.
+      await weiter.waitFor({ state: 'visible', timeout: 10_000 }).catch(() => {});
       if (!await weiter.count()) break;
       await klicke(page, weiter, '#/onboarding');
       await warteAufKlickbares(page, 5000);
