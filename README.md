@@ -92,6 +92,17 @@ das Kopplungsmerkmal, deshalb kann sie nicht fest hinterlegt werden.
 Fehlt Node.js, sagt das Startprogramm es und nennt den Weg zur Installation,
 statt kommentarlos ein Fenster zu schliessen.
 
+**Ausprobieren, ohne den eigenen Lernstand zu beruehren:**
+
+```bash
+./test-instanz.sh                  # zweite Akademie, eigener Lernstand, eigener Port
+./test-instanz.sh --zuruecksetzen  # Teststand wegwerfen und frisch anfangen
+```
+
+Zwei getrennte Prozesse mit getrennten Verzeichnissen — der laufende Betrieb
+bleibt unberuehrt, weil die Testinstanz seine Dateien gar nicht kennt. Das
+Skript weigert sich, den echten Lernstand als Ablage zu verwenden.
+
 Die Bridge nennt eine Adresse samt Kopplungsmerkmal. Im Browser öffnen,
 Selbstprüfung abwarten, Einrichtung durchlaufen, loslernen.
 

@@ -18,7 +18,7 @@ const INCLUDE = ['public', 'app', 'content', 'assets', 'bridge', 'tutor', 'tools
   // One start script per platform. Without them the package assumes a terminal
   // and a working directory, which is a fair assumption for exactly one of the
   // three operating systems the product claims to support.
-  'start.sh', 'start.command', 'start.bat'];
+  'start.sh', 'start.command', 'start.bat', 'test-instanz.sh'];
 // Gate-3-Muster, zweigeteilt:
 //  (a) PUBLIC — forbidden key environment names. The product uses subscription
 //      sign-in through the CLI only; an API key path must never return. The rule is
@@ -58,7 +58,7 @@ rmSync(join(stage, 'public/.playwright-cli'), { recursive: true, force: true });
 rmSync(join(stage, '.playwright-cli'), { recursive: true, force: true });
 // cpSync keeps the mode, but a package built from a fresh checkout on a system
 // that ignores the executable bit would ship a .command nobody can double-click.
-for (const skript of ['start.sh', 'start.command']) {
+for (const skript of ['start.sh', 'start.command', 'test-instanz.sh']) {
   try { chmodSync(join(stage, skript), 0o755); } catch { /* fehlt bereits gemeldet */ }
 }
 writeFileSync(join(stage, 'VERSION'), VERSION + '\n');

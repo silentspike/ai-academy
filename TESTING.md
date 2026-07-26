@@ -81,6 +81,41 @@ Two things this deliberately does not do: it does not raise the threshold to
 meet the measurement, and it does not drop a check to save time. If a run comes
 back over ninety seconds, that is a finding about the run.
 
+## Trying things out without touching your own record
+
+A verification run writes state that looks like progress. That is the point —
+and it is why it must not happen in the record someone actually learns from.
+This has already gone wrong once: seeded chapter tests from a test run sat in
+the owner's record, nine phases ticked and the exam unlocked, none of it earned.
+
+```bash
+./test-instanz.sh                  # second academy, own record, own port
+./test-instanz.sh --zuruecksetzen  # throw the test record away and start fresh
+```
+
+Two processes, two directories, nothing shared. The isolation is structural: the
+test instance does not know where the real record is, so it cannot reach it —
+rather than knowing and being told not to.
+
+The alternative — switchable records inside one instance — was considered and
+rejected. A switch decides at runtime which file gets written, and the one time
+it does not hold, a test run lands in the real record: exactly the damage it was
+meant to prevent. That failure mode is not hypothetical; a badge award that ran
+during a render wrote asynchronously into state and overwrote the next fixture
+in a parallel run.
+
+Verified: writing 99999 XP into the test instance left the real record
+byte-identical (md5 unchanged), and the test instance came up on a fresh
+onboarding at 0 XP. The script refuses the real record as a target, including
+any directory containing it.
+
+If a record already carries seeded data:
+
+```bash
+node tools/fixture-bereinigen.mjs data/store/progress.json            # report
+node tools/fixture-bereinigen.mjs data/store/progress.json --anwenden # remove
+```
+
 ## What counts as evidence
 
 | Counts | Does not count |

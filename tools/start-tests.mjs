@@ -69,6 +69,36 @@ const bat = readFileSync(join(ROOT, 'start.bat'), 'utf8');
 t('start.bat wechselt ins eigene Verzeichnis', /cd \/d "%~dp0"/.test(bat));
 t('start.bat hält das Fenster bei fehlendem Node offen', /pause/.test(bat));
 
+console.log('\nTestinstanz');
+{
+  const pfad = join(ROOT, 'test-instanz.sh');
+  t('test-instanz.sh vorhanden', existsSync(pfad));
+  const inhalt = existsSync(pfad) ? readFileSync(pfad, 'utf8') : '';
+  t('ist ausfuehrbar', existsSync(pfad) && (statSync(pfad).mode & 0o111) !== 0);
+  t('startet mit eigenem Store', /--store "\$STORE"/.test(inhalt));
+  t('waehlt einen freien Port', /--port 0/.test(inhalt));
+  t('erzeugt ein eigenes Kopplungsmerkmal', /BRIDGE_TOKEN="\$TOKEN"/.test(inhalt));
+  t('verweigert den echten Lernstand als Ziel', /ABBRUCH/.test(inhalt) && /ECHT/.test(inhalt));
+  t('kennt --zuruecksetzen', /--zuruecksetzen/.test(inhalt));
+  try {
+    execFileSync('bash', ['-n', pfad], { stdio: 'pipe' });
+    t('syntaktisch gueltig', true);
+  } catch (e) { t('syntaktisch gueltig', false, String(e.stderr).slice(0, 120)); }
+  // The guard is the part that matters — a test instance pointed at the real
+  // record would be worse than no test instance.
+  for (const ziel of [join(ROOT, 'data'), ROOT]) {
+    try {
+      execFileSync('bash', [pfad, '--store', ziel], { stdio: 'pipe', timeout: 10000 });
+      t(`weist ${ziel} zurueck`, false, 'kein Abbruch');
+    } catch (e) {
+      t(`weist ${ziel} zurueck`, String(e.stdout ?? '').includes('ABBRUCH') || String(e.stderr ?? '').includes('ABBRUCH'),
+        String(e.stderr ?? e.stdout ?? '').slice(0, 80));
+    }
+  }
+  const gi = readFileSync(join(ROOT, '.gitignore'), 'utf8');
+  t('data-test/ ist von der Versionierung ausgenommen', /^data-test\/$/m.test(gi));
+}
+
 console.log('\nRelease-Paket');
 const rel = readFileSync(join(ROOT, '.github/workflows/release.yml'), 'utf8');
 for (const datei of ['start.sh', 'start.command', 'start.bat']) {
