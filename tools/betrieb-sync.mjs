@@ -38,7 +38,7 @@ if (!existsSync(ZIEL)) {
 
 /** What the repository owns. Everything else in the instance is left alone. */
 const UEBERTRAGEN = ['app', 'public', 'content', 'bridge', 'tutor', 'tools', 'assets',
-  'start.sh', 'start.command', 'start.bat', 'package.json'];
+  'start.sh', 'start.command', 'start.bat', 'test-instanz.sh', 'package.json'];
 
 /**
  * What the instance owns and this tool must never touch. Listed explicitly
