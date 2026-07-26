@@ -79,12 +79,17 @@ const BADGE_ART = {
 function badgeArt(id) { return `assets/badges/${BADGE_ART[id] ?? 'wissens-tresor.webp'}`; }
 
 /** Badge gallery: makes earned and outstanding badges visible. */
+/**
+ * Draws the gallery. Reads only — awarding happens once when the state is
+ * loaded (see nachtragenBeimLaden).
+ *
+ * It briefly did award here, so that a restored record would not show grey tiles
+ * for work already done. That put a write inside a render: the save landed
+ * asynchronously after the view had moved on, and in a parallel test run it
+ * arrived after the next fixture had been installed and overwrote it. A render
+ * must not have side effects on the state it renders.
+ */
 export function renderBadgeGallery(mount, state) {
-  // Award anything already earned before drawing. The gallery used to show only
-  // what checkRewards had granted at the moment of the triggering event, so a
-  // restored or imported state — or a badge whose criterion the derived view
-  // only now satisfies — stayed grey although the work was done.
-  const nachgetragen = newBadges(state);
   const have = new Set(state.badges ?? []);
   mount.innerHTML = `<div class="badge-grid">${BADGES.map(b => `
     <div class="badge-tile${have.has(b.id) ? ' have' : ''}" title="${b.desc}">
@@ -92,7 +97,7 @@ export function renderBadgeGallery(mount, state) {
       <span>${b.title}</span>
     </div>`).join('')}</div>
    <p class="dim">${have.size}/${BADGES.length} verdient · XP belohnt Arbeit, das Kompetenz-Radar zeigt Können (#28 — beides bleibt getrennt).</p>`;
-  return { verdient: have.size, gesamt: BADGES.length, nachgetragen: nachgetragen.map(b => b.id) };
+  return { verdient: have.size, gesamt: BADGES.length };
 }
 
 /** First-contact hero: a one-off opening moment before the first learning session. */
