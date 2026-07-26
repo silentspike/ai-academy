@@ -136,5 +136,24 @@ t('lerntage liefert sortierte Tagesschluessel',
   JSON.stringify(lerntage(badgeStand)) === JSON.stringify([...lerntage(badgeStand)].sort()));
 t('wochenzieleErreicht bei Ziel 1 und 2 Tagen', wochenzieleErreicht(badgeStand, Date.now()) >= 1);
 
+// ---------- session: the review status has one source ----------
+// Two records used to say different things: dayStats could hold reviewDone for
+// today while a freshly built session started with the review open — so anyone
+// returning after a reload found the mandatory review waiting again and units
+// locked behind it.
+console.log('\nSession — Review-Status');
+const heuteKey = tagKey(0);
+const mitKarten = { cards: [{ id: 'c1', box: 1, due: Date.now() - 3600_000, retention: 'gelernt' }], dayStats: {} };
+const ohneReview = createSession(mitKarten, Date.now());
+t('Ohne erledigtes Review: Einheiten gesperrt', canStartUnit(ohneReview) === false);
+t('Ohne erledigtes Review: Schritt ist review', ohneReview.step === 'review');
+const nachReview = createSession({ ...mitKarten, dayStats: { [heuteKey]: { reviewDone: true, questions: 12 } } }, Date.now());
+t('dayStats meldet Review erledigt: Einheiten frei', canStartUnit(nachReview) === true);
+t('dayStats meldet Review erledigt: Schritt ist units', nachReview.step === 'units');
+t('Die Kartenliste ist dieselbe, nur der Status unterscheidet sich',
+  JSON.stringify(nachReview.review.kern) === JSON.stringify(ohneReview.review.kern));
+const gesternErledigt = createSession({ ...mitKarten, dayStats: { [tagKey(-1)]: { reviewDone: true } } }, Date.now());
+t('Gestern erledigt zählt heute nicht', canStartUnit(gesternErledigt) === false);
+
 console.log(`\n${pass} PASS, ${fail} FAIL`);
 process.exit(fail ? 1 : 0);
