@@ -221,6 +221,11 @@ body { padding:0; background:#04060b; overflow:hidden; display:grid; place-items
    1550px while its own heading above it stopped at 1024. The column belongs to
    the view, not to one element type. */
 .dashboard.single > * { max-width:min(64rem, 100%); margin-left:auto; margin-right:auto; }
+/* …but never wider than what an element already asks for. Two class selectors
+   beat the one on `.unit`, so this rule silently widened the unit column from
+   860 to 1024 pixels — and at 4K, where `ch` rounds up a whole pixel, the
+   recital paragraphs then ran to 86 characters. */
+.dashboard.single > .unit { max-width:860px; }
 .dash-grid.single > * { max-width:none; margin-left:0; margin-right:0; }
 .dashboard.single .card p,
 .dashboard.single .card li,
