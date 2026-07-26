@@ -64,3 +64,53 @@ Der gefährlichste Fall — Reihenfolge ist verbindlich:
   (`node tools/legal-audit.mjs --status at-vollzug-offen`).
 - **2.12.2026** (neue Verbote + Alt-Generator-Frist) → Fristen-Formulierungen
   von Zukunft auf Gegenwart umstellen.
+
+## Betriebsinstanz und Repository auseinanderhalten
+
+Das Produkt lebt an zwei Orten. Dieses Repository ist die einzige Wahrheit für
+Code und Inhalte. Eine Betriebsinstanz — die Installation, aus der tatsächlich
+gelernt wird — hat zusätzlich Dinge, die niemals in eine öffentliche Historie
+gehören: den Lernstand unter `data/`, das kuratierte Profil und die
+Gate-Unterlagen unter `legal/` und `docs/`.
+
+Von Hand kopiert liefen die beiden binnen Tagen auseinander: 25 Anwendungs- und
+20 Inhaltsdateien, Bridge und CI unterschieden sich, und sämtliche Layout- und
+Fehlerkorrekturen lagen nur im Repository. Die Instanz lieferte weiter den alten
+Stand aus — also genau die Fassung, aus der gelernt worden wäre.
+
+```bash
+# Vor jeder Lernsitzung oder nach jedem Release: gibt es Abweichungen?
+node tools/betrieb-sync.mjs --ziel /pfad/zur/instanz --pruefen
+
+# Angleichen. Überträgt app/, public/, content/, bridge/, tutor/, tools/,
+# assets/ und die Startprogramme. data/, legal/ und docs/ bleiben unberührt.
+node tools/betrieb-sync.mjs --ziel /pfad/zur/instanz
+
+# Überzähliges entfernen — nur mit dieser Ansage, weil es der einzige Schritt
+# ist, den ein erneuter Lauf nicht rückgängig macht.
+node tools/betrieb-sync.mjs --ziel /pfad/zur/instanz --aufraeumen
+```
+
+Was in der Instanz bleiben soll, obwohl es unter einem Verzeichnis des
+Repositorys liegt, gehört in `.betrieb-eigen` neben den Dateien — mit Begründung,
+damit später nachvollziehbar bleibt, warum ein Eintrag dort steht.
+
+**Symlinks:** `public/app`, `public/assets` und `public/content` verweisen nach
+oben — der Webbereich ist `public/`, die Quellen liegen außerhalb. Der Abgleich
+überträgt sie als Verweise. Würde er ihnen folgen, entstünden echte Kopien im
+Webbereich, und die Instanz lieferte eine eingefrorene Fassung aus, während die
+Quellen daneben weiterlaufen.
+
+**Schnittstellenpfad hinter einem Webserver:** Die Anwendung ermittelt ihn
+dokumentrelativ als `<basis>/api/`. Ein fester Pfad im Code wäre für ein
+öffentliches Produkt falsch. Wer die Anwendung unter einem Unterpfad ausliefert,
+braucht deshalb eine passende Weiterleitung, zum Beispiel:
+
+```nginx
+location /ai-act-training/api/ {
+    proxy_pass http://127.0.0.1:8791/api/;
+    proxy_set_header X-Bridge-Token <token>;
+    client_body_buffer_size 4m;      # Lernstand-PUTs sind größer als der 8k-Default;
+    proxy_request_buffering off;     # ohne diese Zeilen: HTTP 500 und stiller Datenverlust
+}
+```
