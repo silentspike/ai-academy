@@ -329,6 +329,26 @@ body { padding:0; background:#04060b; overflow:hidden; display:grid; place-items
 
 /* Karten-Header (Titel + Chip + Aktionen) */
 .chead { display:flex; align-items:center; gap:10px; margin-bottom:12px; flex:none; }
+/* Card headings with a symbol. The icon set exists in full and no card used it:
+   every view opened with a line of 16px text, which is why they all read as
+   unfinished no matter how much work sat below. */
+.chead .csym { flex:none; width:38px; height:38px; border-radius:11px; display:grid; place-items:center;
+  background:linear-gradient(150deg, rgba(52,211,153,.16), rgba(52,211,153,.05));
+  border:1px solid rgba(52,211,153,.24); }
+.chead .csym svg { width:19px; height:19px; color:var(--emerald); }
+.chead.violett .csym { background:linear-gradient(150deg, rgba(138,112,239,.18), rgba(138,112,239,.05));
+  border-color:rgba(138,112,239,.28); }
+.chead.violett .csym svg { color:var(--violet, #b6a5ff); }
+.chead.gold .csym { background:linear-gradient(150deg, rgba(225,173,88,.16), rgba(225,173,88,.05));
+  border-color:rgba(225,173,88,.28); }
+.chead.gold .csym svg { color:var(--gold); }
+/* The first heading of a view is the page title, not a card label. */
+.dashboard.single > .card:first-child .chead .t h3 {
+  font-family:var(--font-display); font-size:clamp(1.15rem,2.2vw,1.45rem); font-weight:600;
+  letter-spacing:-.01em; line-height:1.2; }
+.dashboard.single > .card:first-child .chead { margin-bottom:14px; }
+.dashboard.single > .card:first-child .chead .csym { width:44px; height:44px; border-radius:13px; }
+.dashboard.single > .card:first-child .chead .csym svg { width:22px; height:22px; }
 .chip { width:34px; height:34px; border-radius:50%; background:var(--grad-card-soft);
   border:1px solid var(--line); box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
   display:grid; place-items:center; flex:none; }

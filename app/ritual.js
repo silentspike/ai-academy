@@ -57,7 +57,7 @@ route('heute', async (view, ctx) => {
       <span class="ritual-txt"><b>${name}</b><span class="dim">${sub}</span></span>
     </a>`;
 
-  view.appendChild(card(`<div class="chead"><span class="t"><h3>Heute — dein Ritual</h3>
+  view.appendChild(card(`<div class="chead violett"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-kalender"/></svg></span><span class="t"><h3>Heute — dein Ritual</h3>
     <span class="sub">Feste Reihenfolge: kein „Womit fange ich an?" (#32). Wiederholung ist Pflicht VOR neuem Stoff.</span></span></div>
     <div class="ritual">
       ${takt(0, 'Pflicht-Review', `Kern ${s.review.kern.length} · Aufholen ${s.review.aufhol.length} · Retention-Checks ${s.review.retentionChecks.length}`, s.review.done, '#/karten', false)}
@@ -108,7 +108,7 @@ route('drill', async (view, ctx) => {
   while (chosen.length < s.drill.size) chosen.push(...pick(q => !chosen.includes(q), 1));
   const questions = chosen.slice(0, s.drill.size);
 
-  view.appendChild(card(`<div class="chead"><span class="t"><h3>Tages-Drill</h3>
+  view.appendChild(card(`<div class="chead gold"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-flamme"/></svg></span><span class="t"><h3>Tages-Drill</h3>
     <span class="sub">${weak.length ? `Schwächen-gewichtet: ${weak.join(' · ')}` : 'Noch keine Schwächen-Historie — gemischte Auswahl'} · straffrei · Pool ${pool.length} Kernfragen + ${variantPool.length} Varianten</span></span></div>`));
   const mount = document.createElement('div');
   view.appendChild(mount);
@@ -189,7 +189,7 @@ route('wrapup', async (view, ctx) => {
   // null an. Lieber weglassen als eine Zahl zeigen, die der Zeile daneben
   // widerspricht.
   const dauer = w.bilanz.minutes >= 1 ? `${w.bilanz.minutes} Minuten heute` : 'Bilanz des Tages';
-  view.appendChild(card(`<div class="chead"><span class="t"><h3>Abschluss-Karte</h3>
+  view.appendChild(card(`<div class="chead gold"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-star"/></svg></span><span class="t"><h3>Abschluss-Karte</h3>
     <span class="sub">${dauer}</span></span></div>
     <div class="wrap-stats">
       <div><b>${w.bilanz.reviewed}</b><span>Karten wiederholt</span></div>
