@@ -331,7 +331,8 @@ route('lernnachweis', async (view, ctx) => {
       <p class="nw-unter">AI-Act-Akademie · ausgestellt am ${new Date().toLocaleDateString('de-AT')}</p>
       <p class="nachweis-disclaimer"><b>Persönlicher, unbeaufsichtigter Lernnachweis.</b> Identität und Prüfungsbedingungen
       wurden nicht durch eine unabhängige Stelle verifiziert. Teile der Bewertung sind KI-unterstützt.
-      Kein akkreditiertes Zertifikat; nicht für Personal- oder Zulassungsentscheidungen bestimmt.</p>
+      Kein akkreditiertes Zertifikat. Nicht bestimmt für den Einsatz durch Bildungseinrichtungen
+      oder Arbeitgeber zur Bewertung von Personen.</p>
       <dl class="nw-fakten">
         <dt>Bestes Examensergebnis</dt>
         <dd>${bestAll ? `<b>${(bestAll.pct * 100).toFixed(0)} %</b>${typeof bestAll.a === 'number' && typeof bestAll.b === 'number' ? ` — Teil A ${(bestAll.a * 100).toFixed(0)} %, Teil B ${(bestAll.b * 100).toFixed(0)} %` : ''}${bestAll.day ? `, am ${bestAll.day}` : ''}` : 'noch kein bestandenes Examen'}</dd>
