@@ -28,7 +28,7 @@
   "scripts": {
     "bridge": "node bridge/bridge.mjs",
     "check": "node --experimental-vm-modules --no-warnings tools/syntax-check.mjs",
-    "test:unit": "for t in engine gamification exam onboarding erhaltung; do node tools/$t-tests.mjs || exit 1; done",
+    "test:unit": "for t in engine gamification exam onboarding erhaltung start; do node tools/$t-tests.mjs || exit 1; done",
     "test:content": "node tools/validate-content.mjs && node tools/check-questions.mjs",
     "test:all": "npm run check && npm run test:unit && npm run test:content && npm run test:fuzz",
     "test:fuzz": "node tools/fuzz-extract-json.mjs"

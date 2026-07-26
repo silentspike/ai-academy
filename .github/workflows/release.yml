@@ -40,6 +40,13 @@ jobs:
           PAKET=$(ls -d */ | head -1)
           cd "$PAKET"
           node -e "process.exit(require('fs').existsSync('bridge/bridge.mjs') ? 0 : 1)"
+          # One start script per platform, and the two shell ones executable —
+          # a .command without the bit does nothing when double-clicked.
+          for f in start.sh start.command start.bat; do
+            test -f "$f" || { echo "$f fehlt im Paket"; exit 1; }
+          done
+          test -x start.sh && test -x start.command || { echo "chmod +x fehlt an start.sh/start.command"; exit 1; }
+          bash -n start.sh && bash -n start.command
           # Start it exactly as a recipient would, and check it answers.
           node bridge/bridge.mjs --no-llm --port 8931 --store .store-test &
           BRIDGE=$!

@@ -337,3 +337,47 @@ body { padding:0; background:#04060b; overflow:hidden; display:grid; place-items
   letter-spacing:-.012em; line-height:1.2; color:var(--text); }
 .chead .t .sub { color:rgba(218,226,240,.66);   /* .48 fell below 4.5:1 */ font-size:12px; font-weight:400; }
 .chead .actions { margin-left:auto; display:flex; gap:5px; align-items:center; }
+
+/* ---------------------------------------------------------------- reference alignment
+   Elements the design reference shows and the build did not have: the level
+   title next to the number, the week as dots, phase names with a progress bar
+   and a marked active phase, a legend under the radar and the curve, a summary
+   line under the article map, and the coach block. Each one is fed from the
+   learning state — none is decoration with a fixed value in it. */
+
+.tb-titel { color:var(--faint); font-weight:500; margin-left:6px; }
+.tb-titel:not(:empty)::before { content:'· '; opacity:.5; }
+.wochenpunkte { display:inline-flex; gap:4px; margin-left:8px; vertical-align:middle; }
+.wochenpunkte .wp { width:7px; height:7px; border-radius:50%; background:rgba(151,169,202,.22); }
+.wochenpunkte .wp.an { background:var(--violet, #8a70ef); box-shadow:0 0 6px rgba(138,112,239,.55); }
+.wochenpunkte .wp.spaeter { background:transparent; border:1px solid rgba(151,169,202,.28); }
+
+.ph .lbl .ph-name { font-size:.82rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.ph .lbl .ph-bar { display:block; height:2.5px; border-radius:2px; background:rgba(151,169,202,.10);
+  overflow:hidden; margin-top:4px; }
+.ph .lbl .ph-bar i { display:block; height:100%; background:var(--emerald); opacity:.9; transition:width .4s ease; }
+.ph.phase-aktiv { background:rgba(138,112,239,.10); border:1px solid rgba(138,112,239,.34); }
+.ph.phase-aktiv .lbl .ph-name { color:var(--text); font-weight:600; }
+.ph.phase-aktiv .lbl .ph-bar i { background:var(--violet, #8a70ef); }
+.ph .ph-pfeil { color:rgba(151,169,202,.55); font-size:1.1rem; line-height:1; }
+
+.viz-legende { display:flex; gap:16px; align-items:center; flex-wrap:wrap;
+  font-size:.72rem; color:var(--faint); margin-top:8px; }
+.viz-legende span { display:inline-flex; align-items:center; gap:7px; }
+.viz-legende i { display:inline-block; width:22px; height:0; border-top:2px solid currentColor; }
+.viz-legende i.gestrichelt { border-top-style:dashed; opacity:.6; }
+
+.hm-summe { display:flex; justify-content:space-between; align-items:center; gap:12px;
+  margin-top:10px; padding-top:9px; border-top:1px solid var(--line);
+  font-size:.74rem; color:var(--faint); }
+.hm-summe b { font-family:var(--font-num); color:var(--text); font-weight:600; }
+
+.zeitraum { margin-left:auto; }
+.zeitraum select { background:var(--panel-2, rgba(255,255,255,.04)); color:var(--text);
+  border:1px solid var(--line); border-radius:8px; padding:4px 8px; font:inherit; font-size:.74rem; }
+
+.coach-karte { display:flex; gap:14px; align-items:flex-start; }
+.coach-karte img { width:clamp(72px, 22%, 132px); border-radius:12px; flex:none;
+  border:1px solid var(--line); background:rgba(255,255,255,.03); }
+.coach-text { flex:1; min-width:0; font-size:.86rem; line-height:1.5; }
+.coach-text .sig { display:block; margin-top:10px; color:var(--emerald); font-style:italic; font-size:.8rem; }
