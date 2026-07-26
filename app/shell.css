@@ -552,7 +552,7 @@ body { padding:0; background:#04060b; overflow:hidden; display:grid; place-items
 /* Rows inside a list get the same treatment, capped so a long list does not
    turn into a slow cascade. */
 .lern-row { animation:reihe-auf 260ms var(--ease-out) both; }
-.lern-row:nth-child(-n+8) { animation-delay:calc(40ms * var(--i, 0)); }
+.lern-row { animation-delay:calc(60ms * var(--i, 0)); }   /* 60ms je Element, §5 */
 @keyframes reihe-auf { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
 
 @media (prefers-reduced-motion:reduce) {

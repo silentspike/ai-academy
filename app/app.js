@@ -641,6 +641,11 @@ route('lernen', async (view, ctx, [phaseFilter]) => {
     <span class="sub">${phaseFilter ? '<a href="#/lernen">alle Phasen</a>' : 'Vollständiger Stoff, nach Rollen-Relevanz geordnet — jede Phase ist jederzeit zugänglich, die Reihenfolge ist eine Empfehlung. Überspringen erfordert einen Challenge-Test.'}</span></span></div>
     <div id="unit-list"></div></div>`;
   const list = view.querySelector('#unit-list');
+  // Index for the staggered reveal. The CSS reads `--i`, and nobody ever set
+  // it: every row carried a delay of `calc(40ms * 0)`, so the cascade the design
+  // reference asks for was written down and did nothing. Capped at eight
+  // elements (DESIGN-SYSTEM §5).
+  let reihe = 0;
   for (const p of phases) {
     const units = idx.units.filter(u => u.phase === p);
     if (!units.length) continue;
@@ -650,6 +655,7 @@ route('lernen', async (view, ctx, [phaseFilter]) => {
       const status = done.has(u.id) ? 'done' : skipped.has(u.id) ? 'skipped' : '';
       const row = document.createElement('div');
       row.className = 'lern-row';
+      row.style.setProperty('--i', String(Math.min(reihe++, 7)));
       // u-titel, nicht lbl: `.ph .lbl` ist ein Spalten-Flex für die Sidebar, wo
       // Name und Fortschrittsbalken übereinander gehören. Auf einen Fließtext
       // angewandt wird jedes Kind-Element zur eigenen Zeile — jeder Titel mit
