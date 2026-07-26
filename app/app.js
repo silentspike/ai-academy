@@ -549,7 +549,7 @@ route('einheit', async (view, ctx, [unitId]) => {
     const c = document.createElement('div');
     c.className = 'card';
     c.innerHTML = `<h3>Erst wiederholen, dann Neues</h3>
-      <p>Heute sind <b>${s.review.kern.length}</b> Karten regulär fällig. Verteilte Wiederholung VOR neuem Stoff ist der robusteste Lern-Hebel — deshalb ist dieser Schritt Pflicht (§3, #32).</p>
+      <p>Heute ${s.review.kern.length === 1 ? 'ist' : 'sind'} <b>${s.review.kern.length}</b> Karte${s.review.kern.length === 1 ? '' : 'n'} regulär fällig. Verteilte Wiederholung VOR neuem Stoff ist der robusteste Lern-Hebel — deshalb ist dieser Schritt Pflicht (§3, #32).</p>
       <a class="btn-primary" href="#/karten">Zum Pflicht-Review</a> <a class="btn" href="#/heute">Ritual-Übersicht</a>`;
     view.appendChild(c);
     return;
