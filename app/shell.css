@@ -187,12 +187,17 @@ body { padding:0; background:#04060b; overflow:hidden; display:grid; place-items
    Before this, paragraphs ran to 104 characters at 1920 and wider. */
 /* Descendant selectors, not child: #view sits between main.dashboard and the
    cards, so `>` matched nothing and the cap silently did not apply. */
-.dashboard.single .card { max-width:min(64rem, 100%); margin:0 auto var(--karten-abstand); }
+/* Direct children only. Applied to every descendant card, the auto margin also
+   hit the cards inside .dash-grid — and an auto inline margin cancels a grid
+   item's stretch, so each card shrank to its content and sat centred in a track
+   twice its width: 156px of "Fällige Karten" in a 1487px column. Reading measure
+   is for prose in the single-column views, not for a dashboard tile. */
+.dashboard.single > .card { max-width:min(64rem, 100%); margin:0 auto var(--karten-abstand); }
 .dashboard.single .card p,
 .dashboard.single .card li,
 .dashboard.single .card .q-prompt,
 .dashboard.single .card .q-opt { max-width:var(--lese-max); }
-@media (min-width: 2200px) { .dashboard.single .card { max-width:min(76rem, 100%); } }
+@media (min-width: 2200px) { .dashboard.single > .card { max-width:min(76rem, 100%); } }
 .reveal { animation:view-in .3s var(--ease-out); }
 @keyframes view-in { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
 
@@ -215,7 +220,7 @@ body { padding:0; background:#04060b; overflow:hidden; display:grid; place-items
    scrolls — the alternative is what happened before: the bottom card kept 140px
    for 159px of content and silently cut the rest off. Content the user cannot
    reach is worse than a scrollbar. */
-.dash-grid .right-col { display:grid; grid-auto-rows:min-content; gap:12px;
+.dash-grid .right-col { display:grid; grid-template-columns:minmax(0,1fr); grid-auto-rows:min-content; gap:12px;
   min-height:0; overflow-y:auto; align-content:start; }
 /* Each card as tall as its content, the column scrolls when they do not all fit.
    Fixed row tracks distributed the available height evenly instead, which left
@@ -247,9 +252,28 @@ body { padding:0; background:#04060b; overflow:hidden; display:grid; place-items
 .dash-grid .radar-wrap svg { width:97%; height:97%; }
 .dash-grid .curve-wrap { flex:1; min-height:0; }
 .dash-grid .curve-wrap svg { width:100%; height:100%; }
+/* The article map used to be 522 x 148 pixels at every window size, because the
+   tile was written as 14px. On a 4K display that is 29 percent of the card's
+   width and 16 percent of its height — a small speck in a large empty box —
+   while on a narrow window the same grid pressed against both edges.
+   The tile is now derived from the space the card actually has: container query
+   units, bounded so it never turns into confetti or into paving slabs. */
+.dash-grid .hm-wrap { container-type:size; }
 .hm-groups { flex:1; min-height:0; overflow:hidden; display:grid; align-content:center; justify-content:center;
-  grid-template-columns:repeat(5,14px) 4px repeat(4,14px) 4px repeat(5,14px) 4px repeat(5,14px) 4px repeat(4,14px) 4px repeat(4,14px);
-  grid-template-rows:repeat(4,14px) 4px repeat(4,14px) 4px repeat(3,14px); gap:4px; }
+  --hm-zelle:clamp(10px, min(2.55cqw, 6.2cqh), 46px);
+  --hm-luecke:calc(var(--hm-zelle) * .30);
+  gap:calc(var(--hm-zelle) * .28);
+  grid-template-columns:repeat(5,var(--hm-zelle)) var(--hm-luecke) repeat(4,var(--hm-zelle)) var(--hm-luecke) repeat(5,var(--hm-zelle)) var(--hm-luecke) repeat(5,var(--hm-zelle)) var(--hm-luecke) repeat(4,var(--hm-zelle)) var(--hm-luecke) repeat(4,var(--hm-zelle));
+  grid-template-rows:repeat(4,var(--hm-zelle)) var(--hm-luecke) repeat(4,var(--hm-zelle)) var(--hm-luecke) repeat(3,var(--hm-zelle)); }
+.hm-groups i { border-radius:calc(var(--hm-zelle) * .21); }
+/* Below the base rule on purpose. Placed above it, the base declaration won and
+   the stacked layout queried a container with no height — cqh resolved to zero
+   and the tile fell to its lower bound, ending up smaller than the fixed 14px it
+   replaced. This is the second time an ordering mistake produced exactly that. */
+@media (max-width:1100px) {
+  .dash-grid .hm-wrap { container-type:inline-size; }
+  .hm-groups { --hm-zelle:clamp(12px, 2.4cqw, 24px); }
+}
 .hm-groups i { border-radius:3px;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.09), inset 0 -1px 0 rgba(0,0,0,.20), 0 2px 4px rgba(0,0,0,.18); }
 .due-mini-nums { display:grid; grid-template-columns:1fr 1fr; }
