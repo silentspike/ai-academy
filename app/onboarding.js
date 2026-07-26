@@ -74,10 +74,18 @@ route('onboarding', async (view, ctx) => {
       try {
         const h = await llm.refreshHealth();
         const gate = llm.evaluateGate();
-        c.innerHTML = `<p>Bridge erreichbar · CLI: <b>${h.activeCli ?? '—'}</b> · Modell: <b>${h.model ?? '—'}</b></p>
-          <p>${gate.frontier ? '✓ Unterstütztes Frontier-Modell' : '✗ ' + gate.reason + ' — Prüfungen bleiben gesperrt (docs/INTENDED-PURPOSE.md)'}</p>
-          <p class="dim">Vor der ersten Tutor-Interaktion: Es antwortet ein KI-System (${h.model}); Freitexte gehen an den LLM-Anbieter; Bewertungen können streuen (Art.-50-Transparenz, §5.0).</p>
-          <button class="btn-primary">Weiter</button>`;
+        c.innerHTML = `<div class="verb-status ${gate.frontier ? 'ok' : 'warn'}">
+            <span class="verb-punkt" aria-hidden="true"></span>
+            <div class="verb-txt"><b>${gate.frontier ? 'Verbunden und prüfungsfähig' : 'Verbunden, aber gesperrt'}</b>
+              <span>${gate.frontier ? 'Unterstütztes Frontier-Modell — summative Prüfungen sind freigegeben.' : gate.reason + ' — Prüfungen bleiben gesperrt (docs/INTENDED-PURPOSE.md).'}</span></div>
+          </div>
+          <dl class="verb-daten">
+            <div><dt>Bridge</dt><dd>erreichbar</dd></div>
+            <div><dt>CLI</dt><dd class="mono">${h.activeCli ?? '—'}</dd></div>
+            <div><dt>Modell</dt><dd class="mono">${h.model ?? '—'}</dd></div>
+          </dl>
+          <p class="verb-hinweis">Vor der ersten Tutor-Interaktion: Es antwortet ein KI-System (${h.model}); Freitexte gehen an den LLM-Anbieter; Bewertungen können streuen (Art.-50-Transparenz, §5.0).</p>
+          <div class="ex-start-zeile"><button class="btn-primary">Weiter</button></div>`;
         c.querySelector('button').onclick = next;
       } catch (e) {
         c.innerHTML = `<p>Bridge nicht erreichbar (${e.message}). Erst <span class="mono">node bridge/bridge.mjs</span> starten (SETUP-AGENT.md), dann neu laden.</p>`;

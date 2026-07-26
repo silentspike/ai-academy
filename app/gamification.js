@@ -248,10 +248,36 @@ export function ceremony(doc, tier, payload = {}) {
   stage.innerHTML = `<div class="stage-inner">
       ${payload.image ? `<img class="stage-art" src="${payload.image}" alt="">` : ''}
       <h2>${payload.title ?? ''}</h2><p>${payload.text ?? ''}</p>
-      ${payload.stats ? `<div class="stage-stats">${payload.stats.map(s => `<div><b>${s.v}</b><span>${s.k}</span></div>`).join('')}</div>` : ''}
+      ${payload.stats ? `<div class="stage-stats">${payload.stats.map(s => {
+        const zahl = typeof s.v === 'number' || /^\d[\d\s.,]*$/.test(String(s.v));
+        return `<div><b${zahl ? ` data-zahl="${String(s.v).replace(/[^\d]/g, '')}">0` : `>${s.v}`}</b><span>${s.k}</span></div>`;
+      }).join('')}</div>` : ''}
       <button class="btn-primary">Weiter</button></div>`;
   doc.body.appendChild(stage);
+  // Die Zahlen der Bilanz zählen hoch — der Moment, für den die Zeremonie da ist.
+  for (const b of stage.querySelectorAll('.stage-stats b[data-zahl]')) zaehleHoch(b, Number(b.dataset.zahl));
   confettiBurst(doc, { count: 120, duration: 2400 });
   stage.querySelector('button').addEventListener('click', () => stage.remove());
   return { tier, el: stage };
+}
+
+/**
+ * Counts a number up to its new value instead of swapping it (§6.3). The old
+ * value is read back from the element, so an award animates from where the
+ * display stood; the first paint of a session counts up from zero.
+ * Under reduced motion it sets the value and returns.
+ */
+export function zaehleHoch(el, ziel, { dauer = 850, suffix = '' } = {}) {
+  if (!el) return;
+  const schreib = v => { el.textContent = `${Math.round(v).toLocaleString('de-AT')}${suffix}`; };
+  const von = Number(String(el.textContent ?? '').replace(/[^\d]/g, '')) || 0;
+  if (von === ziel || matchMedia('(prefers-reduced-motion: reduce)').matches) { schreib(ziel); return; }
+  const t0 = performance.now();
+  const tick = t => {
+    const p = Math.min(1, (t - t0) / dauer);
+    const e = 1 - Math.pow(1 - p, 3);               // ease-out, wie --ease-out
+    schreib(von + (ziel - von) * e);
+    if (p < 1) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
 }

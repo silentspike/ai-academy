@@ -90,6 +90,14 @@ Nur `transform` + `opacity`. `prefers-reduced-motion: reduce` → alle Nicht-Fee
 Dauern: Micro (Hover) **120ms** · Feedback-Snap **240ms** · Panel/Route **320ms** · Staggered-Reveal **60ms/Element, max 8** · Zeremonie GROSS **1200ms** Choreo · Sitzungsstart-Sequenz **≤1500ms**, überspringbar (Klick/Esc/Enter).
 Hintergrund (Layer, §6.3): Aurora-Blobs 90–140s Loop, translate/scale ≤ 6%, opacity ≤ .5 — „kaum merklich".
 
+**Zahlen und Ringe bewegen sich, statt zu springen.** Ein Zahlenwert, der eine Leistung
+darstellt (XP, Tagesbilanz), zählt mit `zaehleHoch()` in **850ms** ease-out auf seinen neuen
+Stand hoch; der Ausgangswert wird aus der Anzeige gelesen, damit eine Gutschrift dort
+beginnt, wo der Nutzer zuletzt hingesehen hat. Fortschrittsringe füllen über das als
+`<angle>` registrierte Custom Property `--pring-deg` (**700ms**, `--ease-lin`) — ein
+`conic-gradient` allein lässt sich nicht überblenden. Unter `prefers-reduced-motion` setzen
+beide den Zielwert sofort.
+
 ## 6. Icon-Konstruktionsregeln (eigenes Set, Duotone-Glow)
 
 Generiert aus `tools/build-icons.mjs` (SSOT: `ICONS`-Definition dort) — Konsistenz per Skript erzwungen.

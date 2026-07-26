@@ -43,7 +43,7 @@
   --fs-xs:.75rem; --fs-sm:.85rem; --fs-base:1rem; --fs-lg:1.15rem; --fs-xl:1.4rem; --fs-2xl:1.8rem; --fs-hero:2.6rem;
   --sp-1:.25rem; --sp-2:.5rem; --sp-3:.75rem; --sp-4:1rem; --sp-5:1.5rem; --sp-6:2rem; --sp-7:3rem; --sp-8:4rem;
   --r-card:14px; --r-ctl:8px;
-  --ease-out:cubic-bezier(.16,1,.3,1); --ease-snap:cubic-bezier(.34,1.56,.64,1);
+  --ease-out:cubic-bezier(.16,1,.3,1); --ease-snap:cubic-bezier(.34,1.56,.64,1); --ease-lin:linear;
   --glow-focus:0 0 0 1px var(--line-strong),0 0 24px -8px rgba(34,211,238,.25);
 }
 
@@ -180,17 +180,57 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 .ico { width:1.25rem; height:1.25rem; vertical-align:-0.22rem; }
 .ico-glow { filter:drop-shadow(0 0 6px rgba(52,211,153,.45)); }
 
-/* ---------- 5. Quiz-Engine (Schritt 3) ---------- */
-.q { display:flex; flex-direction:column; gap:12px; }
-.q-scenario { font-size:.9rem; color:var(--dim); padding:var(--sp-3) var(--sp-4); }
-.q-prompt { font-size:1.02rem; font-weight:500; }
-.q-options { display:flex; flex-direction:column; gap:8px; }
-.q-opt { display:flex; align-items:center; gap:10px; text-align:left; padding:.65rem .8rem;
-  border-radius:10px; font-size:.92rem; line-height:1.45; }
-.q-opt.sel { border-color:var(--violet); background:rgba(138,112,239,.08); }
-.q-key { width:1.35rem; height:1.35rem; border-radius:6px; border:1px solid var(--line-strong);
-  display:grid; place-items:center; font-family:var(--font-mono); font-size:.72rem;
-  color:var(--faint); flex:none; }
+/* ---------- 5. Quiz-Engine ----------
+   The most frequent interaction in the product: drill, chapter test, exam and
+   every check inside a unit run through it. It rendered as borderless rows
+   across the full width — 1550 pixels of line for a four-word answer — with the
+   question outside any container and the number keys as small grey squares.
+
+   Reading measure applies here more than anywhere: these are the lines people
+   read under time pressure. */
+.q { display:flex; flex-direction:column; gap:16px; }
+/* Kopfzeile der Frage: Zähler links, Einordnung rechts — eine Fläche mit der
+   Frage darunter, getrennt durch eine Linie statt durch einen Kartenrand. */
+.q-meta { display:flex; align-items:baseline; justify-content:space-between; gap:14px; flex-wrap:wrap;
+  padding-bottom:12px; margin-bottom:16px; border-bottom:1px solid var(--line); }
+.q-zaehler { font-family:var(--font-display); font-size:1.02rem; font-weight:600; letter-spacing:-.01em; }
+.q-zaehler i { font-style:normal; color:var(--faint); font-weight:400; }
+.q-marken { display:flex; gap:6px; flex-wrap:wrap; }
+.q-marke { font-family:var(--font-mono); font-size:.68rem; letter-spacing:.06em; text-transform:uppercase;
+  padding:.22rem .5rem; border-radius:6px; color:var(--dim);
+  background:rgba(151,169,202,.06); border:1px solid var(--line); }
+.q-marke.variante { color:var(--amber); border-color:rgba(225,173,88,.3); background:rgba(225,173,88,.07); }
+.q-marke.streng { color:var(--violet); border-color:rgba(138,112,239,.32); background:rgba(138,112,239,.08); }
+.q-scenario { font-size:.92rem; color:var(--dim); line-height:1.6;
+  padding:var(--sp-4); border-left:2px solid rgba(101,216,178,.35); border-radius:0 10px 10px 0;
+  background:linear-gradient(90deg,rgba(101,216,178,.05),transparent 70%); max-width:var(--lese-max,68ch); }
+.q-prompt { font-size:clamp(1.05rem,1.5vw,1.22rem); font-weight:600; line-height:1.45;
+  font-family:var(--font-display); letter-spacing:-.005em; max-width:var(--lese-max,68ch); }
+.q-options { display:flex; flex-direction:column; gap:10px; max-width:min(78ch,100%); }
+.q-opt { display:flex; align-items:flex-start; gap:13px; text-align:left; padding:.85rem 1rem;
+  border-radius:11px; font-size:.94rem; line-height:1.55;
+  background:var(--panel); border:1px solid var(--line);
+  transition:border-color 120ms var(--ease-out), background 120ms var(--ease-out),
+             transform 120ms var(--ease-snap); }
+.q-opt:hover:not(:disabled) { border-color:rgba(138,112,239,.4); background:var(--panel-2);
+  transform:translateX(2px); }
+.q-opt.sel { border-color:var(--violet); background:rgba(138,112,239,.10);
+  box-shadow:0 0 0 3px rgba(138,112,239,.10); }
+/* The snap the design system asks for on answer feedback (§5, --ease-snap). */
+.q-opt.state-correct, .q-opt.state-wrong, .q-opt.state-partial { animation:antwort-snap 240ms var(--ease-snap); }
+@keyframes antwort-snap { 0%{transform:scale(1)} 45%{transform:scale(1.014)} 100%{transform:scale(1)} }
+.q-key { width:1.6rem; height:1.6rem; border-radius:7px; border:1px solid var(--line-strong);
+  display:grid; place-items:center; font-family:var(--font-num); font-size:.78rem; font-weight:600;
+  color:var(--dim); flex:none; background:var(--bg-deep,rgba(0,0,0,.25)); margin-top:1px;
+  transition:border-color 120ms, color 120ms, background 120ms; }
+.q-opt:hover .q-key { border-color:rgba(138,112,239,.5); color:var(--text); }
+.q-opt.sel .q-key { border-color:var(--violet); color:var(--violet); background:rgba(138,112,239,.14); }
+.q-opt.state-correct .q-key { border-color:var(--emerald); color:var(--emerald); }
+.q-opt.state-wrong .q-key { border-color:var(--red); color:var(--red); }
+@media (prefers-reduced-motion:reduce) {
+  .q-opt, .q-opt:hover { transition:none; transform:none; }
+  .q-opt.state-correct, .q-opt.state-wrong, .q-opt.state-partial { animation:none; }
+}
 .q-neg { color:var(--red); letter-spacing:.03em; }
 .q-freetext { width:100%; background:var(--panel); color:var(--text); border:1px solid var(--line);
   border-radius:10px; padding:.7rem .8rem; font:400 .92rem/1.5 var(--font-text); resize:vertical; }
@@ -233,14 +273,30 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 .dnd-feedback { font-size:.88rem; color:var(--dim); }
 
 /* Dialog / Bosskampf (#45b) */
-.dlg { display:flex; flex-direction:column; gap:10px; height:100%; min-height:0; }
-.dlg-head { display:flex; gap:10px; align-items:center; }
-.dlg-avatar { width:52px; height:52px; border-radius:50%; object-fit:cover;
-  border:1.5px solid var(--line-strong); box-shadow:0 0 14px rgba(138,112,239,.2); }
+/* Grows with the conversation instead of claiming the full card height. Filling
+   the viewport left 490px of emptiness between the opening line and the reply
+   box for the whole first exchange — the fixed frame was doing nothing for a
+   conversation that is three lines long. */
+.dlg { display:flex; flex-direction:column; gap:10px; min-height:0; }
+.dlg-head { display:flex; gap:14px; align-items:center; padding-bottom:14px;
+  border-bottom:1px solid var(--line); margin-bottom:4px; }
+.dlg-avatar { width:64px; height:64px; border-radius:50%; object-fit:cover;
+  border:2px solid rgba(138,112,239,.34); box-shadow:0 0 0 4px rgba(138,112,239,.07), 0 0 26px rgba(138,112,239,.28); }
 .dlg-who { display:flex; flex-direction:column; line-height:1.3; }
-.dlg-who span { color:var(--dim); font-size:.78rem; }
-.dlg-feed { flex:1; min-height:0; overflow-y:auto; display:flex; flex-direction:column; gap:8px; padding:4px 2px; }
-.bubble { max-width:78%; padding:.55rem .8rem; border-radius:12px; font-size:.9rem; line-height:1.5; }
+.dlg-who b { font-family:var(--font-display); font-size:1.05rem; font-weight:600; }
+.dlg-who span { color:var(--dim); font-size:.8rem; }
+/* Conversations grow from the bottom, the way every conversation does. Anchored
+   to the top, a single opening line left 550 pixels of nothing between it and
+   the reply box. */
+/* Kein justify-content:flex-end: sobald der Verlauf die Höhe überschreitet, ist
+   der obere Teil bei flex-end nicht mehr scrollbar erreichbar. Die Karte wächst
+   ohnehin mit dem Gespräch, bis diese Grenze greift. */
+.dlg-feed { min-height:0; max-height:min(58vh, 620px); overflow-y:auto; display:flex; flex-direction:column;
+  gap:12px; padding:14px 2px; }
+.bubble { max-width:74%; padding:.75rem 1rem; border-radius:14px; font-size:.94rem; line-height:1.6;
+  animation:blase-auf 280ms var(--ease-out) both; }
+@keyframes blase-auf { from { opacity:0; transform:translateY(8px) scale(.99); } to { opacity:1; transform:none; } }
+@media (prefers-reduced-motion:reduce) { .bubble { animation:none; } }
 .bubble.them { align-self:flex-start; background:var(--panel-2); border:1px solid var(--line);
   border-bottom-left-radius:4px; }
 .bubble.me { align-self:flex-end; background:rgba(138,112,239,.14); border:1px solid rgba(138,112,239,.3);
@@ -249,8 +305,12 @@ button:disabled { opacity:.45; cursor:not-allowed; }
   background:var(--faint); margin-right:.2rem; animation:typing 1s infinite; }
 .bubble.typing i:nth-child(2) { animation-delay:.15s; } .bubble.typing i:nth-child(3) { animation-delay:.3s; }
 @keyframes typing { 0%,60%,100% { transform:none; opacity:.4; } 30% { transform:translateY(-3px); opacity:1; } }
-.dlg-moves { display:flex; flex-wrap:wrap; gap:6px; }
-.dlg-move { font-size:.8rem; padding:.35rem .7rem; border-radius:999px; }
+.dlg-moves { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:4px; }
+.dlg-move { font-size:.83rem; padding:.5rem .95rem; border-radius:999px;
+  background:var(--panel); border:1px solid var(--line);
+  transition:border-color 120ms, background 120ms, transform 120ms var(--ease-snap); }
+.dlg-move:hover { border-color:rgba(101,216,178,.45); background:var(--panel-2); transform:translateY(-1px); }
+@media (prefers-reduced-motion:reduce) { .dlg-move:hover { transform:none; } }
 .dlg-inputrow { display:flex; gap:8px; }
 .dlg-inputrow textarea { flex:1; background:var(--panel); color:var(--text); border:1px solid var(--line);
   border-radius:10px; padding:.55rem .7rem; font:400 .9rem/1.4 var(--font-text); resize:none; }
@@ -286,10 +346,10 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 
 /* ---- Zuordnungs-Fragen (Typ assign, Task 9) ---- */
 .q-assign-row{display:grid;grid-template-columns:minmax(160px,1fr) 2fr;gap:10px;margin-bottom:10px;align-items:start}
-.q-assign-left{font-weight:600;font-size:.85rem;padding:8px 10px;background:var(--layer2,#111827);border-radius:8px}
+.q-assign-left{font-weight:600;font-size:.85rem;padding:8px 10px;background:var(--panel);border-radius:8px}
 .q-assign-opts{display:flex;flex-wrap:wrap;gap:6px}
 .q-assign-opt{font-size:.78rem;padding:6px 10px}
-.q-assign-opt.sel{outline:2px solid var(--emerald,#34d399)}
+.q-assign-opt.sel{outline:2px solid var(--emerald)}
 
 /* ---- Persönlicher Lernnachweis (#35) ----
    A white sheet inside a dark application: every colour has to be set again
@@ -367,10 +427,10 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 
 /* ---- Session-Ritual (#32/#33) ---- */
 .ritual{display:flex;flex-direction:column;gap:8px;margin-top:10px}
-.ritual-step{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:10px;background:var(--layer2,#111827);border:1px solid rgba(255,255,255,.06);text-decoration:none;color:inherit;transition:border-color .2s,transform .15s}
-.ritual-step:hover:not(.locked){border-color:var(--emerald,#34d399);transform:translateX(2px)}
-.ritual-step.active{border-color:var(--emerald,#34d399);box-shadow:0 0 0 1px rgba(52,211,153,.25)}
-.ritual-step.done .ritual-num{background:rgba(52,211,153,.18);color:var(--emerald,#34d399)}
+.ritual-step{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:10px;background:var(--panel);border:1px solid rgba(255,255,255,.06);text-decoration:none;color:inherit;transition:border-color .2s,transform .15s}
+.ritual-step:hover:not(.locked){border-color:var(--emerald);transform:translateX(2px)}
+.ritual-step.active{border-color:var(--emerald);box-shadow:0 0 0 1px rgba(52,211,153,.25)}
+.ritual-step.done .ritual-num{background:rgba(52,211,153,.18);color:var(--emerald)}
 .ritual-step.locked{opacity:.45;cursor:not-allowed}
 .ritual-num{flex:0 0 26px;height:26px;display:grid;place-items:center;border-radius:50%;background:rgba(255,255,255,.06);font-size:.8rem;font-weight:600}
 .ritual-txt{display:flex;flex-direction:column;gap:1px;font-size:.86rem}
@@ -378,8 +438,12 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 .ritual-warn{margin-top:10px;padding:9px 12px;border-radius:8px;background:rgba(225,173,88,.12);border:1px solid rgba(225,173,88,.35);font-size:.82rem}
 .block-note{border-color:rgba(225,173,88,.35)!important}
 .wrap-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:12px 0}
-.wrap-stats div{background:var(--layer2,#111827);border-radius:10px;padding:12px;text-align:center}
-.wrap-stats b{display:block;font-size:1.5rem;font-family:'Space Grotesk',system-ui}
+.wrap-stats div{background:var(--panel);border-radius:10px;padding:12px;text-align:center}
+.wrap-stats b{display:block;font-size:1.5rem;font-family:var(--font-num),var(--font-display);font-weight:600;letter-spacing:-.02em}
+/* Wortwerte stehen neben Zahlen — gleiche Zeilenhöhe, kleinerer Grad, damit die
+   Kachel nicht kippt. Ein "—" an dieser Stelle las sich wie ein fehlender Wert. */
+.wrap-stats b.wert-ja,.wrap-stats b.wert-offen{font-size:1.02rem;line-height:1.47;font-family:var(--font-display)}
+.wrap-stats b.wert-ja{color:var(--emerald)} .wrap-stats b.wert-offen{color:var(--faint)}
 .wrap-stats span{font-size:.72rem;opacity:.7}
 .wrap-kurs{margin:18px 0 0;padding:14px 16px;border-radius:10px;border:1px solid var(--line);
   background:rgba(255,255,255,.02);font-size:.9rem}
@@ -398,13 +462,20 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 /* ---- Sidebar: Phasen-Baum + Zähler (#42) ---- */
 .phase-tree{display:flex;flex-direction:column;gap:1px}
 .ph.phase{padding:5px 8px;font-size:.79rem;gap:9px}
-.pring{position:relative;flex:0 0 22px;height:22px;border-radius:50%;display:grid;place-items:center}
-.pring::after{content:'';position:absolute;inset:3px;border-radius:50%;background:var(--layer1,#0d1420)}
+/* Fortschrittsring: der Winkel ist als Farbwinkel registriert und damit
+   animierbar — ein conic-gradient allein lässt sich nicht überblenden, der Ring
+   sprang also von Stand zu Stand statt zu füllen (§6.3 Motion). */
+@property --pring-deg { syntax:'<angle>'; inherits:false; initial-value:0deg; }
+.pring{position:relative;flex:0 0 22px;height:22px;border-radius:50%;display:grid;place-items:center;
+  background:conic-gradient(var(--emerald) var(--pring-deg), rgba(255,255,255,.08) 0);
+  transition:--pring-deg .7s var(--ease-lin)}
+@media (prefers-reduced-motion:reduce){ .pring{transition:none} }
+.pring::after{content:'';position:absolute;inset:3px;border-radius:50%;background:var(--bg-deep)}
 .pring i{position:relative;z-index:1;font-style:normal;font-size:.62rem;opacity:.85;font-family:'JetBrains Mono',monospace}
 .ph.phase .lbl{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.pcheck{color:var(--emerald,#34d399);font-size:.8rem}
+.pcheck{color:var(--emerald);font-size:.8rem}
 .ph.phase-passed .lbl{opacity:.75}
-.count.aufhol{background:rgba(225,173,88,.18);color:var(--gold,#e1ad58);margin-left:3px}
+.count.aufhol{background:rgba(225,173,88,.18);color:var(--gold);margin-left:3px}
 .ph.state-locked{opacity:.5}
 
 /* ---- Lernen-Ansicht (#3/#19) ---- */
@@ -422,7 +493,7 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 .ph.done .lbl{opacity:.65}
 .ph.skipped .lbl{opacity:.65;font-style:italic}
 .btn-mini{font-size:.68rem;padding:4px 9px;border-radius:7px;border:1px solid rgba(255,255,255,.12);text-decoration:none;color:inherit;opacity:.7}
-.btn-mini:hover{opacity:1;border-color:var(--emerald,#34d399)}
+.btn-mini:hover{opacity:1;border-color:var(--emerald)}
 .lern-test{margin:6px 0 2px;font-size:.74rem;opacity:.7}
 
 /* ---- ErwG-Explorer (#4, Phase 10) ---- */
@@ -431,11 +502,11 @@ button:disabled { opacity:.45; cursor:not-allowed; }
    shell.css, and whichever rule won last decided whether a text label fitted —
    the filter pills overflowed their row by up to 40px. */
 .erwg-filter .chip{width:auto;height:auto;border-radius:999px;font-size:.7rem;padding:4px 10px;
-  background:var(--layer2,#111827);border:1px solid rgba(255,255,255,.08);color:inherit;cursor:pointer;
+  background:var(--panel);border:1px solid rgba(255,255,255,.08);color:inherit;cursor:pointer;
   white-space:nowrap}
-.erwg-filter .chip.active{border-color:var(--emerald,#34d399);color:var(--emerald,#34d399)}
+.erwg-filter .chip.active{border-color:var(--emerald);color:var(--emerald)}
 .erwg-list{display:flex;flex-direction:column;gap:6px;max-height:460px;overflow-y:auto;padding-right:4px}
-.erwg-item{background:var(--layer2,#111827);border-radius:9px;padding:9px 12px;font-size:.83rem}
+.erwg-item{background:var(--panel);border-radius:9px;padding:9px 12px;font-size:.83rem}
 .erwg-item summary{cursor:pointer;line-height:1.45}
 .erwg-item blockquote{margin:8px 0 2px;padding:8px 10px;border-left:2px solid rgba(52,211,153,.4);font-size:.74rem;opacity:.8}
 .erwg-einsatz{font-size:.78rem;margin:8px 0 0;opacity:.9}
@@ -548,3 +619,103 @@ button:disabled { opacity:.45; cursor:not-allowed; }
   font-family:var(--font-display); font-size:clamp(1.1rem,2.2vw,1.5rem); font-weight:600;
   letter-spacing:-.01em; text-shadow:0 2px 14px rgba(0,0,0,.6); }
 @media (prefers-reduced-motion:reduce) { .phasen-cover img { animation:none; } }
+
+
+/* ---------------------------------------------------------------- exam stage */
+.examen-buehne { position:relative; }
+.examen-buehne::before { content:''; position:absolute; inset:-24px -24px auto -24px; height:200px;
+  background:radial-gradient(60% 100% at 30% 0%, rgba(225,173,88,.10), transparent 70%);
+  pointer-events:none; border-radius:14px; }
+.ex-teile { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px; margin:22px 0 18px; }
+.ex-teil { position:relative; padding:16px 18px 16px 52px; border-radius:12px;
+  background:var(--panel); border:1px solid var(--line); }
+.ex-teil .ex-nr { position:absolute; left:16px; top:16px; width:26px; height:26px; border-radius:8px;
+  display:grid; place-items:center; font-family:var(--font-display); font-weight:600; font-size:.85rem;
+  color:var(--gold); background:rgba(225,173,88,.12); border:1px solid rgba(225,173,88,.3); }
+.ex-teil b { display:block; font-size:.95rem; margin-bottom:3px; }
+.ex-teil span:not(.ex-nr) { font-size:.82rem; color:var(--faint); line-height:1.5; }
+.ex-regel { font-size:.85rem; color:var(--dim); margin:0 0 18px; }
+.ex-fuss { font-size:.78rem; }
+.ex-start-zeile { margin-top:22px; padding-top:20px; border-top:1px solid var(--line); }
+.ex-start-zeile .btn-primary { padding:13px 34px; font-size:1rem; border-radius:11px;
+  box-shadow:0 8px 28px -10px rgba(52,211,153,.6);
+  transition:transform 120ms var(--ease-snap), box-shadow 160ms var(--ease-out); }
+.ex-start-zeile .btn-primary:hover { transform:translateY(-1px); box-shadow:0 12px 32px -10px rgba(52,211,153,.7); }
+@media (prefers-reduced-motion:reduce) { .ex-start-zeile .btn-primary:hover { transform:none; } }
+
+/* ---------- Wiederholung: Leitner-Karte (#34, §6.3) ----------
+   Had no styling of its own: question, "Antwort zeigen" and the confidence
+   buttons stacked as bare text on the card background. This is the surface the
+   day starts with — it gets a front, a divider and a verdict row. */
+.karte-lauf { display:flex; align-items:center; gap:12px; margin:2px 0 16px; }
+.karte-lauf-bar { flex:1; height:5px; border-radius:3px; background:rgba(151,169,202,.10); overflow:hidden; }
+.karte-lauf-bar i { display:block; height:100%; border-radius:3px;
+  background:linear-gradient(90deg,var(--violet),var(--cyan)); transition:width .45s var(--ease-out); }
+.karte-lauf-txt { font-size:.78rem; color:var(--dim); white-space:nowrap; }
+.karte-lauf-txt b { color:var(--text); font-weight:600; }
+
+.karte-blatt { position:relative; border-radius:var(--r-card); border:1px solid var(--line-strong);
+  background:var(--grad-card-soft); padding:var(--sp-6) var(--sp-5) var(--sp-5);
+  box-shadow:var(--card-shadow); overflow:hidden; }
+/* Light edge above, the way every other raised surface in the product carries it */
+.karte-blatt::before { content:''; position:absolute; inset:0 0 auto; height:2px;
+  background:linear-gradient(90deg,transparent,rgba(138,112,239,.55),transparent); }
+.karte-marken { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:var(--sp-4); }
+.karte-front { font-family:var(--font-display); font-size:clamp(1.15rem,1.8vw,1.5rem); font-weight:600;
+  line-height:1.4; letter-spacing:-.01em; max-width:var(--lese-max,68ch); text-wrap:balance; }
+.karte-flip { margin-top:var(--sp-5); }
+.karte-leer { color:var(--faint); font-style:italic; font-weight:400; font-size:.95rem; }
+.karte-trenner { display:flex; align-items:center; gap:12px; margin:var(--sp-5) 0 var(--sp-4);
+  font-family:var(--font-mono); font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; color:var(--faint); }
+.karte-trenner::after { content:''; flex:1; height:1px; background:var(--line); }
+.karte-back { font-size:1rem; line-height:1.7; color:var(--text); max-width:var(--lese-max,68ch);
+  animation:karte-auf 300ms var(--ease-out) both; }
+.karte-urteil { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:var(--sp-5); }
+.karte-frage-lbl { font-size:.82rem; color:var(--dim); margin-right:2px; }
+.ku { font-size:.85rem; padding:.5rem 1rem; border-radius:999px; border:1px solid var(--line-strong);
+  background:var(--panel); color:var(--text);
+  transition:border-color 130ms, background 130ms, transform 130ms var(--ease-snap); }
+.ku:hover { transform:translateY(-1px); }
+.ku-ja:hover    { border-color:rgba(101,216,178,.5); background:rgba(101,216,178,.10); color:var(--emerald); }
+.ku-halb:hover  { border-color:rgba(225,173,88,.5);  background:rgba(225,173,88,.10);  color:var(--amber); }
+.ku-nein:hover  { border-color:rgba(217,117,104,.5); background:rgba(217,117,104,.10); color:var(--red); }
+@media (prefers-reduced-motion:reduce) { .ku:hover { transform:none; } .karte-back { animation:none; } }
+.karte-hinweis { margin-top:var(--sp-3); font-size:.76rem; color:var(--faint); max-width:var(--lese-max,68ch); }
+
+/* ---------- Gate vor dem Kapiteltest: der Weg statt eines Absatzes ---------- */
+.tor-weg { display:flex; align-items:stretch; gap:14px; margin:22px 0 4px; flex-wrap:wrap; }
+.tor-schritt { flex:1 1 260px; position:relative; padding:16px 18px 16px 52px; border-radius:12px;
+  background:var(--panel); border:1px solid var(--line); }
+.tor-schritt.jetzt { border-color:rgba(225,173,88,.32); background:rgba(225,173,88,.05); }
+.tor-nr { position:absolute; left:16px; top:16px; width:26px; height:26px; border-radius:8px;
+  display:grid; place-items:center; font-family:var(--font-display); font-weight:600; font-size:.85rem;
+  color:var(--faint); background:rgba(151,169,202,.07); border:1px solid var(--line-strong); }
+.tor-schritt.jetzt .tor-nr { color:var(--gold); background:rgba(225,173,88,.12); border-color:rgba(225,173,88,.3); }
+.tor-schritt b { display:block; font-size:.95rem; margin-bottom:3px; }
+.tor-schritt span:not(.tor-nr) { font-size:.82rem; color:var(--faint); line-height:1.5; }
+.tor-pfeil { align-self:center; color:var(--faint); font-size:1.1rem; }
+.tor-warum { margin-top:18px; font-size:.88rem; color:var(--dim); max-width:var(--lese-max,68ch); }
+
+/* ---------- Onboarding Schritt 1: Verbindungsstatus als Zustand, nicht als Fließtext ---------- */
+.verb-status { display:flex; gap:14px; align-items:flex-start; padding:16px 18px; border-radius:12px;
+  border:1px solid var(--line-strong); background:var(--panel); }
+.verb-status.ok   { border-color:rgba(101,216,178,.32); background:rgba(101,216,178,.05); }
+.verb-status.warn { border-color:rgba(225,173,88,.32);  background:rgba(225,173,88,.05); }
+.verb-punkt { width:10px; height:10px; border-radius:50%; margin-top:7px; flex:none; }
+.verb-status.ok .verb-punkt   { background:var(--emerald); box-shadow:0 0 0 4px rgba(101,216,178,.14), 0 0 16px rgba(101,216,178,.6); }
+.verb-status.warn .verb-punkt { background:var(--amber);   box-shadow:0 0 0 4px rgba(225,173,88,.14), 0 0 16px rgba(225,173,88,.55); }
+.verb-txt { display:flex; flex-direction:column; gap:3px; }
+.verb-txt b { font-family:var(--font-display); font-size:.98rem; }
+.verb-txt span { font-size:.85rem; color:var(--dim); line-height:1.55; }
+.verb-daten { display:flex; gap:10px; flex-wrap:wrap; margin:16px 0 0; }
+.verb-daten > div { flex:1 1 150px; padding:11px 14px; border-radius:10px;
+  background:rgba(151,169,202,.04); border:1px solid var(--line); }
+.verb-daten dt { font-family:var(--font-mono); font-size:.66rem; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--faint); margin-bottom:4px; }
+.verb-daten dd { font-size:.95rem; font-weight:600; }
+.verb-hinweis { margin-top:16px; font-size:.82rem; color:var(--faint); line-height:1.6; max-width:var(--lese-max,68ch); }
+.karte-anker { margin-top:var(--sp-4); padding:12px 14px 12px 16px; border-radius:0 10px 10px 0;
+  border-left:2px solid rgba(101,216,178,.4); background:linear-gradient(90deg,rgba(101,216,178,.06),transparent 72%);
+  font-size:.94rem; line-height:1.65; color:var(--text); max-width:var(--lese-max,68ch); }
+.ka-lbl { display:block; font-family:var(--font-mono); font-size:.64rem; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--emerald); margin-bottom:5px; }

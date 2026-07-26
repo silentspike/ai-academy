@@ -269,7 +269,7 @@ export async function paintSidebar(state) {
     const deg = Math.round(pct * 360);
     const aktiv = pid === aktivePhase;
     return `<a class="ph phase${test?.passed ? ' phase-passed' : ''}${aktiv ? ' phase-aktiv' : ''}" href="#/lernen/${pid}" title="${units.length} Einheiten · ${fertig} erledigt${test?.passed ? ' · Kapiteltest bestanden' : ''}">
-      <span class="pring" style="background:conic-gradient(var(--emerald,#34d399) ${deg}deg, rgba(255,255,255,.08) 0)"><i>${pid.slice(1)}</i></span>
+      <span class="pring" style="--pring-deg:${deg}deg"><i>${pid.slice(1)}</i></span>
       <span class="lbl"><span class="ph-name">Phase ${i + 1} · ${label}</span>
         <span class="ph-bar"><i style="width:${Math.round(pct * 100)}%"></i></span></span>
       ${test?.passed ? '<span class="pcheck">✓</span>' : aktiv ? '<span class="pcheck ph-pfeil">›</span>' : ''}</a>`;
@@ -316,7 +316,11 @@ function introSequence(state) {
     const h = new Date().getHours();
     const wg = h < 11 ? 'Guten Morgen' : h < 18 ? 'Guten Tag' : 'Guten Abend';
     const due = state.cards.filter(c => c.due <= Date.now()).length;
-    greet.textContent = `${wg} — ${due} Karten fällig.`;
+    // Tagesfokus, nicht nur Begrüßung (§6.3): wo es weitergeht, steht dabei —
+    // das ist die Entscheidung, die das Sitzungsritual dem Nutzer abnimmt (#32).
+    const offen = PHASEN.find(([pid]) => !state.chapterTests?.[pid]?.passed);
+    const weiter = offen ? ` · weiter in ${offen[1]}` : ' · alle Kapitel bestanden';
+    greet.textContent = `${wg} — ${due} ${due === 1 ? 'Karte' : 'Karten'} fällig${weiter}.`;
   }
   return new Promise(res => {
     const done = () => { el.classList.add('out'); setTimeout(() => { el.remove(); res(); }, 250); };
@@ -357,9 +361,17 @@ export function setzeSetupModus(ctx, doc = document) {
   return true;
 }
 
+/** ISO-Datum als ausgeschriebener österreichischer Text; leer bleibt leer. */
+export function datumLang(iso) {
+  if (!iso) return 'noch kein Termin gesetzt';
+  const d = new Date(iso + 'T12:00:00');
+  if (Number.isNaN(d.getTime())) return '';
+  return d.toLocaleDateString('de-AT', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+}
+
 export function paintTopbar(state) {
   const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
-  set('tb-xp', `${state.xp.toLocaleString('de-AT')} XP`);
+  zaehleHoch(document.getElementById('tb-xp'), state.xp ?? 0, { suffix: ' XP' });
   set('tb-level', String(state.level));
   // The level title is the reward the ladder is built around (#28); showing the
   // bare number withholds it.
@@ -394,7 +406,7 @@ function markActiveNav(path) {
 import { renderHeatmap, renderRadar, renderCurve, renderXpBars, renderExamHistory } from './dashboard.js';
 import { aggregateCompetencies, radarData } from './competency.js';
 import { splitQueues } from './engine-leitner.js';
-import { ceremony, CEREMONY, levelFor, weekProgress, wochenpunkte } from './gamification.js';
+import { ceremony, CEREMONY, levelFor, weekProgress, wochenpunkte, zaehleHoch } from './gamification.js';
 import { einheitenGesamt, coverPfad } from './content-index.js';
 
 route('dashboard', async (view, ctx) => {
@@ -625,7 +637,7 @@ route('lernen', async (view, ctx, [phaseFilter]) => {
   view.innerHTML = `<div class="card${cover ? ' hat-cover' : ''}">
     ${cover ? `<div class="phasen-cover"><img src="${cover}" alt="" loading="lazy" onerror="this.closest('.phasen-cover').remove()">
       <div class="pc-verlauf"></div><div class="pc-titel">${PHASE_LABEL[phaseFilter] ?? phaseFilter}</div></div>` : ''}
-    <div class="chead"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-lernen"/></svg></span><span class="t"><h3>Lernen${phaseFilter ? ` — ${PHASE_LABEL[phaseFilter] ?? phaseFilter}` : ''}</h3>
+    <div class="chead"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-lernen"/></svg></span><span class="t"><h3>${phaseFilter ? 'Einheiten dieser Phase' : 'Lernen'}</h3>
     <span class="sub">${phaseFilter ? '<a href="#/lernen">alle Phasen</a>' : 'Vollständiger Stoff, nach Rollen-Relevanz geordnet — jede Phase ist jederzeit zugänglich, die Reihenfolge ist eine Empfehlung. Überspringen erfordert einen Challenge-Test.'}</span></span></div>
     <div id="unit-list"></div></div>`;
   const list = view.querySelector('#unit-list');
@@ -685,6 +697,21 @@ route('einheit', async (view, ctx, [unitId]) => {
 // ---------- Wiederholung (Kern-/Aufholwarteschlange, #32/#34) ----------
 import { planAufhol, review, newCard } from './engine-leitner.js';
 
+/**
+ * Back of a card: definition, and — where the content carries one — the memory
+ * anchor as its own block. It used to be one run-on paragraph joined by an
+ * emoji; the anchor is the part that has to stick, so it gets its own surface.
+ */
+function karteRueckseite(back) {
+  if (!back) return '<p class="karte-back"><span class="karte-leer">Keine Antwort hinterlegt.</span></p>';
+  const i = back.indexOf('Merkanker:');
+  if (i < 0) return `<p class="karte-back">${back}</p>`;
+  const def = back.slice(0, i).trim();
+  const anker = back.slice(i + 'Merkanker:'.length).trim();
+  return `${def ? `<p class="karte-back">${def}</p>` : ''}
+    <p class="karte-anker"><span class="ka-lbl">Merkanker</span>${anker}</p>`;
+}
+
 route('karten', async (view, ctx) => {
   // Glossar-Kategorie (#6): Begriffskarten laufen wie alle anderen durchs Leitner-System
   if (!ctx.state.glossarCardsSeeded) {
@@ -698,6 +725,7 @@ route('karten', async (view, ctx) => {
       await ctx.saveState();
     } catch { /* Glossar-Karten sind Zusatz */ }
   }
+  let startGesamt = null;                 // Tagespensum beim Einstieg — Bezugsgröße des Balkens
   const paint = () => {
     const q = splitQueues(ctx.state.cards ?? [], Date.now());
     const aufholToday = planAufhol(q.aufholMeta, { perDay: 15 }).today;
@@ -707,15 +735,28 @@ route('karten', async (view, ctx) => {
       return;
     }
     const c = queue[0];
-    view.innerHTML = `<div class="card"><div class="chead"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-karten"/></svg></span><span class="t"><h3>Wiederholung</h3><span class="sub">Kern ${q.kern.length} · Aufholen heute ${aufholToday.length}</span></span></div>
-      <div class="card unit-block karte-blatt"><div class="unit-tag">${c.competency ?? ''}${c.level ? ' · Stufe ' + c.level : ''}</div>
+    // Which of today's cards this is — without it the view gives no sense of how
+    // much is left, and every card looks like the first one.
+    const gesamt = q.kern.length + aufholToday.length;
+    if (startGesamt === null) startGesamt = gesamt;
+    const erledigt = Math.max(0, startGesamt - gesamt);
+    const istAufhol = !q.kern.includes(c);
+    view.innerHTML = `<div class="card"><div class="chead violett"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-karten"/></svg></span><span class="t"><h3>Wiederholung</h3><span class="sub">Kern ${q.kern.length} · Aufholen heute ${aufholToday.length} · Pflicht vor neuem Stoff (#34)</span></span></div>
+      <div class="karte-lauf"><span class="karte-lauf-bar"><i style="width:${Math.round(erledigt / Math.max(startGesamt, 1) * 100)}%"></i></span>
+        <span class="karte-lauf-txt">${erledigt} von ${startGesamt} · noch <b>${gesamt}</b> ${gesamt === 1 ? 'Karte' : 'Karten'}</span></div>
+      <div class="karte-blatt">
+        <div class="karte-marken"><span class="q-marke">${c.competency ?? 'ohne Kompetenz'}</span>${c.level ? `<span class="q-marke">Stufe ${c.level}</span>` : ''}<span class="q-marke ${istAufhol ? 'variante' : ''}">${istAufhol ? 'Aufholen' : 'Kern'}</span>${c.kind === 'glossar' ? '<span class="q-marke">Glossar</span>' : ''}</div>
         <p class="karte-front">${c.front ?? '<span class="karte-leer">Diese Karte hat keinen Fragetext — sie stammt aus einem Import oder einem Testlauf.</span>'}</p>
-        <div id="k-back" hidden><p class="karte-back">${c.back ?? '<span class="karte-leer">Keine Antwort hinterlegt.</span>'}</p>
-          <div class="q-confidence"><span>Gewusst?</span>
-            <button data-r="richtig-sicher">richtig · sicher</button>
-            <button data-r="richtig-unsicher">richtig · unsicher</button>
-            <button data-r="falsch">falsch</button></div></div>
-        <button class="btn-primary" id="k-flip">Antwort zeigen</button>
+        <button class="btn-primary karte-flip" id="k-flip">Antwort zeigen</button>
+        <div id="k-back" hidden>
+          <div class="karte-trenner"><span>Antwort</span></div>
+          ${karteRueckseite(c.back)}
+          <div class="karte-urteil"><span class="karte-frage-lbl">Gewusst?</span>
+            <button data-r="richtig-sicher" class="ku ku-ja">richtig · sicher</button>
+            <button data-r="richtig-unsicher" class="ku ku-halb">richtig · unsicher</button>
+            <button data-r="falsch" class="ku ku-nein">falsch</button></div>
+          <p class="karte-hinweis">„sicher“ verlängert den Abstand am stärksten — „unsicher“ hält die Karte nah dran (Leitner, §3).</p>
+        </div>
       </div></div>`;
     view.querySelector('#k-flip').onclick = () => { view.querySelector('#k-back').hidden = false; view.querySelector('#k-flip').hidden = true; };
     view.querySelectorAll('[data-r]').forEach(b => b.onclick = () => {
@@ -778,10 +819,12 @@ route('boss', async (view, ctx, [scenarioId]) => {
 
   const wrap = document.createElement('div');
   wrap.className = 'card';
-  wrap.style.cssText = 'height:100%;display:flex;flex-direction:column';
+  // No forced full height: the card grows with the conversation. Pinned to 100%
+  // it kept a 490px void between the opening line and the reply box.
+  wrap.style.cssText = 'display:flex;flex-direction:column';
   wrap.innerHTML = `<div class="chead"><span class="t"><h3>${scenario.title}</h3><span class="sub">Bosskampf · ${arch?.name ?? ''}${scenario.persona.organisation ? ` · ${scenario.persona.organisation}` : ''} · Phase <span id="b-phase">1</span>/${scenario.phases.length}</span></span>
     <span class="actions"><button id="b-next" class="btn" style="font-size:.75rem">Phase abschließen ▸</button></span></div>
-    <div id="b-dlg" style="flex:1;min-height:0"></div>`;
+    <div id="b-dlg" style="min-height:0"></div>`;
   view.appendChild(wrap);
   const dmount = wrap.querySelector('#b-dlg');
 
@@ -865,12 +908,23 @@ route('einstellungen', (view, ctx) => {
     <label class="feld"><span class="feld-name">Minuten pro Tag</span><input id="s-min" type="number" min="10" max="480" value="${st.pace?.minutesPerDay ?? 45}"></label>
     <label class="feld"><span class="feld-name">Lerntage pro Woche</span><input id="s-days" type="number" min="1" max="7" value="${st.pace?.daysPerWeek ?? 5}"></label>
     <label class="feld"><span class="feld-name">Wochenziel (Tage mit Lernen)</span><input id="s-goal" type="number" min="1" max="7" value="${st.week?.goalDays ?? 5}"></label>
-    <label class="feld"><span class="feld-name">Meilenstein 1 (Datum)</span><input id="s-m1" type="date" value="${ms[0]?.date ?? ''}"></label>
-    <label class="feld"><span class="feld-name">Meilenstein 2 (Datum)</span><input id="s-m2" type="date" value="${ms[1]?.date ?? ''}"></label>
+    <label class="feld"><span class="feld-name">Meilenstein 1 (Datum)</span><input id="s-m1" type="date" value="${ms[0]?.date ?? ''}"><span class="feld-hilfe" id="s-m1-lang">${datumLang(ms[0]?.date)}</span></label>
+    <label class="feld"><span class="feld-name">Meilenstein 2 (Datum)</span><input id="s-m2" type="date" value="${ms[1]?.date ?? ''}"><span class="feld-hilfe" id="s-m2-lang">${datumLang(ms[1]?.date)}</span></label>
     </div>
     <div class="formular-fuss"><span class="dim" id="s-msg"></span><button class="btn-primary" id="s-save">Speichern</button></div>
     <p class="dim fussnote">Rechtsstand ${LEGAL_STATE.replace('Rechtsstand ', '')} · Bewertungs-Regime wechselt bei Modell-/Rubrik-Änderung automatisch in eine neue Score-Serie (#17).</p>`;
   view.appendChild(c);
+  // Ausgeschriebenes Datum unter dem Feld. Ein natives Datumsfeld wird in der
+  // Sprache der Browser-Anwendung dargestellt, nicht in der des Dokuments:
+  // gemessen zeigte dasselbe Feld „09/01/2026", während navigator.language
+  // de-AT meldete. Welcher Tag gemeint ist, darf nicht davon abhängen, in
+  // welcher Sprache jemand seinen Browser installiert hat.
+  for (const id of ['s-m1', 's-m2']) {
+    const feld = c.querySelector('#' + id);
+    feld.addEventListener('input', () => {
+      c.querySelector('#' + id + '-lang').textContent = datumLang(feld.value);
+    });
+  }
   c.querySelector('#s-save').onclick = () => {
     st.pace = { minutesPerDay: +c.querySelector('#s-min').value, daysPerWeek: +c.querySelector('#s-days').value };
     st.week = { ...(st.week ?? {}), goalDays: +c.querySelector('#s-goal').value };

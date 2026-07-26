@@ -77,8 +77,10 @@ export async function renderUnit(mount, unitId, ctx) {
       case 'concept':
         card.innerHTML = `<div>${b.html}</div>`; break;
       case 'merkbild':
+        // Beschriftet wie jeder andere Blocktyp. Vorher trug allein ein Emoji im
+        // Fließtext die Kennzeichnung — in einem Produkt mit eigenem Icon-Set.
         card.classList.add('unit-merkbild');
-        card.innerHTML = `<div>${b.html}</div>`; break;
+        card.innerHTML = `<div class="unit-tag">Merkbild</div><div>${b.html}</div>`; break;
       case 'beispiel': {
         // Fixed didactic intent, profile-variable dressing. If the profile carries a
         // dressing for this slot, it replaces the generic text.
