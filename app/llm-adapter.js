@@ -11,6 +11,12 @@ export const FRONTIER_PATTERNS = [
   /^claude-(opus|sonnet|fable|mythos)/i,   // Anthropic-Frontier-Klassen
   /^(gpt-[45]|gpt-\d{2,}|o[3-9])/i,        // OpenAI-Frontier-Klassen
   /^codex/i,                                // ChatGPT-Abo via codex-CLI
+  // Aliases. The CLI accepts `opus`, `sonnet` and `fable` for "the newest of
+  // that class", and the bridge asks that way on purpose so it cannot get stuck
+  // on a superseded version. Without these the gate read the alias as an unknown
+  // model and locked every summative function — the whole examination system,
+  // over a naming convention.
+  /^(opus|sonnet|fable|mythos)$/i,
 ];
 
 export function isFrontierModel(model) {
