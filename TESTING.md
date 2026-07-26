@@ -53,6 +53,34 @@ node tools/legal-audit.mjs "Art. 6"  # which content hangs off which provision
 Evidenced state: 132 unit tests, 310 of 310 questions with no finding in the
 script comparison, schema validation without errors.
 
+## How long a run takes, and why
+
+A pull request should answer in under ninety seconds. That number is not a
+preference: past it, people stop waiting for the result and start merging on
+faith.
+
+Where the time goes, measured rather than assumed:
+
+| | Before | Now |
+|---|---|---|
+| Browser per job | 21 s downloading | 0 s, from the cache |
+| Confirming system libraries | 12 s in apt | skipped on a cache hit |
+| Functional shards | 8 | 12 |
+| Merged report on the critical path | yes | no — it is an artefact, not a check |
+| **First job to last** | **98–99 s** | **75 s** |
+
+Three of those four changes remove waiting, not checking. The fourth — twelve
+shards instead of eight — spends more runner time to shorten the wall clock,
+which is the trade a pull request wants and a nightly run does not.
+
+What stays off a pull request: the operation sweep and the screenshot sheets.
+Both are minutes, both run on main, and both are deferred by exactly one merge
+rather than skipped.
+
+Two things this deliberately does not do: it does not raise the threshold to
+meet the measurement, and it does not drop a check to save time. If a run comes
+back over ninety seconds, that is a finding about the run.
+
 ## What counts as evidence
 
 | Counts | Does not count |
