@@ -155,6 +155,88 @@ test.describe('window sizes', () => {
       .toBeGreaterThan(80);
   });
 
+  /** Area the article map's tiles actually occupy, against the card holding them. */
+  async function kachelflaeche(page) {
+    return page.evaluate(() => {
+      const zellen = [...document.querySelectorAll('.hm-groups i')];
+      const karte = document.querySelector('.hm-wrap');
+      if (!zellen.length || !karte) return null;
+      const r = zellen.map(z => z.getBoundingClientRect());
+      const k = karte.getBoundingClientRect();
+      return {
+        breite: Math.max(...r.map(x => x.right)) - Math.min(...r.map(x => x.left)),
+        kartenbreite: k.width,
+        zelle: Math.round(r[0].width),
+      };
+    });
+  }
+
+  test('the article map scales with the card instead of staying 522 pixels wide', async ({ page, zustand }) => {
+    // Measured before the fix: 522 x 148 pixels at every size, because the tile
+    // was written as 14px. On 4K that is 29 percent of the card — a speck in an
+    // empty box — while the numbers next to it all looked correct.
+    const gemessen = [];
+    for (const g of [{ w: 3840, h: 2160 }, { w: 2560, h: 1440 }, { w: 1920, h: 1026 }, { w: 1440, h: 900 }]) {
+      await page.setViewportSize({ width: g.w, height: g.h });
+      await zustand('mittenInPhase3');
+      await page.goto('/#/dashboard', { waitUntil: 'load' });
+      await schliesseOverlays(page);
+      await warteAufAnsicht(page);
+      await page.waitForTimeout(250);
+
+      const m = await kachelflaeche(page);
+      expect(m, `${g.w}×${g.h}: no article map on screen`).not.toBeNull();
+      const anteil = m.breite / m.kartenbreite;
+      expect(anteil, `${g.w}×${g.h}: map uses ${Math.round(anteil * 100)} % of the card`)
+        .toBeGreaterThan(0.6);
+      gemessen.push(m.zelle);
+      console.log(`  ${g.w}×${g.h}: Kachel ${m.zelle} px, ${Math.round(anteil * 100)} % der Karte`);
+    }
+    // The point is that it varies. Four identical numbers would mean a fixed size
+    // that happens to clear the threshold on the sizes tested.
+    expect(new Set(gemessen).size, `tile is ${gemessen[0]} px everywhere — that is a fixed size`)
+      .toBeGreaterThan(1);
+  });
+
+  test('the scaling check would notice a fixed tile size', async ({ page, zustand }) => {
+    // Negative control: put the old constant back and the check must fail.
+    await page.setViewportSize({ width: 3840, height: 2160 });
+    await zustand('mittenInPhase3');
+    await page.goto('/#/dashboard', { waitUntil: 'load' });
+    await schliesseOverlays(page);
+    await warteAufAnsicht(page);
+    await expect.poll(async () => (await kachelflaeche(page))?.breite ?? 0).toBeGreaterThan(1000);
+
+    await page.addStyleTag({ content: '.hm-groups { --hm-zelle: 14px !important; }' });
+    await page.waitForTimeout(200);
+    const m = await kachelflaeche(page);
+    expect(m.breite / m.kartenbreite, `with a 14px tile the map still fills ${Math.round(m.breite / m.kartenbreite * 100)} %`)
+      .toBeLessThan(0.6);
+  });
+
+  test('radar and curve fill their cards at every size', async ({ page, zustand }) => {
+    for (const g of [{ w: 3840, h: 2160 }, { w: 1920, h: 1026 }, { w: 900, h: 800 }]) {
+      await page.setViewportSize({ width: g.w, height: g.h });
+      await zustand('mittenInPhase3');
+      await page.goto('/#/dashboard', { waitUntil: 'load' });
+      await schliesseOverlays(page);
+      await warteAufAnsicht(page);
+      await page.waitForTimeout(250);
+
+      const m = await page.evaluate(() => {
+        const anteil = (sel, wrap) => {
+          const a = document.querySelector(sel), b = document.querySelector(wrap);
+          if (!a || !b) return null;
+          const ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect();
+          return rb.width && rb.height ? Math.min(ra.width / rb.width, ra.height / rb.height) : null;
+        };
+        return { radar: anteil('.radar-wrap svg', '.radar-wrap'), kurve: anteil('.curve-wrap svg', '.curve-wrap') };
+      });
+      expect(m.radar, `${g.w}×${g.h}: radar fills ${Math.round((m.radar ?? 0) * 100)} % of its card`).toBeGreaterThan(0.9);
+      expect(m.kurve, `${g.w}×${g.h}: curve fills ${Math.round((m.kurve ?? 0) * 100)} % of its card`).toBeGreaterThan(0.9);
+    }
+  });
+
   test('the dashboard stacks instead of shrinking into slivers', async ({ page, zustand }) => {
     await page.setViewportSize({ width: 900, height: 800 });
     await zustand('mittenInPhase3');
