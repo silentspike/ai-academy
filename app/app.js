@@ -113,6 +113,10 @@ export async function startApp({ mountId = 'view' } = {}) {
   render();
   paintTopbar(state);
   paintSidebar(state);
+  // Search, due list and profile menu. Wired once — the menus read live data
+  // when they open, so they cannot show a value captured at startup.
+  import('./topbar-tools.js').then(({ verdrahteTopbar }) => verdrahteTopbar(ctx))
+    .catch(e => console.warn('Topbar-Werkzeuge nicht geladen:', e.message));
   return ctx;
 }
 

@@ -294,6 +294,18 @@ export const test = base.extend({
       };
       await page.route('**/api/progress', bediene('progress'));
       await page.route('**/api/notes', bediene('notes'));
+      // Export reads the store as a whole through its own endpoint. Left
+      // unintercepted it reached the real bridge store, so a test exercising the
+      // export was reading the owner's actual learning record — and comparing it
+      // against a fixture it did not contain.
+      await page.route('**/api/export', async (route) => route.fulfill({
+        status: 200, contentType: 'application/json',
+        body: JSON.stringify({
+          exportedAt: new Date(JETZT).toISOString(),
+          warning: 'Enthält persönliche Lerndaten.',
+          data: { progress: speicher.progress ?? null, notes: speicher.notes ?? null, journal: null, pool: null },
+        }),
+      }));
     }
 
     await page.goto('/', { waitUntil: 'load' });
