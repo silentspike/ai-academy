@@ -10,6 +10,36 @@ affected questions and bind existing results to a superseded state of the law.
 
 ## [Unreleased]
 
+### Fixed
+- The weekly goal read a list nothing ever wrote to and showed "0/5 days"
+  regardless of the work put in. It is derived from the day statistics now, so
+  a day that counts in the statistics counts towards the goal by construction.
+- Six of the ten badges checked counters nothing incremented and could not be
+  earned. They are derived from data the application already keeps.
+- `state.units_done` did not exist — the list the application reads and writes
+  is `unit_done`. Older records are migrated.
+- The number of units existed as three different literals while the index holds
+  seventeen; the learning curve overstated progress accordingly.
+- The article map was 522 by 148 pixels at every window size — 29 % of its card
+  on a 4K display. Tile size follows the space available.
+- Every dashboard card sat at its content width in a track twice as wide: an
+  automatic inline margin cancels a grid item's stretch.
+- Chart renderers appended to their mount instead of replacing it, so anything
+  redrawn in place ended up with two data sets on top of each other.
+- The day's statistics and a freshly built session disagreed about whether the
+  mandatory review was done, locking units behind a review already completed.
+- Badges were awarded while the gallery drew, putting a write inside a render.
+
+### Added
+- Search across units, glossary and article references, disabled during
+  closed-book examinations
+- Due list and profile menu in the top bar
+- Coach block, level title, week dots, phase progress bars, chart legends and a
+  time range for the learning curve
+- One start script per platform, with `--open` in the bridge
+- `tools/betrieb-sync.mjs` keeps a running instance in step with the repository
+- `tools/fixture-bereinigen.mjs` removes seeded verification data from a record
+
 ### Added
 - Standalone public repository with a fresh history
 - Licences: Apache-2.0 for the code, CC BY 4.0 for the learning content
