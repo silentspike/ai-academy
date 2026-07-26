@@ -15,8 +15,8 @@
 //   node tools/betrieb-sync.mjs --ziel /pfad/zur/instanz            (apply)
 //   node tools/betrieb-sync.mjs --ziel /pfad/zur/instanz --pruefen  (report only, exit 1 on drift)
 
-import { readdirSync, statSync, lstatSync, readlinkSync, symlinkSync, readFileSync, copyFileSync, mkdirSync, existsSync, rmSync } from 'node:fs';
-import { join, relative, dirname, resolve } from 'node:path';
+import { readdirSync, lstatSync, readlinkSync, symlinkSync, readFileSync, copyFileSync, mkdirSync, existsSync, rmSync } from 'node:fs';
+import { join, dirname, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 
 const ROOT = resolve(new URL('..', import.meta.url).pathname);

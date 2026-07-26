@@ -96,23 +96,43 @@ export function pruefungLaeuft(doc = document) {
 
 const ART_LABEL = { einheit: 'Einheit', begriff: 'Begriff', artikel: 'Fundstelle' };
 
+/**
+ * Builds the result list as nodes, never as an HTML string.
+ *
+ * The first version interpolated the query into innerHTML for the empty case —
+ * typing a script tag into the search box would have run it. Content titles go
+ * the same way: the plan treats model output and content data as untrusted and
+ * bars it from innerHTML, and a search field is the one place where the user's
+ * own input comes straight back onto the page.
+ */
 function zeichneTreffer(liste, treffer, q) {
+  const doc = liste.ownerDocument;
+  const el = (tag, klasse, text) => {
+    const n = doc.createElement(tag);
+    if (klasse) n.className = klasse;
+    if (text != null) n.textContent = text;
+    return n;
+  };
+
   if (!treffer.length) {
-    liste.innerHTML = `<div class="such-leer">Nichts gefunden zu „${q}".</div>`;
+    liste.replaceChildren(el('div', 'such-leer', `Nichts gefunden zu „${q}".`));
     return;
   }
   // A hit without a destination is rendered as text, not as a dead link: the
   // glossary explanation is the answer, and a link back to the current page
   // would promise somewhere to go and deliver nothing.
-  liste.innerHTML = treffer.map((t, i) => {
-    const tag = t.ziel ? 'a' : 'div';
-    const attr = t.ziel ? ` href="${t.ziel}"` : ' data-nur-info="1"';
-    return `<${tag} class="such-treffer${i === 0 ? ' aktiv' : ''}"${attr} data-i="${i}">
-      <span class="such-art">${ART_LABEL[t.art]}</span>
-      <span class="such-titel">${t.titel}</span>
-      <span class="such-unter">${(t.unter ?? '').slice(0, 110)}</span>
-    </${tag}>`;
-  }).join('');
+  liste.replaceChildren(...treffer.map((t, i) => {
+    const knoten = el(t.ziel ? 'a' : 'div', 'such-treffer' + (i === 0 ? ' aktiv' : ''));
+    if (t.ziel) knoten.setAttribute('href', t.ziel);
+    else knoten.dataset.nurInfo = '1';
+    knoten.dataset.i = String(i);
+    knoten.append(
+      el('span', 'such-art', ART_LABEL[t.art] ?? t.art),
+      el('span', 'such-titel', t.titel),
+      el('span', 'such-unter', (t.unter ?? '').slice(0, 110)),
+    );
+    return knoten;
+  }));
 }
 
 /**
@@ -182,11 +202,29 @@ export function verdrahteTopbar(ctx, { doc = document } = {}) {
       const q = splitQueues(ctx.state.cards ?? [], Date.now());
       const heute = planAufhol(q.aufholMeta, { perDay: 15 }).today;
       const w = weekProgress(ctx.state, Date.now());
-      glockenmenu.innerHTML = `
-        <div class="menu-kopf">Heute zu tun</div>
-        <a class="menu-eintrag" href="#/karten"><b>${q.kern.length}</b> Karte${q.kern.length === 1 ? '' : 'n'} im Kern${q.kern.length ? ' — Pflicht vor neuem Stoff' : ' — nichts fällig'}</a>
-        <a class="menu-eintrag" href="#/karten"><b>${heute.length}</b> zum Aufholen${q.aufhol.length > heute.length ? ` <span class="dim">(von ${q.aufhol.length}, verteilt)</span>` : ''}</a>
-        <a class="menu-eintrag" href="#/heute">Wochenziel: <b>${w.done}/${w.goal}</b> Tage${w.met ? ' — erreicht' : ''}</a>`;
+      const doc2 = glockenmenu.ownerDocument;
+      const eintrag = (zahl, text, ziel) => {
+        const a = doc2.createElement('a');
+        a.className = 'menu-eintrag';
+        a.setAttribute('href', ziel);
+        const b = doc2.createElement('b');
+        b.textContent = String(zahl);
+        a.append(b, doc2.createTextNode(' ' + text));
+        return a;
+      };
+      const kopf = doc2.createElement('div');
+      kopf.className = 'menu-kopf';
+      kopf.textContent = 'Heute zu tun';
+      glockenmenu.replaceChildren(
+        kopf,
+        eintrag(q.kern.length,
+          `Karte${q.kern.length === 1 ? '' : 'n'} im Kern${q.kern.length ? ' — Pflicht vor neuem Stoff' : ' — nichts fällig'}`,
+          '#/karten'),
+        eintrag(heute.length,
+          `zum Aufholen${q.aufhol.length > heute.length ? ` (von ${q.aufhol.length}, verteilt)` : ''}`,
+          '#/karten'),
+        eintrag(`${w.done}/${w.goal}`, `Tage Wochenziel${w.met ? ' — erreicht' : ''}`, '#/heute'),
+      );
       glockenmenu.hidden = false;
     });
     doc.addEventListener('click', (e) => {

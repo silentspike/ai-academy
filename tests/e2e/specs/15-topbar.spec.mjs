@@ -84,6 +84,38 @@ test.describe('top bar tools', () => {
       'closed book must not yield searchable hits').toBe(0);
   });
 
+  test('a search query is never interpreted as markup', async ({ page, zustand }) => {
+    // The first version interpolated the query into innerHTML for the empty
+    // case. Typing a script tag into the search box would have run it — in a
+    // field whose whole purpose is to echo user input back onto the page.
+    await zustand('mittenInPhase3');
+    await page.goto('/#/dashboard', { waitUntil: 'load' });
+    await schliesseOverlays(page);
+    await warteAufAnsicht(page);
+
+    let ausgeloest = false;
+    page.on('dialog', async (d) => { ausgeloest = true; await d.dismiss(); });
+
+    for (const eingabe of [
+      '<img src=x onerror="window.__xss=1">',
+      '<script>window.__xss=1</script>',
+      '"><svg onload="window.__xss=1">',
+    ]) {
+      await page.fill('#tb-suche-feld', eingabe);
+      await page.waitForTimeout(200);
+      const m = await page.evaluate(() => ({
+        xss: !!window.__xss,
+        fremd: document.querySelectorAll('#tb-suche-treffer img, #tb-suche-treffer svg, #tb-suche-treffer script').length,
+        text: document.getElementById('tb-suche-treffer')?.textContent ?? '',
+      }));
+      expect(m.xss, `"${eingabe}" was executed`).toBe(false);
+      expect(m.fremd, `"${eingabe}" produced elements in the result list`).toBe(0);
+      // The input is shown, as text — swallowing it silently would be its own defect.
+      if (m.text) expect(m.text).toContain('<');
+    }
+    expect(ausgeloest, 'a dialog was opened').toBe(false);
+  });
+
   test('the due list shows the same numbers as the review view', async ({ page, zustand }) => {
     await zustand('mittenInPhase3');
     await page.goto('/#/dashboard', { waitUntil: 'load' });
