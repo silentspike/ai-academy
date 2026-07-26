@@ -439,3 +439,40 @@ body { padding:0; background:#04060b; overflow:hidden; display:grid; place-items
 /* Narrow windows: the search field goes, the two menus stay — they are the ones
    carrying information the user cannot get anywhere else on that screen. */
 @media (max-width:1040px) { .suchbox { display:none; } }
+
+
+/* ---------------------------------------------------------------- setup mode
+   Before a profile exists there is nothing to navigate to. The article map has
+   no relevance ranking, the radar no data, the curve no target date, the coach
+   knows nobody. Worse, the redirect into the wizard runs once at startup and
+   not on every route change — so one click on "Dashboard" left the wizard with
+   no way back, while the half-filled draft sat in the record, saved and
+   unreachable.
+
+   Hiding rather than disabling: a greyed-out menu still asks to be read, and
+   there is nothing behind it worth reading yet. */
+.app-shell.im-setup .lernnav { display:none; }
+.app-shell.im-setup .rail-item:not([data-nav="einstellungen"]) { display:none; }
+.app-shell.im-setup .suchbox,
+.app-shell.im-setup #tb-faellig,
+.app-shell.im-setup #tb-profil { display:none; }
+/* XP, level and the weekly goal are all zero at this point and say nothing. */
+.app-shell.im-setup .topbar .pill:not(.pill-recht):not(.mono) { display:none; }
+
+/* The wizard's steps take the sidebar's place — same position, so the eye does
+   not have to look for where it stands. */
+.setup-fortschritt { padding:4px 2px 0; }
+.setup-fortschritt .sf-titel { font-size:.66rem; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--faint); margin:0 0 12px; }
+.setup-schritt { display:flex; align-items:center; gap:11px; padding:7px 8px; border-radius:9px;
+  font-size:.82rem; color:var(--faint); }
+.setup-schritt .sf-nr { flex:none; width:1.4rem; height:1.4rem; border-radius:50%;
+  display:grid; place-items:center; font-size:.68rem; font-family:var(--font-num);
+  border:1px solid rgba(151,169,202,.22); }
+.setup-schritt.fertig { color:var(--dim); }
+.setup-schritt.fertig .sf-nr { border-color:rgba(52,211,153,.42); color:var(--emerald);
+  background:rgba(52,211,153,.10); }
+.setup-schritt.jetzt { background:rgba(138,112,239,.11); border:1px solid rgba(138,112,239,.32);
+  color:var(--text); font-weight:600; }
+.setup-schritt.jetzt .sf-nr { border-color:rgba(138,112,239,.5); color:var(--violet,#b6a5ff);
+  background:rgba(138,112,239,.14); }

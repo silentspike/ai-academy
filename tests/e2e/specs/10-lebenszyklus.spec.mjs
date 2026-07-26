@@ -29,6 +29,61 @@ test.describe('lifecycle', () => {
     expect(wo, 'a first launch without a profile does not open onboarding').toMatch(/onboarding/);
   });
 
+  test('during setup there is no navigation, and every route leads back into it', async ({ page, zustand }) => {
+    // The redirect into the wizard used to run once at startup. One click on
+    // "Dashboard" therefore stranded the user in a view with no relevance
+    // ranking, no radar data, no target date and no way back — while the
+    // half-filled draft sat in the record, saved and unreachable.
+    await zustand('leer');
+    await page.goto('/#/onboarding', { waitUntil: 'load' });
+    await schliesseOverlays(page);
+    await warteAufAnsicht(page);
+
+    const sichtbar = await page.evaluate(() => ({
+      lernnav: !!document.querySelector('#lernnav')?.offsetParent,
+      phasen: [...document.querySelectorAll('#phase-tree .ph')].filter(e => e.offsetParent).length,
+      suche: !!document.getElementById('tb-suche-feld')?.offsetParent,
+      railPunkte: [...document.querySelectorAll('.rail-item')].filter(e => e.offsetParent).length,
+      setupSchritte: document.querySelectorAll('.setup-schritt').length,
+      jetzt: document.querySelector('.setup-schritt.jetzt')?.textContent?.trim(),
+    }));
+    expect(sichtbar.lernnav, 'the learning navigation is visible during setup').toBe(false);
+    expect(sichtbar.phasen, 'phases are listed during setup').toBe(0);
+    expect(sichtbar.suche, 'search is offered during setup').toBe(false);
+    expect(sichtbar.railPunkte, 'the rail still offers destinations').toBeLessThanOrEqual(1);
+    // Something has to take its place, or the sidebar is simply empty.
+    expect(sichtbar.setupSchritte, 'the wizard steps are not shown').toBe(7);
+    expect(sichtbar.jetzt, 'no step is marked as the current one').toContain('Verbinden');
+
+    // Every route leads back — by hash, as a stray click or a bookmark would.
+    for (const route of ['#/dashboard', '#/lernen', '#/examen', '#/karten', '#/heute']) {
+      await page.evaluate(r => { location.hash = r; }, route);
+      await page.waitForTimeout(220);
+      expect(page.url(), `${route} did not lead back into the wizard`).toContain('#/onboarding');
+    }
+  });
+
+  test('the navigation appears once a profile exists', async ({ page, zustand }) => {
+    // The counterpart: with the redirect in place, a wizard that cannot end
+    // would be worse than the problem it solves.
+    await zustand('nachPlacement');
+    await page.goto('/#/dashboard', { waitUntil: 'load' });
+    await schliesseOverlays(page);
+    await warteAufAnsicht(page);
+
+    const m = await page.evaluate(() => ({
+      imSetup: document.querySelector('.app-shell')?.classList.contains('im-setup'),
+      lernnav: !!document.querySelector('#lernnav')?.offsetParent,
+      phasen: [...document.querySelectorAll('#phase-tree .ph')].filter(e => e.offsetParent).length,
+      setupSichtbar: !document.getElementById('setup-fortschritt')?.hidden,
+    }));
+    expect(m.imSetup, 'still in setup mode although a profile exists').toBe(false);
+    expect(m.lernnav).toBe(true);
+    expect(m.phasen).toBe(10);
+    expect(m.setupSichtbar, 'the setup steps are still shown').toBe(false);
+    expect(page.url()).toContain('#/dashboard');
+  });
+
   test('onboarding walks through its steps and refuses to skip the model check', async ({ page, zustand }) => {
     await zustand(FIXTURES.leer());
     await page.goto('/#/onboarding', { waitUntil: 'load' });

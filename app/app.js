@@ -76,6 +76,12 @@ export async function startApp({ mountId = 'view' } = {}) {
   await introSequence(state);
 
   const render = () => {
+    // Without a profile every route is the wizard. The startup-only check let a
+    // single click strand the user in an empty dashboard.
+    if (setzeSetupModus(ctx) && !location.hash.startsWith('#/onboarding')) {
+      location.hash = '#/onboarding';
+      return;
+    }
     const [path, ...args] = (location.hash.replace(/^#\/?/, '') || 'dashboard').split('/');
     const view = document.getElementById(mountId);
     // Explicit check: the route comes from the address bar, and the value out of
@@ -311,6 +317,37 @@ function introSequence(state) {
     el.addEventListener('click', done, { once: true });
     setTimeout(done, 1500);               // harte Grenze ~1,5 s (§6.3)
   });
+}
+
+/** The seven steps of the wizard, as the sidebar shows them. */
+export const SETUP_SCHRITTE = ['Verbinden', 'Fachprofil', 'Lernprofil', 'Machbarkeit',
+  'Personalisierung', 'Placement', 'Los'];
+
+/**
+ * Setup mode: no profile yet, so no navigation.
+ *
+ * Called on every render, not only at startup — the redirect into the wizard
+ * used to run once, and a single click on "Dashboard" then left the wizard with
+ * no way back while the half-filled draft sat saved and unreachable.
+ */
+export function setzeSetupModus(ctx, doc = document) {
+  const shell = doc.querySelector('.app-shell');
+  // Both places: the wizard writes the record, and ctx is filled from it only at
+  // startup. Reading just one of them left the wizard unable to end.
+  const imSetup = !(ctx.profile ?? ctx.state?.profile);
+  shell?.classList.toggle('im-setup', imSetup);
+
+  const box = doc.getElementById('setup-fortschritt');
+  if (!box) return imSetup;
+  box.hidden = !imSetup;
+  if (!imSetup) return false;
+
+  const schritt = ctx.state?.onboardingDraft?.step ?? 0;
+  box.innerHTML = `<div class="sf-titel">Einrichtung</div>` + SETUP_SCHRITTE.map((name, i) => {
+    const zustand = i < schritt ? 'fertig' : i === schritt ? 'jetzt' : '';
+    return `<div class="setup-schritt ${zustand}"><span class="sf-nr">${i < schritt ? '✓' : i + 1}</span>${name}</div>`;
+  }).join('');
+  return true;
 }
 
 export function paintTopbar(state) {
@@ -561,6 +598,16 @@ import { renderUnit } from './unit-view.js';
 const PHASE_LABEL = { p1: 'Fundament', p2: 'Verbote', p3: 'Einstufung', p4: 'Pflichten', p5: 'Transparenz',
   p6: 'GPAI', p7: 'Aufsicht', p8: 'Randwissen', p9: 'Ländermodul AT', p10: 'Auslegung' };
 
+/**
+ * Why a phase is here although it is not the user's home ground. Only where that
+ * question actually comes up — the promise "nothing is left out" (#2) is worth
+ * little if the product never says it.
+ */
+const PHASE_NOTIZ = {
+  p8: 'Nicht dein Kerngebiet — aber genau die Artikel, die in Diskussionen unvermittelt auftauchen. Als Überblick, nicht zum Anwenden (#3).',
+  p10: 'Kür: die Erwägungsgründe liefern die Auslegungsargumente, die in Diskussionen den Ausschlag geben.',
+};
+
 route('lernen', async (view, ctx, [phaseFilter]) => {
   const idx = await fetch('content/units/index.json').then(r => r.json());
   const st = ctx.state;
@@ -568,13 +615,14 @@ route('lernen', async (view, ctx, [phaseFilter]) => {
   const skipped = new Set(st.unit_skipped ?? []);
   const phases = phaseFilter ? [phaseFilter] : Object.keys(PHASE_LABEL);
   view.innerHTML = `<div class="card"><div class="chead"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-lernen"/></svg></span><span class="t"><h3>Lernen${phaseFilter ? ` — ${PHASE_LABEL[phaseFilter] ?? phaseFilter}` : ''}</h3>
-    <span class="sub">${phaseFilter ? '<a href="#/lernen">alle Phasen</a>' : 'Nach Rollen-Relevanz priorisiert (#3) — Skips erfordern einen Challenge-Test (#19)'}</span></span></div>
+    <span class="sub">${phaseFilter ? '<a href="#/lernen">alle Phasen</a>' : 'Vollständiger Stoff, nach Rollen-Relevanz geordnet — jede Phase ist jederzeit zugänglich, die Reihenfolge ist eine Empfehlung. Überspringen erfordert einen Challenge-Test.'}</span></span></div>
     <div id="unit-list"></div></div>`;
   const list = view.querySelector('#unit-list');
   for (const p of phases) {
     const units = idx.units.filter(u => u.phase === p);
     if (!units.length) continue;
-    if (!phaseFilter) list.insertAdjacentHTML('beforeend', `<div class="sect lern-sect">${p.toUpperCase()} · ${PHASE_LABEL[p] ?? ''}</div>`);
+    if (!phaseFilter) list.insertAdjacentHTML('beforeend',
+      `<div class="sect lern-sect">${p.toUpperCase()} · ${PHASE_LABEL[p] ?? ''}${PHASE_NOTIZ[p] ? `<span class="lern-sect-notiz">${PHASE_NOTIZ[p]}</span>` : ''}</div>`);
     for (const u of units) {
       const status = done.has(u.id) ? 'done' : skipped.has(u.id) ? 'skipped' : '';
       const row = document.createElement('div');
