@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // tools/gamification-tests.mjs — tests for points, levels, session and pacing logic.
-import { applyEvent, levelFor, dayCounts, newBadges, XP_RULES } from '../app/gamification.js';
+import { applyEvent, levelFor, dayCounts, newBadges, badgeSicht, weekProgress, wochenpunkte, wochenzieleErreicht, lerntage, XP_RULES } from '../app/gamification.js';
 import { feasibilityCheck, targetCurve, driftCheck, DAY_MS } from '../app/pacing.js';
 import { createSession, canStartUnit, completeStep, blockCheck, marathonWarning, rotationHint } from '../app/session.js';
 import { newCard, review } from '../app/engine-leitner.js';
@@ -84,6 +84,76 @@ t('Marathon-Warnung nach 4h', marathonWarning(sess, sess.started + 4.5 * 3_600_0
 rotationHint(sess, 'mc', 1); rotationHint(sess, 'mc', 2);
 t('Rotations-Banner nach 3. gleichem Format', rotationHint(sess, 'mc', 3).hint === true);
 t('Rotations-Banner nur Vorschlag, reset bei Wechsel', rotationHint(sess, 'dnd', 4).hint === false);
+
+// ---------- weekly goal: derived from dayStats, not from a second list ----------
+// This whole block is new because the mechanism was dead: weekProgress read
+// state.week.doneDays, which nothing in the application ever wrote. The top bar
+// showed "0/5 days" forever and no test noticed, because none existed.
+console.log('\nWochenziel — aus dayStats abgeleitet');
+const tagKey = (verschiebung) => {
+  const d = new Date(); d.setDate(d.getDate() + verschiebung);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
+const zaehlt = { reviewDone: true, questions: 12, units: 1, xp: 50 };
+const zaehltNicht = { reviewDone: true, questions: 3, units: 0, xp: 10 };   // Alibi-Tag
+const heuteDow = (new Date().getDay() + 6) % 7;                              // 0 = Montag
+const inDieserWoche = (n) => Array.from({ length: n }, (_, i) => -Math.min(heuteDow, i));
+const wochenStand = { week: { goalDays: 5 }, dayStats: {} };
+for (const v of new Set(inDieserWoche(Math.min(3, heuteDow + 1)))) wochenStand.dayStats[tagKey(v)] = zaehlt;
+const gezaehlt = Math.min(3, heuteDow + 1);
+const wp = weekProgress(wochenStand, Date.now());
+t(`Wochenziel zaehlt ${gezaehlt} Tage dieser Woche`, wp.done === gezaehlt, `→ ${wp.done}`);
+t('Ziel aus dem Profil, nicht hartkodiert', wp.goal === 5);
+wochenStand.dayStats[tagKey(-heuteDow - 3)] = zaehlt;                        // Vorwoche
+t('Vorwoche zaehlt nicht in diese Woche', weekProgress(wochenStand, Date.now()).done === gezaehlt);
+wochenStand.dayStats[tagKey(0)] = zaehltNicht;
+t('Alibi-Tag zaehlt nicht', weekProgress(wochenStand, Date.now()).done <= gezaehlt);
+t('Ohne dayStats: 0 von 5, kein Absturz', weekProgress({ week: {} }, Date.now()).done === 0);
+const punkte = wochenpunkte(wochenStand, Date.now());
+t('Sieben Wochenpunkte, Montag zuerst', punkte.length === 7 && punkte[0].kurz === 'Mo');
+t('Kuenftige Tage sind als solche markiert',
+  punkte.filter(p => p.zukunft).length === 6 - heuteDow, `→ ${punkte.filter(p => p.zukunft).length}`);
+
+// ---------- badges: derived instead of counted ----------
+console.log('\nBadges — abgeleitete Sicht');
+const badgeStand = {
+  unit_done: ['p1-e01'], badges: [], week: { goalDays: 1 }, dayStats: {},
+  cards: Array.from({ length: 50 }, (_, i) => ({ id: 'c' + i, retention: i < 30 ? 'behalten' : 'gefestigt' })),
+  events: [{ kind: 'boss_completed', passed: true, ts: Date.now() }],
+};
+for (let i = 0; i < 2; i++) badgeStand.dayStats[tagKey(-i)] = zaehlt;
+const sicht = badgeSicht(badgeStand, Date.now());
+t('units aus unit_done abgeleitet', sicht.stats.units === 1);
+t('retained7 zaehlt behalten UND gefestigt', sicht.stats.retained7 === 50);
+t('bossPassed aus den Ereignissen', sicht.stats.bossPassed === 1);
+t('weeksMet aus den Lerntagen', sicht.stats.weeksMet >= 1, `→ ${sicht.stats.weeksMet}`);
+const frisch = newBadges(badgeStand, Date.now()).map(b => b.id);
+t('Badges werden dadurch ueberhaupt erreichbar', frisch.includes('erste-schritte') && frisch.includes('retention7'),
+  `→ ${frisch.join(',')}`);
+t('Zweiter Aufruf vergibt nichts doppelt', newBadges(badgeStand, Date.now()).length === 0);
+t('Leerer Zustand vergibt kein Badge', newBadges({ badges: [] }, Date.now()).length === 0);
+t('lerntage liefert sortierte Tagesschluessel',
+  JSON.stringify(lerntage(badgeStand)) === JSON.stringify([...lerntage(badgeStand)].sort()));
+t('wochenzieleErreicht bei Ziel 1 und 2 Tagen', wochenzieleErreicht(badgeStand, Date.now()) >= 1);
+
+// ---------- session: the review status has one source ----------
+// Two records used to say different things: dayStats could hold reviewDone for
+// today while a freshly built session started with the review open — so anyone
+// returning after a reload found the mandatory review waiting again and units
+// locked behind it.
+console.log('\nSession — Review-Status');
+const heuteKey = tagKey(0);
+const mitKarten = { cards: [{ id: 'c1', box: 1, due: Date.now() - 3600_000, retention: 'gelernt' }], dayStats: {} };
+const ohneReview = createSession(mitKarten, Date.now());
+t('Ohne erledigtes Review: Einheiten gesperrt', canStartUnit(ohneReview) === false);
+t('Ohne erledigtes Review: Schritt ist review', ohneReview.step === 'review');
+const nachReview = createSession({ ...mitKarten, dayStats: { [heuteKey]: { reviewDone: true, questions: 12 } } }, Date.now());
+t('dayStats meldet Review erledigt: Einheiten frei', canStartUnit(nachReview) === true);
+t('dayStats meldet Review erledigt: Schritt ist units', nachReview.step === 'units');
+t('Die Kartenliste ist dieselbe, nur der Status unterscheidet sich',
+  JSON.stringify(nachReview.review.kern) === JSON.stringify(ohneReview.review.kern));
+const gesternErledigt = createSession({ ...mitKarten, dayStats: { [tagKey(-1)]: { reviewDone: true } } }, Date.now());
+t('Gestern erledigt zählt heute nicht', canStartUnit(gesternErledigt) === false);
 
 console.log(`\n${pass} PASS, ${fail} FAIL`);
 process.exit(fail ? 1 : 0);

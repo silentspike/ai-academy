@@ -10,7 +10,9 @@ test.describe('harness', () => {
       try { await s.get('state'); } catch { s = StorageAdapter.localStorage(); }
       return await s.get('state');
     });
-    expect(st.units_done).toContain('p2-e02-zeitschichten');
+    // unit_done, not units_done: the latter is the key nothing in the application
+    // ever writes. Asserting on it passed while proving nothing.
+    expect(st.unit_done).toContain('p2-e02-zeitschichten');
     expect(st.chapterTests.p2.passed).toBe(true);
     expect(st.profile.org).toBe('Beispielbank AG');
   });

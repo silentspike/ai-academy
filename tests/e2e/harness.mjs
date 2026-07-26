@@ -51,6 +51,102 @@ function determinismusSkript(jetzt) {
   })();`;
 }
 
+/** The eighteen competency ids, as the content defines them. */
+const KOMPETENZEN = Array.from({ length: 18 }, (_, i) => 'K' + String(i + 1).padStart(2, '0'));
+
+/** Units in the order the phases present them — the first four count as done. */
+const EINHEITEN = [
+  'p1-e01-ki-system-rollen', 'p1-e02-digital-omnibus', 'p1-e03-pruefschema',
+  'p2-e01-rote-linien', 'p2-e02-zeitschichten', 'p2-e03-graubereiche',
+  'p3-e01-anhang3', 'p3-e02-anhang1-und-ausnahmen',
+];
+
+/**
+ * A learning history that produces something to look at.
+ *
+ * The fixtures used to set units_done and chapter tests and nothing else, so
+ * every visualisation rendered its empty state: a grey article map, a radar
+ * collapsed to a dot, a curve flat at zero. Screenshots from that state say
+ * nothing about the layout — which is how a review concluded the views were too
+ * empty, when in truth the data was.
+ *
+ * Seeded, so the same fixture always produces the same picture.
+ */
+function lernhistorie(tage = 30, quote = 0.72) {
+  const raus = [];
+  let s = 1234567;
+  const zufall = () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; };
+  for (let t = tage; t > 0; t--) {
+    const proTag = 4 + Math.floor(zufall() * 6);
+    for (let i = 0; i < proTag; i++) {
+      const k = KOMPETENZEN[Math.floor(zufall() * KOMPETENZEN.length)];
+      const level = ['A', 'B', 'C'][Math.floor(zufall() * 3)];
+      // Later days go better — a learning curve, not noise.
+      const chance = quote * (0.7 + 0.5 * (1 - t / tage));
+      raus.push({
+        ts: JETZT - t * 86400_000 + i * 600_000,
+        competency: k, level, correct: zufall() < chance,
+        confidence: zufall() < 0.6 ? 'sicher' : (zufall() < 0.7 ? 'unsicher' : 'geraten'),
+      });
+    }
+  }
+  return raus;
+}
+
+/**
+ * Completion events for finished units, spread over the period.
+ *
+ * The learning curve counts events of kind 'unit_completed'; without them it
+ * draws today's total as a flat line across every week, which looks like
+ * someone who learned everything on day one and nothing since.
+ */
+function einheitenverlauf(einheiten, tage) {
+  return einheiten.map((id, i) => ({
+    kind: 'unit_completed',
+    ts: JETZT - Math.round(tage * 86400_000 * (1 - (i + 1) / (einheiten.length + 1))),
+    competency: 'K' + String((i % 18) + 1).padStart(2, '0'),
+    unit_id: id,
+  }));
+}
+
+/** Cards spread across boxes and due dates, so the review queues are not both zero. */
+function karten(anzahl = 40) {
+  const raus = [];
+  for (let i = 0; i < anzahl; i++) {
+    const faellig = i % 5 === 0 ? JETZT - (i % 7) * 86400_000      // overdue: catch-up queue
+      : i % 3 === 0 ? JETZT - 3600_000                              // due today: core queue
+      : JETZT + (1 + (i % 9)) * 86400_000;                          // later
+    const zuletzt = JETZT - (2 + (i % 12)) * 86400_000;
+    raus.push({
+      id: 'c' + i, box: 1 + (i % 5),
+      // Field names taken from newCard() in engine-leitner.js. An invented name
+      // here produces a card the engine silently ignores — and a fixture that
+      // looks rich in the file and empty on screen.
+      retention: ['gelernt', 'vorlaeufig_behalten', 'behalten', 'gefestigt'][i % 4],
+      due: faellig, created: zuletzt - 86400_000, last_review: zuletzt,
+      competency: KOMPETENZEN[i % KOMPETENZEN.length],
+      level: ['A', 'B', 'C'][i % 3],
+      unit_id: EINHEITEN[i % EINHEITEN.length],
+      history: [{ ts: zuletzt, correct: i % 4 !== 0, confidence: i % 3 ? 'sicher' : 'unsicher' }],
+    });
+  }
+  return raus;
+}
+
+/** Minutes and points per day, for the curve and the weekly bars. */
+function tagesstatistik(tage = 30) {
+  const raus = {};
+  for (let t = tage; t >= 0; t--) {
+    const d = new Date(JETZT - t * 86400_000);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    if (t % 7 === 3) continue;                                      // one day off a week
+    // reviewDone/questions/units/xp — exactly what dayCounts() reads. "minutes"
+    // and "reviewed" were guesses and would have counted as zero learning days.
+    raus[key] = { reviewDone: true, questions: 5 + (t % 12), units: t % 3 === 0 ? 1 : 0, xp: 40 + ((t * 13) % 80) };
+  }
+  return raus;
+}
+
 /** State fixtures. Specs jump straight into a situation instead of clicking their way there. */
 export const FIXTURES = {
   leer: () => ({}),
@@ -65,7 +161,9 @@ export const FIXTURES = {
     aiNoticeAck: JETZT - 3600_000,
     aiNoticeSeen: JETZT - 3600_000,
     placement: { done: true, at: JETZT - 3600_000 },
-    xp: 40, level: 1, events: [], cards: [], dayStats: {},
+    xp: 180, level: 1, unit_done: [EINHEITEN[0]],
+    events: [...lernhistorie(4, 0.6), ...einheitenverlauf([EINHEITEN[0]], 4)].sort((a, b) => a.ts - b.ts),
+    cards: karten(12), dayStats: tagesstatistik(4),
   }),
 
   mittenInPhase3: () => ({
@@ -74,11 +172,17 @@ export const FIXTURES = {
     aiNoticeAck: JETZT - 7 * 86400_000,
     aiNoticeSeen: JETZT - 7 * 86400_000,
     placement: { done: true, at: JETZT - 7 * 86400_000 },
-    xp: 640, level: 2,
-    units_done: ['p1-e01-ki-system-rollen', 'p1-e02-digital-omnibus', 'p2-e01-rote-linien', 'p2-e02-zeitschichten'],
+    xp: 1314, level: 3,
+    milestones: [{ label: 'Kern (P1–P5)', date: '2026-09-01' }, { label: 'Alles', date: '2026-09-30' }],
+    pace: { minutesPerDay: 50, daysPerWeek: 5 },
+    unit_done: ['p1-e01-ki-system-rollen', 'p1-e02-digital-omnibus', 'p2-e01-rote-linien', 'p2-e02-zeitschichten'],
     chapterTests: { p1: { passed: true, at: JETZT - 5 * 86400_000, pct: 0.86 },
-                    p2: { passed: true, at: JETZT - 2 * 86400_000, score: 0.9 } },
-    events: [], cards: [], dayStats: {},
+                    p2: { passed: true, at: JETZT - 2 * 86400_000, pct: 0.9 } },
+    events: [...lernhistorie(21),
+             ...einheitenverlauf(['p1-e01-ki-system-rollen', 'p1-e02-digital-omnibus',
+                                  'p2-e01-rote-linien', 'p2-e02-zeitschichten'], 21)]
+             .sort((a, b) => a.ts - b.ts),
+    cards: karten(40), dayStats: tagesstatistik(21),
   }),
 
   examensreif: () => {
@@ -89,8 +193,13 @@ export const FIXTURES = {
       aiNoticeSeen: JETZT - 40 * 86400_000,
       placement: { done: true, at: JETZT - 40 * 86400_000 },
       xp: 4200, level: 4,
-      units_done: [], chapterTests: {}, events: [], cards: [], dayStats: {},
+      milestones: [{ label: 'Kern (P1–P5)', date: '2026-09-01' }, { label: 'Alles', date: '2026-09-30' }],
+      pace: { minutesPerDay: 50, daysPerWeek: 5 },
+      unit_done: [], unit_skipped: [], chapterTests: {},
+      events: [...lernhistorie(40, 0.84), ...einheitenverlauf(EINHEITEN, 40)].sort((a, b) => a.ts - b.ts),
+      cards: [], dayStats: tagesstatistik(40),
     };
+    st.unit_done = [...EINHEITEN];
     // All nine chapter tests passed, comfortably in the past so retention holds.
     for (let i = 1; i <= 9; i++) {
       st.chapterTests['p' + i] = { passed: true, at: JETZT - (30 - i) * 86400_000, pct: 0.85 };
@@ -99,7 +208,8 @@ export const FIXTURES = {
     for (let i = 0; i < 24; i++) {
       st.cards.push({
         id: 'c' + i, box: 4, retention: 'behalten',
-        due: JETZT + 3 * 86400_000, last_reviewed: JETZT - 8 * 86400_000,
+        due: JETZT + 3 * 86400_000, last_review: JETZT - 8 * 86400_000,
+        created: JETZT - 30 * 86400_000, history: [],
         competency: 'K' + String((i % 18) + 1).padStart(2, '0'), level: 'B',
       });
     }
@@ -184,6 +294,18 @@ export const test = base.extend({
       };
       await page.route('**/api/progress', bediene('progress'));
       await page.route('**/api/notes', bediene('notes'));
+      // Export reads the store as a whole through its own endpoint. Left
+      // unintercepted it reached the real bridge store, so a test exercising the
+      // export was reading the owner's actual learning record — and comparing it
+      // against a fixture it did not contain.
+      await page.route('**/api/export', async (route) => route.fulfill({
+        status: 200, contentType: 'application/json',
+        body: JSON.stringify({
+          exportedAt: new Date(JETZT).toISOString(),
+          warning: 'Enthält persönliche Lerndaten.',
+          data: { progress: speicher.progress ?? null, notes: speicher.notes ?? null, journal: null, pool: null },
+        }),
+      }));
     }
 
     await page.goto('/', { waitUntil: 'load' });
