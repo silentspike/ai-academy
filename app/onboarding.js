@@ -5,6 +5,7 @@
 import { route } from './router.js';
 import { LlmAdapter } from './llm-adapter.js';
 import { feasibilityCheck } from './pacing.js';
+import { setzeSetupModus } from './app.js';
 
 // ---------------------------------------------------------------- Personalisierungs-Validierung
 // Core rule: model answers enter the data structures ONLY after machine-readable
@@ -60,7 +61,10 @@ route('onboarding', async (view, ctx) => {
       <span class="sub">${steps.map((s, i) => i === draft.step ? `<b>${s}</b>` : s).join(' · ')}</span></span></div>`));
     STEPS[draft.step]();
   };
-  const next = () => { draft.step++; ctx.saveState(); render(); };
+  // Die Seitenleiste zeigt dieselben Schritte und muss mitgehen: der globale
+  // Renderer läuft nur bei Routenwechseln, ein Schritt im Wizard ist keiner.
+  // Ohne das stand links „Verbinden", während rechts Schritt 2 zu sehen war.
+  const next = () => { draft.step++; ctx.saveState(); setzeSetupModus(ctx); render(); };
 
   const STEPS = [
     // 0 Verbinden
@@ -82,13 +86,17 @@ route('onboarding', async (view, ctx) => {
     // 1 Fachprofil
     () => {
       const f = draft.fachprofil;
-      const c = card(`<div class="formular">
-        <label class="feld feld-breit"><span class="feld-name">Organisation/Branche</span><input id="ob-org" value="${f.organisation ?? ''}" placeholder="z. B. Regionalbank, Krankenhaus, Handelskette"></label>
-        <label class="feld"><span class="feld-name">Rolle der Organisation</span><select id="ob-rolle"><option value="betreiber">Betreiber (KI wird eingesetzt)</option><option value="anbieter">Anbieter (KI wird entwickelt)</option><option value="beides">Beides</option></select></label>
-        <label class="feld"><span class="feld-name">Land</span><select id="ob-land"><option>AT</option><option>DE</option><option>EU-sonstig</option></select></label>
-        <label class="feld"><span class="feld-name">Ihre Job-Rolle</span><input id="ob-job" value="${f.job_rolle ?? ''}" placeholder="z. B. KI-Koordinatorin, IT-Leitung"></label>
-        <label class="feld"><span class="feld-name">Vorwissen</span><select id="ob-vor"><option value="einsteiger">Einsteiger:in (Worked Examples zuerst)</option><option value="mittel">Mittel</option><option value="erfahren">Erfahren (Problem-first)</option></select></label>
-        <label class="feld feld-breit"><span class="feld-name">Fach-Domäne / Datenarten</span><input id="ob-dom" value="${f.domaene ?? ''}" placeholder="z. B. Bonitätsdaten, Patientendaten"></label>
+      const c = card(`<p class="formular-intro"><b>Der Stoff bleibt vollständig</b> — alle Artikel
+        und Anhänge des AI Act, nichts weggelassen. Diese Angaben bestimmen nur die
+        <b>Reihenfolge</b> und die <b>Einkleidung</b>: welche Kapitel zuerst drankommen, in welchem
+        Umfeld die Fälle spielen und mit wem du die Fachgespräche führst. Alles später änderbar.</p>
+      <div class="formular">
+        <label class="feld feld-breit"><span class="feld-name">Organisation/Branche</span><input id="ob-org" value="${f.organisation ?? ''}" placeholder="z. B. Regionalbank, Krankenhaus, Handelskette"><span class="feld-hilfe">Bestimmt, in welchem Umfeld die Fallbeispiele und Fachgespräche spielen.</span></label>
+        <label class="feld"><span class="feld-name">Rolle der Organisation</span><select id="ob-rolle"><option value="betreiber">Betreiber (KI wird eingesetzt)</option><option value="anbieter">Anbieter (KI wird entwickelt)</option><option value="beides">Beides</option></select><span class="feld-hilfe">Entscheidet, welche Pflichtenkapitel Vorrang bekommen.</span></label>
+        <label class="feld"><span class="feld-name">Land</span><select id="ob-land"><option>AT</option><option>DE</option><option>EU-sonstig</option></select><span class="feld-hilfe">Wählt das Ländermodul in Phase 9.</span></label>
+        <label class="feld"><span class="feld-name">Ihre Job-Rolle</span><input id="ob-job" value="${f.job_rolle ?? ''}" placeholder="z. B. KI-Koordinatorin, IT-Leitung"><span class="feld-hilfe">Bestimmt, mit wem du in den Fachgesprächen sprichst.</span></label>
+        <label class="feld"><span class="feld-name">Vorwissen</span><select id="ob-vor"><option value="einsteiger">Einsteiger:in (Worked Examples zuerst)</option><option value="mittel">Mittel</option><option value="erfahren">Erfahren (Problem-first)</option></select><span class="feld-hilfe">Einsteiger sehen erst ein durchgerechnetes Beispiel, Erfahrene starten mit dem Fall.</span></label>
+        <label class="feld feld-breit"><span class="feld-name">Fach-Domäne / Datenarten</span><input id="ob-dom" value="${f.domaene ?? ''}" placeholder="z. B. Bonitätsdaten, Patientendaten"><span class="feld-hilfe">Legt fest, welche Datenarten in den Beispielen vorkommen — das ändert die Einstufungsfragen.</span></label>
       </div>
       <div class="formular-fuss"><button class="btn-primary">Weiter</button></div>`);
       view.appendChild(c);
@@ -107,11 +115,14 @@ route('onboarding', async (view, ctx) => {
     },
     // 2 Lernprofil
     () => {
-      const c = card(`<div class="formular">
+      const c = card(`<p class="formular-intro">Daraus entsteht deine Soll-Kurve. Im nächsten
+        Schritt rechnet die Akademie nach, ob Ziel und Pensum zusammenpassen — und sagt es,
+        wenn nicht.</p>
+      <div class="formular">
         <label class="feld"><span class="feld-name">Lernmotiv</span><select id="ob-motiv"><option value="jobstart">Jobstart</option><option value="pruefung">Prüfung</option><option value="projekt">Projekt</option><option value="interesse">Interesse</option></select></label>
-        <label class="feld"><span class="feld-name">Zieltermin (optional)</span><input id="ob-ziel" type="date"></label>
-        <label class="feld"><span class="feld-name">Minuten pro Tag</span><input id="ob-min" type="number" value="30" min="10" max="480"></label>
-        <label class="feld"><span class="feld-name">Lerntage pro Woche</span><input id="ob-tage" type="number" value="4" min="1" max="7"></label>
+        <label class="feld"><span class="feld-name">Zieltermin (optional)</span><input id="ob-ziel" type="date"><span class="feld-hilfe">Etwa ein Prüfungstermin oder ein Dienstantritt. Leer lassen, wenn es keinen gibt.</span></label>
+        <label class="feld"><span class="feld-name">Minuten pro Tag</span><input id="ob-min" type="number" value="30" min="10" max="480"><span class="feld-hilfe">Grundlage der Soll-Kurve. Ehrlich schätzen — die Rechnung im nächsten Schritt hängt daran.</span></label>
+        <label class="feld"><span class="feld-name">Lerntage pro Woche</span><input id="ob-tage" type="number" value="4" min="1" max="7"><span class="feld-hilfe">Auch das Wochenziel richtet sich danach.</span></label>
       </div>
       <div class="formular-fuss"><button class="btn-primary">Weiter</button></div>`);
       view.appendChild(c);
@@ -191,6 +202,10 @@ route('onboarding', async (view, ctx) => {
       archetypen: ARCHETYPEN_NACH_ROLLE[draft.fachprofil.rolle_org?.[0]] ?? ARCHETYPEN_NACH_ROLLE.betreiber,
     };
     delete ctx.state.onboardingDraft;
+    // Also on ctx, not only in the record: setup mode is decided by ctx.profile,
+    // and that is filled from the record once at startup. Without this line the
+    // wizard would finish and every route would bounce straight back into it.
+    ctx.profile = ctx.state.profile;
     ctx.saveState();
   }
 

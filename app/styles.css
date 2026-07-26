@@ -93,6 +93,68 @@ h1,h2,h3 { font-family:var(--font-display); line-height:1.2; font-weight:700; }
 .card { background:var(--grad-card); border:1px solid var(--line); border-radius:13px; padding:var(--sp-5);
         box-shadow:var(--card-shadow); }
 .card.elevated { background:var(--panel-2); }
+/* ---------------------------------------------------------------- form controls
+   There was not a single rule for input, select or textarea in the entire
+   product. Every field rendered in browser default: grey box, system font,
+   native dropdown arrow — inside a dark interface built to the standard the
+   design chapter calls for. The tokens below all existed already; they had just
+   never been applied to the controls people actually type into.
+
+   The dashboard looked finished because it has no fields. */
+input, select, textarea {
+  width:100%; box-sizing:border-box;
+  background:var(--panel); color:var(--text);
+  border:1px solid var(--line); border-radius:var(--r-ctl);
+  padding:9px 12px;
+  font:400 var(--fs-sm)/1.5 var(--font-text);
+  transition:border-color 140ms var(--ease-out), background 140ms var(--ease-out),
+             box-shadow 140ms var(--ease-out);
+  appearance:none; -webkit-appearance:none;
+}
+input:hover, select:hover, textarea:hover { border-color:var(--line-strong); }
+input:focus, select:focus, textarea:focus {
+  outline:none; border-color:rgba(101,216,178,.55); background:var(--panel-2);
+  box-shadow:0 0 0 3px rgba(101,216,178,.12);
+}
+input::placeholder, textarea::placeholder { color:var(--faint); opacity:1; }
+input:disabled, select:disabled, textarea:disabled { opacity:.5; cursor:not-allowed; }
+textarea { min-height:96px; resize:vertical; line-height:1.6; }
+
+/* Own arrow: appearance:none removes the native one, and a select without any is
+   indistinguishable from a text field. */
+select {
+  padding-right:36px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5 6 6.5l5-5' stroke='%239db0d0' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 13px center; background-size:11px;
+  cursor:pointer;
+}
+select:focus {
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5 6 6.5l5-5' stroke='%2365d8b2' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+/* The dropdown list itself is drawn by the operating system; only these two
+   properties reach it, and without them it opens white on a dark page. */
+select option { background:var(--panel-2); color:var(--text); }
+
+/* Number and date fields carry their own controls, which stay light unless told
+   otherwise. */
+input[type="number"] { font-family:var(--font-num); font-variant-numeric:tabular-nums; }
+input[type="date"], input[type="number"] { color-scheme:dark; }
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="number"]::-webkit-inner-spin-button {
+  filter:invert(.65) sepia(.1) saturate(.5); cursor:pointer;
+}
+input[type="checkbox"], input[type="radio"] {
+  width:1.05rem; height:1.05rem; padding:0; flex:none; cursor:pointer;
+  border-radius:5px; display:inline-grid; place-content:center;
+}
+input[type="radio"] { border-radius:50%; }
+input[type="checkbox"]:checked, input[type="radio"]:checked {
+  background:var(--emerald); border-color:var(--emerald);
+}
+input[type="checkbox"]:checked::after { content:'✓'; color:#06210f; font-size:.72rem; font-weight:700; }
+input[type="radio"]:checked::after { content:''; width:.44rem; height:.44rem; border-radius:50%; background:#06210f; }
+input[type="search"]::-webkit-search-cancel-button { filter:invert(.6); cursor:pointer; }
+
 button, .btn {
   background:transparent; color:var(--text); border:1px solid var(--line);
   border-radius:var(--r-ctl); padding:var(--sp-2) var(--sp-4);
@@ -346,7 +408,9 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 .ph.state-locked{opacity:.5}
 
 /* ---- Lernen-Ansicht (#3/#19) ---- */
-.lern-sect{margin:14px 0 4px;font-size:.7rem;letter-spacing:.09em;opacity:.55;text-transform:uppercase}
+.lern-sect{margin:18px 0 6px;font-size:.7rem;letter-spacing:.09em;opacity:.55;text-transform:uppercase}
+.lern-sect-notiz{display:block;margin-top:5px;font-size:.72rem;letter-spacing:0;text-transform:none;
+  opacity:.9;color:var(--faint);line-height:1.5;max-width:74ch;font-weight:400}
 .lern-row{display:flex;align-items:center;gap:8px}
 .lern-row .ph{flex:1;gap:12px}
 /* Running text, so the glossary spans inside a title stay in the line instead of
@@ -422,8 +486,12 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 
    Fields are blocks now, in a grid that gives two columns where there is room. */
 .feld{display:block}
-.feld .feld-name{display:block;font-size:.76rem;letter-spacing:.02em;color:var(--dim);
-  margin-bottom:6px;font-weight:500}
+.feld .feld-name{display:block;font-size:.78rem;letter-spacing:.01em;color:var(--text);
+  margin-bottom:7px;font-weight:500;opacity:.86}
+/* One line under a field beats a paragraph above the form: it is read where the
+   question comes up, not before it. */
+.feld .feld-hilfe{display:block;margin-top:6px;font-size:.72rem;color:var(--faint);line-height:1.45}
+.formular-intro{margin:0 0 4px;font-size:.86rem;color:var(--dim);max-width:62ch}
 .feld .feld-name .dim{font-weight:400;letter-spacing:0}
 .feld input,.feld select,.feld textarea{width:100%;box-sizing:border-box}
 .formular{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
