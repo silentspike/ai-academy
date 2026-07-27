@@ -362,12 +362,15 @@ jobs:
   # the only place the other two exist for it. Without this job the claim rests
   # on nobody having tried.
   #
-  # Main only, like the sweep: a Windows runner spends most of a minute booting,
-  # and a pull request should answer in about ninety seconds.
+  # On pull requests too, unlike the sweep. A Windows runner spends most of a
+  # minute booting, which is real — but this is the only job that touches these
+  # two systems at all, and deferring it by one merge means a change that breaks
+  # the Windows start is found on main instead of in review. If it turns out to
+  # dominate the pull-request time, move it to main WITH the measurement, the way
+  # the sweep was moved.
   plattformen:
     name: start on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
-    if: github.event_name != 'pull_request'
     strategy:
       fail-fast: false
       matrix:
