@@ -376,6 +376,9 @@ route('lernnachweis', async (view, ctx) => {
     <div class="nachweis" id="nachweis">
       <h2>Persönlicher Lernnachweis</h2>
       <p class="nw-unter">AI-Act-Akademie · ausgestellt am ${new Date().toLocaleDateString('de-AT')}</p>
+      ${ctx.simulation ? `<p class="nachweis-disclaimer nachweis-sim"><b>Aus einer Simulation.</b> Die Lernpfad-Sperren
+      waren offen — Examens-Gate, Tagesantritt, Pflicht-Review und Bosskampf-Vorbedingung. Was hier
+      steht, belegt keinen Lernstand.</p>` : ''}
       <p class="nachweis-disclaimer"><b>Persönlicher, unbeaufsichtigter Lernnachweis.</b> Identität und Prüfungsbedingungen
       wurden nicht durch eine unabhängige Stelle verifiziert. Teile der Bewertung sind KI-unterstützt.
       Kein akkreditiertes Zertifikat. Nicht bestimmt für den Einsatz durch Bildungseinrichtungen

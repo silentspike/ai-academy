@@ -838,7 +838,17 @@ route('boss', async (view, ctx, [scenarioId]) => {
   const llm = new LlmAdapter({});
   try { await llm.refreshHealth(); llm.evaluateGate(); } catch { /* Boss braucht LLM — Fehlerpfad unten */ }
   const run = createScenarioRun(scenario, Date.now());
-  run.transcript.push({ who: 'persona', text: 'Schön, dass Sie Zeit haben! Wir wollen ein Stimmungsradar für die Hotline — Dashboard zeigt live die Gesprächsstimmung. Was brauche ich von Ihnen, damit das schnell durchgeht?', ts: Date.now(), phase: 0 });
+  // The opening line belongs to the scenario, not to the code. It was hardcoded
+  // here — one Stimmungsradar sentence for all ten boss fights — and only ever
+  // matched the one scenario it was written for; the other nine opened with a
+  // case that was not theirs. The fallback keeps a scenario without an opening
+  // inside its own facts rather than inventing one.
+  const ersteFakten = (scenario.facts ?? []).filter(f => (f.released_at_phase ?? 0) === 0);
+  run.transcript.push({
+    who: 'persona',
+    text: scenario.opening ?? ersteFakten.map(f => f.text).join(' ') ?? '',
+    ts: Date.now(), phase: 0,
+  });
 
   const wrap = document.createElement('div');
   wrap.className = 'card';
@@ -853,7 +863,7 @@ route('boss', async (view, ctx, [scenarioId]) => {
 
   const paint = (opts = {}) => renderDialog(dmount, scenario, run, {
     ...opts,
-    suggestedMoves: run.transcript.length < 3 ? ['Was genau ist die Zweckbestimmung?', 'Wessen Stimme wird analysiert — nur Anrufende oder auch unsere Leute?'] : [],
+    suggestedMoves: run.transcript.length < 3 ? (scenario.suggested_moves ?? []) : [],
     onUserTurn: async text => {
       recordUserTurn(scenario, run, text, Date.now());
       paint({ typing: true });
