@@ -146,6 +146,7 @@ const heuteKey = tagKey(0);
 const mitKarten = { cards: [{ id: 'c1', box: 1, due: Date.now() - 3600_000, retention: 'gelernt' }], dayStats: {} };
 const ohneReview = createSession(mitKarten, Date.now());
 t('Ohne erledigtes Review: Einheiten gesperrt', canStartUnit(ohneReview) === false);
+t('Simulation: Einheiten auch ohne Review frei', canStartUnit(ohneReview, true) === true);
 t('Ohne erledigtes Review: Schritt ist review', ohneReview.step === 'review');
 const nachReview = createSession({ ...mitKarten, dayStats: { [heuteKey]: { reviewDone: true, questions: 12 } } }, Date.now());
 t('dayStats meldet Review erledigt: Einheiten frei', canStartUnit(nachReview) === true);

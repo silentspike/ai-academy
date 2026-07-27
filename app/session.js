@@ -40,7 +40,11 @@ export function createSession(state, nowMs, { weakScores } = {}) {
 }
 
 /** Mandatory review BEFORE new material — units stay locked until the review is done. */
-export function canStartUnit(session) { return session.review.done; }
+/**
+ * New material is locked until the review is done (#32) — except in simulation,
+ * where the whole point is to reach every view without working the path first.
+ */
+export function canStartUnit(session, simulation = false) { return simulation || session.review.done; }
 
 export function completeStep(session, step) {
   if (step === 'review') session.review.done = true;

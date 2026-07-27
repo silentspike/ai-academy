@@ -89,6 +89,24 @@ t('Gate: 2. Antritt am selben Tag gesperrt', g4.allowed === false && g4.reasons[
 const gelernt = kernIds.map(k => ({ meta: { competency: k }, retention: RETENTION.GELERNT }));
 t('Gate: Same-Day-„gelernt" reicht NICHT (Intensivtag-Regel)', examGate({ chapterTests: passedTests }, { kompetenzen, cards: gelernt, nowMs: now }).allowed === false);
 
+// ---------- Simulation: alle Sperren offen, und es steht dran ----------
+// Die Testinstanz existiert zum Durchklicken. Ein Werkzeug, das dabei sagt
+// "heute schon ein Antritt", prueft sich selbst statt sich zeigen zu lassen.
+{
+  const zu = { chapterTests: {}, examAttempts: [{ day: '2026-07-25' }] };
+  const ohne = examGate(zu, { kompetenzen, cards: [], nowMs: now });
+  const mit = examGate(zu, { kompetenzen, cards: [], nowMs: now, simulation: true });
+  t('Simulation: Gate offen trotz fehlender Kapiteltests, Retention und Tagesantritt',
+    mit.allowed === true && mit.reasons.length === 0);
+  t('Simulation ist am Ergebnis erkennbar', mit.simulation === true);
+  // Negativkontrolle: ohne die Flagge bleibt genau dieser Zustand gesperrt —
+  // sonst waere "offen" kein Verdienst der Simulation, sondern ein kaputtes Gate.
+  t('Ohne Simulation bleibt derselbe Zustand gesperrt',
+    ohne.allowed === false && ohne.reasons.length > 0);
+  t('Regulaeres Ergebnis traegt KEINE Simulations-Markierung', ohne.simulation === undefined);
+}
+
+
 // ---- Score-Serien
 const series = {};
 const k1 = regimeKey({ rechtsstand: '2026-07-27', contentVersion: 'c1', promptsVersion: '1.1.2', model: 'opus' });
