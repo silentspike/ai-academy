@@ -620,8 +620,13 @@ route('dashboard', async (view, ctx) => {
   renderExamHistory(view.querySelector('#d-exam'), series.length ? series : [{ regime: 'noch kein Examen', attempts: [] }]);
 });
 
-// Ceremony demo route, kept for manual inspection of the three tiers
+// Ceremony demo route, kept for manual inspection of the three tiers.
+// Nur in der Simulation: Im echten Betrieb ist das eine Entwickler-Ansicht, die
+// niemand angefordert hat — wer sie über die Adresszeile trifft, sieht einen
+// „Zeremonien-Test" ohne Zusammenhang und kann sich Belohnungen auslösen, die
+// er nicht verdient hat.
 route('zeremonie', (view, ctx, [tier]) => {
+  if (!ctx.simulation) { location.hash = '#/dashboard'; return; }
   view.innerHTML = `<div class="card"><h3>Zeremonien-Test</h3><p class="dim">
     <a href="#/zeremonie/klein">klein</a> · <a href="#/zeremonie/mittel">mittel</a> · <a href="#/zeremonie/gross">groß</a></p>
     <button class="btn-primary" id="z-go">Auslösen: ${tier ?? 'klein'}</button></div>`;

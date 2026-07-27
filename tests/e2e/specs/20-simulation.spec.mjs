@@ -141,5 +141,11 @@ test.describe('simulation', () => {
     await page.goto('/#/lernnachweis', { waitUntil: 'load' });
     await warteAufAnsicht(page);
     await expect(page.locator('.nachweis-sim')).toHaveCount(0);
+
+    // Und die Entwickler-Ansicht für die Zeremonien bleibt im Betrieb zu.
+    await page.goto('/#/zeremonie/gross', { waitUntil: 'load' });
+    await warteAufAnsicht(page);
+    expect(await page.evaluate(() => location.hash), 'the ceremony demo opens in real operation')
+      .toBe('#/dashboard');
   });
 });
