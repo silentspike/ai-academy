@@ -40,10 +40,13 @@ async function runQuestions(view, questions, { mode, kind, llm, onDone }) {
     mount.innerHTML = '';
     if (i >= questions.length) { onDone(results); return; }
     const q = questions[i];
-    const head = card(`<div class="chead"><span class="t"><h3>Frage ${i + 1}/${questions.length}</h3><span class="sub">${q.competency} · Stufe ${q.level}${mode === 'exam' ? ' · Closed Book' : mode === 'open' ? ' · Verordnungstext erlaubt' : ''}</span></span></div>`);
+    // Counter and question on ONE surface — as two cards they read as unrelated
+    // blocks, and only the first one was inside the reading column.
+    const head = card(`<div class="q-meta"><span class="q-zaehler">Frage ${i + 1}<i>/${questions.length}</i></span>
+      <span class="q-marken"><span class="q-marke">${q.competency}</span><span class="q-marke">Stufe ${q.level}</span>${mode === 'exam' ? '<span class="q-marke streng">Closed Book</span>' : mode === 'open' ? '<span class="q-marke">Verordnungstext erlaubt</span>' : ''}</span></div>`);
     mount.appendChild(head);
     const qm = document.createElement('div');
-    mount.appendChild(qm);
+    head.appendChild(qm);
     renderQuestion(qm, q, {
       onAnswered: async (res, conf) => {
         if (res.verdict === 'pending_agent') {
@@ -108,10 +111,18 @@ route('test', async (view, ctx, [phaseId]) => {
   if (!boss?.passed) {
     const { scenarios } = await data();
     const sz = scenarios.find(x => x.id.startsWith('sz-' + phaseId + '-'));
-    view.appendChild(card(`<h3>Kapiteltest ${phaseId.toUpperCase()} — gesperrt</h3>
-      <p>Vor dem Test steht der Bosskampf: das Fachgespräch der Phase mit Mindesturteil „solide" (≥ 50 % der Gesprächsziele, keine Critical-Falle).</p>
-      ${sz ? `<button class="btn-primary" onclick="location.hash='#/boss/${sz.id}'">Zum Bosskampf: ${sz.title}</button>` : '<p class="dim">Kein Szenario für diese Phase hinterlegt.</p>'}
-      ${boss ? `<p class="dim">Letzter Versuch: ${boss.achieved}/${boss.total} Ziele — Wiederholung mit anderem Gesprächsverlauf möglich.</p>` : ''}`));
+    const g = card(`<div class="chead gold"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-lock"/></svg></span>
+      <span class="t"><h3>Kapiteltest ${phaseId.toUpperCase()}</h3><span class="sub">Noch gesperrt — erst das Fachgespräch</span></span></div>
+      <div class="tor-weg">
+        <div class="tor-schritt jetzt"><span class="tor-nr">1</span><b>Bosskampf</b><span>Fachgespräch der Phase — Mindesturteil „solide“: ≥ 50 % der Gesprächsziele, keine Critical-Falle</span></div>
+        <div class="tor-pfeil" aria-hidden="true">→</div>
+        <div class="tor-schritt"><span class="tor-nr">2</span><b>Kapiteltest</b><span>Teil 1 Triage ohne Hilfsmittel, Teil 2 Quellenarbeit am Verordnungstext</span></div>
+      </div>
+      <p class="tor-warum">Die Generalprobe steht vor der Prüfung: wer das Gespräch nicht trägt, reißt im Test die Anwendungsfragen — und ein verbrannter Versuch kostet mehr als eine Wiederholung (§4.2).</p>
+      <div class="ex-start-zeile">${sz ? `<button class="btn-primary" onclick="location.hash='#/boss/${sz.id}'">Zum Bosskampf: ${sz.title}</button>` : '<p class="dim">Kein Szenario für diese Phase hinterlegt.</p>'}</div>
+      ${boss ? `<p class="dim" style="margin-top:12px">Letzter Versuch: ${boss.achieved}/${boss.total} Ziele — Wiederholung mit anderem Gesprächsverlauf möglich.</p>` : ''}`);
+    g.classList.add('examen-buehne');
+    view.appendChild(g);
     return;
   }
   const used = new Set(st.usedTestQuestions[phaseId] ?? []);
@@ -173,9 +184,21 @@ route('examen', async (view, ctx) => {
   const mw = sessionStatus(st).marathon;
   if (mw.warn) view.appendChild(card(`<p class="ritual-warn">⚠ ${mw.text}</p>`));
 
-  const head = card(`<div class="chead"><span class="t"><h3>Abschlussexamen</h3>
-    <span class="sub">Teil A: 40 Fragen / 60 min Closed Book · Teil B: Capstone ~30 min Open Book · max. 1 Antritt/Tag</span></span></div>
-    <p class="dim">Rechtsstand ${RECHTSSTAND} · <a href="docs/CRITICAL-ERRORS.md" target="_blank">Critical-Error-Liste</a> · <a href="docs/CUT-SCORE-BLUEPRINT.md" target="_blank">Cut-Score-Begründung</a></p>`);
+  // The moment the whole product builds towards. It rendered as a small box in
+  // a large empty area — the same weight as a settings panel.
+  const head = card(`<div class="examen-buehne">
+      <div class="chead gold"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-fach-trophy"/></svg></span>
+        <span class="t"><h3>Abschlussexamen</h3>
+        <span class="sub">Der Nachweis, dass es sitzt</span></span></div>
+      <div class="ex-teile">
+        <div class="ex-teil"><span class="ex-nr">A</span><b>40 Fragen · 60 Minuten</b>
+          <span>Closed Book — keine Hilfsmittel, wie im Meeting</span></div>
+        <div class="ex-teil"><span class="ex-nr">B</span><b>Capstone · ~30 Minuten</b>
+          <span>Open Book — ein Fall mit dem Verordnungstext am Tisch</span></div>
+      </div>
+      <p class="ex-regel">Beide Teile müssen bestanden werden · höchstens ein Antritt pro Kalendertag</p>
+      <p class="dim ex-fuss">Rechtsstand ${RECHTSSTAND} · <a href="docs/CRITICAL-ERRORS.md" target="_blank">Critical-Error-Liste</a> · <a href="docs/CUT-SCORE-BLUEPRINT.md" target="_blank">Cut-Score-Begründung</a></p>
+    </div>`);
   view.appendChild(head);
 
   if (!llm.summativeAllowed) { head.insertAdjacentHTML('beforeend', `<p><b>Gesperrt:</b> ${llm.gate.reason}</p>`); return; }
@@ -184,7 +207,8 @@ route('examen', async (view, ctx) => {
     paintSeries(view, st.scoreSeries);
     return;
   }
-  head.insertAdjacentHTML('beforeend', '<button class="btn-primary" id="ex-start">Examen starten (Teil A)</button>');
+  head.querySelector('.examen-buehne').insertAdjacentHTML('beforeend',
+    '<div class="ex-start-zeile"><button class="btn-primary" id="ex-start">Examen starten — Teil A</button></div>');
   paintSeries(view, st.scoreSeries);
   head.querySelector('#ex-start').onclick = () => {
     head.remove();
@@ -276,7 +300,7 @@ route('challenge', async (view, ctx, [unitId]) => {
   const ch = buildChallengeTest({ id: unit.id, competencies: [unit.competency] }, pool,
     { salt: 'ch' + ((st.challengeAttempts?.[unit.id] ?? 0) + 1) });
 
-  const intro = card(`<div class="chead"><span class="t"><h3>Challenge-Test — ${unit.title}</h3>
+  const intro = card(`<div class="chead gold"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-pruefung"/></svg></span><span class="t"><h3>Challenge-Test — ${unit.title}</h3>
     <span class="sub">${ch.questions.length} Fragen zur Kompetenz ${unit.competency} · Hürde ${ch.passRequired * 100} % · Closed Book</span></span></div>
     <p>Bestehst du, wird die Einheit als <b>übersprungen</b> markiert (Karten laufen trotzdem durchs Leitner-System, der Kapiteltest bleibt Pflicht, #12/#19).</p>
     <button class="btn-primary" id="ch-start">Challenge starten</button>`);
@@ -326,17 +350,34 @@ route('lernnachweis', async (view, ctx) => {
   const einspruchQuote = st.appeals?.length ? `${st.appeals.filter(a => a.granted).length}/${st.appeals.length}` : '0/0';
   view.appendChild(card(`
     <div class="nachweis" id="nachweis">
-      <h2>Persönlicher Lernnachweis — AI-Act-Akademie</h2>
+      <h2>Persönlicher Lernnachweis</h2>
+      <p class="nw-unter">AI-Act-Akademie · ausgestellt am ${new Date().toLocaleDateString('de-AT')}</p>
       <p class="nachweis-disclaimer"><b>Persönlicher, unbeaufsichtigter Lernnachweis.</b> Identität und Prüfungsbedingungen
       wurden nicht durch eine unabhängige Stelle verifiziert. Teile der Bewertung sind KI-unterstützt.
-      Kein akkreditiertes Zertifikat; nicht für Personal- oder Zulassungsentscheidungen bestimmt.</p>
-      <p><b>Bestes Examensergebnis:</b> ${bestAll ? `${(bestAll.pct * 100).toFixed(0)} %${typeof bestAll.a === 'number' && typeof bestAll.b === 'number' ? ` (A ${(bestAll.a * 100).toFixed(0)} % / B ${(bestAll.b * 100).toFixed(0)} %)` : ''}${bestAll.day ? ` am ${bestAll.day}` : ''}` : 'noch kein bestandenes Examen'}</p>
-      <p><b>Level:</b> ${st.level ?? 1} · <b>XP:</b> ${st.xp ?? 0} (Aktivität, nicht Kompetenz — strikt getrennt, #28)</p>
-      <p><b>Rechtsstand:</b> ${RECHTSSTAND} (VO 2024/1689 idF 2026/1744) · <b>Content:</b> c1 · <b>Bewertung:</b> ${model} / Rubrik ${pv}</p>
+      Kein akkreditiertes Zertifikat. Nicht bestimmt für den Einsatz durch Bildungseinrichtungen
+      oder Arbeitgeber zur Bewertung von Personen.</p>
+      <dl class="nw-fakten">
+        <dt>Bestes Examensergebnis</dt>
+        <dd>${bestAll ? `<b>${(bestAll.pct * 100).toFixed(0)} %</b>${typeof bestAll.a === 'number' && typeof bestAll.b === 'number' ? ` — Teil A ${(bestAll.a * 100).toFixed(0)} %, Teil B ${(bestAll.b * 100).toFixed(0)} %` : ''}${bestAll.day ? `, am ${bestAll.day}` : ''}` : 'noch kein bestandenes Examen'}</dd>
+        <dt>Level und Punkte</dt>
+        <dd>Level <b>${st.level ?? 1}</b> · <b>${(st.xp ?? 0).toLocaleString('de-AT')}</b> XP
+            <span class="dim">— Aktivität, nicht Kompetenz (#28)</span></dd>
+        <dt>Kapiteltests</dt>
+        <dd><b>${Object.values(st.chapterTests ?? {}).filter(t => t.passed).length}</b> von 9 bestanden</dd>
+        <dt>Rechtsstand</dt>
+        <dd>${RECHTSSTAND} <span class="dim">(VO 2024/1689 idF 2026/1744)</span></dd>
+        <dt>Bewertung</dt>
+        <dd><span class="mono">${model}</span> · Rubrik <span class="mono">${pv}</span> · Content <span class="mono">c1</span></dd>
+      </dl>
       <hr>
       <h3>Transparenz-Rückseite</h3>
-      <p class="dim">Score-Serien (first/latest/best je Regime): ${Object.values(abgeleitet).filter(s => typeof s.first?.pct === 'number').map(s => `${(s.first.pct * 100).toFixed(0)}/${(s.latest.pct * 100).toFixed(0)}/${(s.best.pct * 100).toFixed(0)} %`).join(' · ') || '—'}<br>
-      Einspruchsquote: ${einspruchQuote} · Kapiteltests bestanden: ${Object.values(st.chapterTests ?? {}).filter(t => t.passed).length}/9</p>
+      <dl class="nw-fakten">
+        <dt>Score-Serien</dt>
+        <dd>${Object.values(abgeleitet).filter(s => typeof s.first?.pct === 'number').map(s => `${(s.first.pct * 100).toFixed(0)} / ${(s.latest.pct * 100).toFixed(0)} / ${(s.best.pct * 100).toFixed(0)} %`).join(' · ') || '—'}
+            <span class="dim">— erster / letzter / bester Versuch je Bewertungsregime</span></dd>
+        <dt>Einsprüche</dt>
+        <dd>${einspruchQuote} <span class="dim">— stattgegeben von gestellt</span></dd>
+      </dl>
     </div>
-    <button class="btn" onclick="window.print()">Drucken</button>`));
+    <div class="nw-fuss"><button class="btn" onclick="window.print()">Drucken</button></div>`));
 });

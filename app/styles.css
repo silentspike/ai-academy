@@ -43,7 +43,7 @@
   --fs-xs:.75rem; --fs-sm:.85rem; --fs-base:1rem; --fs-lg:1.15rem; --fs-xl:1.4rem; --fs-2xl:1.8rem; --fs-hero:2.6rem;
   --sp-1:.25rem; --sp-2:.5rem; --sp-3:.75rem; --sp-4:1rem; --sp-5:1.5rem; --sp-6:2rem; --sp-7:3rem; --sp-8:4rem;
   --r-card:14px; --r-ctl:8px;
-  --ease-out:cubic-bezier(.16,1,.3,1); --ease-snap:cubic-bezier(.34,1.56,.64,1);
+  --ease-out:cubic-bezier(.16,1,.3,1); --ease-snap:cubic-bezier(.34,1.56,.64,1); --ease-lin:linear;
   --glow-focus:0 0 0 1px var(--line-strong),0 0 24px -8px rgba(34,211,238,.25);
 }
 
@@ -63,11 +63,11 @@ h1,h2,h3 { font-family:var(--font-display); line-height:1.2; font-weight:700; }
    Drei Schichten hinter allem Inhalt: Aurora-Blobs (sehr langsam) → Grid-Textur → Vignette.
    Nur transform/opacity animiert; reduced-motion schaltet Bewegung ab. */
 .bg-layers { position:fixed; inset:0; z-index:-1; overflow:hidden; pointer-events:none; }
-.bg-aurora { position:absolute; width:55vmax; height:55vmax; border-radius:50%;
-  filter:blur(90px); opacity:.2; will-change:transform; }
-.bg-aurora.a { background:radial-gradient(circle,#0d4234 0%,transparent 65%); top:-18%; left:-12%;
+.bg-aurora { position:absolute; width:62vmax; height:62vmax; border-radius:50%;
+  filter:blur(80px); opacity:.34; will-change:transform; }
+.bg-aurora.a { background:radial-gradient(circle,#14624c 0%,transparent 66%); top:-18%; left:-12%;
   animation:aur-a 120s var(--ease-out) infinite alternate; }
-.bg-aurora.b { background:radial-gradient(circle,#0b3d4d 0%,transparent 65%); bottom:-22%; right:-14%;
+.bg-aurora.b { background:radial-gradient(circle,#0f5670 0%,transparent 66%); bottom:-22%; right:-14%;
   animation:aur-b 140s var(--ease-out) infinite alternate; }
 .bg-aurora.c { background:radial-gradient(circle,#33240f 0%,transparent 68%); top:38%; left:52%;
   opacity:.22; animation:aur-c 95s var(--ease-out) infinite alternate; }
@@ -93,6 +93,68 @@ h1,h2,h3 { font-family:var(--font-display); line-height:1.2; font-weight:700; }
 .card { background:var(--grad-card); border:1px solid var(--line); border-radius:13px; padding:var(--sp-5);
         box-shadow:var(--card-shadow); }
 .card.elevated { background:var(--panel-2); }
+/* ---------------------------------------------------------------- form controls
+   There was not a single rule for input, select or textarea in the entire
+   product. Every field rendered in browser default: grey box, system font,
+   native dropdown arrow — inside a dark interface built to the standard the
+   design chapter calls for. The tokens below all existed already; they had just
+   never been applied to the controls people actually type into.
+
+   The dashboard looked finished because it has no fields. */
+input, select, textarea {
+  width:100%; box-sizing:border-box;
+  background:var(--panel); color:var(--text);
+  border:1px solid var(--line); border-radius:var(--r-ctl);
+  padding:9px 12px;
+  font:400 var(--fs-sm)/1.5 var(--font-text);
+  transition:border-color 140ms var(--ease-out), background 140ms var(--ease-out),
+             box-shadow 140ms var(--ease-out);
+  appearance:none; -webkit-appearance:none;
+}
+input:hover, select:hover, textarea:hover { border-color:var(--line-strong); }
+input:focus, select:focus, textarea:focus {
+  outline:none; border-color:rgba(101,216,178,.55); background:var(--panel-2);
+  box-shadow:0 0 0 3px rgba(101,216,178,.12);
+}
+input::placeholder, textarea::placeholder { color:var(--faint); opacity:1; }
+input:disabled, select:disabled, textarea:disabled { opacity:.5; cursor:not-allowed; }
+textarea { min-height:96px; resize:vertical; line-height:1.6; }
+
+/* Own arrow: appearance:none removes the native one, and a select without any is
+   indistinguishable from a text field. */
+select {
+  padding-right:36px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5 6 6.5l5-5' stroke='%239db0d0' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 13px center; background-size:11px;
+  cursor:pointer;
+}
+select:focus {
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5 6 6.5l5-5' stroke='%2365d8b2' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+/* The dropdown list itself is drawn by the operating system; only these two
+   properties reach it, and without them it opens white on a dark page. */
+select option { background:var(--panel-2); color:var(--text); }
+
+/* Number and date fields carry their own controls, which stay light unless told
+   otherwise. */
+input[type="number"] { font-family:var(--font-num); font-variant-numeric:tabular-nums; }
+input[type="date"], input[type="number"] { color-scheme:dark; }
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="number"]::-webkit-inner-spin-button {
+  filter:invert(.65) sepia(.1) saturate(.5); cursor:pointer;
+}
+input[type="checkbox"], input[type="radio"] {
+  width:1.05rem; height:1.05rem; padding:0; flex:none; cursor:pointer;
+  border-radius:5px; display:inline-grid; place-content:center;
+}
+input[type="radio"] { border-radius:50%; }
+input[type="checkbox"]:checked, input[type="radio"]:checked {
+  background:var(--emerald); border-color:var(--emerald);
+}
+input[type="checkbox"]:checked::after { content:'✓'; color:#06210f; font-size:.72rem; font-weight:700; }
+input[type="radio"]:checked::after { content:''; width:.44rem; height:.44rem; border-radius:50%; background:#06210f; }
+input[type="search"]::-webkit-search-cancel-button { filter:invert(.6); cursor:pointer; }
+
 button, .btn {
   background:transparent; color:var(--text); border:1px solid var(--line);
   border-radius:var(--r-ctl); padding:var(--sp-2) var(--sp-4);
@@ -118,17 +180,57 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 .ico { width:1.25rem; height:1.25rem; vertical-align:-0.22rem; }
 .ico-glow { filter:drop-shadow(0 0 6px rgba(52,211,153,.45)); }
 
-/* ---------- 5. Quiz-Engine (Schritt 3) ---------- */
-.q { display:flex; flex-direction:column; gap:12px; }
-.q-scenario { font-size:.9rem; color:var(--dim); padding:var(--sp-3) var(--sp-4); }
-.q-prompt { font-size:1.02rem; font-weight:500; }
-.q-options { display:flex; flex-direction:column; gap:8px; }
-.q-opt { display:flex; align-items:center; gap:10px; text-align:left; padding:.65rem .8rem;
-  border-radius:10px; font-size:.92rem; line-height:1.45; }
-.q-opt.sel { border-color:var(--violet); background:rgba(138,112,239,.08); }
-.q-key { width:1.35rem; height:1.35rem; border-radius:6px; border:1px solid var(--line-strong);
-  display:grid; place-items:center; font-family:var(--font-mono); font-size:.72rem;
-  color:var(--faint); flex:none; }
+/* ---------- 5. Quiz-Engine ----------
+   The most frequent interaction in the product: drill, chapter test, exam and
+   every check inside a unit run through it. It rendered as borderless rows
+   across the full width — 1550 pixels of line for a four-word answer — with the
+   question outside any container and the number keys as small grey squares.
+
+   Reading measure applies here more than anywhere: these are the lines people
+   read under time pressure. */
+.q { display:flex; flex-direction:column; gap:16px; }
+/* Kopfzeile der Frage: Zähler links, Einordnung rechts — eine Fläche mit der
+   Frage darunter, getrennt durch eine Linie statt durch einen Kartenrand. */
+.q-meta { display:flex; align-items:baseline; justify-content:space-between; gap:14px; flex-wrap:wrap;
+  padding-bottom:12px; margin-bottom:16px; border-bottom:1px solid var(--line); }
+.q-zaehler { font-family:var(--font-display); font-size:1.02rem; font-weight:600; letter-spacing:-.01em; }
+.q-zaehler i { font-style:normal; color:var(--faint); font-weight:400; }
+.q-marken { display:flex; gap:6px; flex-wrap:wrap; }
+.q-marke { font-family:var(--font-mono); font-size:.68rem; letter-spacing:.06em; text-transform:uppercase;
+  padding:.22rem .5rem; border-radius:6px; color:var(--dim);
+  background:rgba(151,169,202,.06); border:1px solid var(--line); }
+.q-marke.variante { color:var(--amber); border-color:rgba(225,173,88,.3); background:rgba(225,173,88,.07); }
+.q-marke.streng { color:var(--violet); border-color:rgba(138,112,239,.32); background:rgba(138,112,239,.08); }
+.q-scenario { font-size:.92rem; color:var(--dim); line-height:1.6;
+  padding:var(--sp-4); border-left:2px solid rgba(101,216,178,.35); border-radius:0 10px 10px 0;
+  background:linear-gradient(90deg,rgba(101,216,178,.05),transparent 70%); max-width:var(--lese-max,68ch); }
+.q-prompt { font-size:clamp(1.05rem,1.5vw,1.22rem); font-weight:600; line-height:1.45;
+  font-family:var(--font-display); letter-spacing:-.005em; max-width:var(--lese-max,68ch); }
+.q-options { display:flex; flex-direction:column; gap:10px; max-width:min(78ch,100%); }
+.q-opt { display:flex; align-items:flex-start; gap:13px; text-align:left; padding:.85rem 1rem;
+  border-radius:11px; font-size:.94rem; line-height:1.55;
+  background:var(--panel); border:1px solid var(--line);
+  transition:border-color 120ms var(--ease-out), background 120ms var(--ease-out),
+             transform 120ms var(--ease-snap); }
+.q-opt:hover:not(:disabled) { border-color:rgba(138,112,239,.4); background:var(--panel-2);
+  transform:translateX(2px); }
+.q-opt.sel { border-color:var(--violet); background:rgba(138,112,239,.10);
+  box-shadow:0 0 0 3px rgba(138,112,239,.10); }
+/* The snap the design system asks for on answer feedback (§5, --ease-snap). */
+.q-opt.state-correct, .q-opt.state-wrong, .q-opt.state-partial { animation:antwort-snap 240ms var(--ease-snap); }
+@keyframes antwort-snap { 0%{transform:scale(1)} 45%{transform:scale(1.014)} 100%{transform:scale(1)} }
+.q-key { width:1.6rem; height:1.6rem; border-radius:7px; border:1px solid var(--line-strong);
+  display:grid; place-items:center; font-family:var(--font-num); font-size:.78rem; font-weight:600;
+  color:var(--dim); flex:none; background:var(--bg-deep,rgba(0,0,0,.25)); margin-top:1px;
+  transition:border-color 120ms, color 120ms, background 120ms; }
+.q-opt:hover .q-key { border-color:rgba(138,112,239,.5); color:var(--text); }
+.q-opt.sel .q-key { border-color:var(--violet); color:var(--violet); background:rgba(138,112,239,.14); }
+.q-opt.state-correct .q-key { border-color:var(--emerald); color:var(--emerald); }
+.q-opt.state-wrong .q-key { border-color:var(--red); color:var(--red); }
+@media (prefers-reduced-motion:reduce) {
+  .q-opt, .q-opt:hover { transition:none; transform:none; }
+  .q-opt.state-correct, .q-opt.state-wrong, .q-opt.state-partial { animation:none; }
+}
 .q-neg { color:var(--red); letter-spacing:.03em; }
 .q-freetext { width:100%; background:var(--panel); color:var(--text); border:1px solid var(--line);
   border-radius:10px; padding:.7rem .8rem; font:400 .92rem/1.5 var(--font-text); resize:vertical; }
@@ -171,14 +273,30 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 .dnd-feedback { font-size:.88rem; color:var(--dim); }
 
 /* Dialog / Bosskampf (#45b) */
-.dlg { display:flex; flex-direction:column; gap:10px; height:100%; min-height:0; }
-.dlg-head { display:flex; gap:10px; align-items:center; }
-.dlg-avatar { width:52px; height:52px; border-radius:50%; object-fit:cover;
-  border:1.5px solid var(--line-strong); box-shadow:0 0 14px rgba(138,112,239,.2); }
+/* Grows with the conversation instead of claiming the full card height. Filling
+   the viewport left 490px of emptiness between the opening line and the reply
+   box for the whole first exchange — the fixed frame was doing nothing for a
+   conversation that is three lines long. */
+.dlg { display:flex; flex-direction:column; gap:10px; min-height:0; }
+.dlg-head { display:flex; gap:14px; align-items:center; padding-bottom:14px;
+  border-bottom:1px solid var(--line); margin-bottom:4px; }
+.dlg-avatar { width:64px; height:64px; border-radius:50%; object-fit:cover;
+  border:2px solid rgba(138,112,239,.34); box-shadow:0 0 0 4px rgba(138,112,239,.07), 0 0 26px rgba(138,112,239,.28); }
 .dlg-who { display:flex; flex-direction:column; line-height:1.3; }
-.dlg-who span { color:var(--dim); font-size:.78rem; }
-.dlg-feed { flex:1; min-height:0; overflow-y:auto; display:flex; flex-direction:column; gap:8px; padding:4px 2px; }
-.bubble { max-width:78%; padding:.55rem .8rem; border-radius:12px; font-size:.9rem; line-height:1.5; }
+.dlg-who b { font-family:var(--font-display); font-size:1.05rem; font-weight:600; }
+.dlg-who span { color:var(--dim); font-size:.8rem; }
+/* Conversations grow from the bottom, the way every conversation does. Anchored
+   to the top, a single opening line left 550 pixels of nothing between it and
+   the reply box. */
+/* Kein justify-content:flex-end: sobald der Verlauf die Höhe überschreitet, ist
+   der obere Teil bei flex-end nicht mehr scrollbar erreichbar. Die Karte wächst
+   ohnehin mit dem Gespräch, bis diese Grenze greift. */
+.dlg-feed { min-height:0; max-height:min(58vh, 620px); overflow-y:auto; display:flex; flex-direction:column;
+  gap:12px; padding:14px 2px; }
+.bubble { max-width:74%; padding:.75rem 1rem; border-radius:14px; font-size:.94rem; line-height:1.6;
+  animation:blase-auf 280ms var(--ease-out) both; }
+@keyframes blase-auf { from { opacity:0; transform:translateY(8px) scale(.99); } to { opacity:1; transform:none; } }
+@media (prefers-reduced-motion:reduce) { .bubble { animation:none; } }
 .bubble.them { align-self:flex-start; background:var(--panel-2); border:1px solid var(--line);
   border-bottom-left-radius:4px; }
 .bubble.me { align-self:flex-end; background:rgba(138,112,239,.14); border:1px solid rgba(138,112,239,.3);
@@ -187,8 +305,12 @@ button:disabled { opacity:.45; cursor:not-allowed; }
   background:var(--faint); margin-right:.2rem; animation:typing 1s infinite; }
 .bubble.typing i:nth-child(2) { animation-delay:.15s; } .bubble.typing i:nth-child(3) { animation-delay:.3s; }
 @keyframes typing { 0%,60%,100% { transform:none; opacity:.4; } 30% { transform:translateY(-3px); opacity:1; } }
-.dlg-moves { display:flex; flex-wrap:wrap; gap:6px; }
-.dlg-move { font-size:.8rem; padding:.35rem .7rem; border-radius:999px; }
+.dlg-moves { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:4px; }
+.dlg-move { font-size:.83rem; padding:.5rem .95rem; border-radius:999px;
+  background:var(--panel); border:1px solid var(--line);
+  transition:border-color 120ms, background 120ms, transform 120ms var(--ease-snap); }
+.dlg-move:hover { border-color:rgba(101,216,178,.45); background:var(--panel-2); transform:translateY(-1px); }
+@media (prefers-reduced-motion:reduce) { .dlg-move:hover { transform:none; } }
 .dlg-inputrow { display:flex; gap:8px; }
 .dlg-inputrow textarea { flex:1; background:var(--panel); color:var(--text); border:1px solid var(--line);
   border-radius:10px; padding:.55rem .7rem; font:400 .9rem/1.4 var(--font-text); resize:none; }
@@ -224,15 +346,36 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 
 /* ---- Zuordnungs-Fragen (Typ assign, Task 9) ---- */
 .q-assign-row{display:grid;grid-template-columns:minmax(160px,1fr) 2fr;gap:10px;margin-bottom:10px;align-items:start}
-.q-assign-left{font-weight:600;font-size:.85rem;padding:8px 10px;background:var(--layer2,#111827);border-radius:8px}
+.q-assign-left{font-weight:600;font-size:.85rem;padding:8px 10px;background:var(--panel);border-radius:8px}
 .q-assign-opts{display:flex;flex-wrap:wrap;gap:6px}
 .q-assign-opt{font-size:.78rem;padding:6px 10px}
-.q-assign-opt.sel{outline:2px solid var(--emerald,#34d399)}
+.q-assign-opt.sel{outline:2px solid var(--emerald)}
 
-/* ---- Persönlicher Lernnachweis (#35) ---- */
-.nachweis{background:#fff;color:#111;padding:28px;border-radius:8px}
-.nachweis h2{color:#111}
-.nachweis-disclaimer{border:1.5px solid #b45309;background:#fef3c7;color:#78350f;padding:10px 12px;border-radius:6px;font-size:.82rem}
+/* ---- Persönlicher Lernnachweis (#35) ----
+   A white sheet inside a dark application: every colour has to be set again
+   here, or it inherits. The transparency section did exactly that and came out
+   as light grey text on white — the part of the document that is supposed to be
+   the honest one was the part nobody could read. */
+.nachweis{background:#fff;color:#1a1a1a;padding:clamp(28px,4vw,44px);border-radius:10px;
+  max-width:820px;margin:0 auto;font-family:var(--font-text)}
+.nachweis h2{color:#0f172a;font-family:var(--font-display);font-size:clamp(1.3rem,2.6vw,1.75rem);
+  line-height:1.2;margin:0 0 4px;letter-spacing:-.01em}
+.nachweis .nw-unter{color:#64748b;font-size:.82rem;margin:0 0 20px}
+.nachweis h3{color:#0f172a;font-family:var(--font-display);font-size:1rem;margin:0 0 10px}
+.nachweis p{color:#1a1a1a}
+.nachweis b{color:#0f172a}
+.nachweis .dim,.nachweis .dim *{color:#475569}
+.nachweis hr{border:0;border-top:1px solid #e2e8f0;margin:26px 0 20px}
+.nachweis .mono{font-family:var(--font-mono);font-size:.82em;color:#475569}
+.nachweis-disclaimer{border:1.5px solid #b45309;background:#fef3c7;color:#78350f;
+  padding:12px 14px;border-radius:7px;font-size:.82rem;line-height:1.55;margin:0 0 22px}
+/* Facts as a list, not as five paragraphs that read like a letter. */
+.nw-fakten{display:grid;grid-template-columns:auto 1fr;gap:9px 18px;margin:0 0 4px;font-size:.9rem}
+.nw-fakten dt{color:#64748b;font-size:.78rem;padding-top:2px}
+.nw-fakten dd{margin:0;color:#1a1a1a}
+.nw-fakten dd b{font-family:var(--font-num);font-size:1.05em}
+.nw-fuss{display:flex;justify-content:flex-end;margin-top:18px}
+@media (max-width:560px){ .nw-fakten{grid-template-columns:1fr;gap:3px 0} .nw-fakten dd{margin-bottom:8px} }
 @media print{
   /* App-Chrome weg, Nachweis im Normalfluss — visibility/absolute scheitert an
      transformierten Ancestors (Reveal-Animation), daher display-basiert. */
@@ -246,16 +389,48 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 }
 
 /* ---- Art.-50-Hinweis + Bewertungs-Labels (Task 11, §5.0) ---- */
-.ai-notice-overlay{position:fixed;inset:0;background:rgba(4,6,12,.82);display:flex;align-items:center;justify-content:center;z-index:900}
-.ai-notice{max-width:520px;margin:16px}
+/* Article 50 notice — the first thing anyone sees, so it should not look like a
+   consent banner someone clicks away. Set as a page: a small label, a real
+   headline, and the four questions as a definition list rather than one wall of
+   text, because the four things it says are four different things. */
+.ai-notice-overlay{position:fixed;inset:0;background:rgba(4,6,12,.86);backdrop-filter:blur(3px);
+  display:grid;place-items:center;z-index:900;padding:24px;overflow-y:auto}
+.ai-notice{max-width:min(640px,100%);margin:auto;padding:clamp(22px,4vw,38px);
+  border-radius:16px;box-shadow:0 30px 80px rgba(0,0,0,.55)}
+.ai-notice .ain-kopf{border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:18px}
+.ai-notice .ain-marke{display:inline-block;font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--emerald);border:1px solid rgba(52,211,153,.32);border-radius:999px;padding:3px 11px;margin-bottom:12px}
+.ai-notice h2{font-family:var(--font-display,inherit);font-size:clamp(1.35rem,3.4vw,1.85rem);
+  line-height:1.15;margin:0 0 6px;letter-spacing:-.01em}
+.ai-notice .ain-unter{margin:0;color:var(--faint);font-size:.86rem}
+.ai-notice .ain-neu{background:rgba(225,173,88,.10);border:1px solid rgba(225,173,88,.30);
+  border-radius:9px;padding:9px 13px;font-size:.82rem;color:var(--gold);margin:0 0 18px}
+.ai-notice .ain-liste{margin:0;display:grid;gap:15px}
+.ai-notice .ain-liste dt{font-size:.7rem;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--faint);margin-bottom:4px}
+.ai-notice .ain-liste dd{margin:0;font-size:.88rem;line-height:1.62;
+  /* Justified with hyphenation: the column is narrow and the ragged edge made
+     four short paragraphs look like scraps. Without hyphens justification tears
+     holes into lines this narrow. */
+  text-align:justify;hyphens:auto;-webkit-hyphens:auto;text-wrap:pretty}
+.ai-notice .ain-liste dd b{color:var(--text)}
+.ai-notice .ain-liste dd i{font-style:normal;color:var(--emerald);font-size:.94em}
+.ai-notice .ain-fuss{display:flex;justify-content:flex-end;margin-top:24px;padding-top:18px;
+  border-top:1px solid var(--line)}
+.ai-notice .ain-fuss .btn-primary{padding:10px 26px;font-size:.9rem}
+@media (max-width:560px){
+  .ai-notice .ain-liste dd{text-align:left}   /* zu schmal für Blocksatz */
+  .ai-notice .ain-fuss{justify-content:stretch}
+  .ai-notice .ain-fuss .btn-primary{width:100%}
+}
 .grade-label{display:block;margin-top:6px;font-size:.68rem;opacity:.65}
 
 /* ---- Session-Ritual (#32/#33) ---- */
 .ritual{display:flex;flex-direction:column;gap:8px;margin-top:10px}
-.ritual-step{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:10px;background:var(--layer2,#111827);border:1px solid rgba(255,255,255,.06);text-decoration:none;color:inherit;transition:border-color .2s,transform .15s}
-.ritual-step:hover:not(.locked){border-color:var(--emerald,#34d399);transform:translateX(2px)}
-.ritual-step.active{border-color:var(--emerald,#34d399);box-shadow:0 0 0 1px rgba(52,211,153,.25)}
-.ritual-step.done .ritual-num{background:rgba(52,211,153,.18);color:var(--emerald,#34d399)}
+.ritual-step{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:10px;background:var(--panel);border:1px solid rgba(255,255,255,.06);text-decoration:none;color:inherit;transition:border-color .2s,transform .15s}
+.ritual-step:hover:not(.locked){border-color:var(--emerald);transform:translateX(2px)}
+.ritual-step.active{border-color:var(--emerald);box-shadow:0 0 0 1px rgba(52,211,153,.25)}
+.ritual-step.done .ritual-num{background:rgba(52,211,153,.18);color:var(--emerald)}
 .ritual-step.locked{opacity:.45;cursor:not-allowed}
 .ritual-num{flex:0 0 26px;height:26px;display:grid;place-items:center;border-radius:50%;background:rgba(255,255,255,.06);font-size:.8rem;font-weight:600}
 .ritual-txt{display:flex;flex-direction:column;gap:1px;font-size:.86rem}
@@ -263,30 +438,62 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 .ritual-warn{margin-top:10px;padding:9px 12px;border-radius:8px;background:rgba(225,173,88,.12);border:1px solid rgba(225,173,88,.35);font-size:.82rem}
 .block-note{border-color:rgba(225,173,88,.35)!important}
 .wrap-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:12px 0}
-.wrap-stats div{background:var(--layer2,#111827);border-radius:10px;padding:12px;text-align:center}
-.wrap-stats b{display:block;font-size:1.5rem;font-family:'Space Grotesk',system-ui}
+.wrap-stats div{background:var(--panel);border-radius:10px;padding:12px;text-align:center}
+.wrap-stats b{display:block;font-size:1.5rem;font-family:var(--font-num),var(--font-display);font-weight:600;letter-spacing:-.02em}
+/* Wortwerte stehen neben Zahlen — gleiche Zeilenhöhe, kleinerer Grad, damit die
+   Kachel nicht kippt. Ein "—" an dieser Stelle las sich wie ein fehlender Wert. */
+.wrap-stats b.wert-ja,.wrap-stats b.wert-offen{font-size:1.02rem;line-height:1.47;font-family:var(--font-display)}
+.wrap-stats b.wert-ja{color:var(--emerald)} .wrap-stats b.wert-offen{color:var(--faint)}
 .wrap-stats span{font-size:.72rem;opacity:.7}
+.wrap-kurs{margin:18px 0 0;padding:14px 16px;border-radius:10px;border:1px solid var(--line);
+  background:rgba(255,255,255,.02);font-size:.9rem}
+.wrap-kurs.gut{border-color:rgba(52,211,153,.28);background:rgba(52,211,153,.06)}
+.wrap-kurs.drift{border-color:rgba(225,173,88,.30);background:rgba(225,173,88,.06)}
+.wrap-kurs p{margin:0 0 6px} .wrap-kurs p:last-child{margin:0}
+.wrap-kurs ul{margin:8px 0 12px;padding-left:20px} .wrap-kurs li{margin-bottom:4px}
+/* Replaces an <hr> that sat flush against the sentence above it and read like a
+   rule struck through the text. */
+.wrap-morgen{display:flex;align-items:baseline;gap:12px;margin-top:20px;padding-top:16px;
+  border-top:1px solid var(--line);font-size:.88rem}
+.wrap-morgen .wm-tag{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--faint);flex:none}
+@media (max-width:640px){ .wrap-stats{grid-template-columns:repeat(2,1fr)} }
 
 /* ---- Sidebar: Phasen-Baum + Zähler (#42) ---- */
 .phase-tree{display:flex;flex-direction:column;gap:1px}
 .ph.phase{padding:5px 8px;font-size:.79rem;gap:9px}
-.pring{position:relative;flex:0 0 22px;height:22px;border-radius:50%;display:grid;place-items:center}
-.pring::after{content:'';position:absolute;inset:3px;border-radius:50%;background:var(--layer1,#0d1420)}
+/* Fortschrittsring: der Winkel ist als Farbwinkel registriert und damit
+   animierbar — ein conic-gradient allein lässt sich nicht überblenden, der Ring
+   sprang also von Stand zu Stand statt zu füllen (§6.3 Motion). */
+@property --pring-deg { syntax:'<angle>'; inherits:false; initial-value:0deg; }
+.pring{position:relative;flex:0 0 22px;height:22px;border-radius:50%;display:grid;place-items:center;
+  background:conic-gradient(var(--emerald) var(--pring-deg), rgba(255,255,255,.08) 0);
+  transition:--pring-deg .7s var(--ease-lin)}
+@media (prefers-reduced-motion:reduce){ .pring{transition:none} }
+.pring::after{content:'';position:absolute;inset:3px;border-radius:50%;background:var(--bg-deep)}
 .pring i{position:relative;z-index:1;font-style:normal;font-size:.62rem;opacity:.85;font-family:'JetBrains Mono',monospace}
 .ph.phase .lbl{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.pcheck{color:var(--emerald,#34d399);font-size:.8rem}
+.pcheck{color:var(--emerald);font-size:.8rem}
 .ph.phase-passed .lbl{opacity:.75}
-.count.aufhol{background:rgba(225,173,88,.18);color:var(--gold,#e1ad58);margin-left:3px}
+.count.aufhol{background:rgba(225,173,88,.18);color:var(--gold);margin-left:3px}
 .ph.state-locked{opacity:.5}
 
 /* ---- Lernen-Ansicht (#3/#19) ---- */
-.lern-sect{margin:14px 0 4px;font-size:.7rem;letter-spacing:.09em;opacity:.55;text-transform:uppercase}
+.lern-sect{margin:18px 0 6px;font-size:.7rem;letter-spacing:.09em;opacity:.55;text-transform:uppercase}
+.lern-sect-notiz{display:block;margin-top:5px;font-size:.72rem;letter-spacing:0;text-transform:none;
+  opacity:.9;color:var(--faint);line-height:1.5;max-width:74ch;font-weight:400}
 .lern-row{display:flex;align-items:center;gap:8px}
-.lern-row .ph{flex:1}
+.lern-row .ph{flex:1;gap:12px}
+/* Running text, so the glossary spans inside a title stay in the line instead of
+   each becoming a row of its own. */
+.lern-row .u-titel{flex:1;min-width:0;line-height:1.45}
+.lern-row .u-komp{font-family:var(--font-mono);font-size:.7rem;color:var(--faint);
+  flex:none;align-self:center}
+.lern-row .ring{flex:none;align-self:center}
 .ph.done .lbl{opacity:.65}
 .ph.skipped .lbl{opacity:.65;font-style:italic}
 .btn-mini{font-size:.68rem;padding:4px 9px;border-radius:7px;border:1px solid rgba(255,255,255,.12);text-decoration:none;color:inherit;opacity:.7}
-.btn-mini:hover{opacity:1;border-color:var(--emerald,#34d399)}
+.btn-mini:hover{opacity:1;border-color:var(--emerald)}
 .lern-test{margin:6px 0 2px;font-size:.74rem;opacity:.7}
 
 /* ---- ErwG-Explorer (#4, Phase 10) ---- */
@@ -295,11 +502,11 @@ button:disabled { opacity:.45; cursor:not-allowed; }
    shell.css, and whichever rule won last decided whether a text label fitted —
    the filter pills overflowed their row by up to 40px. */
 .erwg-filter .chip{width:auto;height:auto;border-radius:999px;font-size:.7rem;padding:4px 10px;
-  background:var(--layer2,#111827);border:1px solid rgba(255,255,255,.08);color:inherit;cursor:pointer;
+  background:var(--panel);border:1px solid rgba(255,255,255,.08);color:inherit;cursor:pointer;
   white-space:nowrap}
-.erwg-filter .chip.active{border-color:var(--emerald,#34d399);color:var(--emerald,#34d399)}
+.erwg-filter .chip.active{border-color:var(--emerald);color:var(--emerald)}
 .erwg-list{display:flex;flex-direction:column;gap:6px;max-height:460px;overflow-y:auto;padding-right:4px}
-.erwg-item{background:var(--layer2,#111827);border-radius:9px;padding:9px 12px;font-size:.83rem}
+.erwg-item{background:var(--panel);border-radius:9px;padding:9px 12px;font-size:.83rem}
 .erwg-item summary{cursor:pointer;line-height:1.45}
 .erwg-item blockquote{margin:8px 0 2px;padding:8px 10px;border-left:2px solid rgba(52,211,153,.4);font-size:.74rem;opacity:.8}
 .erwg-einsatz{font-size:.78rem;margin:8px 0 0;opacity:.9}
@@ -310,9 +517,35 @@ button:disabled { opacity:.45; cursor:not-allowed; }
    centre — exactly where the text sits — at 10 % opacity, so the page behind
    showed through and both layers of text ran into each other. Opaque base
    colour first, the emerald glow on top of it. */
-.hero-overlay{position:fixed;inset:0;background-color:rgba(4,6,12,.96);background-image:radial-gradient(80% 60% at 50% 40%,rgba(52,211,153,.14),transparent 72%);display:grid;place-items:center;z-index:1000}
-.hero-card{max-width:520px;text-align:center;padding:28px}
-.hero-card img{max-width:260px;border-radius:14px;margin-bottom:18px}
+/* First contact (§6.3). The one moment where the product gets to say what it is
+   before anyone has clicked anything — so the artwork carries the frame rather
+   than sitting on it as a thumbnail. */
+.hero-overlay{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:28px;
+  background-color:rgba(4,6,12,.97);
+  background-image:radial-gradient(70% 55% at 50% 30%,rgba(52,211,153,.16),transparent 70%),
+                   radial-gradient(60% 50% at 78% 82%,rgba(138,112,239,.13),transparent 72%);
+  animation:hero-auf 420ms var(--ease-out) both}
+.hero-overlay.geht{animation:hero-weg 260ms var(--ease-out) both}
+@keyframes hero-auf{from{opacity:0}to{opacity:1}}
+@keyframes hero-weg{to{opacity:0;transform:scale(1.015)}}
+.hero-card{max-width:720px;text-align:center;padding:0;position:relative}
+.hero-card img{width:100%;max-width:720px;border-radius:18px;margin-bottom:26px;display:block;
+  border:1px solid rgba(159,177,211,.12);box-shadow:0 30px 90px -30px rgba(0,0,0,.9);
+  animation:hero-bild 720ms var(--ease-out) both}
+@keyframes hero-bild{from{opacity:0;transform:scale(1.05)}to{opacity:1;transform:none}}
+.hero-card h1{font-family:var(--font-display);font-size:clamp(2rem,5vw,3rem);line-height:1.08;
+  letter-spacing:-.025em;margin-bottom:14px;
+  background:var(--grad-brand);-webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:hero-text 620ms 140ms var(--ease-out) both}
+.hero-card p{font-size:clamp(.95rem,1.6vw,1.1rem);line-height:1.65;color:var(--dim);
+  max-width:56ch;margin:0 auto 30px;animation:hero-text 620ms 240ms var(--ease-out) both}
+.hero-card .btn-primary{padding:13px 38px;font-size:1rem;border-radius:11px;
+  box-shadow:0 10px 34px -12px rgba(52,211,153,.7);
+  animation:hero-text 620ms 340ms var(--ease-out) both}
+@keyframes hero-text{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){
+  .hero-overlay,.hero-overlay.geht,.hero-card img,.hero-card h1,.hero-card p,.hero-card .btn-primary{animation:none}
+}
 .hero-card h1{font-family:'Space Grotesk',system-ui;font-size:2.1rem;margin:0 0 10px}
 .hero-card p{opacity:.8;line-height:1.6;margin-bottom:20px}
 /* Tile size follows the card. At 64px fixed, a 4K card fitted twelve columns of
@@ -338,3 +571,151 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 /* ---- Asynchroner Coach-Nachschlag (#21/#24) ---- */
 .coach-note{margin-top:10px;padding:10px 12px;border-radius:9px;background:rgba(182,165,255,.06);border-left:3px solid rgba(182,165,255,.45);font-size:.85rem}
 .coach-head{font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;opacity:.6;margin-bottom:4px}
+
+
+/* ---------------------------------------------------------------- forms
+   A <label> is an inline element. `<label>Text<br><input></label>` therefore
+   lays label and field out like words in a sentence: the caption of one field
+   ends up beside the input of the previous one. Every form in the product was
+   built that way — onboarding, settings, the self-explanation box — and it
+   survived a screenshot review because at thumbnail size a broken form still
+   looks like a form.
+
+   Fields are blocks now, in a grid that gives two columns where there is room. */
+.feld{display:block}
+.feld .feld-name{display:block;font-size:.78rem;letter-spacing:.01em;color:var(--text);
+  margin-bottom:7px;font-weight:500;opacity:.86}
+/* One line under a field beats a paragraph above the form: it is read where the
+   question comes up, not before it. */
+.feld .feld-hilfe{display:block;margin-top:6px;font-size:.72rem;color:var(--faint);line-height:1.45}
+.formular-intro{margin:0 0 4px;font-size:.86rem;color:var(--dim);max-width:62ch}
+.feld .feld-name .dim{font-weight:400;letter-spacing:0}
+.feld input,.feld select,.feld textarea{width:100%;box-sizing:border-box}
+.formular{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:16px 20px;margin:18px 0 4px;align-items:start}
+.formular .feld-breit{grid-column:1/-1}
+.formular + .formular-fuss,.formular-fuss{display:flex;justify-content:flex-end;gap:10px;
+  margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}
+@media (max-width:640px){
+  .formular{grid-template-columns:1fr}
+  .formular-fuss{justify-content:stretch}
+  .formular-fuss .btn-primary{width:100%}
+}
+
+
+/* ---------------------------------------------------------------- phase artwork
+   The covers exist and were shown only in the ceremony after a phase was over.
+   Here they sit where the work happens, as a header band rather than a picture
+   in the way: image, gradient into the card, title on top. */
+.card.hat-cover { padding-top:0; overflow:hidden; }
+.phasen-cover { position:relative; margin:calc(var(--sp-5) * -1) calc(var(--sp-5) * -1) var(--sp-4);
+  height:clamp(120px,17vh,190px); overflow:hidden; }
+.phasen-cover img { width:100%; height:100%; object-fit:cover; display:block;
+  animation:cover-auf 520ms var(--ease-out) both; }
+@keyframes cover-auf { from { opacity:0; transform:scale(1.04); } to { opacity:1; transform:none; } }
+.phasen-cover .pc-verlauf { position:absolute; inset:0;
+  background:linear-gradient(180deg,rgba(10,14,23,.15) 0%,rgba(10,14,23,.55) 55%,var(--panel) 100%); }
+.phasen-cover .pc-titel { position:absolute; left:var(--sp-5); bottom:14px;
+  font-family:var(--font-display); font-size:clamp(1.1rem,2.2vw,1.5rem); font-weight:600;
+  letter-spacing:-.01em; text-shadow:0 2px 14px rgba(0,0,0,.6); }
+@media (prefers-reduced-motion:reduce) { .phasen-cover img { animation:none; } }
+
+
+/* ---------------------------------------------------------------- exam stage */
+.examen-buehne { position:relative; }
+.examen-buehne::before { content:''; position:absolute; inset:-24px -24px auto -24px; height:200px;
+  background:radial-gradient(60% 100% at 30% 0%, rgba(225,173,88,.10), transparent 70%);
+  pointer-events:none; border-radius:14px; }
+.ex-teile { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px; margin:22px 0 18px; }
+.ex-teil { position:relative; padding:16px 18px 16px 52px; border-radius:12px;
+  background:var(--panel); border:1px solid var(--line); }
+.ex-teil .ex-nr { position:absolute; left:16px; top:16px; width:26px; height:26px; border-radius:8px;
+  display:grid; place-items:center; font-family:var(--font-display); font-weight:600; font-size:.85rem;
+  color:var(--gold); background:rgba(225,173,88,.12); border:1px solid rgba(225,173,88,.3); }
+.ex-teil b { display:block; font-size:.95rem; margin-bottom:3px; }
+.ex-teil span:not(.ex-nr) { font-size:.82rem; color:var(--faint); line-height:1.5; }
+.ex-regel { font-size:.85rem; color:var(--dim); margin:0 0 18px; }
+.ex-fuss { font-size:.78rem; }
+.ex-start-zeile { margin-top:22px; padding-top:20px; border-top:1px solid var(--line); }
+.ex-start-zeile .btn-primary { padding:13px 34px; font-size:1rem; border-radius:11px;
+  box-shadow:0 8px 28px -10px rgba(52,211,153,.6);
+  transition:transform 120ms var(--ease-snap), box-shadow 160ms var(--ease-out); }
+.ex-start-zeile .btn-primary:hover { transform:translateY(-1px); box-shadow:0 12px 32px -10px rgba(52,211,153,.7); }
+@media (prefers-reduced-motion:reduce) { .ex-start-zeile .btn-primary:hover { transform:none; } }
+
+/* ---------- Wiederholung: Leitner-Karte (#34, §6.3) ----------
+   Had no styling of its own: question, "Antwort zeigen" and the confidence
+   buttons stacked as bare text on the card background. This is the surface the
+   day starts with — it gets a front, a divider and a verdict row. */
+.karte-lauf { display:flex; align-items:center; gap:12px; margin:2px 0 16px; }
+.karte-lauf-bar { flex:1; height:5px; border-radius:3px; background:rgba(151,169,202,.10); overflow:hidden; }
+.karte-lauf-bar i { display:block; height:100%; border-radius:3px;
+  background:linear-gradient(90deg,var(--violet),var(--cyan)); transition:width .45s var(--ease-out); }
+.karte-lauf-txt { font-size:.78rem; color:var(--dim); white-space:nowrap; }
+.karte-lauf-txt b { color:var(--text); font-weight:600; }
+
+.karte-blatt { position:relative; border-radius:var(--r-card); border:1px solid var(--line-strong);
+  background:var(--grad-card-soft); padding:var(--sp-6) var(--sp-5) var(--sp-5);
+  box-shadow:var(--card-shadow); overflow:hidden; }
+/* Light edge above, the way every other raised surface in the product carries it */
+.karte-blatt::before { content:''; position:absolute; inset:0 0 auto; height:2px;
+  background:linear-gradient(90deg,transparent,rgba(138,112,239,.55),transparent); }
+.karte-marken { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:var(--sp-4); }
+.karte-front { font-family:var(--font-display); font-size:clamp(1.15rem,1.8vw,1.5rem); font-weight:600;
+  line-height:1.4; letter-spacing:-.01em; max-width:var(--lese-max,68ch); text-wrap:balance; }
+.karte-flip { margin-top:var(--sp-5); }
+.karte-leer { color:var(--faint); font-style:italic; font-weight:400; font-size:.95rem; }
+.karte-trenner { display:flex; align-items:center; gap:12px; margin:var(--sp-5) 0 var(--sp-4);
+  font-family:var(--font-mono); font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; color:var(--faint); }
+.karte-trenner::after { content:''; flex:1; height:1px; background:var(--line); }
+.karte-back { font-size:1rem; line-height:1.7; color:var(--text); max-width:var(--lese-max,68ch);
+  animation:karte-auf 300ms var(--ease-out) both; }
+.karte-urteil { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:var(--sp-5); }
+.karte-frage-lbl { font-size:.82rem; color:var(--dim); margin-right:2px; }
+.ku { font-size:.85rem; padding:.5rem 1rem; border-radius:999px; border:1px solid var(--line-strong);
+  background:var(--panel); color:var(--text);
+  transition:border-color 130ms, background 130ms, transform 130ms var(--ease-snap); }
+.ku:hover { transform:translateY(-1px); }
+.ku-ja:hover    { border-color:rgba(101,216,178,.5); background:rgba(101,216,178,.10); color:var(--emerald); }
+.ku-halb:hover  { border-color:rgba(225,173,88,.5);  background:rgba(225,173,88,.10);  color:var(--amber); }
+.ku-nein:hover  { border-color:rgba(217,117,104,.5); background:rgba(217,117,104,.10); color:var(--red); }
+@media (prefers-reduced-motion:reduce) { .ku:hover { transform:none; } .karte-back { animation:none; } }
+.karte-hinweis { margin-top:var(--sp-3); font-size:.76rem; color:var(--faint); max-width:var(--lese-max,68ch); }
+
+/* ---------- Gate vor dem Kapiteltest: der Weg statt eines Absatzes ---------- */
+.tor-weg { display:flex; align-items:stretch; gap:14px; margin:22px 0 4px; flex-wrap:wrap; }
+.tor-schritt { flex:1 1 260px; position:relative; padding:16px 18px 16px 52px; border-radius:12px;
+  background:var(--panel); border:1px solid var(--line); }
+.tor-schritt.jetzt { border-color:rgba(225,173,88,.32); background:rgba(225,173,88,.05); }
+.tor-nr { position:absolute; left:16px; top:16px; width:26px; height:26px; border-radius:8px;
+  display:grid; place-items:center; font-family:var(--font-display); font-weight:600; font-size:.85rem;
+  color:var(--faint); background:rgba(151,169,202,.07); border:1px solid var(--line-strong); }
+.tor-schritt.jetzt .tor-nr { color:var(--gold); background:rgba(225,173,88,.12); border-color:rgba(225,173,88,.3); }
+.tor-schritt b { display:block; font-size:.95rem; margin-bottom:3px; }
+.tor-schritt span:not(.tor-nr) { font-size:.82rem; color:var(--faint); line-height:1.5; }
+.tor-pfeil { align-self:center; color:var(--faint); font-size:1.1rem; }
+.tor-warum { margin-top:18px; font-size:.88rem; color:var(--dim); max-width:var(--lese-max,68ch); }
+
+/* ---------- Onboarding Schritt 1: Verbindungsstatus als Zustand, nicht als Fließtext ---------- */
+.verb-status { display:flex; gap:14px; align-items:flex-start; padding:16px 18px; border-radius:12px;
+  border:1px solid var(--line-strong); background:var(--panel); }
+.verb-status.ok   { border-color:rgba(101,216,178,.32); background:rgba(101,216,178,.05); }
+.verb-status.warn { border-color:rgba(225,173,88,.32);  background:rgba(225,173,88,.05); }
+.verb-punkt { width:10px; height:10px; border-radius:50%; margin-top:7px; flex:none; }
+.verb-status.ok .verb-punkt   { background:var(--emerald); box-shadow:0 0 0 4px rgba(101,216,178,.14), 0 0 16px rgba(101,216,178,.6); }
+.verb-status.warn .verb-punkt { background:var(--amber);   box-shadow:0 0 0 4px rgba(225,173,88,.14), 0 0 16px rgba(225,173,88,.55); }
+.verb-txt { display:flex; flex-direction:column; gap:3px; }
+.verb-txt b { font-family:var(--font-display); font-size:.98rem; }
+.verb-txt span { font-size:.85rem; color:var(--dim); line-height:1.55; }
+.verb-daten { display:flex; gap:10px; flex-wrap:wrap; margin:16px 0 0; }
+.verb-daten > div { flex:1 1 150px; padding:11px 14px; border-radius:10px;
+  background:rgba(151,169,202,.04); border:1px solid var(--line); }
+.verb-daten dt { font-family:var(--font-mono); font-size:.66rem; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--faint); margin-bottom:4px; }
+.verb-daten dd { font-size:.95rem; font-weight:600; }
+.verb-hinweis { margin-top:16px; font-size:.82rem; color:var(--faint); line-height:1.6; max-width:var(--lese-max,68ch); }
+.karte-anker { margin-top:var(--sp-4); padding:12px 14px 12px 16px; border-radius:0 10px 10px 0;
+  border-left:2px solid rgba(101,216,178,.4); background:linear-gradient(90deg,rgba(101,216,178,.06),transparent 72%);
+  font-size:.94rem; line-height:1.65; color:var(--text); max-width:var(--lese-max,68ch); }
+.ka-lbl { display:block; font-family:var(--font-mono); font-size:.64rem; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--emerald); margin-bottom:5px; }

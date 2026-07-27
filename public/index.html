@@ -69,6 +69,12 @@
 
     <aside class="sidebar" id="sidebar">
       <div class="wordmark">AI-Act-Akademie</div>
+      <!-- Während der Einrichtung: die Schritte statt einer Lernstruktur, die es
+           noch nicht gibt. Die Navigation darunter erscheint erst, wenn ein
+           Profil da ist — sie führte sonst in Ansichten, die ohne Profil leer
+           sind, und zurück fand man nicht. -->
+      <div class="setup-fortschritt" id="setup-fortschritt" hidden></div>
+      <div class="lernnav" id="lernnav">
       <div class="sect">Lernstruktur</div>
       <a class="ph" href="#/heute"><svg class="ico" style="width:1.05rem"><use href="assets/icons/sprite.svg#icon-st-kalender"/></svg> Heute <span class="count" id="ritual-step">1/4</span></a>
       <a class="ph" href="#/dashboard"><svg class="ico" style="width:1.05rem"><use href="assets/icons/sprite.svg#icon-nav-dashboard"/></svg> Dashboard</a>
@@ -78,6 +84,7 @@
       <a class="ph" href="#/karten"><svg class="ico" style="width:1.05rem"><use href="assets/icons/sprite.svg#icon-nav-erhaltung"/></svg> Wiederholung
         <span class="count" id="due-count" title="Kern (heute regulär fällig)">0</span><span class="count aufhol" id="aufhol-count" title="Aufholen (überfällig, verteilt)">0</span></a>
       <a class="ph" id="nav-examen" href="#/examen"><svg class="ico" style="width:1.05rem"><use href="assets/icons/sprite.svg#icon-st-lock"/></svg> Examen</a>
+      </div>
     </aside>
 
     <main class="dashboard single" id="view"></main>

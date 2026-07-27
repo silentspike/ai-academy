@@ -1,909 +1,909 @@
 {
- "cards": [
-  {
-   "id": "fc-p2-01",
-   "front": "Seit wann gelten die Stamm-Verbote des Art. 5?",
-   "back": "2.2.2025 (Art. 113 Abs. 3 lit. a).",
-   "competency": "K06",
-   "level": "A",
-   "legal_basis": [
+  "cards": [
     {
-     "ref": "Art. 113 Abs. 3 lit. a",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "eigenpruefung-content-offen"
-    }
-   ],
-   "legal_status": "konsolidiert-2026-07-27"
-  },
-  {
-   "id": "fc-p2-02",
-   "front": "Ab wann gelten die neuen Verbote lit. ba/bb?",
-   "back": "2.12.2026 (Art. 113 Abs. 3 lit. a idF 2026/1744).",
-   "competency": "K06",
-   "level": "A",
-   "legal_basis": [
+      "id": "fc-p2-01",
+      "front": "Seit wann gelten die Stamm-Verbote des Art. 5?",
+      "back": "2.2.2025 (Art. 113 Abs. 3 lit. a).",
+      "competency": "K06",
+      "level": "A",
+      "legal_basis": [
+        {
+          "ref": "Art. 113 Abs. 3 lit. a",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "eigenpruefung-content-offen"
+        }
+      ],
+      "legal_status": "konsolidiert-2026-07-27"
+    },
     {
-     "ref": "Art. 113 Abs. 3 lit. a idF 2026/1744",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "eigenpruefung-content-offen"
-    }
-   ],
-   "legal_status": "konsolidiert-2026-07-27"
-  },
-  {
-   "id": "fc-p2-03",
-   "front": "Emotionserkennung am Arbeitsplatz — Ausnahmen?",
-   "back": "Nur medizinische oder Sicherheitsgründe (Art. 5 Abs. 1 lit. f).",
-   "competency": "K04",
-   "level": "A",
-   "legal_basis": [
+      "id": "fc-p2-02",
+      "front": "Ab wann gelten die neuen Verbote lit. ba/bb?",
+      "back": "2.12.2026 (Art. 113 Abs. 3 lit. a idF 2026/1744).",
+      "competency": "K06",
+      "level": "A",
+      "legal_basis": [
+        {
+          "ref": "Art. 113 Abs. 3 lit. a idF 2026/1744",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "eigenpruefung-content-offen"
+        }
+      ],
+      "legal_status": "konsolidiert-2026-07-27"
+    },
     {
-     "ref": "Art. 5 Abs. 1 lit. f",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "eigenpruefung-content-offen"
-    }
-   ],
-   "legal_status": "konsolidiert-2026-07-27"
-  },
-  {
-   "id": "fc-p2-04",
-   "front": "Wer ist Adressat der Art.-5-Verbote?",
-   "back": "Inverkehrbringen, Inbetriebnahme UND Verwendung — Anbieter wie Betreiber.",
-   "competency": "K04",
-   "level": "A",
-   "legal_basis": [
+      "id": "fc-p2-03",
+      "front": "Emotionserkennung am Arbeitsplatz — Ausnahmen?",
+      "back": "Nur medizinische oder Sicherheitsgründe (Art. 5 Abs. 1 lit. f).",
+      "competency": "K04",
+      "level": "A",
+      "legal_basis": [
+        {
+          "ref": "Art. 5 Abs. 1 lit. f",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "eigenpruefung-content-offen"
+        }
+      ],
+      "legal_status": "konsolidiert-2026-07-27"
+    },
     {
-     "ref": "Art. 5 Abs. 1",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "eigenpruefung-content-offen"
-    }
-   ],
-   "legal_status": "konsolidiert-2026-07-27"
-  },
-  {
-   "id": "fc-p2-05",
-   "front": "Heilt eine Konformitätsbewertung ein Art.-5-Verbot?",
-   "back": "Nein — Verbote sind absolut; kein CE-Ausweg.",
-   "competency": "K04",
-   "level": "A",
-   "legal_basis": [
+      "id": "fc-p2-04",
+      "front": "Wer ist Adressat der Art.-5-Verbote?",
+      "back": "Inverkehrbringen, Inbetriebnahme UND Verwendung — Anbieter wie Betreiber.",
+      "competency": "K04",
+      "level": "A",
+      "legal_basis": [
+        {
+          "ref": "Art. 5 Abs. 1",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "eigenpruefung-content-offen"
+        }
+      ],
+      "legal_status": "konsolidiert-2026-07-27"
+    },
     {
-     "ref": "Art. 5 sys.",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "eigenpruefung-content-offen"
-    }
-   ],
-   "legal_status": "konsolidiert-2026-07-27"
-  },
-  {
-   "id": "fc-p2-06",
-   "front": "Was regelt Art. 5 Abs. 1a (neu)?",
-   "back": "Tatbestandsgrenze des Deepfake-Verbots für Anbieter: Zweckbestimmung ODER absehbare Reproduzierbarkeit + fehlende Schutzvorkehrungen. KEINE Erlaubnisnorm.",
-   "competency": "K04",
-   "level": "B",
-   "legal_basis": [
+      "id": "fc-p2-05",
+      "front": "Heilt eine Konformitätsbewertung ein Art.-5-Verbot?",
+      "back": "Nein — Verbote sind absolut; kein CE-Ausweg.",
+      "competency": "K04",
+      "level": "A",
+      "legal_basis": [
+        {
+          "ref": "Art. 5 sys.",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "eigenpruefung-content-offen"
+        }
+      ],
+      "legal_status": "konsolidiert-2026-07-27"
+    },
     {
-     "ref": "Art. 5 Abs. 1a idF 2026/1744",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "eigenpruefung-content-offen"
-    }
-   ],
-   "legal_status": "konsolidiert-2026-07-27"
-  },
-  {
-   "id": "fc-p2-07",
-   "front": "Sanktionen gegen Behörden bei Art.-5-Verstoß?",
-   "back": "Eigenes mitgliedstaatliches Regime nach Art. 99 Abs. 8 — nicht die Umsatz-Bußgelder.",
-   "competency": "K15",
-   "level": "B",
-   "legal_basis": [
+      "id": "fc-p2-06",
+      "front": "Was regelt Art. 5 Abs. 1a (neu)?",
+      "back": "Tatbestandsgrenze des Deepfake-Verbots für Anbieter: Zweckbestimmung ODER absehbare Reproduzierbarkeit + fehlende Schutzvorkehrungen. KEINE Erlaubnisnorm.",
+      "competency": "K04",
+      "level": "B",
+      "legal_basis": [
+        {
+          "ref": "Art. 5 Abs. 1a idF 2026/1744",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "eigenpruefung-content-offen"
+        }
+      ],
+      "legal_status": "konsolidiert-2026-07-27"
+    },
     {
-     "ref": "Art. 99 Abs. 8",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "eigenpruefung-content-offen"
-    }
-   ],
-   "legal_status": "konsolidiert-2026-07-27"
-  },
-  {
-   "id": "fc-p2-08",
-   "front": "Prüfreihenfolge Verbot vs. Hochrisiko?",
-   "back": "Immer zuerst Art. 5; nur wenn kein Verbot greift, weiter zu Art. 6 / Anhängen.",
-   "competency": "K04",
-   "level": "A",
-   "legal_basis": [
+      "id": "fc-p2-07",
+      "front": "Sanktionen gegen Behörden bei Art.-5-Verstoß?",
+      "back": "Eigenes mitgliedstaatliches Regime nach Art. 99 Abs. 8 — nicht die Umsatz-Bußgelder.",
+      "competency": "K15",
+      "level": "B",
+      "legal_basis": [
+        {
+          "ref": "Art. 99 Abs. 8",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "eigenpruefung-content-offen"
+        }
+      ],
+      "legal_status": "konsolidiert-2026-07-27"
+    },
     {
-     "ref": "Art. 5; Art. 6",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "eigenpruefung-content-offen"
-    }
-   ],
-   "legal_status": "konsolidiert-2026-07-27"
-  },
-  {
-   "id": "fc-p1-01",
-   "front": "Kernmerkmal des KI-System-Begriffs?",
-   "back": "ABLEITUNG von Ausgaben (Vorhersagen/Inhalte/Empfehlungen/Entscheidungen) aus Eingaben — Art. 3 Nr. 1.",
-   "competency": "K02",
-   "level": "A",
-   "legal_basis": [
+      "id": "fc-p2-08",
+      "front": "Prüfreihenfolge Verbot vs. Hochrisiko?",
+      "back": "Immer zuerst Art. 5; nur wenn kein Verbot greift, weiter zu Art. 6 / Anhängen.",
+      "competency": "K04",
+      "level": "A",
+      "legal_basis": [
+        {
+          "ref": "Art. 5; Art. 6",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "eigenpruefung-content-offen"
+        }
+      ],
+      "legal_status": "konsolidiert-2026-07-27"
+    },
     {
-     "ref": "Art. 3 Nr. 1",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "eigenpruefung-2026-07-24"
-    }
-   ],
-   "legal_status": "konsolidiert-2026-07-27"
-  },
-  {
-   "id": "fc-p1-02",
-   "front": "Anbieter vs. Betreiber in je 4 Worten?",
-   "back": "Anbieter: Name am Etikett. Betreiber: Hand am Schalter.",
-   "competency": "K05",
-   "level": "A",
-   "legal_basis": [
+      "id": "fc-p1-01",
+      "front": "Kernmerkmal des KI-System-Begriffs?",
+      "back": "ABLEITUNG von Ausgaben (Vorhersagen/Inhalte/Empfehlungen/Entscheidungen) aus Eingaben — Art. 3 Nr. 1.",
+      "competency": "K02",
+      "level": "A",
+      "legal_basis": [
+        {
+          "ref": "Art. 3 Nr. 1",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "eigenpruefung-2026-07-24"
+        }
+      ],
+      "legal_status": "konsolidiert-2026-07-27"
+    },
     {
-     "ref": "Art. 3 Nr. 3, 4",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "eigenpruefung-2026-07-24"
-    }
-   ],
-   "legal_status": "konsolidiert-2026-07-27"
-  },
-  {
-   "id": "fc-p1-03",
-   "front": "Zweckbestimmung — wessen Sicht zählt?",
-   "back": "Die des ANBIETERS (Gebrauchsanweisung, Werbung, Doku) — Art. 3 Nr. 12.",
-   "competency": "K02",
-   "level": "A",
-   "legal_basis": [
+      "id": "fc-p1-02",
+      "front": "Anbieter vs. Betreiber in je 4 Worten?",
+      "back": "Anbieter: Name am Etikett. Betreiber: Hand am Schalter.",
+      "competency": "K05",
+      "level": "A",
+      "legal_basis": [
+        {
+          "ref": "Art. 3 Nr. 3, 4",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "eigenpruefung-2026-07-24"
+        }
+      ],
+      "legal_status": "konsolidiert-2026-07-27"
+    },
     {
-     "ref": "Art. 3 Nr. 12",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "eigenpruefung-2026-07-24"
-    }
-   ],
-   "legal_status": "konsolidiert-2026-07-27"
-  },
-  {
-   "id": "fc-p1-04",
-   "front": "Omnibus in Kraft vs. neue Verbote anwendbar?",
-   "back": "In Kraft 27.7.2026; neue Art.-5-Tatbestände anwendbar ab 2.12.2026.",
-   "competency": "K06",
-   "level": "A",
-   "legal_basis": [
+      "id": "fc-p1-03",
+      "front": "Zweckbestimmung — wessen Sicht zählt?",
+      "back": "Die des ANBIETERS (Gebrauchsanweisung, Werbung, Doku) — Art. 3 Nr. 12.",
+      "competency": "K02",
+      "level": "A",
+      "legal_basis": [
+        {
+          "ref": "Art. 3 Nr. 12",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "eigenpruefung-2026-07-24"
+        }
+      ],
+      "legal_status": "konsolidiert-2026-07-27"
+    },
     {
-     "ref": "Art. 113 Abs. 3 lit. a idF 2026/1744",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "eigenpruefung-2026-07-24"
-    }
-   ],
-   "legal_status": "konsolidiert-2026-07-27"
-  },
-  {
-   "id": "fc-p1-05",
-   "front": "Art. 4 n. F. in einem Satz?",
-   "back": "Unterstützungspflicht für KI-Kompetenz — Maßnahmen ja, garantiertes Niveau nein.",
-   "competency": "K14",
-   "level": "A",
-   "legal_basis": [
+      "id": "fc-p1-04",
+      "front": "Omnibus in Kraft vs. neue Verbote anwendbar?",
+      "back": "In Kraft 27.7.2026; neue Art.-5-Tatbestände anwendbar ab 2.12.2026.",
+      "competency": "K06",
+      "level": "A",
+      "legal_basis": [
+        {
+          "ref": "Art. 113 Abs. 3 lit. a idF 2026/1744",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "eigenpruefung-2026-07-24"
+        }
+      ],
+      "legal_status": "konsolidiert-2026-07-27"
+    },
     {
-     "ref": "Art. 4 idF 2026/1744",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "eigenpruefung-2026-07-24"
-    }
-   ],
-   "legal_status": "konsolidiert-2026-07-27"
-  },
-  {
-   "id": "fc-p1-06",
-   "front": "Art. 4a in einem Satz?",
-   "back": "Eng konditionierte RECHTSGRUNDLAGE für sensible Daten zur Bias-Prüfung — keine Pflicht, kein Freibrief.",
-   "competency": "K11",
-   "level": "B",
-   "legal_basis": [
+      "id": "fc-p1-05",
+      "front": "Art. 4 n. F. in einem Satz?",
+      "back": "Unterstützungspflicht für KI-Kompetenz — Maßnahmen ja, garantiertes Niveau nein.",
+      "competency": "K14",
+      "level": "A",
+      "legal_basis": [
+        {
+          "ref": "Art. 4 idF 2026/1744",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "eigenpruefung-2026-07-24"
+        }
+      ],
+      "legal_status": "konsolidiert-2026-07-27"
+    },
     {
-     "ref": "Art. 4a idF 2026/1744",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "eigenpruefung-2026-07-24"
-    }
-   ],
-   "legal_status": "konsolidiert-2026-07-27"
-  },
-  {
-   "id": "fc-p1-07",
-   "front": "Die 10 Schritte (Kurzform)?",
-   "back": "Sachverhalt→KI?→Zweck→Rollen→Art. 5→Anhang I/III→Transparenz/GPAI→Zeitachse→Doku→Wiedervorlage.",
-   "competency": "K01",
-   "level": "B",
-   "legal_basis": [
+      "id": "fc-p1-06",
+      "front": "Art. 4a in einem Satz?",
+      "back": "Eng konditionierte RECHTSGRUNDLAGE für sensible Daten zur Bias-Prüfung — keine Pflicht, kein Freibrief.",
+      "competency": "K11",
+      "level": "B",
+      "legal_basis": [
+        {
+          "ref": "Art. 4a idF 2026/1744",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "eigenpruefung-2026-07-24"
+        }
+      ],
+      "legal_status": "konsolidiert-2026-07-27"
+    },
     {
-     "ref": "Systematik",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "eigenpruefung-2026-07-24"
-    }
-   ],
-   "legal_status": "konsolidiert-2026-07-27"
-  },
-  {
-   "id": "fc-p3-01",
-   "front": "Zwei Wege zu Hochrisiko?",
-   "back": "Anhang I (Produktrecht, ab 2.8.2028) und Anhang III (Einsatzbereiche, ab 2.12.2027).",
-   "competency": "K03",
-   "level": "A",
-   "legal_basis": [
+      "id": "fc-p1-07",
+      "front": "Die 10 Schritte (Kurzform)?",
+      "back": "Sachverhalt→KI?→Zweck→Rollen→Art. 5→Anhang I/III→Transparenz/GPAI→Zeitachse→Doku→Wiedervorlage.",
+      "competency": "K01",
+      "level": "B",
+      "legal_basis": [
+        {
+          "ref": "Systematik",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "eigenpruefung-2026-07-24"
+        }
+      ],
+      "legal_status": "konsolidiert-2026-07-27"
+    },
     {
-     "ref": "Art. 6",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "eigenpruefung-2026-07-24"
-    }
-   ],
-   "legal_status": "konsolidiert-2026-07-27"
-  },
-  {
-   "id": "fc-p3-02",
-   "front": "ÖSVA-Dauerbrenner in Anhang III?",
-   "back": "Nr. 5 lit. a (wesentliche öffentliche Leistungen) und Nr. 4 (eigene Beschäftigte).",
-   "competency": "K03",
-   "level": "A",
-   "legal_basis": [
+      "id": "fc-p3-01",
+      "front": "Zwei Wege zu Hochrisiko?",
+      "back": "Anhang I (Produktrecht, ab 2.8.2028) und Anhang III (Einsatzbereiche, ab 2.12.2027).",
+      "competency": "K03",
+      "level": "A",
+      "legal_basis": [
+        {
+          "ref": "Art. 6",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "eigenpruefung-2026-07-24"
+        }
+      ],
+      "legal_status": "konsolidiert-2026-07-27"
+    },
     {
-     "ref": "Anhang III Nr. 4, 5",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "eigenpruefung-2026-07-24"
-    }
-   ],
-   "legal_status": "konsolidiert-2026-07-27"
-  },
-  {
-   "id": "fc-p3-03",
-   "front": "Härtester Satz zu Art. 6 Abs. 3?",
-   "back": "Profiling natürlicher Personen ⇒ IMMER Hochrisiko — keine Ausnahme.",
-   "competency": "K03",
-   "level": "B",
-   "legal_basis": [
+      "id": "fc-p3-02",
+      "front": "ÖSVA-Dauerbrenner in Anhang III?",
+      "back": "Nr. 5 lit. a (wesentliche öffentliche Leistungen) und Nr. 4 (eigene Beschäftigte).",
+      "competency": "K03",
+      "level": "A",
+      "legal_basis": [
+        {
+          "ref": "Anhang III Nr. 4, 5",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "eigenpruefung-2026-07-24"
+        }
+      ],
+      "legal_status": "konsolidiert-2026-07-27"
+    },
     {
-     "ref": "Art. 6 Abs. 3 UAbs. 3",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "eigenpruefung-2026-07-24"
-    }
-   ],
-   "legal_status": "konsolidiert-2026-07-27"
-  },
-  {
-   "id": "fc-p3-04",
-   "front": "„Vorbereitende Aufgabe“ heißt …?",
-   "back": "… Prüfauftrag mit Doku-Pflicht (Abs. 4), kein Freifahrtschein.",
-   "competency": "K03",
-   "level": "B",
-   "legal_basis": [
+      "id": "fc-p3-03",
+      "front": "Härtester Satz zu Art. 6 Abs. 3?",
+      "back": "Profiling natürlicher Personen ⇒ IMMER Hochrisiko — keine Ausnahme.",
+      "competency": "K03",
+      "level": "B",
+      "legal_basis": [
+        {
+          "ref": "Art. 6 Abs. 3 UAbs. 3",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "eigenpruefung-2026-07-24"
+        }
+      ],
+      "legal_status": "konsolidiert-2026-07-27"
+    },
     {
-     "ref": "Art. 6 Abs. 3, 4",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "eigenpruefung-2026-07-24"
-    }
-   ],
-   "legal_status": "konsolidiert-2026-07-27"
-  },
-  {
-   "id": "fc-p3-05",
-   "front": "Altsystem-Definition (Art. 111 Abs. 2)?",
-   "back": "Vor dem Kapitel-III-Geltungsbeginn in Verkehr/Betrieb; Behörden-Systeme: Erfüllung bis 2.8.2030.",
-   "competency": "K06",
-   "level": "B",
-   "legal_basis": [
+      "id": "fc-p3-04",
+      "front": "„Vorbereitende Aufgabe“ heißt …?",
+      "back": "… Prüfauftrag mit Doku-Pflicht (Abs. 4), kein Freifahrtschein.",
+      "competency": "K03",
+      "level": "B",
+      "legal_basis": [
+        {
+          "ref": "Art. 6 Abs. 3, 4",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "eigenpruefung-2026-07-24"
+        }
+      ],
+      "legal_status": "konsolidiert-2026-07-27"
+    },
     {
-     "ref": "Art. 111 Abs. 2 idF 2026/1744",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "eigenpruefung-2026-07-24"
-    }
-   ],
-   "legal_status": "konsolidiert-2026-07-27"
-  },
-  {
-   "id": "fc-p4-01",
-   "front": "FRIA — wann und wer?",
-   "back": "VOR erster Verwendung; u. a. Einrichtungen öffentlichen Rechts als Anhang-III-Betreiber.",
-   "competency": "K09",
-   "level": "A",
-   "legal_basis": [
+      "id": "fc-p3-05",
+      "front": "Altsystem-Definition (Art. 111 Abs. 2)?",
+      "back": "Vor dem Kapitel-III-Geltungsbeginn in Verkehr/Betrieb; Behörden-Systeme: Erfüllung bis 2.8.2030.",
+      "competency": "K06",
+      "level": "B",
+      "legal_basis": [
+        {
+          "ref": "Art. 111 Abs. 2 idF 2026/1744",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "eigenpruefung-2026-07-24"
+        }
+      ],
+      "legal_status": "konsolidiert-2026-07-27"
+    },
     {
-     "ref": "Art. 27 Abs. 1",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "eigenpruefung-2026-07-24"
-    }
-   ],
-   "legal_status": "konsolidiert-2026-07-27"
-  },
-  {
-   "id": "fc-p4-02",
-   "front": "Menschliche Aufsicht braucht …?",
-   "back": "Kompetenz + Ausbildung + BEFUGNIS (auch zum Abweichen) + Unterstützung — Art. 26 Abs. 2.",
-   "competency": "K08",
-   "level": "A",
-   "legal_basis": [
+      "id": "fc-p4-01",
+      "front": "FRIA — wann und wer?",
+      "back": "VOR erster Verwendung; u. a. Einrichtungen öffentlichen Rechts als Anhang-III-Betreiber.",
+      "competency": "K09",
+      "level": "A",
+      "legal_basis": [
+        {
+          "ref": "Art. 27 Abs. 1",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "eigenpruefung-2026-07-24"
+        }
+      ],
+      "legal_status": "konsolidiert-2026-07-27"
+    },
     {
-     "ref": "Art. 26 Abs. 2",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "eigenpruefung-2026-07-24"
-    }
-   ],
-   "legal_status": "konsolidiert-2026-07-27"
-  },
-  {
-   "id": "fc-p4-03",
-   "front": "Die 3 Kipp-Schalter des Art. 25?",
-   "back": "Eigene Marke · wesentliche Änderung · Zweckänderung Richtung Hochrisiko.",
-   "competency": "K05",
-   "level": "A",
-   "legal_basis": [
+      "id": "fc-p4-02",
+      "front": "Menschliche Aufsicht braucht …?",
+      "back": "Kompetenz + Ausbildung + BEFUGNIS (auch zum Abweichen) + Unterstützung — Art. 26 Abs. 2.",
+      "competency": "K08",
+      "level": "A",
+      "legal_basis": [
+        {
+          "ref": "Art. 26 Abs. 2",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "eigenpruefung-2026-07-24"
+        }
+      ],
+      "legal_status": "konsolidiert-2026-07-27"
+    },
     {
-     "ref": "Art. 25 Abs. 1",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "eigenpruefung-2026-07-24"
-    }
-   ],
-   "legal_status": "konsolidiert-2026-07-27"
-  },
-  {
-   "id": "fc-p4-04",
-   "front": "Vorfalls-Kette des Betreibers?",
-   "back": "Erkennen → Anbieter informieren → schwerwiegende Vorfälle fristgebunden melden (26 Abs. 5, 73).",
-   "competency": "K08",
-   "level": "B",
-   "legal_basis": [
+      "id": "fc-p4-03",
+      "front": "Die 3 Kipp-Schalter des Art. 25?",
+      "back": "Eigene Marke · wesentliche Änderung · Zweckänderung Richtung Hochrisiko.",
+      "competency": "K05",
+      "level": "A",
+      "legal_basis": [
+        {
+          "ref": "Art. 25 Abs. 1",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "eigenpruefung-2026-07-24"
+        }
+      ],
+      "legal_status": "konsolidiert-2026-07-27"
+    },
     {
-     "ref": "Art. 26 Abs. 5; Art. 73",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "eigenpruefung-2026-07-24"
-    }
-   ],
-   "legal_status": "konsolidiert-2026-07-27"
-  },
-  {
-   "id": "fc-p4-05",
-   "front": "FRIA vs. DSFA?",
-   "back": "Auf DSFA aufsetzen und ERGÄNZEN — Art. 27 Abs. 4.",
-   "competency": "K09",
-   "level": "A",
-   "legal_basis": [
+      "id": "fc-p4-04",
+      "front": "Vorfalls-Kette des Betreibers?",
+      "back": "Erkennen → Anbieter informieren → schwerwiegende Vorfälle fristgebunden melden (26 Abs. 5, 73).",
+      "competency": "K08",
+      "level": "B",
+      "legal_basis": [
+        {
+          "ref": "Art. 26 Abs. 5; Art. 73",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "eigenpruefung-2026-07-24"
+        }
+      ],
+      "legal_status": "konsolidiert-2026-07-27"
+    },
     {
-     "ref": "Art. 27 Abs. 4",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "eigenpruefung-2026-07-24"
-    }
-   ],
-   "legal_status": "konsolidiert-2026-07-27"
-  },
-  {
-   "id": "fc-p5-01",
-   "front": "Art. 50 Abs. 1 (Chatbot)?",
-   "back": "Interaktion mit KI offenlegen — außer offensichtlich.",
-   "competency": "K12",
-   "level": "A",
-   "legal_basis": [
+      "id": "fc-p4-05",
+      "front": "FRIA vs. DSFA?",
+      "back": "Auf DSFA aufsetzen und ERGÄNZEN — Art. 27 Abs. 4.",
+      "competency": "K09",
+      "level": "A",
+      "legal_basis": [
+        {
+          "ref": "Art. 27 Abs. 4",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "eigenpruefung-2026-07-24"
+        }
+      ],
+      "legal_status": "konsolidiert-2026-07-27"
+    },
     {
-     "ref": "Art. 50 Abs. 1",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "eigenpruefung-2026-07-24"
-    }
-   ],
-   "legal_status": "konsolidiert-2026-07-27"
-  },
-  {
-   "id": "fc-p5-02",
-   "front": "Art. 50 Abs. 2 vs. Abs. 4?",
-   "back": "Abs. 2: Anbieter kennzeichnen maschinenlesbar; Abs. 4: Betreiber legen Deepfakes offen.",
-   "competency": "K12",
-   "level": "B",
-   "legal_basis": [
+      "id": "fc-p5-01",
+      "front": "Art. 50 Abs. 1 (Chatbot)?",
+      "back": "Interaktion mit KI offenlegen — außer offensichtlich.",
+      "competency": "K12",
+      "level": "A",
+      "legal_basis": [
+        {
+          "ref": "Art. 50 Abs. 1",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "eigenpruefung-2026-07-24"
+        }
+      ],
+      "legal_status": "konsolidiert-2026-07-27"
+    },
     {
-     "ref": "Art. 50 Abs. 2, 4",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "eigenpruefung-2026-07-24"
-    }
-   ],
-   "legal_status": "konsolidiert-2026-07-27"
-  },
-  {
-   "id": "fc-p5-03",
-   "front": "Alt-Generatoren-Deadline?",
-   "back": "Art.-50(2)-Kennzeichnung bis 2.12.2026 nachrüsten (Art. 111 Abs. 4).",
-   "competency": "K06",
-   "level": "A",
-   "legal_basis": [
+      "id": "fc-p5-02",
+      "front": "Art. 50 Abs. 2 vs. Abs. 4?",
+      "back": "Abs. 2: Anbieter kennzeichnen maschinenlesbar; Abs. 4: Betreiber legen Deepfakes offen.",
+      "competency": "K12",
+      "level": "B",
+      "legal_basis": [
+        {
+          "ref": "Art. 50 Abs. 2, 4",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "eigenpruefung-2026-07-24"
+        }
+      ],
+      "legal_status": "konsolidiert-2026-07-27"
+    },
     {
-     "ref": "Art. 111 Abs. 4 idF 2026/1744",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "eigenpruefung-2026-07-24"
-    }
-   ],
-   "legal_status": "konsolidiert-2026-07-27"
-  },
-  {
-   "id": "fc-p5-04",
-   "front": "Transparenz vs. Verbot?",
-   "back": "Transparenz heilt NIE ein Art.-5-Verbot; Regime sind kumulativ.",
-   "competency": "K04",
-   "level": "A",
-   "legal_basis": [
+      "id": "fc-p5-03",
+      "front": "Alt-Generatoren-Deadline?",
+      "back": "Art.-50(2)-Kennzeichnung bis 2.12.2026 nachrüsten (Art. 111 Abs. 4).",
+      "competency": "K06",
+      "level": "A",
+      "legal_basis": [
+        {
+          "ref": "Art. 111 Abs. 4 idF 2026/1744",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "eigenpruefung-2026-07-24"
+        }
+      ],
+      "legal_status": "konsolidiert-2026-07-27"
+    },
     {
-     "ref": "Art. 50; Art. 5",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "eigenpruefung-2026-07-24"
-    }
-   ],
-   "legal_status": "konsolidiert-2026-07-27"
-  },
-  {
-   "id": "fc-p6-01",
-   "front": "GPAI-Regeln gelten seit …?",
-   "back": "2.8.2025 (Art. 113 Abs. 3 lit. b).",
-   "competency": "K06",
-   "level": "A",
-   "legal_basis": [
+      "id": "fc-p5-04",
+      "front": "Transparenz vs. Verbot?",
+      "back": "Transparenz heilt NIE ein Art.-5-Verbot; Regime sind kumulativ.",
+      "competency": "K04",
+      "level": "A",
+      "legal_basis": [
+        {
+          "ref": "Art. 50; Art. 5",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "eigenpruefung-2026-07-24"
+        }
+      ],
+      "legal_status": "konsolidiert-2026-07-27"
+    },
     {
-     "ref": "Art. 113 Abs. 3 lit. b",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "eigenpruefung-2026-07-24"
-    }
-   ],
-   "legal_status": "konsolidiert-2026-07-27"
-  },
-  {
-   "id": "fc-p6-02",
-   "front": "Modell vs. System?",
-   "back": "Motor vs. Auto: Art. 53/55 treffen Modell-Anbieter; das System läuft durch Art. 5/6/50.",
-   "competency": "K13",
-   "level": "A",
-   "legal_basis": [
+      "id": "fc-p6-01",
+      "front": "GPAI-Regeln gelten seit …?",
+      "back": "2.8.2025 (Art. 113 Abs. 3 lit. b).",
+      "competency": "K06",
+      "level": "A",
+      "legal_basis": [
+        {
+          "ref": "Art. 113 Abs. 3 lit. b",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "eigenpruefung-2026-07-24"
+        }
+      ],
+      "legal_status": "konsolidiert-2026-07-27"
+    },
     {
-     "ref": "Art. 51–55",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "eigenpruefung-2026-07-24"
-    }
-   ],
-   "legal_status": "konsolidiert-2026-07-27"
-  },
-  {
-   "id": "fc-p6-03",
-   "front": "Systemisches Risiko heißt …?",
-   "back": "Zusatzprogramm Art. 55: Evaluierung, Mitigation, Vorfallsmeldung, Cybersicherheit.",
-   "competency": "K13",
-   "level": "B",
-   "legal_basis": [
+      "id": "fc-p6-02",
+      "front": "Modell vs. System?",
+      "back": "Motor vs. Auto: Art. 53/55 treffen Modell-Anbieter; das System läuft durch Art. 5/6/50.",
+      "competency": "K13",
+      "level": "A",
+      "legal_basis": [
+        {
+          "ref": "Art. 51–55",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "eigenpruefung-2026-07-24"
+        }
+      ],
+      "legal_status": "konsolidiert-2026-07-27"
+    },
     {
-     "ref": "Art. 55",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "eigenpruefung-2026-07-24"
-    }
-   ],
-   "legal_status": "konsolidiert-2026-07-27"
-  },
-  {
-   "id": "fc-p7-01",
-   "front": "Sanktions-Staffel (Merkzahlen)?",
-   "back": "35/7 (Verbote) · 15/3 (Kernpflichten) · 7,5/1 (Falschauskünfte); Behörden: national (Abs. 8).",
-   "competency": "K15",
-   "level": "A",
-   "legal_basis": [
+      "id": "fc-p6-03",
+      "front": "Systemisches Risiko heißt …?",
+      "back": "Zusatzprogramm Art. 55: Evaluierung, Mitigation, Vorfallsmeldung, Cybersicherheit.",
+      "competency": "K13",
+      "level": "B",
+      "legal_basis": [
+        {
+          "ref": "Art. 55",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "eigenpruefung-2026-07-24"
+        }
+      ],
+      "legal_status": "konsolidiert-2026-07-27"
+    },
     {
-     "ref": "Art. 99",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "eigenpruefung-2026-07-24"
-    }
-   ],
-   "legal_status": "konsolidiert-2026-07-27"
-  },
-  {
-   "id": "fc-p7-02",
-   "front": "Reallabor in einem Satz?",
-   "back": "Beaufsichtigtes Entwickeln/Testen — Recht gilt, Lernen strukturiert (Art. 57).",
-   "competency": "K15",
-   "level": "A",
-   "legal_basis": [
+      "id": "fc-p7-01",
+      "front": "Sanktions-Staffel (Merkzahlen)?",
+      "back": "35/7 (Verbote) · 15/3 (Kernpflichten) · 7,5/1 (Falschauskünfte); Behörden: national (Abs. 8).",
+      "competency": "K15",
+      "level": "A",
+      "legal_basis": [
+        {
+          "ref": "Art. 99",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "eigenpruefung-2026-07-24"
+        }
+      ],
+      "legal_status": "konsolidiert-2026-07-27"
+    },
     {
-     "ref": "Art. 57",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "eigenpruefung-2026-07-24"
-    }
-   ],
-   "legal_status": "konsolidiert-2026-07-27"
-  },
-  {
-   "id": "fc-p7-03",
-   "front": "Betroffenen-Rechte (2 Anker)?",
-   "back": "Beschwerde (Art. 85) + Erläuterung bei Hochrisiko-Einzelentscheidung (Art. 86).",
-   "competency": "K15",
-   "level": "B",
-   "legal_basis": [
+      "id": "fc-p7-02",
+      "front": "Reallabor in einem Satz?",
+      "back": "Beaufsichtigtes Entwickeln/Testen — Recht gilt, Lernen strukturiert (Art. 57).",
+      "competency": "K15",
+      "level": "A",
+      "legal_basis": [
+        {
+          "ref": "Art. 57",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "eigenpruefung-2026-07-24"
+        }
+      ],
+      "legal_status": "konsolidiert-2026-07-27"
+    },
     {
-     "ref": "Art. 85; Art. 86",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "eigenpruefung-2026-07-24"
-    }
-   ],
-   "legal_status": "konsolidiert-2026-07-27"
-  },
-  {
-   "id": "fc-p8-01",
-   "front": "Anhang XIV (neu)?",
-   "back": "Kommissions-änderbares Verzeichnis von Codes/Kategorien/KI-System-Arten.",
-   "competency": "K15",
-   "level": "A",
-   "legal_basis": [
+      "id": "fc-p7-03",
+      "front": "Betroffenen-Rechte (2 Anker)?",
+      "back": "Beschwerde (Art. 85) + Erläuterung bei Hochrisiko-Einzelentscheidung (Art. 86).",
+      "competency": "K15",
+      "level": "B",
+      "legal_basis": [
+        {
+          "ref": "Art. 85; Art. 86",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "eigenpruefung-2026-07-24"
+        }
+      ],
+      "legal_status": "konsolidiert-2026-07-27"
+    },
     {
-     "ref": "Anhang XIV idF 2026/1744",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "eigenpruefung-2026-07-24"
-    }
-   ],
-   "legal_status": "konsolidiert-2026-07-27"
-  },
-  {
-   "id": "fc-p8-02",
-   "front": "Art. 112 lehrt …?",
-   "back": "Jährliche Revision von Art. 5 + Anhang III — Rechtsstands-Pflege ist Dauerbetrieb.",
-   "competency": "K15",
-   "level": "A",
-   "legal_basis": [
+      "id": "fc-p8-01",
+      "front": "Anhang XIV (neu)?",
+      "back": "Kommissions-änderbares Verzeichnis von Codes/Kategorien/KI-System-Arten.",
+      "competency": "K15",
+      "level": "A",
+      "legal_basis": [
+        {
+          "ref": "Anhang XIV idF 2026/1744",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "eigenpruefung-2026-07-24"
+        }
+      ],
+      "legal_status": "konsolidiert-2026-07-27"
+    },
     {
-     "ref": "Art. 112",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "eigenpruefung-2026-07-24"
-    }
-   ],
-   "legal_status": "konsolidiert-2026-07-27"
-  },
-  {
-   "id": "fc-p9-01",
-   "front": "AT-Vollzug: gesichert vs. offen?",
-   "back": "Gesichert: Servicestelle (RTR), DSB; offen: Marktüberwachungs-Zuschnitt, Behörden-Sanktionsgesetz.",
-   "competency": "K15",
-   "level": "B",
-   "legal_basis": [
+      "id": "fc-p8-02",
+      "front": "Art. 112 lehrt …?",
+      "back": "Jährliche Revision von Art. 5 + Anhang III — Rechtsstands-Pflege ist Dauerbetrieb.",
+      "competency": "K15",
+      "level": "A",
+      "legal_basis": [
+        {
+          "ref": "Art. 112",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "eigenpruefung-2026-07-24"
+        }
+      ],
+      "legal_status": "konsolidiert-2026-07-27"
+    },
     {
-     "ref": "Art. 70; Art. 99 Abs. 8",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "eigenpruefung-2026-07-24"
-    }
-   ],
-   "legal_status": "konsolidiert-2026-07-27"
-  },
-  {
-   "id": "fc-p10-01",
-   "front": "ErwG-Regel Nr. 1?",
-   "back": "Artikel = WAS, ErwG = WARUM — nie contra legem.",
-   "competency": "K18",
-   "level": "A",
-   "legal_basis": [
+      "id": "fc-p9-01",
+      "front": "AT-Vollzug: gesichert vs. offen?",
+      "back": "Gesichert: Servicestelle (RTR), DSB; offen: Marktüberwachungs-Zuschnitt, Behörden-Sanktionsgesetz.",
+      "competency": "K15",
+      "level": "B",
+      "legal_basis": [
+        {
+          "ref": "Art. 70; Art. 99 Abs. 8",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "eigenpruefung-2026-07-24"
+        }
+      ],
+      "legal_status": "konsolidiert-2026-07-27"
+    },
     {
-     "ref": "Methodik",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "eigenpruefung-2026-07-24"
-    }
-   ],
-   "legal_status": "konsolidiert-2026-07-27"
-  },
-  {
-   "id": "gl-ki-system",
-   "kind": "glossar",
-   "front": "Glossar: „KI-System“ — was bedeutet der Begriff?",
-   "back": "Maschinengestütztes System, das aus Eingaben Ausgaben wie Vorhersagen, Empfehlungen oder Entscheidungen ableitet und dabei mit unterschiedlicher Autonomie arbeitet. 🧠 Denk an eine Blackbox mit Lernfähigkeit — nicht jede Software, aber alles was 'ableitet' statt nur 'ausführt'.",
-   "competency": "K16",
-   "level": "A",
-   "legal_status": "konsolidiert-2026-07-27",
-   "legal_basis": [
+      "id": "fc-p10-01",
+      "front": "ErwG-Regel Nr. 1?",
+      "back": "Artikel = WAS, ErwG = WARUM — nie contra legem.",
+      "competency": "K18",
+      "level": "A",
+      "legal_basis": [
+        {
+          "ref": "Methodik",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "eigenpruefung-2026-07-24"
+        }
+      ],
+      "legal_status": "konsolidiert-2026-07-27"
+    },
     {
-     "ref": "Art. 3 Nr. 1",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "glossar-2026-07-25"
-    }
-   ]
-  },
-  {
-   "id": "gl-anbieter",
-   "kind": "glossar",
-   "front": "Glossar: „Anbieter“ — was bedeutet der Begriff?",
-   "back": "Wer ein KI-System entwickelt oder entwickeln lässt und unter eigenem Namen in Verkehr bringt oder in Betrieb nimmt. 🧠 Anbieter = Name auf dem Etikett.",
-   "competency": "K16",
-   "level": "A",
-   "legal_status": "konsolidiert-2026-07-27",
-   "legal_basis": [
+      "id": "gl-ki-system",
+      "kind": "glossar",
+      "front": "Glossar: „KI-System“ — was bedeutet der Begriff?",
+      "back": "Maschinengestütztes System, das aus Eingaben Ausgaben wie Vorhersagen, Empfehlungen oder Entscheidungen ableitet und dabei mit unterschiedlicher Autonomie arbeitet. Merkanker: Denk an eine Blackbox mit Lernfähigkeit — nicht jede Software, aber alles was 'ableitet' statt nur 'ausführt'.",
+      "competency": "K16",
+      "level": "A",
+      "legal_status": "konsolidiert-2026-07-27",
+      "legal_basis": [
+        {
+          "ref": "Art. 3 Nr. 1",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "glossar-2026-07-25"
+        }
+      ]
+    },
     {
-     "ref": "Art. 3 Nr. 3",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "glossar-2026-07-25"
-    }
-   ]
-  },
-  {
-   "id": "gl-betreiber",
-   "kind": "glossar",
-   "front": "Glossar: „Betreiber“ — was bedeutet der Begriff?",
-   "back": "Wer ein KI-System in eigener Verantwortung verwendet (außer im persönlichen, nicht beruflichen Bereich). 🧠 Betreiber = wer den Einschaltknopf im Betrieb drückt.",
-   "competency": "K16",
-   "level": "A",
-   "legal_status": "konsolidiert-2026-07-27",
-   "legal_basis": [
+      "id": "gl-anbieter",
+      "kind": "glossar",
+      "front": "Glossar: „Anbieter“ — was bedeutet der Begriff?",
+      "back": "Wer ein KI-System entwickelt oder entwickeln lässt und unter eigenem Namen in Verkehr bringt oder in Betrieb nimmt. Merkanker: Anbieter = Name auf dem Etikett.",
+      "competency": "K16",
+      "level": "A",
+      "legal_status": "konsolidiert-2026-07-27",
+      "legal_basis": [
+        {
+          "ref": "Art. 3 Nr. 3",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "glossar-2026-07-25"
+        }
+      ]
+    },
     {
-     "ref": "Art. 3 Nr. 4",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "glossar-2026-07-25"
-    }
-   ]
-  },
-  {
-   "id": "gl-inverkehrbringen",
-   "kind": "glossar",
-   "front": "Glossar: „Inverkehrbringen“ — was bedeutet der Begriff?",
-   "back": "Die erstmalige Bereitstellung eines KI-Systems auf dem Unionsmarkt. 🧠 Wie ein Produkt-Launch: das erste Mal zählt.",
-   "competency": "K16",
-   "level": "A",
-   "legal_status": "konsolidiert-2026-07-27",
-   "legal_basis": [
+      "id": "gl-betreiber",
+      "kind": "glossar",
+      "front": "Glossar: „Betreiber“ — was bedeutet der Begriff?",
+      "back": "Wer ein KI-System in eigener Verantwortung verwendet (außer im persönlichen, nicht beruflichen Bereich). Merkanker: Betreiber = wer den Einschaltknopf im Betrieb drückt.",
+      "competency": "K16",
+      "level": "A",
+      "legal_status": "konsolidiert-2026-07-27",
+      "legal_basis": [
+        {
+          "ref": "Art. 3 Nr. 4",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "glossar-2026-07-25"
+        }
+      ]
+    },
     {
-     "ref": "Art. 3 Nr. 9",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "glossar-2026-07-25"
-    }
-   ]
-  },
-  {
-   "id": "gl-inbetriebnahme",
-   "kind": "glossar",
-   "front": "Glossar: „Inbetriebnahme“ — was bedeutet der Begriff?",
-   "back": "Die Bereitstellung eines KI-Systems zur Erstverwendung direkt an Betreiber oder zur Eigenverwendung. 🧠 Selbstgebaut und selbst genutzt? Auch das ist erfasst.",
-   "competency": "K16",
-   "level": "A",
-   "legal_status": "konsolidiert-2026-07-27",
-   "legal_basis": [
+      "id": "gl-inverkehrbringen",
+      "kind": "glossar",
+      "front": "Glossar: „Inverkehrbringen“ — was bedeutet der Begriff?",
+      "back": "Die erstmalige Bereitstellung eines KI-Systems auf dem Unionsmarkt. Merkanker: Wie ein Produkt-Launch: das erste Mal zählt.",
+      "competency": "K16",
+      "level": "A",
+      "legal_status": "konsolidiert-2026-07-27",
+      "legal_basis": [
+        {
+          "ref": "Art. 3 Nr. 9",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "glossar-2026-07-25"
+        }
+      ]
+    },
     {
-     "ref": "Art. 3 Nr. 11",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "glossar-2026-07-25"
-    }
-   ]
-  },
-  {
-   "id": "gl-zweckbestimmung",
-   "kind": "glossar",
-   "front": "Glossar: „Zweckbestimmung“ — was bedeutet der Begriff?",
-   "back": "Die vom Anbieter vorgesehene Verwendung laut Gebrauchsanweisung, Werbung und Dokumentation. 🧠 Die Zweckbestimmung ist der Anker JEDER Einstufung — ohne sie keine Prüfung.",
-   "competency": "K16",
-   "level": "A",
-   "legal_status": "konsolidiert-2026-07-27",
-   "legal_basis": [
+      "id": "gl-inbetriebnahme",
+      "kind": "glossar",
+      "front": "Glossar: „Inbetriebnahme“ — was bedeutet der Begriff?",
+      "back": "Die Bereitstellung eines KI-Systems zur Erstverwendung direkt an Betreiber oder zur Eigenverwendung. Merkanker: Selbstgebaut und selbst genutzt? Auch das ist erfasst.",
+      "competency": "K16",
+      "level": "A",
+      "legal_status": "konsolidiert-2026-07-27",
+      "legal_basis": [
+        {
+          "ref": "Art. 3 Nr. 11",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "glossar-2026-07-25"
+        }
+      ]
+    },
     {
-     "ref": "Art. 3 Nr. 12",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "glossar-2026-07-25"
-    }
-   ]
-  },
-  {
-   "id": "gl-hochrisiko-ki-system",
-   "kind": "glossar",
-   "front": "Glossar: „Hochrisiko-KI-System“ — was bedeutet der Begriff?",
-   "back": "KI-System, das unter Art. 6 fällt: über Anhang I (Produktrecht) oder Anhang III (Einsatzbereiche). 🧠 Hochrisiko = der Anhang entscheidet, nicht das Bauchgefühl.",
-   "competency": "K16",
-   "level": "A",
-   "legal_status": "konsolidiert-2026-07-27",
-   "legal_basis": [
+      "id": "gl-zweckbestimmung",
+      "kind": "glossar",
+      "front": "Glossar: „Zweckbestimmung“ — was bedeutet der Begriff?",
+      "back": "Die vom Anbieter vorgesehene Verwendung laut Gebrauchsanweisung, Werbung und Dokumentation. Merkanker: Die Zweckbestimmung ist der Anker JEDER Einstufung — ohne sie keine Prüfung.",
+      "competency": "K16",
+      "level": "A",
+      "legal_status": "konsolidiert-2026-07-27",
+      "legal_basis": [
+        {
+          "ref": "Art. 3 Nr. 12",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "glossar-2026-07-25"
+        }
+      ]
+    },
     {
-     "ref": "Art. 6",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "glossar-2026-07-25"
-    }
-   ]
-  },
-  {
-   "id": "gl-profiling",
-   "kind": "glossar",
-   "front": "Glossar: „Profiling“ — was bedeutet der Begriff?",
-   "back": "Automatisierte Verarbeitung zur Bewertung persönlicher Aspekte einer Person (i. S. d. DSGVO). 🧠 Aus Daten ein Persönlichkeitsbild rechnen.",
-   "competency": "K16",
-   "level": "A",
-   "legal_status": "konsolidiert-2026-07-27",
-   "legal_basis": [
+      "id": "gl-hochrisiko-ki-system",
+      "kind": "glossar",
+      "front": "Glossar: „Hochrisiko-KI-System“ — was bedeutet der Begriff?",
+      "back": "KI-System, das unter Art. 6 fällt: über Anhang I (Produktrecht) oder Anhang III (Einsatzbereiche). Merkanker: Hochrisiko = der Anhang entscheidet, nicht das Bauchgefühl.",
+      "competency": "K16",
+      "level": "A",
+      "legal_status": "konsolidiert-2026-07-27",
+      "legal_basis": [
+        {
+          "ref": "Art. 6",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "glossar-2026-07-25"
+        }
+      ]
+    },
     {
-     "ref": "Art. 3 Nr. 52",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "glossar-2026-07-25"
-    }
-   ]
-  },
-  {
-   "id": "gl-emotionserkennung",
-   "kind": "glossar",
-   "front": "Glossar: „Emotionserkennung“ — was bedeutet der Begriff?",
-   "back": "KI-System zur Feststellung oder Ableitung von Emotionen oder Absichten auf Grundlage biometrischer Daten. 🧠 Gesicht/Stimme rein, Gefühlslage raus.",
-   "competency": "K16",
-   "level": "A",
-   "legal_status": "konsolidiert-2026-07-27",
-   "legal_basis": [
+      "id": "gl-profiling",
+      "kind": "glossar",
+      "front": "Glossar: „Profiling“ — was bedeutet der Begriff?",
+      "back": "Automatisierte Verarbeitung zur Bewertung persönlicher Aspekte einer Person (i. S. d. DSGVO). Merkanker: Aus Daten ein Persönlichkeitsbild rechnen.",
+      "competency": "K16",
+      "level": "A",
+      "legal_status": "konsolidiert-2026-07-27",
+      "legal_basis": [
+        {
+          "ref": "Art. 3 Nr. 52",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "glossar-2026-07-25"
+        }
+      ]
+    },
     {
-     "ref": "Art. 3 Nr. 39",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "glossar-2026-07-25"
-    }
-   ]
-  },
-  {
-   "id": "gl-biometrische-kategorisierung",
-   "kind": "glossar",
-   "front": "Glossar: „biometrische Kategorisierung“ — was bedeutet der Begriff?",
-   "back": "Zuordnung von Personen zu Kategorien aufgrund biometrischer Daten (z. B. Geschlecht, Ethnie, Gesundheit). 🧠 Nicht 'wer bist du?', sondern 'was bist du?' — das macht es heikel.",
-   "competency": "K16",
-   "level": "A",
-   "legal_status": "konsolidiert-2026-07-27",
-   "legal_basis": [
+      "id": "gl-emotionserkennung",
+      "kind": "glossar",
+      "front": "Glossar: „Emotionserkennung“ — was bedeutet der Begriff?",
+      "back": "KI-System zur Feststellung oder Ableitung von Emotionen oder Absichten auf Grundlage biometrischer Daten. Merkanker: Gesicht/Stimme rein, Gefühlslage raus.",
+      "competency": "K16",
+      "level": "A",
+      "legal_status": "konsolidiert-2026-07-27",
+      "legal_basis": [
+        {
+          "ref": "Art. 3 Nr. 39",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "glossar-2026-07-25"
+        }
+      ]
+    },
     {
-     "ref": "Art. 3 Nr. 40",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "glossar-2026-07-25"
-    }
-   ]
-  },
-  {
-   "id": "gl-fernidentifizierung",
-   "kind": "glossar",
-   "front": "Glossar: „Fernidentifizierung“ — was bedeutet der Begriff?",
-   "back": "Identifizierung von Personen aus der Distanz durch Abgleich biometrischer Daten mit einer Datenbank — ohne deren aktive Mitwirkung. 🧠 Kamera schaut in die Menge und ruft Namen zu — das ist RBI.",
-   "competency": "K16",
-   "level": "A",
-   "legal_status": "konsolidiert-2026-07-27",
-   "legal_basis": [
+      "id": "gl-biometrische-kategorisierung",
+      "kind": "glossar",
+      "front": "Glossar: „biometrische Kategorisierung“ — was bedeutet der Begriff?",
+      "back": "Zuordnung von Personen zu Kategorien aufgrund biometrischer Daten (z. B. Geschlecht, Ethnie, Gesundheit). Merkanker: Nicht 'wer bist du?', sondern 'was bist du?' — das macht es heikel.",
+      "competency": "K16",
+      "level": "A",
+      "legal_status": "konsolidiert-2026-07-27",
+      "legal_basis": [
+        {
+          "ref": "Art. 3 Nr. 40",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "glossar-2026-07-25"
+        }
+      ]
+    },
     {
-     "ref": "Art. 3 Nr. 41",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "glossar-2026-07-25"
-    }
-   ]
-  },
-  {
-   "id": "gl-social-scoring",
-   "kind": "glossar",
-   "front": "Glossar: „Social Scoring“ — was bedeutet der Begriff?",
-   "back": "Bewertung/Klassifizierung von Personen anhand ihres sozialen Verhaltens mit ungerechtfertigter Schlechterstellung. 🧠 Punktekonto fürs Leben — für öffentliche Stellen tabu.",
-   "competency": "K16",
-   "level": "A",
-   "legal_status": "konsolidiert-2026-07-27",
-   "legal_basis": [
+      "id": "gl-fernidentifizierung",
+      "kind": "glossar",
+      "front": "Glossar: „Fernidentifizierung“ — was bedeutet der Begriff?",
+      "back": "Identifizierung von Personen aus der Distanz durch Abgleich biometrischer Daten mit einer Datenbank — ohne deren aktive Mitwirkung. Merkanker: Kamera schaut in die Menge und ruft Namen zu — das ist RBI.",
+      "competency": "K16",
+      "level": "A",
+      "legal_status": "konsolidiert-2026-07-27",
+      "legal_basis": [
+        {
+          "ref": "Art. 3 Nr. 41",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "glossar-2026-07-25"
+        }
+      ]
+    },
     {
-     "ref": "Art. 5 Abs. 1 lit. c",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "glossar-2026-07-25"
-    }
-   ]
-  },
-  {
-   "id": "gl-fria",
-   "kind": "glossar",
-   "front": "Glossar: „FRIA“ — was bedeutet der Begriff?",
-   "back": "Pflicht bestimmter Betreiber (v. a. öffentliches Recht), vor Einsatz eines Hochrisiko-Systems die Grundrechtsfolgen zu bewerten. 🧠 Wie eine DSFA, nur für ALLE Grundrechte.",
-   "competency": "K16",
-   "level": "A",
-   "legal_status": "konsolidiert-2026-07-27",
-   "legal_basis": [
+      "id": "gl-social-scoring",
+      "kind": "glossar",
+      "front": "Glossar: „Social Scoring“ — was bedeutet der Begriff?",
+      "back": "Bewertung/Klassifizierung von Personen anhand ihres sozialen Verhaltens mit ungerechtfertigter Schlechterstellung. Merkanker: Punktekonto fürs Leben — für öffentliche Stellen tabu.",
+      "competency": "K16",
+      "level": "A",
+      "legal_status": "konsolidiert-2026-07-27",
+      "legal_basis": [
+        {
+          "ref": "Art. 5 Abs. 1 lit. c",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "glossar-2026-07-25"
+        }
+      ]
+    },
     {
-     "ref": "Art. 27",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "glossar-2026-07-25"
-    }
-   ]
-  },
-  {
-   "id": "gl-konformitaetsbewertung",
-   "kind": "glossar",
-   "front": "Glossar: „Konformitätsbewertung“ — was bedeutet der Begriff?",
-   "back": "Verfahren, mit dem nachgewiesen wird, dass ein Hochrisiko-System die Anforderungen des Kapitels III erfüllt. 🧠 IT-Analogie: der Abnahmetest vor dem Go-Live.",
-   "competency": "K16",
-   "level": "A",
-   "legal_status": "konsolidiert-2026-07-27",
-   "legal_basis": [
+      "id": "gl-fria",
+      "kind": "glossar",
+      "front": "Glossar: „FRIA“ — was bedeutet der Begriff?",
+      "back": "Pflicht bestimmter Betreiber (v. a. öffentliches Recht), vor Einsatz eines Hochrisiko-Systems die Grundrechtsfolgen zu bewerten. Merkanker: Wie eine DSFA, nur für ALLE Grundrechte.",
+      "competency": "K16",
+      "level": "A",
+      "legal_status": "konsolidiert-2026-07-27",
+      "legal_basis": [
+        {
+          "ref": "Art. 27",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "glossar-2026-07-25"
+        }
+      ]
+    },
     {
-     "ref": "Art. 43",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "glossar-2026-07-25"
-    }
-   ]
-  },
-  {
-   "id": "gl-benannte-stelle",
-   "kind": "glossar",
-   "front": "Glossar: „benannte Stelle“ — was bedeutet der Begriff?",
-   "back": "Unabhängige Prüforganisation für bestimmte Konformitätsbewertungen. 🧠 Das externe Audit-Team mit Behördenmandat.",
-   "competency": "K16",
-   "level": "A",
-   "legal_status": "konsolidiert-2026-07-27",
-   "legal_basis": [
+      "id": "gl-konformitaetsbewertung",
+      "kind": "glossar",
+      "front": "Glossar: „Konformitätsbewertung“ — was bedeutet der Begriff?",
+      "back": "Verfahren, mit dem nachgewiesen wird, dass ein Hochrisiko-System die Anforderungen des Kapitels III erfüllt. Merkanker: IT-Analogie: der Abnahmetest vor dem Go-Live.",
+      "competency": "K16",
+      "level": "A",
+      "legal_status": "konsolidiert-2026-07-27",
+      "legal_basis": [
+        {
+          "ref": "Art. 43",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "glossar-2026-07-25"
+        }
+      ]
+    },
     {
-     "ref": "Art. 3 Nr. 22",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "glossar-2026-07-25"
-    }
-   ]
-  },
-  {
-   "id": "gl-gpai-modell",
-   "kind": "glossar",
-   "front": "Glossar: „GPAI-Modell“ — was bedeutet der Begriff?",
-   "back": "KI-Modell mit erheblicher Allgemeinheit, das viele Aufgaben erfüllen und in Systeme integriert werden kann. 🧠 Der Motor, nicht das Auto.",
-   "competency": "K16",
-   "level": "A",
-   "legal_status": "konsolidiert-2026-07-27",
-   "legal_basis": [
+      "id": "gl-benannte-stelle",
+      "kind": "glossar",
+      "front": "Glossar: „benannte Stelle“ — was bedeutet der Begriff?",
+      "back": "Unabhängige Prüforganisation für bestimmte Konformitätsbewertungen. Merkanker: Das externe Audit-Team mit Behördenmandat.",
+      "competency": "K16",
+      "level": "A",
+      "legal_status": "konsolidiert-2026-07-27",
+      "legal_basis": [
+        {
+          "ref": "Art. 3 Nr. 22",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "glossar-2026-07-25"
+        }
+      ]
+    },
     {
-     "ref": "Art. 3 Nr. 63",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "glossar-2026-07-25"
-    }
-   ]
-  },
-  {
-   "id": "gl-digital-omnibus",
-   "kind": "glossar",
-   "front": "Glossar: „Digital Omnibus“ — was bedeutet der Begriff?",
-   "back": "Änderungsverordnung vom 8.7.2026 (Amtsblatt 24.7.2026), die u. a. Fristen verschiebt und Art. 4, 4a, 5, 111, 113 ändert. 🧠 Der Omnibus nimmt mehrere Gesetzesänderungen auf einmal mit — daher der Name.",
-   "competency": "K16",
-   "level": "A",
-   "legal_status": "konsolidiert-2026-07-27",
-   "legal_basis": [
+      "id": "gl-gpai-modell",
+      "kind": "glossar",
+      "front": "Glossar: „GPAI-Modell“ — was bedeutet der Begriff?",
+      "back": "KI-Modell mit erheblicher Allgemeinheit, das viele Aufgaben erfüllen und in Systeme integriert werden kann. Merkanker: Der Motor, nicht das Auto.",
+      "competency": "K16",
+      "level": "A",
+      "legal_status": "konsolidiert-2026-07-27",
+      "legal_basis": [
+        {
+          "ref": "Art. 3 Nr. 63",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "glossar-2026-07-25"
+        }
+      ]
+    },
     {
-     "ref": "VO (EU) 2026/1744",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "glossar-2026-07-25"
-    }
-   ]
-  },
-  {
-   "id": "gl-wesentliche-aenderung",
-   "kind": "glossar",
-   "front": "Glossar: „wesentliche Änderung“ — was bedeutet der Begriff?",
-   "back": "Veränderung eines KI-Systems nach Inverkehrbringen, die die Konformität beeinträchtigt oder die Zweckbestimmung ändert. 🧠 Der Punkt, an dem aus 'Update' ein 'neues Produkt' wird — Art.-25-Falle!",
-   "competency": "K16",
-   "level": "A",
-   "legal_status": "konsolidiert-2026-07-27",
-   "legal_basis": [
+      "id": "gl-digital-omnibus",
+      "kind": "glossar",
+      "front": "Glossar: „Digital Omnibus“ — was bedeutet der Begriff?",
+      "back": "Änderungsverordnung vom 8.7.2026 (Amtsblatt 24.7.2026), die u. a. Fristen verschiebt und Art. 4, 4a, 5, 111, 113 ändert. Merkanker: Der Omnibus nimmt mehrere Gesetzesänderungen auf einmal mit — daher der Name.",
+      "competency": "K16",
+      "level": "A",
+      "legal_status": "konsolidiert-2026-07-27",
+      "legal_basis": [
+        {
+          "ref": "VO (EU) 2026/1744",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "glossar-2026-07-25"
+        }
+      ]
+    },
     {
-     "ref": "Art. 3 Nr. 23",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "glossar-2026-07-25"
-    }
-   ]
-  },
-  {
-   "id": "gl-ki-kompetenz",
-   "kind": "glossar",
-   "front": "Glossar: „KI-Kompetenz“ — was bedeutet der Begriff?",
-   "back": "Fähigkeiten, Kenntnisse und Verständnis für den sachkundigen Einsatz von KI (Art. 4: Unterstützungsmaßnahmen, kein garantiertes Niveau). 🧠 Seit dem Omnibus: fördern statt garantieren.",
-   "competency": "K16",
-   "level": "A",
-   "legal_status": "konsolidiert-2026-07-27",
-   "legal_basis": [
+      "id": "gl-wesentliche-aenderung",
+      "kind": "glossar",
+      "front": "Glossar: „wesentliche Änderung“ — was bedeutet der Begriff?",
+      "back": "Veränderung eines KI-Systems nach Inverkehrbringen, die die Konformität beeinträchtigt oder die Zweckbestimmung ändert. Merkanker: Der Punkt, an dem aus 'Update' ein 'neues Produkt' wird — Art.-25-Falle!",
+      "competency": "K16",
+      "level": "A",
+      "legal_status": "konsolidiert-2026-07-27",
+      "legal_basis": [
+        {
+          "ref": "Art. 3 Nr. 23",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "glossar-2026-07-25"
+        }
+      ]
+    },
     {
-     "ref": "Art. 4 idF 2026/1744",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "glossar-2026-07-25"
-    }
-   ]
-  },
-  {
-   "id": "gl-reallabor",
-   "kind": "glossar",
-   "front": "Glossar: „Reallabor“ — was bedeutet der Begriff?",
-   "back": "Kontrollierter Rahmen einer Behörde zum Entwickeln und Testen von KI unter Aufsicht. 🧠 Sandkasten mit Aufsicht — Fehler erlaubt, Lernen Pflicht.",
-   "competency": "K16",
-   "level": "A",
-   "legal_status": "konsolidiert-2026-07-27",
-   "legal_basis": [
+      "id": "gl-ki-kompetenz",
+      "kind": "glossar",
+      "front": "Glossar: „KI-Kompetenz“ — was bedeutet der Begriff?",
+      "back": "Fähigkeiten, Kenntnisse und Verständnis für den sachkundigen Einsatz von KI (Art. 4: Unterstützungsmaßnahmen, kein garantiertes Niveau). Merkanker: Seit dem Omnibus: fördern statt garantieren.",
+      "competency": "K16",
+      "level": "A",
+      "legal_status": "konsolidiert-2026-07-27",
+      "legal_basis": [
+        {
+          "ref": "Art. 4 idF 2026/1744",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "glossar-2026-07-25"
+        }
+      ]
+    },
     {
-     "ref": "Art. 57",
-     "instrument": "VO 2024/1689 idF 2026/1744",
-     "verified": "glossar-2026-07-25"
+      "id": "gl-reallabor",
+      "kind": "glossar",
+      "front": "Glossar: „Reallabor“ — was bedeutet der Begriff?",
+      "back": "Kontrollierter Rahmen einer Behörde zum Entwickeln und Testen von KI unter Aufsicht. Merkanker: Sandkasten mit Aufsicht — Fehler erlaubt, Lernen Pflicht.",
+      "competency": "K16",
+      "level": "A",
+      "legal_status": "konsolidiert-2026-07-27",
+      "legal_basis": [
+        {
+          "ref": "Art. 57",
+          "instrument": "VO 2024/1689 idF 2026/1744",
+          "verified": "glossar-2026-07-25"
+        }
+      ]
     }
-   ]
-  }
- ]
+  ]
 }

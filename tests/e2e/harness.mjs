@@ -22,7 +22,7 @@ export const JETZT = Date.parse('2026-07-25T09:00:00+02:00');
  * Injected before any application code runs. Pins Date, seeds Math.random and
  * disables animation. Without this an image comparison compares noise.
  */
-function determinismusSkript(jetzt) {
+function determinismusSkript(jetzt, bewegungAus = true) {
   return `(() => {
     const FIXIERT = ${jetzt};
     const EchtesDate = Date;
@@ -43,11 +43,17 @@ function determinismusSkript(jetzt) {
     window.print = () => { gedruckt++; };
     Object.defineProperty(window, '__druckAufrufe', { get: () => gedruckt });
 
-    const stil = document.createElement('style');
-    stil.textContent = '*,*::before,*::after{animation-duration:0s!important;animation-delay:0s!important;' +
-      'transition-duration:0s!important;transition-delay:0s!important;scroll-behavior:auto!important}';
-    if (document.head) document.head.appendChild(stil);
-    else document.addEventListener('DOMContentLoaded', () => document.head.appendChild(stil));
+    // Motion off, so a screenshot compares the product and not the moment it was
+    // taken. A spec that measures motion has to opt out — otherwise it measures
+    // this stylesheet (every duration and every delay reads 0s) and calls a
+    // working cascade broken.
+    if (${bewegungAus}) {
+      const stil = document.createElement('style');
+      stil.textContent = '*,*::before,*::after{animation-duration:0s!important;animation-delay:0s!important;' +
+        'transition-duration:0s!important;transition-delay:0s!important;scroll-behavior:auto!important}';
+      if (document.head) document.head.appendChild(stil);
+      else document.addEventListener('DOMContentLoaded', () => document.head.appendChild(stil));
+    }
   })();`;
 }
 
@@ -93,6 +99,26 @@ function lernhistorie(tage = 30, quote = 0.72) {
   return raus;
 }
 
+/** Question and answer per card — drawn from the real subject matter. */
+const KARTEN_TEXTE = [
+  ['Ab wann gelten die Pflichten aus Kapitel III Abschnitt 1–3 für Anhang-III-Hochrisikosysteme?',
+   'Seit dem Digital Omnibus erst ab 2.12.2027 — vorher stand dort der 2.8.2026.'],
+  ['Was unterscheidet einen Betreiber von einem Anbieter?',
+   'Der Anbieter bringt das System in Verkehr, der Betreiber verwendet es in eigener Verantwortung. Art. 25 beschreibt, wann ein Betreiber zum Anbieter wird.'],
+  ['Wann kippt ein Betreiber in die Anbieterrolle?',
+   'Unter anderem bei wesentlicher Änderung, bei Anbringen des eigenen Namens oder bei Zweckänderung — Art. 25 Abs. 1.'],
+  ['Was verlangt Art. 27 von Einrichtungen des öffentlichen Rechts?',
+   'Eine Grundrechte-Folgenabschätzung vor der ersten Verwendung eines Anhang-III-Hochrisikosystems.'],
+  ['Begründet Art. 4a eine Pflicht zur Bias-Korrektur?',
+   'Nein. Er schafft eine eng konditionierte Rechtsgrundlage für besondere Datenkategorien und sagt ausdrücklich, dass daraus keine Verpflichtung folgt.'],
+  ['Bis wann müssen Behörden ihre Alt-Hochrisikosysteme anpassen?',
+   'Bis 2.8.2030 — Art. 111 Abs. 2 in der Fassung des Digital Omnibus.'],
+  ['Welche Angabe fehlt, wenn eine Einstufung nicht möglich ist?',
+   'Meist die Zweckbestimmung. Ohne sie ist „nicht abschließend bestimmbar" die richtige Antwort, kein Ratewert.'],
+  ['Was kennzeichnet Art. 50 gegenüber der Hochrisiko-Einstufung?',
+   'Transparenzpflichten gelten zusätzlich und unabhängig — ein System kann transparenzpflichtig sein, ohne hochriskant zu sein.'],
+];
+
 /**
  * Completion events for finished units, spread over the period.
  *
@@ -127,6 +153,11 @@ function karten(anzahl = 40) {
       competency: KOMPETENZEN[i % KOMPETENZEN.length],
       level: ['A', 'B', 'C'][i % 3],
       unit_id: EINHEITEN[i % EINHEITEN.length],
+      // front/back, not just an id: the review view falls back to the id when
+      // the text is missing, so a card without them renders as "c15" — which is
+      // what the screenshots showed, and what nobody noticed for a week.
+      front: KARTEN_TEXTE[i % KARTEN_TEXTE.length][0],
+      back: KARTEN_TEXTE[i % KARTEN_TEXTE.length][1],
       history: [{ ts: zuletzt, correct: i % 4 !== 0, confidence: i % 3 ? 'sicher' : 'unsicher' }],
     });
   }
@@ -248,14 +279,29 @@ export const test = base.extend({
    * the rendering area is not what the suite assumes. Better a red test than a
    * green suite full of screenshots judged at the wrong width.
    */
-  /** Specs that need the bridge's own store set this to true. */
+  /**
+   * Which store a spec talks to.
+   *   false    — per-test interception (default): reads and writes stay in `speicher`
+   *   true     — the bridge's own store, reads AND writes (only 08-store)
+   *   'lesen'  — the bridge's own store for reads, writes are swallowed
+   *
+   * The third mode exists because of a defect this suite produced itself: the
+   * hardening spec claimed "these checks only read" — and that is true of the
+   * spec. It is not true of the application it loads, which persists its state
+   * on startup. Two specs then wrote to the one store the bridge keeps, in two
+   * workers, and the export round trip in 08-store read a neighbour's fixture
+   * (expected 4242, got 1314 — the mid-phase-3 fixture, points and all).
+   */
   echterStore: [false, { option: true }],
+
+  /** Specs that MEASURE motion set this; everything else runs with motion off. */
+  mitBewegung: [false, { option: true }],
 
   /** The per-test store contents, shared between the route handler and `zustand`. */
   speicher: async ({}, use) => { await use({ progress: {}, notes: {} }); },
 
-  page: async ({ page, echterStore, speicher }, use, testInfo) => {
-    await page.addInitScript(determinismusSkript(JETZT));
+  page: async ({ page, echterStore, speicher, mitBewegung }, use, testInfo) => {
+    await page.addInitScript(determinismusSkript(JETZT, !mitBewegung));
 
     // Block image requests unless this spec compares images: a ceremony cover is
     // several hundred kilobytes and contributes nothing to a functional check.
@@ -281,7 +327,19 @@ export const test = base.extend({
     // the adapter, fetch, the JSON round trip, the token header. Only the file
     // behind it is private to this test. The bridge's own store is covered by
     // the persistence spec, which opts out via `echterStore` and runs serially.
-    if (!echterStore) {
+    if (echterStore === 'lesen') {
+      // Reads reach the bridge — that is what the token and traversal checks are
+      // about. Writes are acknowledged and dropped, so the application cannot
+      // touch a store another spec owns.
+      const nurLesen = async (route) => {
+        if (route.request().method() === 'PUT') {
+          return route.fulfill({ status: 200, contentType: 'application/json', body: '{"ok":true}' });
+        }
+        return route.fallback();
+      };
+      await page.route('**/api/progress', nurLesen);
+      await page.route('**/api/notes', nurLesen);
+    } else if (!echterStore) {
       const bediene = (name) => async (route) => {
         const req = route.request();
         const json = (obj) => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(obj) });
@@ -326,11 +384,11 @@ export const test = base.extend({
 
   /** Loads a state fixture and reloads, so the application starts from it. */
   zustand: async ({ page, speicher, echterStore }, use) => {
-    await use(async (name) => {
+    await use(async (name, opt = {}) => {
       if (typeof name === 'string' && !FIXTURES[name]) throw new Error(`Unknown fixture: ${name}`);
       const daten = typeof name === 'string' ? FIXTURES[name]() : name;
 
-      if (echterStore) {
+      if (echterStore === true) {
         // Write while no application is running. Writing through the live page
         // loses the same race as below: the page persists its own state right
         // after and overwrites the fixture (measured: 1234 came back as 738).
@@ -353,7 +411,10 @@ export const test = base.extend({
       // waiting for the network to fall silent waits forever.
       await page.reload({ waitUntil: 'load' });
       await page.waitForFunction(() => !!document.querySelector('.sidebar, .rail, nav, main'), { timeout: 15_000 });
-      await schliesseOverlays(page);
+      // Dismissing here is right for almost every test — but a test ABOUT the
+      // first-launch overlays cannot have them clicked away during setup. Since
+      // the hero now persists its acknowledgement, they would never come back.
+      if (!opt.overlaysStehenLassen) await schliesseOverlays(page);
     });
   },
 });

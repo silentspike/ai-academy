@@ -8,8 +8,13 @@ import { test, expect } from '../harness.mjs';
 // Against the real bridge, deliberately: the per-test store used elsewhere
 // answers the store endpoints itself, so a token check would never be reached —
 // the test would pass without ever touching the thing it claims to verify.
-// These checks only read, so they can run in both engines.
-test.use({ echterStore: true });
+//
+// Read-only, and now enforced rather than asserted: the checks here only read,
+// but the application this spec loads persists its state on startup. With full
+// access it wrote the mid-phase-3 fixture into the one store the bridge keeps,
+// while 08-store was reading its own fixture back out of it. 'lesen' lets reads
+// through and swallows writes.
+test.use({ echterStore: 'lesen' });
 
 test.describe('hardening', () => {
   test('health reveals no secret', async ({ page }) => {

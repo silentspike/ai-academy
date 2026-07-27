@@ -136,5 +136,31 @@ t('Antwort von einem ganz anderen Modell wird gemeldet, nicht verschwiegen',
   loese({ 'claude-sonnet-5': { outputTokens: 30 } }, 'opus') === 'claude-sonnet-5');
 t('Ohne Angabe null statt Rateversuch', loese({}, 'opus') === null);
 
+// ---------- Pfad-Wache: die Plattform-Verzweigung, ohne die Plattform ----------
+// The static guard compared `resolve(fp).startsWith(root + '/')`. A hard-coded
+// slash is a Unix assumption; on Windows the resolved path uses backslashes, the
+// comparison failed for every file, and the bridge served nothing while
+// /api/health answered cheerfully. Found by the first run of the platform job on
+// windows-latest — and reproducible here only by testing the mapping itself.
+console.log('Pfad-Wache (posix und win32)');
+{
+  const { liegtInnerhalb } = await import('../bridge/pfad-wache.mjs');
+  const posix = (await import('node:path')).posix;
+  const win32 = (await import('node:path')).win32;
+  const p = (w, z) => liegtInnerhalb(w, z, posix.relative, posix.isAbsolute, posix.sep);
+  const w = (a, z) => liegtInnerhalb(a, z, win32.relative, win32.isAbsolute, win32.sep);
+
+  t('posix: Datei unter der Wurzel', p('/srv/public', '/srv/public/index.html'));
+  t('posix: Wurzel selbst', p('/srv/public', '/srv/public'));
+  t('posix: Geschwister mit gleichem Präfix bleibt draußen', !p('/srv/public', '/srv/publicX/geheim'));
+  t('posix: Traversal bleibt draußen', !p('/srv/public', '/srv/data/progress.json'));
+
+  t('win32: Datei unter der Wurzel', w('D:\\a\\repo\\public', 'D:\\a\\repo\\public\\index.html'));
+  t('win32: Wurzel selbst', w('D:\\a\\repo\\public', 'D:\\a\\repo\\public'));
+  t('win32: Geschwister mit gleichem Präfix bleibt draußen', !w('D:\\a\\repo\\public', 'D:\\a\\repo\\publicX\\geheim'));
+  t('win32: Traversal bleibt draußen', !w('D:\\a\\repo\\public', 'D:\\a\\repo\\data\\progress.json'));
+  t('win32: andere Platte bleibt draußen', !w('D:\\a\\repo\\public', 'C:\\Windows\\system32\\drivers\\etc\\hosts'));
+}
+
 console.log(`\n${pass} PASS, ${fail} FAIL`);
 process.exit(fail ? 1 : 0);

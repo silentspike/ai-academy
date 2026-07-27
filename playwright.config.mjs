@@ -56,6 +56,18 @@ export default defineConfig({
   use: {
     baseURL: `http://127.0.0.1:${PORT}/`,
     viewport: VIEWPORT,
+    // The product is German and its user is in Vienna. Browser-rendered controls
+    // follow the browser locale, not the document language: the date fields in
+    // the settings showed 09/01/2026 in every screenshot — a date no German
+    // reader parses the way it was meant. The visual record has to show what the
+    // user sees.
+    locale: 'de-AT',
+    timezoneId: 'Europe/Vienna',
+    // Note on what this does NOT fix: a native <input type="date"> is rendered in
+    // the language of the browser application, not of the document. Measured
+    // here — navigator.language de-AT, field still "09/01/2026", and --lang did
+    // not change it. The product therefore writes the date out in words below
+    // the field (datumLang) instead of relying on the browser.
     colorScheme: 'dark',
     reducedMotion: 'reduce',
     trace: 'on-first-retry',

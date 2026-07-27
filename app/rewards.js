@@ -101,6 +101,11 @@ export function renderBadgeGallery(mount, state) {
 }
 
 /** First-contact hero: a one-off opening moment before the first learning session. */
+/**
+ * The staged first contact (§6.3). Returns a promise now: it used to return a
+ * boolean, so the Article 50 notice opened on top of it and both overlays were
+ * on screen at once — the hero visible as a shape behind the notice.
+ */
 export function heroOnce(state, doc = document) {
   if (state.heroSeen) return false;
   const ov = doc.createElement('div');
@@ -113,10 +118,11 @@ export function heroOnce(state, doc = document) {
       <button class="btn-primary">Los geht's</button>
     </div>`;
   doc.body.appendChild(ov);
-  ov.querySelector('button').onclick = () => {
-    state.heroSeen = Date.now();
-    ov.remove();
-    doc.dispatchEvent(new CustomEvent('akademie:hero-done'));
-  };
-  return true;
+  return new Promise(res => {
+    ov.querySelector('button').onclick = () => {
+      state.heroSeen = Date.now();
+      ov.classList.add('geht');
+      setTimeout(() => { ov.remove(); doc.dispatchEvent(new CustomEvent('akademie:hero-done')); res(true); }, 260);
+    };
+  });
 }
