@@ -7,13 +7,19 @@ import { isFrontierModel } from './llm-adapter.js';
 
 // Miniature calibration: one known reference answer with a fixed expected score.
 // The full calibration run (50-80 cases, automatic lock) is tools/gold-set-run.mjs.
-const MINI_GOLD = {
-  question: 'Ab wann gelten die Hochrisiko-Pflichten (Kap. III Abschn. 1–3) für Anhang-III-KI-Systeme (VO 2024/1689 idF VO 2026/1744)?',
-  rubric: '2 Punkte: 2. Dezember 2027 (2P). Anderes Datum: 0P.',
-  modelAnswer: 'Ab dem 2. Dezember 2027 (Art. 113 Abs. 3 lit. c i).',
-  answer: 'Ab dem 2. Dezember 2027.',
-  expect: { verdict: 'korrekt', score: 2 },
-};
+//
+// Frage, Rubrik und Musterantwort kommen aus dem geprüften Inhalt, nicht von hier.
+// Sie standen als Literale in dieser Datei — mit Datum und Fundstelle („2. Dezember
+// 2027, Art. 113 Abs. 3 lit. c i"). Damit lag eine Rechtsaussage außerhalb des
+// Quellenregisters: `legal-audit` hätte nach der nächsten Rechtsänderung „alle
+// Objekte aktualisiert" gemeldet, während ausgerechnet die Ansicht, die neuen
+// Nutzern grünes Licht gibt, ein überholtes Datum behauptet (§4.1 #9).
+async function ladeMiniGold(fetchImpl = fetch) {
+  const j = await (await fetchImpl('content/selfcheck.json')).json();
+  const m = j?.mini_gold;
+  if (!m?.question) throw new Error('Mini-Gold-Fall fehlt in content/selfcheck.json');
+  return { question: m.question, rubric: m.rubric, modelAnswer: m.model_answer, answer: m.answer, expect: m.expect };
+}
 
 export async function runSelfCheck({ llm, storage }) {
   const checks = [];
@@ -36,11 +42,12 @@ export async function runSelfCheck({ llm, storage }) {
   // 3) model round trip plus the miniature calibration (only when the gate is open)
   if (gate.frontier) {
     try {
+      const mini = await ladeMiniGold();
       const t0 = performance.now();
-      const { result } = await llm.grade({ kind: 'selfcheck', ...MINI_GOLD });
+      const { result } = await llm.grade({ kind: 'selfcheck', ...mini });
       const ms = Math.round(performance.now() - t0);
       const schemaOk = result && typeof result.verdict === 'string' && typeof result.score === 'number';
-      const goldOk = result.verdict === MINI_GOLD.expect.verdict && result.score === MINI_GOLD.expect.score;
+      const goldOk = result.verdict === mini.expect.verdict && result.score === mini.expect.score;
       add('roundtrip', 'Probe-Bewertung (Mini-Gold-Set)',
         schemaOk && goldOk ? 'ok' : schemaOk ? 'warn' : 'fail',
         schemaOk

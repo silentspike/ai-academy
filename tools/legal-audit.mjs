@@ -25,6 +25,10 @@ collect('questions-core.json', 'frage', J('questions-core.json')?.questions);
 collect('facts-db.json', 'fakt', J('facts-db.json')?.facts);
 collect('flashcards.json', 'karte', J('flashcards.json')?.cards);
 collect('scenarios.json', 'szenario', J('scenarios.json')?.scenarios);
+// Der Mini-Gold-Fall der Selbstprüfung trägt ein Datum und eine Fundstelle. Er stand
+// als Literal in app/selfcheck.js — unsichtbar für dieses Werkzeug, und damit hätte
+// ein Audit nach der nächsten Rechtsänderung Vollständigkeit gemeldet, die es nicht gab.
+collect('selfcheck.json', 'selbstpruefung', [J('selfcheck.json')?.mini_gold].filter(Boolean));
 for (const uf of (existsSync(C('units')) ? readdirSync(C('units')) : []).filter(x => x.endsWith('.json'))) {
   const u = JSON.parse(readFileSync(join(C('units'), uf), 'utf8'));
   collect(`units/${uf}`, 'einheit', [u]);
