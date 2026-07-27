@@ -241,6 +241,32 @@ console.log('Quellenprüfung (Rang 8 der Quellenhierarchie)');
   t('erfundene Fundstelle bleibt gefangen, auch abgekürzt',
     pruefeClaim({ source_ids: ['art-6-7'] },
       baueRegister([{ legal_basis: [{ ref: 'Art. 6 Abs. 3' }] }])).status === 'unbelegt');
+
+  // Was im Fließtext zitiert wird, zählt auch. Ein Modell, das gar keine claims
+  // deklariert, käme sonst an der Prüfung vorbei — gemessen an einer echten
+  // Coach-Antwort, die Anhang III im Text nannte und nichts deklarierte.
+  const { findeFundstellen, istBekannt } = await import('../app/quellenpruefung.js');
+  t('Fundstellen im Fließtext werden gefunden',
+    JSON.stringify(findeFundstellen('Nach Art. 6 Abs. 3 und Art. 26; siehe ErwG 58 und Anhang III Nr. 5 lit. a.')) ===
+    JSON.stringify(['Art. 6 Abs. 3', 'Art. 26', 'ErwG 58', 'Anhang III Nr. 5 lit. a']));
+  t('englische Schreibweise im Text ebenso',
+    findeFundstellen('annex III point 5 letter a applies').length === 1);
+  // Zwei gemessene Fehlalarme, die das Muster nicht mehr macht.
+  t('„eine Art von" ist keine Fundstelle',
+    findeFundstellen('Diese Art der Verarbeitung ist eine Art von Sonderfall.').length === 0);
+  t('„Anhang von Dokumenten" ist keine Fundstelle',
+    findeFundstellen('Der Anhang von Dokumenten gehört nicht dazu.').length === 0);
+  t('„Abs. 3 und" verschluckt nicht das u von und',
+    findeFundstellen('Nach Art. 6 Abs. 3 und weiter')[0] === 'Art. 6 Abs. 3');
+
+  const regT = baueRegister([{ legal_basis: [{ ref: 'Anhang III Nr. 5 lit. a' }, { ref: 'Art. 26' }] }]);
+  t('allgemeinere Nennung des Anhangs gilt als bekannt', istBekannt('Anhang III', regT));
+  t('erfundener Artikel im Text wird beanstandet',
+    pruefeAntwort({ text: 'Nach Art. 6 Abs. 7 gilt das nicht.' }, regT).beanstandet.length === 1);
+  t('bekannter Artikel im Text wird nicht beanstandet',
+    pruefeAntwort({ text: 'Art. 26 trifft die Betreiberin.' }, regT).beanstandet.length === 0);
+  t('Textprüfung greift auch ohne deklarierte claims',
+    pruefeAntwort({ text: 'Art. 99 Abs. 42 sagt das.', claims: [] }, regT).beanstandet.length === 1);
 }
 
 console.log(`\n${pass} PASS, ${fail} FAIL`);

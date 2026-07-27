@@ -104,12 +104,60 @@ export function pruefeClaim(claim, register) {
 }
 
 /**
+ * Citations as they appear in running text: "Art. 26", "Anhang III Nr. 5 lit. a",
+ * "ErwG 58". Declared claims are the model's own account of what it asserted —
+ * and a model that simply declares nothing would slip past a check that only
+ * reads that account. Measured on a live coach answer: it named Anhang III in
+ * the text and declared no claim at all.
+ */
+export function findeFundstellen(text) {
+  if (typeof text !== 'string') return [];
+  // Two patterns, not one, and roman numerals only where they occur. "Art" is
+  // also an ordinary German noun — measured: "eine Art von" was read as the
+  // citation "Art vo", because a case-insensitive roman class happily matches
+  // the "v". Articles and recitals are numbered in digits; annexes in roman.
+  // No whitespace before the trailing letter: "Art. 6 Abs. 3 und" would otherwise
+  // swallow the "u" of "und" as a Buchstabe — measured.
+  // Sub-divisions carry both kinds of ordinal — "Abs. 3" but "lit. a" — and both
+  // cases of their keyword, because the annex pattern below cannot be
+  // case-insensitive without reading "Anhang von" as annex "vo".
+  const unter = '(?:\\s*(?:[Aa]bs(?:atz)?\\.?|[Nn]r\\.?|[Ll]it\\.?|[Bb]uchstabe|[Pp]ara(?:graph)?|[Pp]oint|[Ll]etter)\\s*(?:[0-9]+[a-z]?|[a-z]\\b))*';
+  const artikel = new RegExp('\\b(?:art(?:ikel)?\\.?|erw(?:aegungs)?g(?:rund)?\\.?)\\s*[0-9]+[a-z]?\\b' + unter, 'gi');
+  // Keyword case-insensitive by hand, roman numerals strictly uppercase: with a
+  // case-insensitive class, "Anhang von" would read as annex "vo".
+  const anhang = new RegExp('\\b[Aa](?:nhang|nnex)\\s*(?:[IVXLC]+|[0-9]+)\\b' + unter, 'g');
+  return [...new Set([...(text.match(artikel) ?? []), ...(text.match(anhang) ?? [])].map(m => m.trim()))];
+}
+
+/**
+ * Does the register know this citation — exactly, by its ordinals, or as the
+ * broader provision of something it cites more precisely? "Anhang III" is not an
+ * invention when the content cites "Anhang III Nr. 5 lit. a"; it is the same
+ * annex, named less specifically.
+ */
+export function istBekannt(ref, register) {
+  if (register.has(normalisiereRef(ref))) return true;
+  const of = ordinalfolge(ref);
+  if (!of) return false;
+  if (register.has(of)) return true;
+  for (const key of register.keys()) if (key.startsWith(of + '|')) return true;
+  return false;
+}
+
+/**
  * All claims of one tutor answer. `alleBelegt` is what the interface acts on:
  * anything else gets marked, never silently shown as if it were sourced.
  */
 export function pruefeAntwort(antwort, register) {
   const claims = Array.isArray(antwort?.claims) ? antwort.claims : [];
   const befunde = claims.map(c => ({ text: c?.text ?? '', ...pruefeClaim(c, register) }));
+
+  // Whatever the answer cites in prose counts too, declared or not.
+  const imText = findeFundstellen(antwort?.text ?? antwort?.feedback ?? '');
+  for (const ref of imText) {
+    if (istBekannt(ref, register)) continue;
+    befunde.push({ text: ref, status: 'unbelegt', unbekannt: [ref], ausText: true });
+  }
   return {
     geprueft: befunde.length,
     befunde,
