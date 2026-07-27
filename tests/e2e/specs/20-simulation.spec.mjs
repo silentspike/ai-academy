@@ -88,6 +88,22 @@ test.describe('simulation', () => {
     expect(heute, 'the ritual still calls new material locked').not.toMatch(/Gesperrt bis das Review erledigt ist/);
   });
 
+  // The learning record is the one artefact that leaves the screen. Print CSS
+  // strips the app frame — banner included — so a printout from the simulation
+  // would look exactly like one from the real operation. The notice therefore
+  // has to sit INSIDE .nachweis, which is what this asserts.
+  test('a printed record says it came from a simulation', async ({ page, zustand }) => {
+    await alsSimulation(page, true);
+    await zustand('nachPlacement');
+    await page.goto('/#/lernnachweis', { waitUntil: 'load' });
+    await schliesseOverlays(page);
+    await warteAufAnsicht(page);
+    await expect(page.locator('.nachweis .nachweis-sim')).toContainText(/Aus einer Simulation/);
+    await page.emulateMedia({ media: 'print' });
+    await expect(page.locator('.nachweis .nachweis-sim')).toBeVisible();
+    await page.emulateMedia({ media: 'screen' });
+  });
+
   // Negative control, and the one that matters most: without the flag every one
   // of those gates has to hold. Otherwise "open in simulation" would not be a
   // property of the mode but a broken gate.
@@ -121,5 +137,9 @@ test.describe('simulation', () => {
     const heute = await page.evaluate(() => document.getElementById('view').innerText);
     expect(heute, 'the ritual drops the lock without simulation')
       .toMatch(/Gesperrt bis das Review erledigt ist/);
+
+    await page.goto('/#/lernnachweis', { waitUntil: 'load' });
+    await warteAufAnsicht(page);
+    await expect(page.locator('.nachweis-sim')).toHaveCount(0);
   });
 });

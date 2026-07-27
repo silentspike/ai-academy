@@ -207,6 +207,19 @@ if (sc) {
     if (!s.facts?.every(x => Number.isInteger(x.released_at_phase))) err('scenarios', `${s.id}: facts ohne released_at_phase (deterministische Freigabe, §5.2)`);
     if (!s.persona_archetype) err('scenarios', `${s.id}: persona_archetype fehlt (3-Schichten)`);
     if (!s.goals?.every(g => g.matcher)) err('scenarios', `${s.id}: goals ohne matcher`);
+    // Der Eröffnungssatz stand einmal im Code — einer für alle zehn Bosskämpfe,
+    // passend zu genau einem. Er gehört zum Sachverhalt, also zum Inhalt.
+    if (!s.opening) err('scenarios', `${s.id}: opening fehlt (Eröffnung gehört zum Szenario, nicht in den Code)`);
+    if (!Array.isArray(s.suggested_moves) || !s.suggested_moves.length) err('scenarios', `${s.id}: suggested_moves fehlen`);
+  }
+  // Zwei Szenarien mit demselben Einstieg heißt: eines erzählt den Fall des
+  // anderen. Genau so blieb der verdrahtete Satz unentdeckt.
+  const eroeffnungen = new Map();
+  for (const s of sc.scenarios ?? []) {
+    if (!s.opening) continue;
+    const vorher = eroeffnungen.get(s.opening);
+    if (vorher) err('scenarios', `${s.id}: gleiche Eröffnung wie ${vorher}`);
+    else eroeffnungen.set(s.opening, s.id);
   }
   counts.scenarios = (sc.scenarios ?? []).length;
 }

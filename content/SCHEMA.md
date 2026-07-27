@@ -64,8 +64,11 @@
 - Karte: `{ id, front, back, competency, level, legal_basis, legal_status }`
 - Glossar: `{ term, aliases[], simple, memory_hook, legal_basis }`
 - Szenario (Schicht 1, §5.2): `{ id, title, rubric_id, rubric[], persona_archetype, facts[]
-  (released_at_phase!), phases[], goals[] (matcher = Regex), critical_errors[], competency,
-  legal_basis, legal_status }` — Sachverhalt DETERMINISTISCH, LLM formuliert nur Persona.
+  (released_at_phase!), opening, suggested_moves[], phases[], goals[] (matcher = Regex),
+  critical_errors[], competency, legal_basis, legal_status }` — Sachverhalt DETERMINISTISCH,
+  LLM formuliert nur Persona. `opening` ist der erste Satz der Persona und muss im eigenen
+  Sachverhalt der Phase 0 bleiben; zwei Szenarien mit identischer Eröffnung sind ein
+  Validierungsfehler (einer erzählt sonst den Fall des anderen).
 - Archetyp (Schicht 2): `{ id, name, dynamik, ton, typische_zuege[] }` — branchenunabhängig.
 - Blueprint (Live-Generierung, NUR formativ): `{ id, pattern, constraints, competency, level }`
 - Goldset: `{ id, question_id, answer_text, target_score, target_verdict, anchor_level,
