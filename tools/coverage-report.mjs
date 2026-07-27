@@ -32,10 +32,11 @@ if (!dateien.length) {
 }
 
 const daten = {};
+const unlesbar = [];
 for (const f of dateien) {
   let teil;
   try { teil = JSON.parse(readFileSync(join(VERZEICHNIS, f), 'utf8')); }
-  catch (e) { console.error(`  ${f} unlesbar: ${e.message}`); continue; }
+  catch (e) { console.error(`  ${f} unlesbar: ${e.message}`); unlesbar.push(f); continue; }
   for (const [route, r] of Object.entries(teil)) {
     const z = daten[route] ??= { gefunden: [], betaetigt: [], geprueft: [], unerreichbar: [], verdacht: [], unklar: [] };
     for (const k of ['gefunden', 'betaetigt', 'geprueft', 'unerreichbar', 'verdacht', 'unklar']) {
@@ -63,7 +64,7 @@ const routen = Object.keys(daten).filter(r => !NICHT_WERTEN.has(r)).length;
 const anzahlBetaetigt = [...betaetigt].filter(b => wo.has(b)).length;
 const quote = wo.size ? (anzahlBetaetigt + nurGeprueft.length) / wo.size : 0;
 
-console.log(`Klick-Abdeckung aus ${dateien.length} Teildateien:`);
+console.log(`Klick-Abdeckung aus ${dateien.length - unlesbar.length} von ${dateien.length} Teildateien:`);
 console.log(`  Routen: ${routen} · Bedienelemente: ${wo.size}`);
 console.log(`  betätigt: ${anzahlBetaetigt} · nur auf Erreichbarkeit geprüft: ${nurGeprueft.length}`);
 console.log(`  unerreichbar (geklickt): ${unerreichbar.length} · Verdacht (nur beobachtet): ${verdacht.length}`);
@@ -98,4 +99,12 @@ if (offen.length) {
   console.error('\nWeder betätigt noch geprüft:');
   for (const o of offen) console.error('  ' + o);
 }
-process.exit(unerreichbar.length || offen.length ? 1 : 0);
+// An unreadable part file is not a smaller sample, it is an unknown one: the
+// controls it held are missing from `wo`, so they cannot show up as a gap
+// either, and the percentage comes out higher for having lost data. It used to
+// be printed and walked past.
+if (unlesbar.length) {
+  console.error(`\n::error::${unlesbar.length} von ${dateien.length} Teildateien unlesbar — ` +
+    `die Abdeckung ist über einen unbekannten Ausschnitt gerechnet: ${unlesbar.join(', ')}`);
+}
+process.exit(unerreichbar.length || offen.length || unlesbar.length ? 1 : 0);

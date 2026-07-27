@@ -20,6 +20,7 @@
 //                 not having it.
 
 import { mkdirSync, writeFileSync, readFileSync, existsSync, readdirSync } from 'node:fs';
+import { randomUUID } from 'node:crypto';
 import { join, resolve } from 'node:path';
 
 // Deliberately NOT under test-results/: Playwright wipes that directory when a
@@ -38,7 +39,15 @@ import { join, resolve } from 'node:path';
 // evaluation reported "no coverage recorded" for a suite that had just run.
 const WURZEL = resolve(new URL('../..', import.meta.url).pathname);
 const VERZEICHNIS = join(WURZEL, '.tmp-coverage');
-const DATEI = join(VERZEICHNIS, `clicks-${process.pid}.json`);
+// Process id AND a random suffix. Sixteen shards upload their part files into
+// artifacts that the evaluation merges into one directory — and a fresh runner
+// hands out low process ids, so two shards produce `clicks-2409.json` routinely.
+// Merging then wrote a shorter file over a longer one and left the tail behind:
+// three of thirty-eight parts came out as "Unexpected non-whitespace character
+// after JSON", were skipped, and the coverage figure was computed from what
+// survived. A number that quietly leaves out what it could not read is worse
+// than no number.
+const DATEI = join(VERZEICHNIS, `clicks-${process.pid}-${randomUUID().slice(0, 8)}.json`);
 
 /** Selectors for anything a user can operate. */
 export const INTERAKTIV = [
