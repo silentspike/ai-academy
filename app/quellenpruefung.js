@@ -21,12 +21,15 @@ export function normalisiereRef(ref) {
   return ref
     .toLowerCase()
     .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
-    .replace(/\bartikel\b|\bart\b/g, 'art')
-    .replace(/\babsatz\b|\babs\b/g, 'abs')
-    .replace(/\bbuchstabe\b|\blit\b/g, 'lit')
-    .replace(/\bnummer\b|\bnr\b/g, 'nr')
-    .replace(/\berwaegungsgrund\b|\berwg\b/g, 'erwg')
-    // „anhang" braucht keine Zeile: es hat keine Kurzform, die zusammenzuführen wäre.
+    // German and English both, because the model answers in whichever it likes:
+    // measured against a live Opus grading, which cited "annex-iii-5-a" for a
+    // provision the content calls "Anhang III Nr. 5 lit. a".
+    .replace(/\bartikel\b|\barticle\b|\bart\b/g, 'art')
+    .replace(/\babsatz\b|\bparagraph\b|\bpara\b|\babs\b/g, 'abs')
+    .replace(/\bbuchstabe\b|\bletter\b|\bpoint\b|\blit\b/g, 'lit')
+    .replace(/\bnummer\b|\bnumber\b|\bno\b|\bnr\b/g, 'nr')
+    .replace(/\berwaegungsgrund\b|\brecital\b|\berwg\b/g, 'erwg')
+    .replace(/\bannex\b|\banhang\b/g, 'anhang')
     // Version suffixes are not part of the provision's identity; they are checked
     // separately against the legal state.
     .replace(/\bidf\b.*$/, '')
@@ -36,12 +39,31 @@ export function normalisiereRef(ref) {
 }
 
 /**
+ * Kind plus the bare sequence of ordinals: "anhang|iii|5|a".
+ *
+ * The same live grading that revealed the English vocabulary also left the
+ * structural words out entirely — "annex-iii-5-a" against the content's "Anhang
+ * III Nr. 5 lit. a". A citation without its markers is still unambiguous as long
+ * as no second provision carries the same numbers, and `baueRegister` refuses to
+ * index an abbreviation that would be ambiguous. Precision is not traded for
+ * convenience; ambiguity simply falls back to the exact form.
+ */
+export function ordinalfolge(ref) {
+  const norm = normalisiereRef(ref);
+  if (!norm) return '';
+  const art = /^(anhang|erwg|art)\b/.exec(norm)?.[1] ?? 'art';
+  const teile = norm.split('-').filter(t => t && !['art', 'abs', 'lit', 'nr', 'erwg', 'anhang'].includes(t));
+  return teile.length ? `${art}|${teile.join('|')}` : '';
+}
+
+/**
  * The register of everything the shipped content cites, built from the
  * `legal_basis` entries that the schema makes mandatory (#39). The content IS
  * the source package — there is no second list to keep in sync.
  */
 export function baueRegister(objekte) {
   const register = new Map();
+  const kurz = new Map();          // Ordinalfolge → Menge exakter Schlüssel
   const eintragen = (o) => {
     for (const b of (o?.legal_basis ?? [])) {
       if (!b?.ref) continue;
@@ -49,11 +71,22 @@ export function baueRegister(objekte) {
       if (!key) continue;
       if (!register.has(key)) register.set(key, { ref: b.ref, instrumente: new Set() });
       if (b.instrument) register.get(key).instrumente.add(b.instrument);
+      const of = ordinalfolge(b.ref);
+      if (of) { if (!kurz.has(of)) kurz.set(of, new Set()); kurz.get(of).add(key); }
     }
   };
   for (const o of objekte ?? []) {
     eintragen(o);
     for (const b of (o?.blocks ?? [])) eintragen(b);
+  }
+  // Only unambiguous abbreviations enter the register. Two provisions with the
+  // same numbers keep their markers as the only thing telling them apart, and an
+  // abbreviated citation of either stays unverified — correctly.
+  for (const [of, keys] of kurz) {
+    if (keys.size === 1 && !register.has(of)) {
+      const einziger = [...keys][0];
+      register.set(of, { ...register.get(einziger), abgekuerzt: true });
+    }
   }
   return register;
 }
@@ -66,7 +99,7 @@ export function baueRegister(objekte) {
 export function pruefeClaim(claim, register) {
   const ids = Array.isArray(claim?.source_ids) ? claim.source_ids.filter(Boolean) : [];
   if (!ids.length) return { status: 'ohne-quelle', unbekannt: [] };
-  const unbekannt = ids.filter(id => !register.has(normalisiereRef(id)));
+  const unbekannt = ids.filter(id => !register.has(normalisiereRef(id)) && !register.has(ordinalfolge(id)));
   return { status: unbekannt.length ? 'unbelegt' : 'belegt', unbekannt };
 }
 
