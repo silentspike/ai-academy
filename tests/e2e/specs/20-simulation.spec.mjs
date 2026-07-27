@@ -55,6 +55,11 @@ test.describe('simulation', () => {
     const text = await page.evaluate(() => document.getElementById('view').innerText);
     expect(text, 'the exam is still locked in simulation').not.toMatch(/Examens-Gate \(Schloss aktiv\)/);
     await expect(page.locator('#view button:has-text("Examen starten")')).toBeVisible();
+
+    // The interface has to agree with the behaviour. It did not: the sidebar
+    // asked examGate() without the flag, so a padlock sat over an open gate —
+    // found by clicking through, not by reasoning.
+    await expect(page.locator('#nav-examen')).not.toHaveClass(/state-locked/);
   });
 
   test('a chapter test does not demand the boss fight first', async ({ page, zustand }) => {
@@ -75,6 +80,12 @@ test.describe('simulation', () => {
     await warteAufAnsicht(page);
     const text = await page.evaluate(() => document.getElementById('view').innerText);
     expect(text, 'the unit still insists on the review').not.toMatch(/Erst wiederholen, dann Neues/);
+
+    // And the ritual must not announce a lock that no longer holds.
+    await page.goto('/#/heute', { waitUntil: 'load' });
+    await warteAufAnsicht(page);
+    const heute = await page.evaluate(() => document.getElementById('view').innerText);
+    expect(heute, 'the ritual still calls new material locked').not.toMatch(/Gesperrt bis das Review erledigt ist/);
   });
 
   // Negative control, and the one that matters most: without the flag every one
@@ -90,6 +101,7 @@ test.describe('simulation', () => {
     await expect(page.locator('#sim-banner')).toBeHidden();
     const examen = await page.evaluate(() => document.getElementById('view').innerText);
     expect(examen, 'the exam gate does not hold without simulation').toMatch(/Examens-Gate \(Schloss aktiv\)/);
+    await expect(page.locator('#nav-examen')).toHaveClass(/state-locked/);
 
     await page.goto('/#/test/p3', { waitUntil: 'load' });
     await warteAufAnsicht(page);
@@ -103,5 +115,11 @@ test.describe('simulation', () => {
     const einheit = await page.evaluate(() => document.getElementById('view').innerText);
     expect(einheit, 'the mandatory review does not hold without simulation')
       .toMatch(/Erst wiederholen, dann Neues/);
+
+    await page.goto('/#/heute', { waitUntil: 'load' });
+    await warteAufAnsicht(page);
+    const heute = await page.evaluate(() => document.getElementById('view').innerText);
+    expect(heute, 'the ritual drops the lock without simulation')
+      .toMatch(/Gesperrt bis das Review erledigt ist/);
   });
 });

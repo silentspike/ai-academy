@@ -24,7 +24,7 @@ export async function startApp({ mountId = 'view' } = {}) {
   let savePending = false;
   const ctx = { storage, state, saveState: () => {
     paintTopbar(state);
-    paintSidebar(state);
+    paintSidebar(state, ctx.simulation);
     if (savePending) return saveChain;                 // laufender Save deckt den neuen Stand mit ab
     savePending = true;
     saveChain = saveChain
@@ -123,7 +123,7 @@ export async function startApp({ mountId = 'view' } = {}) {
   window.addEventListener('hashchange', render);
   render();
   paintTopbar(state);
-  paintSidebar(state);
+  paintSidebar(state, ctx.simulation);
   // Search, due list and profile menu. Wired once — the menus read live data
   // when they open, so they cannot show a value captured at startup.
   import('./topbar-tools.js').then(({ verdrahteTopbar }) => verdrahteTopbar(ctx))
@@ -257,7 +257,11 @@ const PHASEN = [
 let UNIT_INDEX = null;                       // phase → [unitId] (einmalig geladen)
 
 
-export async function paintSidebar(state) {
+// `simulation` reaches here as an argument rather than through a module-level
+// value because the sidebar is also painted on every save: a stale copy of the
+// flag would show a padlock over a gate that is open, which is exactly the
+// contradiction this parameter exists to prevent.
+export async function paintSidebar(state, simulation = false) {
   const tree = document.getElementById('phase-tree');
   if (!tree) return;
   if (!UNIT_INDEX) {
@@ -302,7 +306,7 @@ export async function paintSidebar(state) {
         import('./exam-core.js'),
         fetch('content/competencies.json').then(r => r.json()),
       ]);
-      const gate = examGate(state, { kompetenzen: comp.kompetenzen, cards: state.cards ?? [], nowMs: Date.now() });
+      const gate = examGate(state, { kompetenzen: comp.kompetenzen, cards: state.cards ?? [], nowMs: Date.now(), simulation });
       nav.classList.toggle('state-locked', !gate.allowed);
       nav.title = gate.allowed ? 'Examen freigeschaltet' : gate.reasons.slice(0, 3).join(' · ');
       const use = nav.querySelector('use');
