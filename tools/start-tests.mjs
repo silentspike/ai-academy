@@ -162,5 +162,53 @@ console.log('Pfad-Wache (posix und win32)');
   t('win32: andere Platte bleibt draußen', !w('D:\\a\\repo\\public', 'C:\\Windows\\system32\\drivers\\etc\\hosts'));
 }
 
+// ---------- Quellenprüfung: das Modell ist nie selbst Rechtsquelle ----------
+// Die Prompts verlangen claims + source_ids seit jeher — geprüft hat sie niemand.
+// Ein Modell, das „Art. 6 Abs. 7" erfindet, erzeugt einen Satz, der genau so
+// aussieht wie einer, der auf dem Amtsblatt ruht.
+console.log('Quellenprüfung (Rang 8 der Quellenhierarchie)');
+{
+  const { normalisiereRef, baueRegister, pruefeClaim, pruefeAntwort } =
+    await import('../app/quellenpruefung.js');
+
+  t('drei Schreibweisen derselben Fundstelle fallen zusammen',
+    normalisiereRef('Art. 6 Abs. 3 lit. a') === normalisiereRef('art-6-abs-3-lit-a') &&
+    normalisiereRef('Artikel 6 Absatz 3 Buchstabe a') === normalisiereRef('Art. 6 Abs. 3 lit. a'));
+  t('Fassungs-Zusatz ist nicht Teil der Identität',
+    normalisiereRef('Art. 113 Abs. 3 lit. a idF 2026/1744') === normalisiereRef('Art. 113 Abs. 3 lit. a'));
+  t('verschiedene Absätze bleiben verschieden',
+    normalisiereRef('Art. 6 Abs. 3') !== normalisiereRef('Art. 6 Abs. 7'));
+
+  const reg = baueRegister([
+    { legal_basis: [{ ref: 'Art. 6 Abs. 3', instrument: 'VO 2024/1689 idF 2026/1744' }] },
+    { blocks: [{ legal_basis: [{ ref: 'Art. 50 Abs. 1' }] }] },
+  ]);
+  t('Register liest auch die Fundstellen der Blöcke', reg.size === 2);
+
+  t('belegte Behauptung geht durch',
+    pruefeClaim({ source_ids: ['art-6-abs-3'] }, reg).status === 'belegt');
+  t('erfundene Fundstelle wird gefangen',
+    pruefeClaim({ source_ids: ['Art. 6 Abs. 7'] }, reg).status === 'unbelegt');
+  t('Behauptung ganz ohne Fundstelle ist ein eigener Befund',
+    pruefeClaim({ text: 'Art. 6 gilt seit gestern' }, reg).status === 'ohne-quelle');
+  t('eine erfundene unter mehreren genügt für den Befund',
+    pruefeClaim({ source_ids: ['art-6-abs-3', 'Art. 6 Abs. 7'] }, reg).status === 'unbelegt');
+
+  const antwort = pruefeAntwort({ claims: [
+    { text: 'a', source_ids: ['Art. 6 Abs. 3'] },
+    { text: 'b', source_ids: ['Art. 99 Abs. 12'] },
+  ] }, reg);
+  t('Antwort mit einer erfundenen Fundstelle gilt nicht als belegt', antwort.alleBelegt === false);
+  t('nur die beanstandete Aussage wird beanstandet',
+    antwort.beanstandet.length === 1 && antwort.beanstandet[0].text === 'b');
+  t('ohne Behauptungen kein Gütesiegel',
+    pruefeAntwort({ claims: [] }, reg).alleBelegt === false);
+
+  // Negativkontrolle: gegen ein LEERES Register muss auch die richtige
+  // Fundstelle durchfallen — sonst prüft die Prüfung nichts.
+  t('Negativkontrolle: leeres Register beanstandet auch Korrektes',
+    pruefeClaim({ source_ids: ['Art. 6 Abs. 3'] }, new Map()).status === 'unbelegt');
+}
+
 console.log(`\n${pass} PASS, ${fail} FAIL`);
 process.exit(fail ? 1 : 0);

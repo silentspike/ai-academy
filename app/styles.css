@@ -719,3 +719,13 @@ button:disabled { opacity:.45; cursor:not-allowed; }
   font-size:.94rem; line-height:1.65; color:var(--text); max-width:var(--lese-max,68ch); }
 .ka-lbl { display:block; font-family:var(--font-mono); font-size:.64rem; letter-spacing:.14em;
   text-transform:uppercase; color:var(--emerald); margin-bottom:5px; }
+
+/* ---------- Quellenprüfung am Tutor-Feedback (Plan §5.2, Quellenhierarchie Rang 8) ----------
+   Ein Satz über Recht sieht gleich aus, ob er auf dem Amtsblatt ruht oder
+   erfunden ist. Diese beiden Zeilen sind der Unterschied. */
+.coach-belegt { margin-top:6px; font-size:.76rem; color:var(--faint); }
+.coach-belegt::before { content:'✓ '; color:var(--emerald); }
+.coach-unbelegt { margin-top:8px; padding:8px 11px; border-radius:8px; font-size:.8rem; line-height:1.55;
+  color:var(--text); background:rgba(225,173,88,.07); border:1px solid rgba(225,173,88,.32); }
+.coach-unbelegt b { color:var(--amber); }
+.coach-unbelegt .mono { color:var(--faint); font-size:.72rem; }

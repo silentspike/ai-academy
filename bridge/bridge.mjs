@@ -411,7 +411,18 @@ const server = http.createServer(async (req, res) => {
         const prompt = buildCoachPrompt({ topic: b.topic, unitContext: b.unitContext, userMessage: b.userMessage, notes: b.notes, journal: b.journal, profileHints: b.profileHints, sources: b.sources });
         logPrompt('coach', prompt);
         const { text } = await runCli({ system: COACH_SYSTEM, prompt, sessionName: 'coach' });
-        return send(res, 200, { text });
+        // Structured if the model followed the format, prose if it did not. The
+        // claims travel on either way — before this they were demanded in the
+        // system prompt and then dropped here, so the application never had
+        // anything to check against the source package.
+        let antwort;
+        try {
+          const j = extractJson(text);
+          antwort = { text: String(j.feedback ?? j.text ?? text), claims: j.claims ?? [], uncertainties: j.uncertainties ?? [] };
+        } catch {
+          antwort = { text, claims: [], uncertainties: [] };
+        }
+        return send(res, 200, antwort);
       }
       if (seg === 'dialog/judge' && req.method === 'POST') {
         const b = await readBody(req);
