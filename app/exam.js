@@ -151,9 +151,12 @@ route('test', async (view, ctx, [phaseId]) => {
   }
   const used = new Set(st.usedTestQuestions[phaseId] ?? []);
   const test = buildChapterTest(phaseId, pool, { salt: 'a' + attempts, excludeIds: used });
-  const intro = card(`<h3>Kapiteltest ${phaseId.toUpperCase()} — zweiteilig</h3>
-    <p>Teil 1 „Triage" (${test.part1.length} Fragen, Closed Book) → Teil 2 „Quellenarbeit" (${test.part2.length} Aufgaben, Verordnungstext erlaubt).
-    Bestehensgrenze ${PASS_SCORE * 100} % · <a href="docs/CRITICAL-ERRORS.md" target="_blank">Critical-Error-Liste</a> · Antritt ${attempts + 1}</p>
+  // Kopf mit Symbol wie in jeder anderen Ansicht (Heute, Drill, Wiederholung,
+  // Examen). Kapiteltest und Placement waren die zwei Einstiege ohne — nebeneinander
+  // gesehen sahen sie aus, als gehörten sie nicht zum selben Werkzeug.
+  const intro = card(`<div class="chead"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-pruefung"/></svg></span><span class="t"><h3>Kapiteltest ${phaseId.toUpperCase()} — zweiteilig</h3>
+    <span class="sub">Teil 1 „Triage" (${test.part1.length} Fragen, Closed Book) → Teil 2 „Quellenarbeit" (${test.part2.length} Aufgaben, Verordnungstext erlaubt)</span></span></div>
+    <p>Bestehensgrenze ${PASS_SCORE * 100} % · <a href="docs/CRITICAL-ERRORS.md" target="_blank">Critical-Error-Liste</a> · Antritt ${attempts + 1}</p>
     <button class="btn-primary" id="t-start">Teil 1 starten</button>`);
   view.appendChild(intro);
   intro.querySelector('#t-start').onclick = () => {
@@ -297,7 +300,9 @@ route('placement', async (view, ctx) => {
   const { pool } = await data();
   const llm = new LlmAdapter({});
   const qs = placementBuild(pool, { salt: 'pl-' + ((ctx.state.placementRuns ?? 0) + 1) });
-  view.appendChild(card(`<h3>Placement (~15 min)</h3><p class="dim">20 Fragen quer durch alle Phasen. Ergebnis sind STARTEMPFEHLUNGEN — übersprungen wird eine Einheit erst nach bestandenem Challenge-Test (#19); Tests bleiben immer Pflicht.</p>`));
+  view.appendChild(card(`<div class="chead violett"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-ziel"/></svg></span><span class="t"><h3>Placement (~15 min)</h3>
+    <span class="sub">20 Fragen quer durch alle Phasen</span></span></div>
+    <p class="dim">Ergebnis sind STARTEMPFEHLUNGEN — übersprungen wird eine Einheit erst nach bestandenem Challenge-Test (#19); Tests bleiben immer Pflicht.</p>`));
   runQuestions(view, qs, {
     mode: 'exam', kind: 'placement', llm,
     onDone: async results => {
@@ -376,6 +381,9 @@ route('lernnachweis', async (view, ctx) => {
     <div class="nachweis" id="nachweis">
       <h2>Persönlicher Lernnachweis</h2>
       <p class="nw-unter">AI-Act-Akademie · ausgestellt am ${new Date().toLocaleDateString('de-AT')}</p>
+      ${ctx.simulation ? `<p class="nachweis-disclaimer nachweis-sim"><b>Aus einer Simulation.</b> Die Lernpfad-Sperren
+      waren offen — Examens-Gate, Tagesantritt, Pflicht-Review und Bosskampf-Vorbedingung. Was hier
+      steht, belegt keinen Lernstand.</p>` : ''}
       <p class="nachweis-disclaimer"><b>Persönlicher, unbeaufsichtigter Lernnachweis.</b> Identität und Prüfungsbedingungen
       wurden nicht durch eine unabhängige Stelle verifiziert. Teile der Bewertung sind KI-unterstützt.
       Kein akkreditiertes Zertifikat. Nicht bestimmt für den Einsatz durch Bildungseinrichtungen

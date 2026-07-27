@@ -572,12 +572,23 @@ route('dashboard', async (view, ctx) => {
       .filter(([, c]) => c.score != null && c.n >= 3)
       .sort((a, b) => a[1].score - b[1].score)[0];
     const nameVon = (id) => compDef.kompetenzen.find(k => k.id === id)?.name ?? id;
+    // Der Vergleich muss gegen das Soll von HEUTE laufen. Er lief gegen den
+    // letzten GEZEICHNETEN Punkt — und die Kurve hat einen Mindest-Horizont von
+    // zwei Wochen, also gegen ein Soll aus der Zukunft. Am ersten Tag stand
+    // deshalb „du liegst bei 0 %, die Soll-Linie steht bei 22 %", während die
+    // Abschluss-Karte aus derselben Berechnung „Auf Kurs" meldete. Beide Stellen
+    // fragen jetzt driftCheck — eine Größe, eine Quelle.
     const letzterIst = curve.ist.at(-1)?.value ?? 0;
-    const letzterSoll = curve.soll.at(-1)?.value ?? 0;
+    const { driftCheck } = await import('./pacing.js');
+    const kurs = (s.milestones?.length && s.pace)
+      ? driftCheck({ ...s.pace, milestones: s.milestones },
+                   { totalUnits: UNITS_TOTAL, minutesPerUnit: 25 }, letzterIst, start, Date.now())
+      : { onTrack: true, drift: 0 };
+    const sollHeute = Math.max(0, letzterIst - kurs.drift);
     const teile = [];
-    teile.push(letzterIst >= letzterSoll
+    teile.push(kurs.onTrack
       ? `Du liegst mit <b>${Math.round(letzterIst * 100)} %</b> auf oder über der Soll-Linie — weiter so.`
-      : `Du liegst bei <b>${Math.round(letzterIst * 100)} %</b>, die Soll-Linie steht bei ${Math.round(letzterSoll * 100)} %. Aufholbar, wenn du dranbleibst.`);
+      : `Du liegst bei <b>${Math.round(letzterIst * 100)} %</b>, die Soll-Linie steht heute bei ${Math.round(sollHeute * 100)} %. Aufholbar, wenn du dranbleibst.`);
     if (schwach) {
       teile.push(`Schwächster Punkt gerade: <b>${nameVon(schwach[0])}</b> (${Math.round(schwach[1].score * 100)} %${schwach[1].weakest ? `, vor allem auf Stufe ${schwach[1].weakest}` : ''}).`);
     }
@@ -609,8 +620,13 @@ route('dashboard', async (view, ctx) => {
   renderExamHistory(view.querySelector('#d-exam'), series.length ? series : [{ regime: 'noch kein Examen', attempts: [] }]);
 });
 
-// Ceremony demo route, kept for manual inspection of the three tiers
+// Ceremony demo route, kept for manual inspection of the three tiers.
+// Nur in der Simulation: Im echten Betrieb ist das eine Entwickler-Ansicht, die
+// niemand angefordert hat — wer sie über die Adresszeile trifft, sieht einen
+// „Zeremonien-Test" ohne Zusammenhang und kann sich Belohnungen auslösen, die
+// er nicht verdient hat.
 route('zeremonie', (view, ctx, [tier]) => {
+  if (!ctx.simulation) { location.hash = '#/dashboard'; return; }
   view.innerHTML = `<div class="card"><h3>Zeremonien-Test</h3><p class="dim">
     <a href="#/zeremonie/klein">klein</a> · <a href="#/zeremonie/mittel">mittel</a> · <a href="#/zeremonie/gross">groß</a></p>
     <button class="btn-primary" id="z-go">Auslösen: ${tier ?? 'klein'}</button></div>`;
@@ -838,7 +854,17 @@ route('boss', async (view, ctx, [scenarioId]) => {
   const llm = new LlmAdapter({});
   try { await llm.refreshHealth(); llm.evaluateGate(); } catch { /* Boss braucht LLM — Fehlerpfad unten */ }
   const run = createScenarioRun(scenario, Date.now());
-  run.transcript.push({ who: 'persona', text: 'Schön, dass Sie Zeit haben! Wir wollen ein Stimmungsradar für die Hotline — Dashboard zeigt live die Gesprächsstimmung. Was brauche ich von Ihnen, damit das schnell durchgeht?', ts: Date.now(), phase: 0 });
+  // The opening line belongs to the scenario, not to the code. It was hardcoded
+  // here — one Stimmungsradar sentence for all ten boss fights — and only ever
+  // matched the one scenario it was written for; the other nine opened with a
+  // case that was not theirs. The fallback keeps a scenario without an opening
+  // inside its own facts rather than inventing one.
+  const ersteFakten = (scenario.facts ?? []).filter(f => (f.released_at_phase ?? 0) === 0);
+  run.transcript.push({
+    who: 'persona',
+    text: scenario.opening ?? ersteFakten.map(f => f.text).join(' ') ?? '',
+    ts: Date.now(), phase: 0,
+  });
 
   const wrap = document.createElement('div');
   wrap.className = 'card';
@@ -853,7 +879,7 @@ route('boss', async (view, ctx, [scenarioId]) => {
 
   const paint = (opts = {}) => renderDialog(dmount, scenario, run, {
     ...opts,
-    suggestedMoves: run.transcript.length < 3 ? ['Was genau ist die Zweckbestimmung?', 'Wessen Stimme wird analysiert — nur Anrufende oder auch unsere Leute?'] : [],
+    suggestedMoves: run.transcript.length < 3 ? (scenario.suggested_moves ?? []) : [],
     onUserTurn: async text => {
       recordUserTurn(scenario, run, text, Date.now());
       paint({ typing: true });

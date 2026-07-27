@@ -110,4 +110,35 @@ test.describe('dashboard', () => {
     const reagiert = nachher.url !== new URL(vorher).hash || nachher.text !== vorherText || nachher.dialog;
     expect(reagiert, 'a tile shows a pointer cursor but does nothing on click').toBe(true);
   });
+
+  // The coach on the dashboard and the wrap-up card answer the same question:
+  // am I behind the target curve? They answered differently — the coach compared
+  // today's progress with the LAST PLOTTED point of the curve, and the curve has
+  // a two-week minimum horizon. On day one that read "you are at 0 %, the target
+  // line is at 22 %" while the wrap-up said "on track" from the same data.
+  test('the coach and the wrap-up card agree on the target curve', async ({ page, zustand }) => {
+    // The precondition has to be built: without milestones and a pace there is no
+    // target curve at all, and both views trivially agree. The contradiction needs
+    // a learning path that has just begun — milestones ahead, nothing done yet.
+    const st = FIXTURES.nachPlacement();
+    st.milestones = [{ date: '2026-09-01', label: 'Kern' }, { date: '2026-09-30', label: 'alles' }];
+    st.pace = { minutesPerDay: 50, daysPerWeek: 6, weeklyGoal: 5 };
+    st.events = []; st.unit_done = []; st.unit_skipped = [];
+    await zustand(st);
+    await page.goto('/#/dashboard', { waitUntil: 'load' });
+    await schliesseOverlays(page);
+    await warteAufAnsicht(page);
+    const coach = await page.evaluate(() => document.getElementById('view').innerText);
+    // Bewusst ohne das Wort „heute“: Die Pruefung darf nicht an der Formulierung
+    // haengen, die der Fix eingefuehrt hat — sonst greift sie nur, wenn der Fehler
+    // schon behoben ist.
+    const coachZurueck = /die Soll-Linie steht(?: heute)? bei/.test(coach);
+
+    await page.goto('/#/wrapup', { waitUntil: 'load' });
+    await warteAufAnsicht(page);
+    const wrap = await page.evaluate(() => document.getElementById('view').innerText);
+    const wrapZurueck = /hinter der Soll-Kurve/.test(wrap);
+
+    expect(coachZurueck, 'the two views disagree about the same curve').toBe(wrapZurueck);
+  });
 });
