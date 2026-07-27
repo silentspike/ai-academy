@@ -13,6 +13,7 @@
 import http from 'node:http';
 import { spawn, spawnSync } from 'node:child_process';
 import { oeffneBrowser } from './browser-oeffnen.mjs';
+import { liegtInnerhalb } from './pfad-wache.mjs';
 import { randomUUID, randomBytes } from 'node:crypto';
 import { mkdirSync, mkdtempSync, rmSync, readFileSync, writeFileSync, renameSync, appendFileSync } from 'node:fs';
 import { join, extname, normalize, resolve, dirname } from 'node:path';
@@ -506,7 +507,7 @@ const server = http.createServer(async (req, res) => {
     else fp = join(resolve(OPT.webroot), normalize(path === '/' ? '/index.html' : path).replace(/^([/\\])+/, ''));
     const allowedRoots = [resolve(OPT.webroot), join(ROOT, 'assets'), join(ROOT, 'content'), join(ROOT, 'app')];
     if (path.startsWith('/app/')) fp = join(ROOT, normalize(path).replace(/^([/\\])+/, ''));
-    if (!allowedRoots.some(r => resolve(fp).startsWith(r + '/') || resolve(fp) === r)) return send(res, 403, { error: 'path' });
+    if (!allowedRoots.some(r => liegtInnerhalb(r, resolve(fp)))) return send(res, 403, { error: 'path' });
     // Read straight away and handle the failure. A stat followed by a read is
     // still check-then-use: the answer can be stale by the time the read runs.
     // Reading a directory fails with EISDIR, which is the same 404 to a client.
