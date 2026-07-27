@@ -24,9 +24,16 @@ exercised.
 | **A — Unit** | engine logic without a UI | nothing | yes |
 | **B — Content** | schema, mandatory fields, citations, figures and dates | nothing | yes |
 | **C — Interaction** | full operation in a browser, image comparison | browser, stubbed model | yes |
+| **C2 — Engines** | the same paths in Firefox and WebKit — layout, storage, focus, dates | browser | yes |
 | **D — Model** | free-text grading, expert dialogue, appeal, with a real model | model access | no, local only |
 | **E — Calibration** | grading scale against pre-scored reference answers | model access | no, local only |
 | **F — Platform** | the bridge starts, serves and stores on macOS and Windows | nothing | yes, on main |
+
+WebKit runs on a macOS runner rather than on Linux: it is the engine behind
+Safari, the fourth browser the plan names (§5.5), and it cannot be installed on
+this development machine at all — `playwright install webkit` asks for libicu74
+and friends through apt on a system that is not Debian. A browser nobody can run
+locally is a browser only CI can cover.
 
 Level F exists because this project is developed on Linux and offered on three
 systems. There is no macOS and no Windows machine here — the runners are the only

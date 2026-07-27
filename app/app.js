@@ -37,6 +37,19 @@ export async function startApp({ mountId = 'view' } = {}) {
     return saveChain;
   } };
 
+  // Simulation? Kommt vom BRIDGE-PROZESS, nie aus dem Lernstand: ein Schalter im
+  // Zustand könnte über Export/Import in den echten Stand wandern, ein
+  // Startparameter der Testinstanz nicht.
+  try {
+    const { apiPrefix } = await import('./llm-adapter.js');
+    const h = await (await fetch(apiPrefix() + 'health')).json();
+    ctx.simulation = !!h.simulation;
+  } catch { ctx.simulation = false; }
+  if (ctx.simulation) {
+    document.querySelector('.app-shell')?.classList.add('im-simulation');
+    document.getElementById('sim-banner')?.removeAttribute('hidden');
+  }
+
   attachTooltip(document);
   try {
     const gl = await fetch('content/glossary.json').then(r => r.ok ? r.json() : []);
@@ -680,7 +693,7 @@ route('einheit', async (view, ctx, [unitId]) => {
   const s = todaySession(ctx.state);
   const q = splitQueues(ctx.state.cards ?? [], Date.now());
   if (!s.review.done && q.kern.length === 0) { completeStep(s, 'review'); ctx.saveState(); }
-  if (!canStartUnit(s)) {
+  if (!canStartUnit(s, ctx.simulation)) {
     const c = document.createElement('div');
     c.className = 'card';
     c.innerHTML = `<h3>Erst wiederholen, dann Neues</h3>

@@ -100,6 +100,20 @@ export function buildAppealPrompt({ question, rubric, modelAnswer, answer, appea
 // ---------------------------------------------------------------------------
 // FORMATIVE — personalisation allowed (notes, journal, profile).
 // ---------------------------------------------------------------------------
+/**
+ * The coach answers in structure, not prose.
+ *
+ * COACH_SYSTEM has demanded "claims mit source_ids" from the beginning — but the
+ * answer had no shape to put them in, so the bridge returned bare text and the
+ * claims were never sent, let alone checked. A requirement without a slot to
+ * fulfil it is a requirement nobody can fail.
+ */
+const COACH_SCHEMA = `{
+  "feedback": "<der sokratische Hinweis, 2-3 Sätze>",
+  "claims": [ { "text": "<rechtliche Aussage im Hinweis>", "source_ids": ["<z.B. art-6-abs-3>"] } ],
+  "uncertainties": [ "<offene Auslegungsfragen, falls vorhanden>" ]
+}`;
+
 export function buildCoachPrompt({ topic, unitContext, userMessage, notes, journal, profileHints, sources }) {
   return [
     topic ? `## Thema\n${topic}` : '',
@@ -109,6 +123,7 @@ export function buildCoachPrompt({ topic, unitContext, userMessage, notes, journ
     profileHints ? `## Profil-Hinweise\n${profileHints}` : '',
     sources ? `## Quellenpaket\n${sources}` : '',
     `## Nachricht des Lernenden\n${String(userMessage || '').trim()}`,
+    `## Ausgabeformat\n${COACH_SCHEMA}\nAntworte AUSSCHLIESSLICH mit diesem JSON, ohne Text davor oder danach.`,
   ].filter(Boolean).join('\n\n');
 }
 

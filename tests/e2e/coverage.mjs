@@ -108,7 +108,19 @@ export async function erfasse(page, route) {
     };
     const gefunden = [], geprueft = [], verdacht = [], unklar = [];
     for (const n of document.querySelectorAll(sel)) {
-      if (n.offsetParent === null && getComputedStyle(n).position !== 'fixed') continue;
+      // `offsetParent === null` does not catch a collapsed <details>. Chrome does
+      // not hide its body with display:none — it uses content-visibility, so the
+      // subtree keeps an offsetParent and a bounding box while being neither
+      // painted nor hit-testable. The passive capture then measured a term the
+      // reader cannot see, found the visible card at those coordinates and
+      // reported "appears covered by p". All twenty suspicions on unit views were
+      // this, and every one of them named a term inside a closed verbatim-text
+      // box. checkVisibility knows the difference — and keeps the terms in the
+      // <summary>, which ARE visible while the box is closed.
+      const sichtbar = typeof n.checkVisibility === 'function'
+        ? n.checkVisibility({ contentVisibilityAuto: true, opacityProperty: true, visibilityProperty: true })
+        : n.offsetParent !== null;
+      if (!sichtbar && getComputedStyle(n).position !== 'fixed') continue;
       const id = kennungVon(n);
       gefunden.push(id);
       // Scroll it into view first. This stays one round trip, which is the point
@@ -119,26 +131,38 @@ export async function erfasse(page, route) {
       const r = n.getBoundingClientRect();
       if (r.width === 0 || r.height === 0) { unklar.push(`${id} — zero size`); continue; }
       const x = r.left + r.width / 2, y = r.top + r.height / 2;
-      // Still outside the window after scrolling: the passive capture cannot
-      // judge this one. It is NOT reported as covered — that word is reserved
-      // for something actually lying on top of a visible control. The sweep
-      // operates each of these individually, with the waiting a single evaluate
-      // cannot do, and would report a real overlay there.
-      if (x < 0 || y < 0 || x > innerWidth || y > innerHeight) {
-        unklar.push(`${id} — outside the window when captured`);
-        continue;
-      }
       // elementsFromPoint, not elementFromPoint: the question is whether anything
       // lies ON TOP of the control, and the plural form answers exactly that by
       // returning the whole stack. The singular form returns whichever element
       // owns the event at that pixel, which for a term inside a <summary> is the
       // summary — a legitimate ancestor, reported as an overlay.
       //
-      // Three points across the line, because the exact middle of an inline box
-      // can fall between two glyphs.
-      const punkte = [[x, y], [r.left + r.width * 0.25, y], [r.left + r.width * 0.75, y]];
+      // Sample the LINE BOXES, not the bounding box, and three points across each
+      // because the exact middle of an inline box can fall between two glyphs.
+      // For an element that wraps, getBoundingClientRect returns the UNION of its
+      // fragments, and the centre of that union sits on a line where this element
+      // has no glyphs at all. Measured on p1-e02: a two-line term reported a box
+      // of 752x37 whose sample points landed on a neighbouring paragraph, and the
+      // report said "appears covered by p". All 42 suspicions came from this.
+      const kaesten = [...n.getClientRects()].filter(q => q.width > 0 && q.height > 0);
+      const quellen = kaesten.length ? kaesten : [r];
+      const punkte = quellen.flatMap(q => {
+        const my = q.top + q.height / 2;
+        return [[q.left + q.width / 2, my], [q.left + q.width * 0.25, my], [q.left + q.width * 0.75, my]];
+      });
+      // Still outside the window after scrolling: the passive capture cannot judge
+      // this one. It is NOT reported as covered — that word is reserved for
+      // something actually lying on top of a visible control. Measured on
+      // p1-e02: terms inside the verbatim-text box sat at y=2149 in a 1026 px
+      // window, scrollIntoView had not reached them, and every sample point
+      // landed on whatever happened to be at that coordinate. Twenty "suspected
+      // covered" entries were this. The judgement has to be per sampling point,
+      // not per bounding box, or a wrapped term with one fragment on screen and
+      // one below it gets thrown away.
+      const imFenster = punkte.filter(([px, py]) => px >= 0 && py >= 0 && px <= innerWidth && py <= innerHeight);
+      if (!imFenster.length) { unklar.push(`${id} — outside the window when captured`); continue; }
       let erreichbar = false, davor = null;
-      for (const [px, py] of punkte) {
+      for (const [px, py] of imFenster) {
         const stapel = document.elementsFromPoint(px, py);
         const idx = stapel.findIndex(o => o === n || n.contains(o) || o.contains(n));
         if (idx < 0) continue;
