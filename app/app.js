@@ -572,12 +572,23 @@ route('dashboard', async (view, ctx) => {
       .filter(([, c]) => c.score != null && c.n >= 3)
       .sort((a, b) => a[1].score - b[1].score)[0];
     const nameVon = (id) => compDef.kompetenzen.find(k => k.id === id)?.name ?? id;
+    // Der Vergleich muss gegen das Soll von HEUTE laufen. Er lief gegen den
+    // letzten GEZEICHNETEN Punkt — und die Kurve hat einen Mindest-Horizont von
+    // zwei Wochen, also gegen ein Soll aus der Zukunft. Am ersten Tag stand
+    // deshalb „du liegst bei 0 %, die Soll-Linie steht bei 22 %", während die
+    // Abschluss-Karte aus derselben Berechnung „Auf Kurs" meldete. Beide Stellen
+    // fragen jetzt driftCheck — eine Größe, eine Quelle.
     const letzterIst = curve.ist.at(-1)?.value ?? 0;
-    const letzterSoll = curve.soll.at(-1)?.value ?? 0;
+    const { driftCheck } = await import('./pacing.js');
+    const kurs = (s.milestones?.length && s.pace)
+      ? driftCheck({ ...s.pace, milestones: s.milestones },
+                   { totalUnits: UNITS_TOTAL, minutesPerUnit: 25 }, letzterIst, start, Date.now())
+      : { onTrack: true, drift: 0 };
+    const sollHeute = Math.max(0, letzterIst - kurs.drift);
     const teile = [];
-    teile.push(letzterIst >= letzterSoll
+    teile.push(kurs.onTrack
       ? `Du liegst mit <b>${Math.round(letzterIst * 100)} %</b> auf oder über der Soll-Linie — weiter so.`
-      : `Du liegst bei <b>${Math.round(letzterIst * 100)} %</b>, die Soll-Linie steht bei ${Math.round(letzterSoll * 100)} %. Aufholbar, wenn du dranbleibst.`);
+      : `Du liegst bei <b>${Math.round(letzterIst * 100)} %</b>, die Soll-Linie steht heute bei ${Math.round(sollHeute * 100)} %. Aufholbar, wenn du dranbleibst.`);
     if (schwach) {
       teile.push(`Schwächster Punkt gerade: <b>${nameVon(schwach[0])}</b> (${Math.round(schwach[1].score * 100)} %${schwach[1].weakest ? `, vor allem auf Stufe ${schwach[1].weakest}` : ''}).`);
     }
