@@ -1,6 +1,7 @@
 # === Lernstände, Profile, Logs, gewachsener Fragenpool — NIEMALS ins Repo ===
 data/
 data-test/
+testinstanz.log
 
 # === Interne Arbeitsdokumente — gehören nicht in ein öffentliches Repo ===
 # Schutznetz: Falls jemals eines dieser Verzeichnisse hierher kopiert wird,
