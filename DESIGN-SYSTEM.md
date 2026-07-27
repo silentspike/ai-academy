@@ -14,22 +14,22 @@ Alle Farben NUR über CSS-Custom-Properties (`app/styles.css`). Keine Hex-Werte 
 
 | Token | Wert | Verwendung |
 |---|---|---|
-| `--bg` | `#0b0d13` | Seiten-Grund (v2: tiefer, wärmer-neutral) |
-| `--bg-deep` | `#060810` | Icon-Rail, Vertiefungen, Code-Flächen |
-| `--panel` | `#10131c` | Karten, Panels (Layer 1) |
-| `--panel-2` | `#161a26` | erhöhte Flächen (Layer 2: Hover, Popover, Pills) |
-| `--line` | `#20242f` | Hairline-Borders |
-| `--line-strong` | `#2e3342` | aktive Borders |
-| `--text` | `#e8eaf0` | Primärtext |
-| `--dim` | `#9aa1af` | Sekundärtext |
-| `--faint` | `#5d6472` | Tertiär (Meta, Platzhalter) |
-| `--emerald` | `#3ddc97` | Erfolg, Fortschritt, Lernkurve, „richtig", Radar |
-| `--gold` | `#e8b04b` | **v2 NEU — warmer Sekundär-Akzent**: Wortmarke, Ziele, Aufhol-Zahlen, Highlights |
-| `--violet` | `#8b7cf6` | XP, aktive Auswahl (Phase-Pill), Kern-Zahlen |
+| `--bg` | `#070a10` | Seiten-Grund (v2: tiefer, wärmer-neutral) |
+| `--bg-deep` | `#090e16` | Icon-Rail, Vertiefungen, Code-Flächen |
+| `--panel` | `#111722` | Karten, Panels (Layer 1) |
+| `--panel-2` | `#171d2a` | erhöhte Flächen (Layer 2: Hover, Popover, Pills) |
+| `--line` | `rgba(151,169,202,.10)` | Hairline-Borders |
+| `--line-strong` | `rgba(151,169,202,.22)` | aktive Borders |
+| `--text` | `#e5eaf3` | Primärtext |
+| `--dim` | `#949dac` | Sekundärtext |
+| `--faint` | `#7a8494` | Tertiär (Meta, Platzhalter) |
+| `--emerald` | `#65d8b2` | Erfolg, Fortschritt, Lernkurve, „richtig", Radar |
+| `--gold` | `#e1ad58` | **v2 NEU — warmer Sekundär-Akzent**: Wortmarke, Ziele, Aufhol-Zahlen, Highlights |
+| `--violet` | `#8a70ef` | XP, aktive Auswahl (Phase-Pill), Kern-Zahlen |
 | `--cyan` | `#22d3ee` | zurückgenommen: Fokus-Ringe, Links, vereinzelte Glows |
-| `--amber` | `#fbbf24` | Warnung, „teilweise", ⚠-Rechtsstand |
-| `--red` | `#f87171` | Fehler, „falsch", Critical Error |
-| `--grad-brand` | `linear-gradient(100deg,#f0c674,#e8874b 60%,#8b7cf6 130%)` | **v2: warme Wortmarke** (gold→orange, violetter Ausklang) |
+| `--amber` | `#e1ad58` | Warnung, „teilweise", ⚠-Rechtsstand |
+| `--red` | `#d97568` | Fehler, „falsch", Critical Error |
+| `--grad-brand` | `linear-gradient(90deg,#987cff 0%,#ba8fd8 42%,#e5b45f 100%)` | **v2: warme Wortmarke** (gold→orange, violetter Ausklang) |
 | `--grad-reward` | `linear-gradient(90deg,var(--gold),var(--violet))` | Register-2-Momente |
 
 **Risikofarb-Logik (produktweit fix):** verboten `--red` · Hochrisiko `#fb923c` (`--risk-high`) · Transparenzpflicht `--amber` · minimal/keine spezifische Pflicht `--emerald` · GPAI `--violet`. Diese fünf Farben bedeuten IMMER Risikostufe.
@@ -53,7 +53,7 @@ WOFF2 lokal aus `assets/fonts/` (280 KB gesamt, kein CDN). Fallback-Stacks pflic
 ## 3. Spacing & Layout
 
 4px-Grid: `--sp-1 .25rem` bis `--sp-8 4rem` (0.25/0.5/0.75/1/1.5/2/3/4). Karten-Padding `--sp-5` (1.5rem). Karten-Radius `--r-card 14px`, Kontrollen `--r-ctl 8px`, Pills `999px`.
-Layout (v2, aus Referenz): **Doppel-Sidebar** — schmale **Icon-Rail 64px** (`--bg-deep`; oben Logo-Monogramm, darunter Bereichs-Icons: Home, Lernen, Statistik, Badges, Dialoge, Erhaltung; unten Einstellungen) + **Inhalts-Sidebar 300px** (Wortmarke im Brand-Verlauf, Sektions-Label in gesperrten Versalien z. B. „LERNSTRUKTUR", Phasen-Liste). **Phasen-Zeilen-Anatomie:** abgeschlossen = grüner Ring mit Häkchen · aktiv = Pill mit Nummern-Kreis, violettem Hintergrund-Hauch und Chevron rechts · offen = leerer Ring; unter jeder Zeile eine dünne Fortschritts-Unterlinie; „Wiederholung" mit Zähler-Badge, „Examen" mit Schloss, abgetrennt durch Hairline.
+Layout (v2, aus Referenz): **Doppel-Sidebar** — schmale **Icon-Rail 64px** (`--bg-deep`; oben Logo-Monogramm, darunter Bereichs-Icons: Home, Lernen, Statistik, Badges, Dialoge, Erhaltung; unten Einstellungen) + **Inhalts-Sidebar 260px** (skaliert mit dem Fenster: 210px unter 1240px, 320px ab 2200px, 380px ab 3200px; unter 1040px weicht sie ganz und die Rail bleibt) (Wortmarke im Brand-Verlauf, Sektions-Label in gesperrten Versalien z. B. „LERNSTRUKTUR", Phasen-Liste). **Phasen-Zeilen-Anatomie:** abgeschlossen = grüner Ring mit Häkchen · aktiv = Pill mit Nummern-Kreis, violettem Hintergrund-Hauch und Chevron rechts · offen = leerer Ring; unter jeder Zeile eine dünne Fortschritts-Unterlinie; „Wiederholung" mit Zähler-Badge, „Examen" mit Schloss, abgetrennt durch Hairline.
 **Topbar (v2):** jede Metrik als eigene Pill (`--panel-2`, Icon + Wert): XP (violett) · Level+Titel · Wochenziel mit **5-Punkte-Anzeige** (gefüllt/leer) · Zieltermin (gold) · Rechtsstand als Mono-Pill; rechts Suche, Benachrichtigung, Nutzer-Avatar.
 **Karten-Header-Anatomie (v2):** kleines Duotone-Icon + Titel (Display-Font) + Untertitel (`--dim`, klein) links · Kebab-Menü (⋮) und ggf. Info-Icon/Zeitraum-Dropdown rechts.
 Hauptbereich als 2-Spalten-Dashboard-Grid (breite Spalte ~62 %, schmale ~38 %). Desktop-first ≥ 1280px (Mobile bewusst abgewählt, #31).
@@ -141,6 +141,18 @@ Produktion: Higgsfield — Entwürfe **Nano Banana 2**, final **Nano Banana Pro 
 
 ---
 Changelog:
+- v3.2 (2026-07-27) — **Token-Tabelle an den gebauten und freigegebenen Stand angeglichen.**
+  Fünfzehn der zwanzig Werte in §1 standen seit v2.0 auf der Textfassung, während der Bau
+  aus dem bei Gate 2a freigegebenen Entwurf stammt — `public/design-preview.html` bindet
+  `app/styles.css` und trägt dessen Werte (`#070a10`, `#e1ad58`) bis ins Favicon. Nach der
+  eigenen Regel dieses Dokuments („bei Widerspruch gewinnt das Referenzbild") ist der Bau
+  maßgeblich; die Tabelle war stehengeblieben. Betroffen: `--bg --bg-deep --panel --panel-2
+  --line --line-strong --text --dim --faint --emerald --gold --violet --amber --red
+  --grad-brand`. Einzelne Abweichungen tragen im CSS ihren Grund (`--faint` wurde auf
+  #7a8494 aufgehellt: 4.7:1 statt 3.6:1 auf Kartengrund). Sidebar-Breite auf die tatsächlich
+  gebauten 260px korrigiert, inklusive der Skalierungsstufen. **Neu: `17-gestaltung` liest
+  diese Tabelle und vergleicht sie mit den berechneten Werten im laufenden Produkt** — dieses
+  Dokument kann seine eigene Umsetzung ab jetzt nicht mehr still verfehlen.
 - v3.1 (2026-07-24) — zweites externes Review umgesetzt: App-Gesamthöhe ≤800px (Shell 768px, vertikal zentriert); Topbar als durchgehendes Instrumentenband (Status-Module wachsen, keine Lücke vor Rechtsstand); Lernkurve datenkorrekt (W+4 = 68 %, Soll ≈ 90 %); aktive Phase VIOLETT (Gold nur Ziele/Kennzahlen); Sidebar-Footer (Wiederholung/Examen unten via margin-top:auto); Coach-Porträt 57 % + Panel-Überlappung + Fade-Maske; Fällige Karten zweistufig (Titel oben, Kennzahlen unter Labels, 3-Karten-Stapel); Landkarte ≥85 % einheitliche Zellen mit Durchmischungs-Sprenkeln; Radar gestaffelt (5 Ringe, Soll-Kontur .42, Glow 7px/.15, Linie 1.5); Rail-Aktiv subtil (Linie+Halo statt gefülltem Quadrat); SVG-Markenlogo; Text-Token aufgehellt (--dim #949dac, --faint #68717f)
 - v3.0 (2026-07-24) — externes Design-Review vollständig umgesetzt (P0: Grid/Gehäuse/Coach/Grundlinien; P1: Material/Dichte/Radar; P2: Typo/Farben/Mikrodetails); Preview v4 als Referenz-Implementierung
 - v2.1 (2026-07-24) — Material-Regeln aus 7 visuellen Iterations-Loops gegen die Leitreferenz (Karten-Gradients, Glas-Radar, Mosaik-Landkarte, Poppins/Fraunces/Caveat, painterly Coach)
