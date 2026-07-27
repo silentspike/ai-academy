@@ -427,6 +427,15 @@ jobs:
     runs-on: ubuntu-latest
     needs: [e2e]
     if: always()
+    # Best effort, and marked as such. This job asserts nothing — it merges the
+    # shard reports into one HTML file that gets opened after something else has
+    # already gone wrong, which is why it is deliberately not in the ci-pass
+    # aggregate. Twice in a row GitHub's artifact service failed one download out
+    # of twelve after five retries, and main went red while every gate was green.
+    # A red main that means "the convenience artifact is missing" teaches people
+    # to ignore red. Whether the tests passed is the e2e job's answer, not this
+    # one's; the merge step has carried `|| true` for the same reason all along.
+    continue-on-error: true
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
