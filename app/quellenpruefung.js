@@ -26,7 +26,7 @@ export function normalisiereRef(ref) {
     .replace(/\bbuchstabe\b|\blit\b/g, 'lit')
     .replace(/\bnummer\b|\bnr\b/g, 'nr')
     .replace(/\berwaegungsgrund\b|\berwg\b/g, 'erwg')
-    .replace(/\banhang\b/g, 'anhang')
+    // „anhang" braucht keine Zeile: es hat keine Kurzform, die zusammenzuführen wäre.
     // Version suffixes are not part of the provision's identity; they are checked
     // separately against the legal state.
     .replace(/\bidf\b.*$/, '')
