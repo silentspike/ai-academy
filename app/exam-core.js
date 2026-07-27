@@ -141,7 +141,11 @@ export function evaluateTest({ questions, results, kompetenzen }) {
 }
 
 // ---------------------------------------------------------------- Examens-Gate (#12 + Retention §3)
-export function examGate(state, { kompetenzen, cards = [], nowMs }) {
+export function examGate(state, { kompetenzen, cards = [], nowMs, simulation = false }) {
+  // Simulation: every gate open, and it says so. The point of the mode is to
+  // walk the whole tool without earning the way in first — the gates exist so a
+  // score means something, and in simulation no score is meant to.
+  if (simulation) return { allowed: true, reasons: [], simulation: true };
   const reasons = [];
   const tests = state.chapterTests || {};
   for (let p = 1; p <= 9; p++) {

@@ -3,6 +3,24 @@
 // The logic lives in exam-core.js (DOM-free, tested); this file is flow and presentation.
 import { route } from './router.js';
 import { renderQuestion, applyMode, MODES } from './engine-quiz.js';
+
+/**
+ * Source note for a graded answer. Empty when the assessment made no legal claim
+ * — a seal on nothing would be the same lie in the other direction.
+ */
+async function quellenHinweis(bewertung) {
+  try {
+    const { ladeRegister, pruefeAntwort } = await import('./quellenpruefung.js');
+    const b = pruefeAntwort(bewertung, await ladeRegister());
+    if (b.beanstandet.length) {
+      return `<p class="coach-unbelegt"><b>Nicht verifiziert:</b> ` +
+        b.beanstandet.map(x => (x.text || '(ohne Text)') +
+          (x.unbekannt.length ? ` <span class="mono">[${x.unbekannt.join(', ')} nicht im Quellenpaket]</span>`
+                              : ' <span class="mono">[ohne Fundstelle]</span>')).join(' · ') + `</p>`;
+    }
+    return b.geprueft ? `<p class="coach-belegt">${b.geprueft} rechtliche Aussage${b.geprueft === 1 ? '' : 'n'} gegen das Quellenpaket geprüft.</p>` : '';
+  } catch { return ''; }
+}
 import { LlmAdapter } from './llm-adapter.js';
 import {
   buildChapterTest, buildExamA, gradeAnswer, evaluateTest, examGate,
@@ -60,7 +78,11 @@ async function runQuestions(view, questions, { mode, kind, llm, onDone }) {
             results.push({ score: r.score, max: r.max || 10, critical: !!r.critical_error, confidence: conf, txId: out.txId, feedback: r.feedback });
             // Appeal: a fresh second assessor WITHOUT the first assessment in the prompt
             const lab = out.label ? `<span class="grade-label mono">Bewertungstyp: ${out.label.type} · ${out.label.model} · Rubrik ${out.label.rubricVersion} · Rechtsstand 27.7.2026</span>` : '';
-            const fb = card(`<p><b>${r.score}/${r.max || 10}</b> — ${r.feedback ?? ''}</p>${lab}
+            // Same rule as in the units: a legal statement in the assessment is
+            // checked against the shipped provisions, and an unsourced one says so.
+            // It matters more here than anywhere else — this text explains a mark.
+            const quellen = await quellenHinweis(r);
+            const fb = card(`<p><b>${r.score}/${r.max || 10}</b> — ${r.feedback ?? ''}</p>${quellen}${lab}
               <details><summary>Einspruch einlegen</summary>
               <textarea class="q-freetext" rows="2" placeholder="Begründung des Einspruchs …"></textarea>
               <button class="btn">Einspruch abschicken (frische Zweitprüfung)</button>
@@ -108,7 +130,9 @@ route('test', async (view, ctx, [phaseId]) => {
   }
   // Dialogue gating: each phase requires a solid expert conversation before the test
   const boss = st.bossResults?.[phaseId];
-  if (!boss?.passed) {
+  // In simulation the dress rehearsal is not required — the test itself is one
+  // of the things to be walked through.
+  if (!boss?.passed && !ctx.simulation) {
     const { scenarios } = await data();
     const sz = scenarios.find(x => x.id.startsWith('sz-' + phaseId + '-'));
     const g = card(`<div class="chead gold"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-lock"/></svg></span>
@@ -177,7 +201,7 @@ route('examen', async (view, ctx) => {
   try { await llm.refreshHealth(); llm.evaluateGate(); } catch { /* unten */ }
   const st = ctx.state;
   st.examAttempts ??= []; st.scoreSeries ??= {};
-  const gate = examGate(st, { kompetenzen, cards: st.cards ?? [], nowMs: Date.now() });
+  const gate = examGate(st, { kompetenzen, cards: st.cards ?? [], nowMs: Date.now(), simulation: ctx.simulation });
 
   // Marathon warning: after a very long session an exam measures exhaustion, not knowledge
   const { sessionStatus } = await import('./ritual.js');

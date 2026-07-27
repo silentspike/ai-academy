@@ -357,6 +357,30 @@ jobs:
           path: test-results/
           retention-days: 7
 
+  # WebKit — the engine behind Safari, on a macOS runner so it is the real thing
+  # rather than the Linux packaging of it. Fourth browser of the target matrix
+  # (plan §5.5) and the only one that had never been run: it cannot be installed
+  # on the development machine, which is precisely the kind of gap CI exists for.
+  e2e-webkit:
+    name: e2e (webkit)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with: { node-version: 22, cache: npm }
+      - run: npm ci --prefer-offline --no-audit --no-fund
+      - name: Install WebKit
+        run: npx playwright install webkit
+      - name: Run
+        run: npx playwright test --project=webkit
+      - name: Keep the details on failure
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: webkit-report
+          path: test-results/
+          retention-days: 7
+
   # macOS and Windows. The product claims to run on all three desktop systems
   # (plan §5.5) and the owner of this project has only Linux — these runners are
   # the only place the other two exist for it. Without this job the claim rests
@@ -490,7 +514,7 @@ jobs:
     # that is only opened once something has already gone wrong. Every job that
     # actually checks something is still here, `views` among them — it fails the
     # run when captures come out at the wrong window size.
-    needs: [lint, content, unit, e2e, sweep, e2e-firefox, coverage, views, plattformen]
+    needs: [lint, content, unit, e2e, sweep, e2e-firefox, e2e-webkit, coverage, views, plattformen]
     if: always()
     steps:
       - name: Verify all gates passed

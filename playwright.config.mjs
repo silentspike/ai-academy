@@ -93,6 +93,26 @@ export default defineConfig({
       use: { ...devices['Desktop Firefox'], viewport: VIEWPORT },
       testMatch: /(00-smoke|02-navigation|06-widgets|09-haertung)\.spec\.mjs/,
     },
+    // WebKit — the engine behind Safari, and the fourth browser of the target
+    // matrix (plan §5.5/§6.1). It was the only one never run: Chromium and
+    // Firefox were, Edge is Chromium, and Safari was named in the plan and left
+    // to hope. Same selection as Firefox — layout, storage, focus, dates — plus
+    // the forms, because a collapsed form is a layout failure and layout is what
+    // engines disagree about. Storage matters most here: Safari clears local
+    // storage more aggressively than the others, which is exactly why the export
+    // exists (§5.5).
+    //
+    // Runs in CI only: WebKit needs system libraries this development machine
+    // does not have (measured — `playwright install webkit` asks for libicu74 and
+    // friends via apt on a machine that is not Debian).
+    {
+      name: 'webkit',
+      // deviceScaleFactor back to 1: the Safari device profile carries a Retina 2,
+      // and this suite compares pixels at 1x — measured on the first run, which
+      // failed the window-size guard with dpr 2. The guard was right.
+      use: { ...devices['Desktop Safari'], viewport: VIEWPORT, deviceScaleFactor: 1 },
+      testMatch: /(00-smoke|02-navigation|06-widgets|09-haertung|16-formulare)\.spec\.mjs/,
+    },
     // Visual comparison runs in one browser only: a second engine renders text
     // differently and would produce diffs that say nothing about the product.
     {
