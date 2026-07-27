@@ -94,11 +94,19 @@ jobs:
             exit 0
           fi
           # Report locations only, never the line: this log is public.
-          if grep -RniE "$PRIVATE_TERMS_REGEX" \
+          #
+          # grep's own exit status has to be captured before anything else runs.
+          # `if grep ... | cut ...` asks whether CUT succeeded — and cut succeeds
+          # on empty input, so every build reported a find with an empty list.
+          # The step had never run against a real pattern, so the fault sat
+          # unseen behind the "not set — skipped" branch.
+          grep -RniE "$PRIVATE_TERMS_REGEX" \
                --include="*.json" --include="*.js" --include="*.mjs" --include="*.html" \
                --include="*.md" --include="*.yml" --include="*.service" --include="*.sh" \
                app/ public/ content/ bridge/ tutor/ tools/ scripts/ docs/ *.md 2>/dev/null \
-               | cut -d: -f1,2 > /tmp/hits; then
+               > /tmp/roh || true
+          if [ -s /tmp/roh ]; then
+            cut -d: -f1,2 < /tmp/roh > /tmp/hits
             echo "::error::Protected terms found (locations only, content deliberately not logged):"
             head -20 /tmp/hits
             exit 1
