@@ -199,6 +199,23 @@ if (dnd) {
 
 const fc = load('flashcards.json');
 if (fc) { for (const c of fc.cards ?? []) checkCommon('flashcards', c); counts.flashcards = (fc.cards ?? []).length; }
+// Der Mini-Gold-Fall der Selbstprüfung ist Inhalt, kein Code — samt Quellenangabe,
+// sonst findet ihn legal-audit bei der nächsten Rechtsänderung nicht.
+const scheck = load('selfcheck.json');
+if (scheck) {
+  const m = scheck.mini_gold;
+  if (!m) err('selfcheck', 'mini_gold fehlt');
+  else {
+    for (const feld of ['id', 'question', 'rubric', 'model_answer', 'answer']) {
+      if (!m[feld]) err('selfcheck', `mini_gold.${feld} fehlt`);
+    }
+    if (typeof m.expect?.score !== 'number' || !m.expect?.verdict) err('selfcheck', 'mini_gold.expect unvollständig');
+    if (!Array.isArray(m.legal_basis) || !m.legal_basis.length) err('selfcheck', 'mini_gold ohne legal_basis (§4.1 #9)');
+    if (!m.legal_status) err('selfcheck', 'mini_gold ohne legal_status');
+  }
+  counts.selfcheck = scheck.mini_gold ? 1 : 0;
+}
+
 const sc = load('scenarios.json');
 if (sc) {
   for (const s of sc.scenarios ?? []) {
@@ -207,6 +224,19 @@ if (sc) {
     if (!s.facts?.every(x => Number.isInteger(x.released_at_phase))) err('scenarios', `${s.id}: facts ohne released_at_phase (deterministische Freigabe, §5.2)`);
     if (!s.persona_archetype) err('scenarios', `${s.id}: persona_archetype fehlt (3-Schichten)`);
     if (!s.goals?.every(g => g.matcher)) err('scenarios', `${s.id}: goals ohne matcher`);
+    // Der Eröffnungssatz stand einmal im Code — einer für alle zehn Bosskämpfe,
+    // passend zu genau einem. Er gehört zum Sachverhalt, also zum Inhalt.
+    if (!s.opening) err('scenarios', `${s.id}: opening fehlt (Eröffnung gehört zum Szenario, nicht in den Code)`);
+    if (!Array.isArray(s.suggested_moves) || !s.suggested_moves.length) err('scenarios', `${s.id}: suggested_moves fehlen`);
+  }
+  // Zwei Szenarien mit demselben Einstieg heißt: eines erzählt den Fall des
+  // anderen. Genau so blieb der verdrahtete Satz unentdeckt.
+  const eroeffnungen = new Map();
+  for (const s of sc.scenarios ?? []) {
+    if (!s.opening) continue;
+    const vorher = eroeffnungen.get(s.opening);
+    if (vorher) err('scenarios', `${s.id}: gleiche Eröffnung wie ${vorher}`);
+    else eroeffnungen.set(s.opening, s.id);
   }
   counts.scenarios = (sc.scenarios ?? []).length;
 }

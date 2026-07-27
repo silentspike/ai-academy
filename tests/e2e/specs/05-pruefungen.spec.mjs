@@ -72,6 +72,27 @@ test.describe('examination system', () => {
     expect(offen, 'the glossary still explains terms during the exam').toBe(false);
   });
 
+  // Every boss fight opened with the same sentence — one about a Stimmungsradar,
+  // hardcoded in the route. It fitted exactly one of the ten scenarios; the other
+  // nine opened with a case that was not theirs, while the heading named the right
+  // one. Two scenarios, two openings, each inside its own facts.
+  test('each boss fight opens with its own case', async ({ page, zustand }) => {
+    await zustand('mittenInPhase3');
+    const eroeffnung = async (id) => {
+      await page.goto(`/#/boss/${id}`, { waitUntil: 'load' });
+      await schliesseOverlays(page);
+      await warteAufAnsicht(page);
+      return page.evaluate(() => document.getElementById('view').innerText);
+    };
+    const etikett = await eroeffnung('sz-p1-ki-etikett');
+    expect(etikett, 'the KI-Etikett fight does not talk about its own case').toMatch(/Postsortierung/i);
+    expect(etikett, 'it still opens with another scenario').not.toMatch(/Stimmungsradar/i);
+
+    const avatar = await eroeffnung('sz-p5-avatar');
+    expect(avatar, 'the avatar fight does not talk about its own case').toMatch(/Avatar|Huber/i);
+    expect(avatar, 'it still opens with another scenario').not.toMatch(/Postsortierung|Stimmungsradar/i);
+  });
+
   test('the boss fight is conducted and judged', async ({ page, zustand }) => {
     // The judgement runs through the substitute CLI, so the real path is
     // exercised: prompt builder, bridge, JSON extraction, rendering.
