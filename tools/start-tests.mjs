@@ -183,7 +183,11 @@ console.log('Quellenprüfung (Rang 8 der Quellenhierarchie)');
     { legal_basis: [{ ref: 'Art. 6 Abs. 3', instrument: 'VO 2024/1689 idF 2026/1744' }] },
     { blocks: [{ legal_basis: [{ ref: 'Art. 50 Abs. 1' }] }] },
   ]);
-  t('Register liest auch die Fundstellen der Blöcke', reg.size === 2);
+  // Auf Auffindbarkeit geprüft, nicht auf die Größe: das Register führt zusätzlich
+  // die eindeutigen Kurzformen, und eine Größenzahl misst das Falsche.
+  t('Register liest auch die Fundstellen der Blöcke',
+    pruefeClaim({ source_ids: ['Art. 6 Abs. 3'] }, reg).status === 'belegt' &&
+    pruefeClaim({ source_ids: ['Art. 50 Abs. 1'] }, reg).status === 'belegt');
 
   t('belegte Behauptung geht durch',
     pruefeClaim({ source_ids: ['art-6-abs-3'] }, reg).status === 'belegt');
@@ -208,6 +212,35 @@ console.log('Quellenprüfung (Rang 8 der Quellenhierarchie)');
   // Fundstelle durchfallen — sonst prüft die Prüfung nichts.
   t('Negativkontrolle: leeres Register beanstandet auch Korrektes',
     pruefeClaim({ source_ids: ['Art. 6 Abs. 3'] }, new Map()).status === 'unbelegt');
+
+  // Gemessen an einer echten Opus-Bewertung: das Modell zitiert englisch UND
+  // ohne Gliederungswörter („annex-iii-5-a" für „Anhang III Nr. 5 lit. a").
+  // Eine richtige Fundstelle als unbelegt zu melden ist der Fehlalarm, der die
+  // Markierung wertlos macht.
+  const { ordinalfolge } = await import('../app/quellenpruefung.js');
+  const anhang = baueRegister([{ legal_basis: [{ ref: 'Anhang III Nr. 5 lit. a' }] }]);
+  t('englische Vokabel trifft die deutsche Fundstelle',
+    pruefeClaim({ source_ids: ['annex-iii-5-a'] }, anhang).status === 'belegt');
+  t('Artikel englisch geschrieben trifft ebenfalls',
+    pruefeClaim({ source_ids: ['article-6-paragraph-3'] },
+      baueRegister([{ legal_basis: [{ ref: 'Art. 6 Abs. 3' }] }])).status === 'belegt');
+  t('Ordinalfolge lässt die Gliederungswörter weg',
+    ordinalfolge('Anhang III Nr. 5 lit. a') === ordinalfolge('annex-iii-5-a'));
+
+  // …aber nur, solange die Abkürzung eindeutig ist. Zwei Bestimmungen mit
+  // denselben Zahlen behalten ihre Gliederungswörter als einziges
+  // Unterscheidungsmerkmal, und die Kurzform bleibt dann unbelegt.
+  const mehrdeutig = baueRegister([
+    { legal_basis: [{ ref: 'Art. 3 Abs. 12' }, { ref: 'Art. 3 Nr. 12' }] },
+  ]);
+  t('mehrdeutige Abkürzung wird NICHT als belegt durchgewinkt',
+    pruefeClaim({ source_ids: ['art-3-12'] }, mehrdeutig).status === 'unbelegt');
+  t('die exakten Formen bleiben beide belegt',
+    pruefeClaim({ source_ids: ['Art. 3 Abs. 12'] }, mehrdeutig).status === 'belegt' &&
+    pruefeClaim({ source_ids: ['Art. 3 Nr. 12'] }, mehrdeutig).status === 'belegt');
+  t('erfundene Fundstelle bleibt gefangen, auch abgekürzt',
+    pruefeClaim({ source_ids: ['art-6-7'] },
+      baueRegister([{ legal_basis: [{ ref: 'Art. 6 Abs. 3' }] }])).status === 'unbelegt');
 }
 
 console.log(`\n${pass} PASS, ${fail} FAIL`);
