@@ -357,6 +357,30 @@ jobs:
           path: test-results/
           retention-days: 7
 
+  # macOS and Windows. The product claims to run on all three desktop systems
+  # (plan §5.5) and the owner of this project has only Linux — these runners are
+  # the only place the other two exist for it. Without this job the claim rests
+  # on nobody having tried.
+  #
+  # Main only, like the sweep: a Windows runner spends most of a minute booting,
+  # and a pull request should answer in about ninety seconds.
+  plattformen:
+    name: start on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    if: github.event_name != 'pull_request'
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with: { node-version: 22 }
+      - name: Start the bridge and use it
+        # No npm install: the bridge is dependency-free, and that is exactly what
+        # makes a one-line start possible on a machine nobody prepared.
+        run: node tools/plattform-start.mjs
+
   # A second engine, on the part where engines actually differ: layout, storage,
   # focus, dates. Running the full sweep here would double the wall clock without
   # finding more — measured once against the complete suite.
@@ -454,7 +478,7 @@ jobs:
     # that is only opened once something has already gone wrong. Every job that
     # actually checks something is still here, `views` among them — it fails the
     # run when captures come out at the wrong window size.
-    needs: [lint, content, unit, e2e, sweep, e2e-firefox, coverage, views]
+    needs: [lint, content, unit, e2e, sweep, e2e-firefox, coverage, views, plattformen]
     if: always()
     steps:
       - name: Verify all gates passed
