@@ -26,6 +26,19 @@ exercised.
 | **C — Interaction** | full operation in a browser, image comparison | browser, stubbed model | yes |
 | **D — Model** | free-text grading, expert dialogue, appeal, with a real model | model access | no, local only |
 | **E — Calibration** | grading scale against pre-scored reference answers | model access | no, local only |
+| **F — Platform** | the bridge starts, serves and stores on macOS and Windows | nothing | yes, on main |
+
+Level F exists because this project is developed on Linux and offered on three
+systems. There is no macOS and no Windows machine here — the runners are the only
+place those two exist for it, so that is where the check runs
+(`tools/plattform-start.mjs`, job `plattformen` in ci.yml on main and job `paket`
+in release.yml before a release is published). It starts the bridge the way a
+recipient does, on a fresh store, and checks in this order: the platform's start
+script is present, well formed and executable; the browser command for the
+platform is the right one; /api/health answers; the application is served; the
+pairing token is injected; the learning state survives a write and a read — the
+path handling that differs between systems sits exactly there; the process shuts
+down. Thirteen steps, all or nothing.
 
 The split between C and D is not convenience: CI has no model access, and API
 keys are ruled out. Level C therefore exercises the complete interaction path
@@ -48,6 +61,9 @@ node tools/erhaltung-tests.mjs       # maintenance mode
 node tools/validate-content.mjs      # schema and mandatory fields
 node tools/check-questions.mjs       # figures, dates and citations against the deadline matrix
 node tools/legal-audit.mjs "Art. 6"  # which content hangs off which provision
+
+# Level F — platform start (runs on every system, says which one it was on)
+node tools/plattform-start.mjs       # start script, browser command, health, store round trip
 ```
 
 Evidenced state: 132 unit tests, 310 of 310 questions with no finding in the

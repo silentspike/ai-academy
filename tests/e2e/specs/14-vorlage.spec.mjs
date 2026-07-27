@@ -67,6 +67,29 @@ test.describe('reference alignment', () => {
     expect(new Set(m.balken).size, `all bars read ${m.balken[0]}`).toBeGreaterThan(1);
   });
 
+  test('the learning view says the material is complete, not tailored down', async ({ page, zustand }) => {
+    // Plan #2 promises every article and annex, with the profile ordering rather
+    // than reducing. The product said "priorisiert" and the onboarding said the
+    // answers "schneiden das Training zu" — which reads as leaving things out.
+    await zustand('mittenInPhase3');
+    await page.goto('/#/lernen', { waitUntil: 'load' });
+    await schliesseOverlays(page);
+    await warteAufAnsicht(page);
+
+    const m = await page.evaluate(() => ({
+      unter: document.querySelector('.chead .sub')?.textContent ?? '',
+      phasen: [...document.querySelectorAll('.lern-sect')].length,
+      klickbar: [...document.querySelectorAll('.lern-row a[href^="#/einheit/"]')].length,
+      notiz: document.querySelector('.lern-sect-notiz')?.textContent ?? '',
+    }));
+    expect(m.unter, 'the view does not say the material is complete').toMatch(/vollständig/i);
+    expect(m.unter, 'order is not described as a recommendation').toMatch(/Empfehlung|jederzeit zugänglich/i);
+    // The claim has to hold: every phase listed, every unit reachable.
+    expect(m.phasen, 'not all ten phases are listed').toBe(10);
+    expect(m.klickbar, 'units are not reachable').toBeGreaterThan(10);
+    expect(m.notiz, 'the peripheral phase does not explain why it is there').toMatch(/Diskussionen|Überblick/i);
+  });
+
   test('the article map carries a summary line with the real count', async ({ page, zustand }) => {
     await zustand('mittenInPhase3');
     await page.goto('/#/dashboard', { waitUntil: 'load' });

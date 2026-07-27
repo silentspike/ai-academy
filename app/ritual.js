@@ -11,7 +11,7 @@ import { splitQueues } from './engine-leitner.js';
 import { aggregateCompetencies, weakestCompetencies } from './competency.js';
 import { driftCheck } from './pacing.js';
 import { renderQuestion } from './engine-quiz.js';
-import { applyEvent } from './gamification.js';
+import { applyEvent, zaehleHoch } from './gamification.js';
 import { einheitenGesamt } from './content-index.js';
 
 const dayKey = (ms = Date.now()) => {
@@ -57,7 +57,7 @@ route('heute', async (view, ctx) => {
       <span class="ritual-txt"><b>${name}</b><span class="dim">${sub}</span></span>
     </a>`;
 
-  view.appendChild(card(`<div class="chead"><span class="t"><h3>Heute — dein Ritual</h3>
+  view.appendChild(card(`<div class="chead violett"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-kalender"/></svg></span><span class="t"><h3>Heute — dein Ritual</h3>
     <span class="sub">Feste Reihenfolge: kein „Womit fange ich an?" (#32). Wiederholung ist Pflicht VOR neuem Stoff.</span></span></div>
     <div class="ritual">
       ${takt(0, 'Pflicht-Review', `Kern ${s.review.kern.length} · Aufholen ${s.review.aufhol.length} · Retention-Checks ${s.review.retentionChecks.length}`, s.review.done, '#/karten', false)}
@@ -108,7 +108,7 @@ route('drill', async (view, ctx) => {
   while (chosen.length < s.drill.size) chosen.push(...pick(q => !chosen.includes(q), 1));
   const questions = chosen.slice(0, s.drill.size);
 
-  view.appendChild(card(`<div class="chead"><span class="t"><h3>Tages-Drill</h3>
+  view.appendChild(card(`<div class="chead gold"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-flamme"/></svg></span><span class="t"><h3>Tages-Drill</h3>
     <span class="sub">${weak.length ? `Schwächen-gewichtet: ${weak.join(' · ')}` : 'Noch keine Schwächen-Historie — gemischte Auswahl'} · straffrei · Pool ${pool.length} Kernfragen + ${variantPool.length} Varianten</span></span></div>`));
   const mount = document.createElement('div');
   view.appendChild(mount);
@@ -126,8 +126,12 @@ route('drill', async (view, ctx) => {
       return;
     }
     const q = questions[i];
-    mount.appendChild(card(`<span class="dim">Frage ${i + 1}/${questions.length} · ${q.competency} · Stufe ${q.level}${q.variant_of ? ' · <b>Variante</b> (generiert aus der Fakten-DB, nie in Prüfungen)' : ''}</span>`));
-    const qm = document.createElement('div'); mount.appendChild(qm);
+    // One surface per question: the counter used to sit in a card of its own and
+    // the question in none, so the two read as unrelated blocks of different width.
+    const box = card(`<div class="q-meta"><span class="q-zaehler">Frage ${i + 1}<i>/${questions.length}</i></span>
+      <span class="q-marken"><span class="q-marke">${q.competency}</span><span class="q-marke">Stufe ${q.level}</span>${q.variant_of ? '<span class="q-marke variante" title="Aus der Fakten-DB erzeugt — nie in Prüfungen">Variante</span>' : ''}</span></div>`);
+    mount.appendChild(box);
+    const qm = document.createElement('div'); box.appendChild(qm);
     renderQuestion(qm, q, {
       onAnswered: (res, conf) => {
         if (res.verdict === 'correct') correct++;
@@ -184,18 +188,30 @@ route('wrapup', async (view, ctx) => {
     };
   }
 
-  view.appendChild(card(`<div class="chead"><span class="t"><h3>Abschluss-Karte</h3>
-    <span class="sub">${w.bilanz.minutes} Minuten heute</span></span></div>
+  // "0 Minuten heute" neben "6 Karten wiederholt" widerspricht sich: die Dauer
+  // zählt ab dem Sitzungsbeginn, und ein wiederhergestellter Stand fängt bei
+  // null an. Lieber weglassen als eine Zahl zeigen, die der Zeile daneben
+  // widerspricht.
+  const dauer = w.bilanz.minutes >= 1 ? `${w.bilanz.minutes} Minuten heute` : 'Bilanz des Tages';
+  const wk = card(`<div class="chead gold"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-star"/></svg></span><span class="t"><h3>Abschluss-Karte</h3>
+    <span class="sub">${dauer}</span></span></div>
     <div class="wrap-stats">
-      <div><b>${w.bilanz.reviewed}</b><span>Karten wiederholt</span></div>
-      <div><b>${w.bilanz.units}</b><span>Einheiten</span></div>
-      <div><b>${w.bilanz.drillDone ? '✓' : '—'}</b><span>Tages-Drill</span></div>
-      <div><b>${st.xp ?? 0}</b><span>XP gesamt</span></div>
+      <div><b data-zahl="${w.bilanz.reviewed}">0</b><span>Karten wiederholt</span></div>
+      <div><b data-zahl="${w.bilanz.units}">0</b><span>Einheiten</span></div>
+      <div><b class="${w.bilanz.drillDone ? 'wert-ja' : 'wert-offen'}">${w.bilanz.drillDone ? 'erledigt' : 'offen'}</b><span>Tages-Drill</span></div>
+      <div><b data-zahl="${st.xp ?? 0}">0</b><span>XP gesamt</span></div>
     </div>
+    <div class="wrap-kurs ${w.drift.onTrack ? 'gut' : 'drift'}">
     ${w.drift.onTrack
-      ? '<p>Auf Kurs gegenüber der Soll-Kurve.</p>'
-      : `<p><b>Drift:</b> ${(w.drift.drift * 100).toFixed(0)} % hinter der Soll-Kurve — bewusst entscheiden statt schleifen lassen:</p>
+      ? '<p><b>Auf Kurs</b> gegenüber der Soll-Kurve.</p>'
+      : `<p><b>${(w.drift.drift * 100).toFixed(0)} % hinter der Soll-Kurve</b> — bewusst entscheiden statt schleifen lassen:</p>
          <ul>${(w.drift.options ?? []).map(o => `<li>${o.text}</li>`).join('')}</ul>
          <a class="btn" href="#/einstellungen">Einstellungen öffnen</a>`}
-    <hr><p><b>Morgen:</b> ${w.morgen.dueTomorrow} Karten fällig${w.morgen.nextUnit ? ` · weiter mit „${w.morgen.nextUnit}"` : ''}.</p>`));
+    </div>
+    <div class="wrap-morgen"><span class="wm-tag">Morgen</span>
+      <span>${w.morgen.dueTomorrow} Karten fällig${w.morgen.nextUnit ? ` · weiter mit „${w.morgen.nextUnit}"` : ''}</span></div>`);
+  view.appendChild(wk);
+  // Die Bilanz zählt hoch statt zu erscheinen — der Moment, für den der Tag
+  // gearbeitet hat (§6.3 Motion, gestufte Zeremonien).
+  for (const b of wk.querySelectorAll('.wrap-stats b[data-zahl]')) zaehleHoch(b, Number(b.dataset.zahl));
 });

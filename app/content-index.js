@@ -25,3 +25,19 @@ export async function einheitenGesamt() {
   GESAMT = idx.units?.length || 17;
   return GESAMT;
 }
+
+
+/**
+ * Phase artwork. Ten covers were produced as their own work package and were
+ * shown in exactly one place: the ceremony after finishing a phase. Everywhere a
+ * learner actually spends time — the phase list, the phase view — there was no
+ * image at all.
+ */
+export const PHASEN_COVER = {
+  p1: 'p1-fundament', p2: 'p2-verbote', p3: 'p3-einstufung', p4: 'p4-pflichten',
+  p5: 'p5-transparenz', p6: 'p6-gpai', p7: 'p7-aufsicht', p8: 'p8-randwissen',
+  p9: 'p9-oesterreich', p10: 'p10-auslegung',
+};
+export function coverPfad(phase) {
+  return PHASEN_COVER[phase] ? `assets/covers/${PHASEN_COVER[phase]}.webp` : null;
+}

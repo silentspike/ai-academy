@@ -1,55 +1,18 @@
 import { test, expect, FIXTURES, JETZT, schliesseOverlays, warteAufAnsicht, warteAufKlickbares } from '../harness.mjs';
 import { erfasse, klicke } from '../coverage.mjs';
 
-// The path a real person takes, start to finish: first launch, the Article 50
-// notice, onboarding, placement, a learning day, and the maintenance mode that
-// follows passing. Every route on its own can look fine while the sequence is
+// A learning day, start to finish: the ritual, the record, maintenance mode and
+// the settings. Every route on its own can look fine while the sequence is
 // broken — that is what this spec covers.
+//
+// First launch and setup live in 18-erststart.spec.mjs: together the ten tests
+// took 84 % of a shard, and a file that dominates its shard makes the twelve-way
+// split pointless.
 
 test.describe('lifecycle', () => {
   // Several of these walk through multiple states, each with a reload. The
   // default budget runs out mid-wait and reports it as a hanging view.
   test.describe.configure({ timeout: 120_000 });
-
-  test('a first launch leads into onboarding, not into an empty view', async ({ page, zustand }) => {
-    await zustand(FIXTURES.leer());
-    await page.goto('/', { waitUntil: 'load' });
-
-    // Before the first tutor interaction the product has to say that an AI system
-    // answers and grades (§5.0, Article 50 applied to itself). It appears after
-    // the state has loaded, so it is waited for rather than sampled.
-    await page.waitForSelector('.ai-notice-overlay, .hero-overlay', { timeout: 15_000 });
-    await page.waitForFunction(
-      () => /KI-System|Art\.?\s*50/i.test(document.body.innerText), { timeout: 15_000 })
-      .catch(() => { throw new Error('the first launch never shows the AI notice'); });
-
-    await schliesseOverlays(page);
-    await page.waitForTimeout(400);
-    const wo = await page.evaluate(() => location.hash);
-    expect(wo, 'a first launch without a profile does not open onboarding').toMatch(/onboarding/);
-  });
-
-  test('onboarding walks through its steps and refuses to skip the model check', async ({ page, zustand }) => {
-    await zustand(FIXTURES.leer());
-    await page.goto('/#/onboarding', { waitUntil: 'load' });
-    await schliesseOverlays(page);
-    await warteAufAnsicht(page);
-
-    const kopf = await page.evaluate(() => document.getElementById('view').innerText);
-    expect(kopf, 'onboarding does not show its steps').toMatch(/Schritt 1\/\d/);
-    expect(kopf, 'onboarding does not report the connection state').toMatch(/Bridge|CLI|Modell/i);
-
-    let schritte = 0;
-    for (let i = 0; i < 10; i++) {
-      const weiter = page.locator('#view button:has-text("Weiter"):not([disabled])').first();
-      if (!await weiter.count()) break;
-      await klicke(page, weiter, '#/onboarding');
-      await warteAufKlickbares(page, 5000);
-      schritte++;
-    }
-    expect(schritte, 'onboarding cannot be advanced at all').toBeGreaterThan(0);
-    await erfasse(page, '#/onboarding');
-  });
 
   test('a learning day follows the ritual: review, units, drill, wrap-up', async ({ page, zustand }) => {
     // #32: the fixed order removes the daily "where do I start" decision. If the

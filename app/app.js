@@ -69,27 +69,25 @@ export async function startApp({ mountId = 'view' } = {}) {
 
   // Erstkontakt-Hero (§6.3): allererster Start → Artwork + Produktversprechen
   const { heroOnce } = await import('./rewards.js');
-  if (heroOnce(state, document)) { await ctx.saveState(); }
-
-  // Article 50 transparency applied to our own product: once, BEFORE the first tutor interaction.
-  if (!state.aiNoticeAck) {
-    const ov = document.createElement('div');
-    ov.className = 'ai-notice-overlay';
-    ov.innerHTML = `<div class="card ai-notice"><h3>Hinweis zum KI-Tutor (Art. 50)</h3>
-      <p>In dieser Akademie antwortet und bewertet ein <b>KI-System</b> (verbunden über deine Local Bridge;
-      Modell siehe Self-Check). Freitexte gehen an den LLM-Anbieter — keine echten Personendaten oder
-      Organisations-Interna eingeben. LLM-Bewertungen können streuen; jede Bewertung trägt ihr Label
-      (deterministisch / LLM-unterstützt), und gegen jede LLM-Bewertung gibt es einen Einspruch mit
-      frischer Zweitprüfung. Zweckbestimmung: persönliche, nicht formale Weiterbildung
-      (docs/INTENDED-PURPOSE.md).</p>
-      <button class="btn-primary">Verstanden</button></div>`;
-    document.body.appendChild(ov);
-    ov.querySelector('button').onclick = () => { state.aiNoticeAck = Date.now(); ctx.saveState(); ov.remove(); };
+  const hero = heroOnce(state, document);
+  if (hero) {
+    // Chained, not awaited: the notice follows the hero, but the interface keeps
+    // building behind it. Awaiting held up mount() until someone clicked, so
+    // nothing rendered — and if nobody ever clicked, nothing ever would.
+    hero.then(async () => { await ctx.saveState(); await zeigeKiHinweis(state, ctx); });
+  } else {
+    await zeigeKiHinweis(state, ctx);
   }
 
   await introSequence(state);
 
   const render = () => {
+    // Without a profile every route is the wizard. The startup-only check let a
+    // single click strand the user in an empty dashboard.
+    if (setzeSetupModus(ctx) && !location.hash.startsWith('#/onboarding')) {
+      location.hash = '#/onboarding';
+      return;
+    }
     const [path, ...args] = (location.hash.replace(/^#\/?/, '') || 'dashboard').split('/');
     const view = document.getElementById(mountId);
     // Explicit check: the route comes from the address bar, and the value out of
@@ -118,6 +116,69 @@ export async function startApp({ mountId = 'view' } = {}) {
   import('./topbar-tools.js').then(({ verdrahteTopbar }) => verdrahteTopbar(ctx))
     .catch(e => console.warn('Topbar-Werkzeuge nicht geladen:', e.message));
   return ctx;
+}
+
+/**
+ * Version of the transparency notice. Raise it whenever what the notice SAYS
+ * stops being true — a different model class, another grading procedure, a
+ * changed data flow. Not for wording touch-ups.
+ */
+export const KI_HINWEIS_VERSION = 2;
+
+/**
+ * Article 50 transparency, applied to our own product: shown once, BEFORE the
+ * first tutor interaction (§5.0).
+ *
+ * Acknowledgement is stored with the version it was given for. It used to store
+ * only a timestamp, so a notice whose content had since changed counted as
+ * acknowledged forever — the one case where showing it again is the entire
+ * point.
+ */
+export async function zeigeKiHinweis(state, ctx, doc = document) {
+  const bestaetigt = typeof state.aiNoticeAck === 'object' ? (state.aiNoticeAck?.version ?? 0)
+    : (state.aiNoticeAck ? 1 : 0);          // Altstände: Zeitstempel = Fassung 1
+  if (bestaetigt >= KI_HINWEIS_VERSION) return false;
+  const erneut = bestaetigt > 0;
+
+  const ov = doc.createElement('div');
+  ov.className = 'ai-notice-overlay';
+  ov.innerHTML = `<div class="card ai-notice">
+    <div class="ain-kopf">
+      <span class="ain-marke">Art. 50 · Transparenz</span>
+      <h2>Hier antwortet eine Maschine</h2>
+      <p class="ain-unter">Was das heißt, bevor du loslegst${erneut ? ' — und was sich seither geändert hat' : ''}.</p>
+    </div>
+    ${erneut ? '<p class="ain-neu">Dieser Hinweis hat sich geändert, seit du ihn zuletzt bestätigt hast.</p>' : ''}
+    <dl class="ain-liste">
+      <dt>Wer antwortet</dt>
+      <dd>Ein <b>KI-System</b>, verbunden über deine lokale Bridge. Welches Modell gerade
+          bewertet, steht in der Selbstprüfung und an jeder einzelnen Bewertung.</dd>
+      <dt>Was übertragen wird</dt>
+      <dd>Deine Freitexte gehen an den Anbieter des Modells. Gib dort <b>keine echten
+          Personendaten und keine Organisations-Interna</b> ein.</dd>
+      <dt>Wie verlässlich Noten sind</dt>
+      <dd>Maschinelle Bewertungen streuen. Jede trägt deshalb ihr Label —
+          <i>deterministisch</i> oder <i>KI-unterstützt</i> — und gegen jede kannst du
+          Einspruch erheben; darüber entscheidet eine frische Zweitprüfung, die die
+          erste Bewertung nicht kennt.</dd>
+      <dt>Wofür das hier gedacht ist</dt>
+      <dd>Persönliche, freiwillige Weiterbildung — <b>nicht für den Einsatz durch
+          Bildungseinrichtungen oder Arbeitgeber</b>, um Personen zu bewerten. Kein
+          akkreditierter Abschluss.</dd>
+    </dl>
+    <div class="ain-fuss">
+      <button class="btn-primary">Verstanden</button>
+    </div>
+  </div>`;
+  doc.body.appendChild(ov);
+  return new Promise(res => {
+    ov.querySelector('button').onclick = async () => {
+      state.aiNoticeAck = { version: KI_HINWEIS_VERSION, at: Date.now() };
+      await ctx.saveState();
+      ov.remove();
+      res(true);
+    };
+  });
 }
 
 /** Every field the application relies on, with a safe starting value. */
@@ -208,7 +269,7 @@ export async function paintSidebar(state) {
     const deg = Math.round(pct * 360);
     const aktiv = pid === aktivePhase;
     return `<a class="ph phase${test?.passed ? ' phase-passed' : ''}${aktiv ? ' phase-aktiv' : ''}" href="#/lernen/${pid}" title="${units.length} Einheiten · ${fertig} erledigt${test?.passed ? ' · Kapiteltest bestanden' : ''}">
-      <span class="pring" style="background:conic-gradient(var(--emerald,#34d399) ${deg}deg, rgba(255,255,255,.08) 0)"><i>${pid.slice(1)}</i></span>
+      <span class="pring" style="--pring-deg:${deg}deg"><i>${pid.slice(1)}</i></span>
       <span class="lbl"><span class="ph-name">Phase ${i + 1} · ${label}</span>
         <span class="ph-bar"><i style="width:${Math.round(pct * 100)}%"></i></span></span>
       ${test?.passed ? '<span class="pcheck">✓</span>' : aktiv ? '<span class="pcheck ph-pfeil">›</span>' : ''}</a>`;
@@ -255,7 +316,11 @@ function introSequence(state) {
     const h = new Date().getHours();
     const wg = h < 11 ? 'Guten Morgen' : h < 18 ? 'Guten Tag' : 'Guten Abend';
     const due = state.cards.filter(c => c.due <= Date.now()).length;
-    greet.textContent = `${wg} — ${due} Karten fällig.`;
+    // Tagesfokus, nicht nur Begrüßung (§6.3): wo es weitergeht, steht dabei —
+    // das ist die Entscheidung, die das Sitzungsritual dem Nutzer abnimmt (#32).
+    const offen = PHASEN.find(([pid]) => !state.chapterTests?.[pid]?.passed);
+    const weiter = offen ? ` · weiter in ${offen[1]}` : ' · alle Kapitel bestanden';
+    greet.textContent = `${wg} — ${due} ${due === 1 ? 'Karte' : 'Karten'} fällig${weiter}.`;
   }
   return new Promise(res => {
     const done = () => { el.classList.add('out'); setTimeout(() => { el.remove(); res(); }, 250); };
@@ -264,9 +329,49 @@ function introSequence(state) {
   });
 }
 
+/** The seven steps of the wizard, as the sidebar shows them. */
+export const SETUP_SCHRITTE = ['Verbinden', 'Fachprofil', 'Lernprofil', 'Machbarkeit',
+  'Personalisierung', 'Placement', 'Los'];
+
+/**
+ * Setup mode: no profile yet, so no navigation.
+ *
+ * Called on every render, not only at startup — the redirect into the wizard
+ * used to run once, and a single click on "Dashboard" then left the wizard with
+ * no way back while the half-filled draft sat saved and unreachable.
+ */
+export function setzeSetupModus(ctx, doc = document) {
+  const shell = doc.querySelector('.app-shell');
+  // Both places: the wizard writes the record, and ctx is filled from it only at
+  // startup. Reading just one of them left the wizard unable to end.
+  const imSetup = !(ctx.profile ?? ctx.state?.profile);
+  shell?.classList.toggle('im-setup', imSetup);
+
+  const box = doc.getElementById('setup-fortschritt');
+  if (!box) return imSetup;
+  box.hidden = !imSetup;
+  if (!imSetup) return false;
+
+  const schritt = ctx.state?.onboardingDraft?.step ?? 0;
+  box.style.setProperty('--fortschritt', `${Math.round(schritt / (SETUP_SCHRITTE.length - 1) * 100)}%`);
+  box.innerHTML = `<div class="sf-titel">Einrichtung</div>` + SETUP_SCHRITTE.map((name, i) => {
+    const zustand = i < schritt ? 'fertig' : i === schritt ? 'jetzt' : '';
+    return `<div class="setup-schritt ${zustand}"><span class="sf-nr">${i < schritt ? '✓' : i + 1}</span>${name}</div>`;
+  }).join('');
+  return true;
+}
+
+/** ISO-Datum als ausgeschriebener österreichischer Text; leer bleibt leer. */
+export function datumLang(iso) {
+  if (!iso) return 'noch kein Termin gesetzt';
+  const d = new Date(iso + 'T12:00:00');
+  if (Number.isNaN(d.getTime())) return '';
+  return d.toLocaleDateString('de-AT', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+}
+
 export function paintTopbar(state) {
   const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
-  set('tb-xp', `${state.xp.toLocaleString('de-AT')} XP`);
+  zaehleHoch(document.getElementById('tb-xp'), state.xp ?? 0, { suffix: ' XP' });
   set('tb-level', String(state.level));
   // The level title is the reward the ladder is built around (#28); showing the
   // bare number withholds it.
@@ -301,8 +406,8 @@ function markActiveNav(path) {
 import { renderHeatmap, renderRadar, renderCurve, renderXpBars, renderExamHistory } from './dashboard.js';
 import { aggregateCompetencies, radarData } from './competency.js';
 import { splitQueues } from './engine-leitner.js';
-import { ceremony, CEREMONY, levelFor, weekProgress, wochenpunkte } from './gamification.js';
-import { einheitenGesamt } from './content-index.js';
+import { ceremony, CEREMONY, levelFor, weekProgress, wochenpunkte, zaehleHoch } from './gamification.js';
+import { einheitenGesamt, coverPfad } from './content-index.js';
 
 route('dashboard', async (view, ctx) => {
   // Erhaltungsmodus (#36): nach bestandenem Examen Tagesdosis + Wochen-Szenario anzeigen
@@ -389,16 +494,16 @@ route('dashboard', async (view, ctx) => {
   const curve = { ist, soll };
   const q = splitQueues(s.cards ?? [], Date.now());
   view.innerHTML = `
-    <div class="card"><div class="chead"><span class="t"><h3>Artikel-Landkarte</h3><span class="sub">Gesamter AI Act · ${kernN} Kern-Artikel für dein Profil${overrides.size ? ` (${overrides.size} profil-angepasst)` : ''}</span></span></div>
+    <div class="card"><div class="chead"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-fach-heatmap"/></svg></span><span class="t"><h3>Artikel-Landkarte</h3><span class="sub">Gesamter AI Act · ${kernN} Kern-Artikel für dein Profil${overrides.size ? ` (${overrides.size} profil-angepasst)` : ''}</span></span></div>
       <div class="hm-wrap" id="d-hm"></div>
       <div class="dim" id="d-hm-hinweis">Kachel anklicken: führt zur Einheit, die den Artikel behandelt.</div>
       <div class="legend"><span><i style="background:#65d8b2"></i>Sehr sicher</span><span><i style="background:#9dcc9b"></i>Sicher</span><span><i style="background:#e1ad58"></i>Unsicher</span><span><i style="background:#d97568"></i>Kritisch</span><span><i style="background:#414956"></i>Ungelernt</span></div>
       <div class="hm-summe"><span>&Sigma; <b>${articles.length}</b> Artikel · davon <b>${kernN}</b> im Kernbereich deines Profils</span>
         <span>Stand: <b>${LEGAL_STATE.replace('Rechtsstand ', '')}</b></span></div></div>
-    <div class="card"><div class="chead"><span class="t"><h3>Kompetenzen</h3><span class="sub">Dein Kompetenzprofil</span></span></div>
+    <div class="card"><div class="chead violett"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-dashboard-radar"/></svg></span><span class="t"><h3>Kompetenzen</h3><span class="sub">Dein Kompetenzprofil</span></span></div>
       <div class="radar-wrap" id="d-radar"></div>
       <div class="viz-legende"><span style="color:var(--emerald)"><i></i>Dein Profil</span><span><i class="gestrichelt"></i>Soll-Profil</span></div></div>
-    <div class="card"><div class="chead"><span class="t"><h3>Lernkurve vs. Soll</h3></span>
+    <div class="card"><div class="chead"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-fach-timeline"/></svg></span><span class="t"><h3>Lernkurve vs. Soll</h3></span>
         <span class="zeitraum"><select id="d-curve-range" aria-label="Zeitraum der Lernkurve">
           <option value="4">Letzte 4 Wochen</option><option value="12" selected>Letzte 12 Wochen</option><option value="0">Gesamter Verlauf</option>
         </select></span></div>
@@ -512,27 +617,52 @@ import { renderUnit } from './unit-view.js';
 const PHASE_LABEL = { p1: 'Fundament', p2: 'Verbote', p3: 'Einstufung', p4: 'Pflichten', p5: 'Transparenz',
   p6: 'GPAI', p7: 'Aufsicht', p8: 'Randwissen', p9: 'Ländermodul AT', p10: 'Auslegung' };
 
+/**
+ * Why a phase is here although it is not the user's home ground. Only where that
+ * question actually comes up — the promise "nothing is left out" (#2) is worth
+ * little if the product never says it.
+ */
+const PHASE_NOTIZ = {
+  p8: 'Nicht dein Kerngebiet — aber genau die Artikel, die in Diskussionen unvermittelt auftauchen. Als Überblick, nicht zum Anwenden (#3).',
+  p10: 'Kür: die Erwägungsgründe liefern die Auslegungsargumente, die in Diskussionen den Ausschlag geben.',
+};
+
 route('lernen', async (view, ctx, [phaseFilter]) => {
   const idx = await fetch('content/units/index.json').then(r => r.json());
   const st = ctx.state;
   const done = new Set(st.unit_done ?? []);
   const skipped = new Set(st.unit_skipped ?? []);
   const phases = phaseFilter ? [phaseFilter] : Object.keys(PHASE_LABEL);
-  view.innerHTML = `<div class="card"><div class="chead"><span class="t"><h3>Lernen${phaseFilter ? ` — ${PHASE_LABEL[phaseFilter] ?? phaseFilter}` : ''}</h3>
-    <span class="sub">${phaseFilter ? '<a href="#/lernen">alle Phasen</a>' : 'Nach Rollen-Relevanz priorisiert (#3) — Skips erfordern einen Challenge-Test (#19)'}</span></span></div>
+  const cover = phaseFilter ? coverPfad(phaseFilter) : null;
+  view.innerHTML = `<div class="card${cover ? ' hat-cover' : ''}">
+    ${cover ? `<div class="phasen-cover"><img src="${cover}" alt="" loading="lazy" onerror="this.closest('.phasen-cover').remove()">
+      <div class="pc-verlauf"></div><div class="pc-titel">${PHASE_LABEL[phaseFilter] ?? phaseFilter}</div></div>` : ''}
+    <div class="chead"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-lernen"/></svg></span><span class="t"><h3>${phaseFilter ? 'Einheiten dieser Phase' : 'Lernen'}</h3>
+    <span class="sub">${phaseFilter ? '<a href="#/lernen">alle Phasen</a>' : 'Vollständiger Stoff, nach Rollen-Relevanz geordnet — jede Phase ist jederzeit zugänglich, die Reihenfolge ist eine Empfehlung. Überspringen erfordert einen Challenge-Test.'}</span></span></div>
     <div id="unit-list"></div></div>`;
   const list = view.querySelector('#unit-list');
+  // Index for the staggered reveal. The CSS reads `--i`, and nobody ever set
+  // it: every row carried a delay of `calc(40ms * 0)`, so the cascade the design
+  // reference asks for was written down and did nothing. Capped at eight
+  // elements (DESIGN-SYSTEM §5).
+  let reihe = 0;
   for (const p of phases) {
     const units = idx.units.filter(u => u.phase === p);
     if (!units.length) continue;
-    if (!phaseFilter) list.insertAdjacentHTML('beforeend', `<div class="sect lern-sect">${p.toUpperCase()} · ${PHASE_LABEL[p] ?? ''}</div>`);
+    if (!phaseFilter) list.insertAdjacentHTML('beforeend',
+      `<div class="sect lern-sect">${p.toUpperCase()} · ${PHASE_LABEL[p] ?? ''}${PHASE_NOTIZ[p] ? `<span class="lern-sect-notiz">${PHASE_NOTIZ[p]}</span>` : ''}</div>`);
     for (const u of units) {
       const status = done.has(u.id) ? 'done' : skipped.has(u.id) ? 'skipped' : '';
       const row = document.createElement('div');
       row.className = 'lern-row';
+      row.style.setProperty('--i', String(Math.min(reihe++, 7)));
+      // u-titel, nicht lbl: `.ph .lbl` ist ein Spalten-Flex für die Sidebar, wo
+      // Name und Fortschrittsbalken übereinander gehören. Auf einen Fließtext
+      // angewandt wird jedes Kind-Element zur eigenen Zeile — jeder Titel mit
+      // einem Glossarbegriff darin zerfiel in drei Zeilen.
       row.innerHTML = `<a class="ph ${status}" href="#/einheit/${u.id}">
           <span class="ring">${done.has(u.id) ? '✓' : skipped.has(u.id) ? '»' : u.level}</span>
-          <span class="lbl">${u.title}</span><span class="dim">${u.competency ?? ''}</span></a>
+          <span class="u-titel">${u.title}</span><span class="u-komp">${u.competency ?? ''}</span></a>
         ${status ? '' : `<a class="btn-mini" href="#/challenge/${u.id}" title="Challenge-Test: 6 Fragen, 80 % — bei Bestehen wird die Einheit übersprungen (#19)">Challenge</a>`}`;
       list.appendChild(row);
     }
@@ -573,6 +703,21 @@ route('einheit', async (view, ctx, [unitId]) => {
 // ---------- Wiederholung (Kern-/Aufholwarteschlange, #32/#34) ----------
 import { planAufhol, review, newCard } from './engine-leitner.js';
 
+/**
+ * Back of a card: definition, and — where the content carries one — the memory
+ * anchor as its own block. It used to be one run-on paragraph joined by an
+ * emoji; the anchor is the part that has to stick, so it gets its own surface.
+ */
+function karteRueckseite(back) {
+  if (!back) return '<p class="karte-back"><span class="karte-leer">Keine Antwort hinterlegt.</span></p>';
+  const i = back.indexOf('Merkanker:');
+  if (i < 0) return `<p class="karte-back">${back}</p>`;
+  const def = back.slice(0, i).trim();
+  const anker = back.slice(i + 'Merkanker:'.length).trim();
+  return `${def ? `<p class="karte-back">${def}</p>` : ''}
+    <p class="karte-anker"><span class="ka-lbl">Merkanker</span>${anker}</p>`;
+}
+
 route('karten', async (view, ctx) => {
   // Glossar-Kategorie (#6): Begriffskarten laufen wie alle anderen durchs Leitner-System
   if (!ctx.state.glossarCardsSeeded) {
@@ -586,25 +731,38 @@ route('karten', async (view, ctx) => {
       await ctx.saveState();
     } catch { /* Glossar-Karten sind Zusatz */ }
   }
+  let startGesamt = null;                 // Tagespensum beim Einstieg — Bezugsgröße des Balkens
   const paint = () => {
     const q = splitQueues(ctx.state.cards ?? [], Date.now());
     const aufholToday = planAufhol(q.aufholMeta, { perDay: 15 }).today;
     const queue = [...q.kern, ...aufholToday];
     if (!queue.length) {
-      view.innerHTML = `<div class="card"><h3>Wiederholung</h3><p class="dim">Nichts fällig. Kern: 0 · Aufholen heute: 0${(ctx.state.cards ?? []).length ? ` · ${(ctx.state.cards).length} Karten im System (nächste Fälligkeit folgt)` : ''}.</p></div>`;
+      view.innerHTML = `<div class="card"><div class="chead"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-karten"/></svg></span><span class="t"><h3>Wiederholung</h3><span class="sub">Nichts fällig</span></span></div><p class="dim">Kern: 0 · Aufholen heute: 0${(ctx.state.cards ?? []).length ? ` · ${(ctx.state.cards).length} Karten im System — die nächste Fälligkeit folgt automatisch` : ''}.</p></div>`;
       return;
     }
     const c = queue[0];
-    view.innerHTML = `<div class="card"><h3>Wiederholung</h3>
-      <p class="dim">Kern: ${q.kern.length} · Aufholen heute: ${aufholToday.length}</p>
-      <div class="card unit-block"><div class="unit-tag">${c.competency ?? ''}</div>
-        <p><b>${c.front ?? c.id}</b></p>
-        <div id="k-back" hidden><p>${c.back ?? ''}</p>
-          <div class="q-confidence"><span>Gewusst?</span>
-            <button data-r="richtig-sicher">richtig · sicher</button>
-            <button data-r="richtig-unsicher">richtig · unsicher</button>
-            <button data-r="falsch">falsch</button></div></div>
-        <button class="btn-primary" id="k-flip">Antwort zeigen</button>
+    // Which of today's cards this is — without it the view gives no sense of how
+    // much is left, and every card looks like the first one.
+    const gesamt = q.kern.length + aufholToday.length;
+    if (startGesamt === null) startGesamt = gesamt;
+    const erledigt = Math.max(0, startGesamt - gesamt);
+    const istAufhol = !q.kern.includes(c);
+    view.innerHTML = `<div class="card"><div class="chead violett"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-karten"/></svg></span><span class="t"><h3>Wiederholung</h3><span class="sub">Kern ${q.kern.length} · Aufholen heute ${aufholToday.length} · Pflicht vor neuem Stoff (#34)</span></span></div>
+      <div class="karte-lauf"><span class="karte-lauf-bar"><i style="width:${Math.round(erledigt / Math.max(startGesamt, 1) * 100)}%"></i></span>
+        <span class="karte-lauf-txt">${erledigt} von ${startGesamt} · noch <b>${gesamt}</b> ${gesamt === 1 ? 'Karte' : 'Karten'}</span></div>
+      <div class="karte-blatt">
+        <div class="karte-marken"><span class="q-marke">${c.competency ?? 'ohne Kompetenz'}</span>${c.level ? `<span class="q-marke">Stufe ${c.level}</span>` : ''}<span class="q-marke ${istAufhol ? 'variante' : ''}">${istAufhol ? 'Aufholen' : 'Kern'}</span>${c.kind === 'glossar' ? '<span class="q-marke">Glossar</span>' : ''}</div>
+        <p class="karte-front">${c.front ?? '<span class="karte-leer">Diese Karte hat keinen Fragetext — sie stammt aus einem Import oder einem Testlauf.</span>'}</p>
+        <button class="btn-primary karte-flip" id="k-flip">Antwort zeigen</button>
+        <div id="k-back" hidden>
+          <div class="karte-trenner"><span>Antwort</span></div>
+          ${karteRueckseite(c.back)}
+          <div class="karte-urteil"><span class="karte-frage-lbl">Gewusst?</span>
+            <button data-r="richtig-sicher" class="ku ku-ja">richtig · sicher</button>
+            <button data-r="richtig-unsicher" class="ku ku-halb">richtig · unsicher</button>
+            <button data-r="falsch" class="ku ku-nein">falsch</button></div>
+          <p class="karte-hinweis">„sicher“ verlängert den Abstand am stärksten — „unsicher“ hält die Karte nah dran (Leitner, §3).</p>
+        </div>
       </div></div>`;
     view.querySelector('#k-flip').onclick = () => { view.querySelector('#k-back').hidden = false; view.querySelector('#k-flip').hidden = true; };
     view.querySelectorAll('[data-r]').forEach(b => b.onclick = () => {
@@ -667,10 +825,12 @@ route('boss', async (view, ctx, [scenarioId]) => {
 
   const wrap = document.createElement('div');
   wrap.className = 'card';
-  wrap.style.cssText = 'height:100%;display:flex;flex-direction:column';
+  // No forced full height: the card grows with the conversation. Pinned to 100%
+  // it kept a 490px void between the opening line and the reply box.
+  wrap.style.cssText = 'display:flex;flex-direction:column';
   wrap.innerHTML = `<div class="chead"><span class="t"><h3>${scenario.title}</h3><span class="sub">Bosskampf · ${arch?.name ?? ''}${scenario.persona.organisation ? ` · ${scenario.persona.organisation}` : ''} · Phase <span id="b-phase">1</span>/${scenario.phases.length}</span></span>
     <span class="actions"><button id="b-next" class="btn" style="font-size:.75rem">Phase abschließen ▸</button></span></div>
-    <div id="b-dlg" style="flex:1;min-height:0"></div>`;
+    <div id="b-dlg" style="min-height:0"></div>`;
   view.appendChild(wrap);
   const dmount = wrap.querySelector('#b-dlg');
 
@@ -749,15 +909,28 @@ route('einstellungen', (view, ctx) => {
   const ms = st.milestones ?? [];
   const c = document.createElement('div');
   c.className = 'card';
-  c.innerHTML = `<div class="chead"><span class="t"><h3>Einstellungen</h3><span class="sub">Lernprofil — nachträglich änderbar; die Soll-Kurve zieht automatisch nach</span></span></div>
-    <label>Minuten pro Tag<br><input id="s-min" type="number" min="10" max="480" value="${st.pace?.minutesPerDay ?? 45}"></label>
-    <label>Lerntage pro Woche<br><input id="s-days" type="number" min="1" max="7" value="${st.pace?.daysPerWeek ?? 5}"></label>
-    <label>Wochenziel (Tage mit Lernen)<br><input id="s-goal" type="number" min="1" max="7" value="${st.week?.goalDays ?? 5}"></label>
-    <label>Meilenstein 1 (Datum)<br><input id="s-m1" type="date" value="${ms[0]?.date ?? ''}"></label>
-    <label>Meilenstein 2 (Datum)<br><input id="s-m2" type="date" value="${ms[1]?.date ?? ''}"></label>
-    <button class="btn-primary" id="s-save">Speichern</button> <span class="dim" id="s-msg"></span>
-    <hr><p class="dim">Rechtsstand ${LEGAL_STATE.replace('Rechtsstand ', '')} · Bewertungs-Regime wechselt bei Modell-/Rubrik-Änderung automatisch in eine neue Score-Serie (#17).</p>`;
+  c.innerHTML = `<div class="chead violett"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-einstellungen"/></svg></span><span class="t"><h3>Einstellungen</h3><span class="sub">Lernprofil — nachträglich änderbar; die Soll-Kurve zieht automatisch nach</span></span></div>
+    <div class="formular">
+    <label class="feld"><span class="feld-name">Minuten pro Tag</span><input id="s-min" type="number" min="10" max="480" value="${st.pace?.minutesPerDay ?? 45}"></label>
+    <label class="feld"><span class="feld-name">Lerntage pro Woche</span><input id="s-days" type="number" min="1" max="7" value="${st.pace?.daysPerWeek ?? 5}"></label>
+    <label class="feld"><span class="feld-name">Wochenziel (Tage mit Lernen)</span><input id="s-goal" type="number" min="1" max="7" value="${st.week?.goalDays ?? 5}"></label>
+    <label class="feld"><span class="feld-name">Meilenstein 1 (Datum)</span><input id="s-m1" type="date" value="${ms[0]?.date ?? ''}"><span class="feld-hilfe" id="s-m1-lang">${datumLang(ms[0]?.date)}</span></label>
+    <label class="feld"><span class="feld-name">Meilenstein 2 (Datum)</span><input id="s-m2" type="date" value="${ms[1]?.date ?? ''}"><span class="feld-hilfe" id="s-m2-lang">${datumLang(ms[1]?.date)}</span></label>
+    </div>
+    <div class="formular-fuss"><span class="dim" id="s-msg"></span><button class="btn-primary" id="s-save">Speichern</button></div>
+    <p class="dim fussnote">Rechtsstand ${LEGAL_STATE.replace('Rechtsstand ', '')} · Bewertungs-Regime wechselt bei Modell-/Rubrik-Änderung automatisch in eine neue Score-Serie (#17).</p>`;
   view.appendChild(c);
+  // Ausgeschriebenes Datum unter dem Feld. Ein natives Datumsfeld wird in der
+  // Sprache der Browser-Anwendung dargestellt, nicht in der des Dokuments:
+  // gemessen zeigte dasselbe Feld „09/01/2026", während navigator.language
+  // de-AT meldete. Welcher Tag gemeint ist, darf nicht davon abhängen, in
+  // welcher Sprache jemand seinen Browser installiert hat.
+  for (const id of ['s-m1', 's-m2']) {
+    const feld = c.querySelector('#' + id);
+    feld.addEventListener('input', () => {
+      c.querySelector('#' + id + '-lang').textContent = datumLang(feld.value);
+    });
+  }
   c.querySelector('#s-save').onclick = () => {
     st.pace = { minutesPerDay: +c.querySelector('#s-min').value, daysPerWeek: +c.querySelector('#s-days').value };
     st.week = { ...(st.week ?? {}), goalDays: +c.querySelector('#s-goal').value };

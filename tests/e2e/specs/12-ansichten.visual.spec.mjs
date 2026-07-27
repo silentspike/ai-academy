@@ -144,6 +144,42 @@ test.describe('views', () => {
   }
 });
 
+// The self-check is a page of its own, outside the router — and therefore
+// outside the view record until now. It carried its own set of colour tokens and
+// a different typeface for months because nobody ever looked at it.
+test('screenshot selfcheck.html', async ({ page, zustand }) => {
+  await zustand('mittenInPhase3');
+  await page.goto('/selfcheck.html', { waitUntil: 'load' });
+  await page.waitForTimeout(700);                       // Self-Check läuft asynchron
+  const tokens = await page.evaluate(() => {
+    const cs = getComputedStyle(document.documentElement);
+    return {
+      bg: cs.getPropertyValue('--bg').trim(),
+      emerald: cs.getPropertyValue('--emerald').trim(),
+      schrift: getComputedStyle(document.body).fontFamily,
+    };
+  });
+  // Same product, same tokens: a second design system on a second page is the
+  // fault this assertion exists to prevent coming back.
+  expect(tokens.bg).toBe('#070a10');
+  expect(tokens.emerald).toBe('#65d8b2');
+  expect(tokens.schrift).toContain('Inter');
+
+  // The page has to reach the bridge. Token injection used to happen for
+  // index.html only, so every check here answered 403 and the traffic light —
+  // the one that clears the first learning session — was permanently red with
+  // the single word "token" as its explanation.
+  const befund = await page.evaluate(() => ({
+    text: document.body.innerText,
+    ampel: document.getElementById('ampel')?.className ?? '',
+  }));
+  expect(befund.text, 'the self-check reports a raw error code instead of a sentence').not.toMatch(/^\s*token\s*$/m);
+  expect(befund.text, 'the self-check cannot authenticate against the bridge').not.toMatch(/Pairing-Token/);
+  expect(befund.ampel, 'the self-check goes red on a bridge that answers').not.toMatch(/fail|blocked/);
+  mkdirSync('test-results/ansichten', { recursive: true });
+  await page.screenshot({ path: 'test-results/ansichten/selfcheck.png', fullPage: false });
+});
+
 // Negative control for the layout heuristics: an artificial overflow has to be
 // reported. A check nobody has seen fail is a check nobody can trust.
 test.describe('layout heuristics', () => {

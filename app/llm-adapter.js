@@ -32,6 +32,23 @@ export function isFrontierModel(model) {
 // That holds in both operating modes without the application needing to know where
 // it lives. When running behind a web server, that server must forward <base>/api/
 // Bridge weiterreichen (siehe README, Abschnitt Betrieb).
+/**
+ * A sentence instead of a code. The bridge answers errors with a short machine
+ * token ("token", "path", "cli"); handed through unchanged it reached the
+ * self-check as the single word "token" next to a red dot — the one place where
+ * the user needs to be told what to do.
+ */
+const FEHLERTEXTE = {
+  token:     'Kein gültiges Pairing-Token — die Seite wurde nicht von der Bridge ausgeliefert. Öffne sie über die Adresse, die `node bridge/bridge.mjs` ausgibt.',
+  path:      'Pfad außerhalb des Webroots — die Bridge liefert nur ihr eigenes Verzeichnis aus.',
+  cli:       'Keine unterstützte CLI gefunden. `claude` oder `codex` installieren und anmelden (SETUP-AGENT.md).',
+  locked:    'Summative Bewertung gesperrt — der Gold-Set-Lauf war rot (tools/gold-set-run.mjs).',
+  'not found': 'Nicht gefunden.',
+};
+export function fehlertext(data, status) {
+  return data?.message || FEHLERTEXTE[data?.error] || data?.error || ('HTTP ' + status);
+}
+
 export function apiPrefix(baseUrl = '') {
   if (baseUrl) return baseUrl.replace(/\/+$/, '') + '/api/';
   return new URL('api/', document.baseURI).pathname;
@@ -56,7 +73,7 @@ export class LlmAdapter {
         signal: ctrl.signal,
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw Object.assign(new Error(data.message || data.error || ('HTTP ' + res.status)), { status: res.status, code: data.error });
+      if (!res.ok) throw Object.assign(new Error(fehlertext(data, res.status)), { status: res.status, code: data.error });
       return data;
     } finally { clearTimeout(t); }
   }
