@@ -199,6 +199,23 @@ if (dnd) {
 
 const fc = load('flashcards.json');
 if (fc) { for (const c of fc.cards ?? []) checkCommon('flashcards', c); counts.flashcards = (fc.cards ?? []).length; }
+// Der Mini-Gold-Fall der Selbstprüfung ist Inhalt, kein Code — samt Quellenangabe,
+// sonst findet ihn legal-audit bei der nächsten Rechtsänderung nicht.
+const scheck = load('selfcheck.json');
+if (scheck) {
+  const m = scheck.mini_gold;
+  if (!m) err('selfcheck', 'mini_gold fehlt');
+  else {
+    for (const feld of ['id', 'question', 'rubric', 'model_answer', 'answer']) {
+      if (!m[feld]) err('selfcheck', `mini_gold.${feld} fehlt`);
+    }
+    if (typeof m.expect?.score !== 'number' || !m.expect?.verdict) err('selfcheck', 'mini_gold.expect unvollständig');
+    if (!Array.isArray(m.legal_basis) || !m.legal_basis.length) err('selfcheck', 'mini_gold ohne legal_basis (§4.1 #9)');
+    if (!m.legal_status) err('selfcheck', 'mini_gold ohne legal_status');
+  }
+  counts.selfcheck = scheck.mini_gold ? 1 : 0;
+}
+
 const sc = load('scenarios.json');
 if (sc) {
   for (const s of sc.scenarios ?? []) {
