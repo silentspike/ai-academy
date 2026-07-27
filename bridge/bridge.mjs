@@ -42,6 +42,12 @@ const OPT = {
   model: argVal('--model', null),                  // Default hängt am aktiven CLI (unten aufgelöst)
   logFull: args.includes('--log-full'),            // Default: redigierte Logs (Threat T6)
   open: args.includes('--open'),                   // Browser mit der fertigen Adresse öffnen
+  // Simulation: alle Lernpfad-Sperren offen, damit sich das ganze Werkzeug
+  // durchklicken lässt. Eine Eigenschaft des PROZESSES, nicht des Lernstands —
+  // ein Schalter im Zustand könnte über Export/Import in den echten Stand
+  // wandern, ein Startparameter nicht. Die systemd-Unit des echten Betriebs
+  // übergibt ihn nicht, also kann er dort nicht an sein.
+  simulation: args.includes('--simulation'),
 };
 
 // ---------------------------------------------------------------- CLI detection
@@ -363,7 +369,7 @@ const server = http.createServer(async (req, res) => {
           ok: true, name: 'ai-act-akademie-bridge', promptsVersion: PROMPTS_VERSION,
           clis: Object.keys(CLIS), activeCli: ACTIVE_CLI,
           model: modellKennung(),
-          llm: !!ACTIVE_CLI, queueDepth,
+          llm: !!ACTIVE_CLI, queueDepth, simulation: OPT.simulation,
           sessions: Object.fromEntries(Object.entries(namedSessions).map(([k, v]) => [k, { turns: v.turns }])),
         });
       }

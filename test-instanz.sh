@@ -11,6 +11,7 @@
 #   ./test-instanz.sh --zuruecksetzen    wirft den Teststand weg und startet neu
 #   ./test-instanz.sh --store <pfad>     anderer Ablageort
 #   ./test-instanz.sh --kein-browser     Adresse nur ausgeben, nichts oeffnen
+#   ./test-instanz.sh --echte-regeln     Lernpfad-Sperren AN (Standard: Simulation)
 #
 # Der laufende Betrieb auf Port 8791 bleibt unberuehrt.
 
@@ -24,10 +25,13 @@ ZURUECKSETZEN=0
 # playwright-cli, ein Testlauf — bekommt sonst ein zweites Fenster dazu, das
 # niemand angefordert hat.
 BROWSER=--open
+# Simulation ist der Normalfall dieser Instanz — sie existiert zum Durchklicken.
+SIM=--simulation
 while [ $# -gt 0 ]; do
   case "$1" in
     --zuruecksetzen) ZURUECKSETZEN=1; shift ;;
     --kein-browser) BROWSER=""; shift ;;
+    --echte-regeln) SIM=""; shift ;;
     --store) STORE="$2"; shift 2 ;;
     -h|--help) sed -n '2,16p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "Unbekannte Option: $1"; exit 2 ;;
@@ -55,10 +59,17 @@ mkdir -p "$STORE"
 # waere ein gemeinsamer Zustand zwischen zwei Dingen, die getrennt sein sollen.
 TOKEN="$(node -e "console.log(require('crypto').randomBytes(18).toString('base64url'))")"
 
+
+
 echo
-echo "  Testinstanz — eigener Lernstand, eigener Port."
+echo "  Testinstanz — eigener Lernstand, eigener Port, SIMULATION."
 echo "  Ablage:  $STORE"
 echo "  Betrieb: unberuehrt (Port 8791, $ECHT)"
+echo
+echo "  Simulation heisst: alle Lernpfad-Sperren offen — Examens-Gate,"
+echo "  1 Antritt pro Kalendertag, Pflicht-Review vor neuem Stoff und die"
+echo "  Bosskampf-Vorbedingung des Kapiteltests. Zum Durchklicken gedacht;"
+echo "  was hier entsteht, ist kein Lernstand. Mit --echte-regeln abschaltbar."
 echo
 echo "  Zum Beenden: Strg+C. Zum Wegwerfen: ./test-instanz.sh --zuruecksetzen"
 [ -z "$BROWSER" ] && echo "  Kein Browser wird geoeffnet — Adresse steht unten." 
@@ -66,4 +77,7 @@ echo
 
 # Port 0 = das Betriebssystem waehlt einen freien. Kein fester Zweitport, der
 # irgendwann mit etwas anderem kollidiert.
-BRIDGE_TOKEN="$TOKEN" exec node bridge/bridge.mjs --store "$STORE" --port 0 $BROWSER
+# Simulation ist fuer die Testinstanz der Normalfall: sie existiert, damit man
+# das ganze Werkzeug durchklicken kann, ohne sich den Weg erst zu verdienen.
+# --echte-regeln stellt die Sperren wieder her, wenn man genau die pruefen will.
+BRIDGE_TOKEN="$TOKEN" exec node bridge/bridge.mjs --store "$STORE" --port 0 $BROWSER $SIM

@@ -729,3 +729,17 @@ button:disabled { opacity:.45; cursor:not-allowed; }
   color:var(--text); background:rgba(225,173,88,.07); border:1px solid rgba(225,173,88,.32); }
 .coach-unbelegt b { color:var(--amber); }
 .coach-unbelegt .mono { color:var(--faint); font-size:.72rem; }
+
+/* ---------- Simulationsband ----------
+   Muss ins Auge fallen und darf nie zu übersehen sein: was hier entsteht, ist
+   kein Lernstand. Deshalb oben, über die ganze Breite, in der Warnfarbe — und
+   nicht als dezenter Hinweis irgendwo am Rand. */
+/* display:flex schlaegt die eingebaute Regel [hidden]{display:none} — ohne diese
+   Zeile stand das Band auch im echten Betrieb da, wo nichts simuliert wird.
+   Von der Negativkontrolle gefangen, nicht vom Hinsehen. */
+.sim-banner[hidden] { display:none; }
+.sim-banner { grid-column:2/4; display:flex; gap:10px; align-items:baseline; flex-wrap:wrap;
+  padding:7px 16px; font-size:.79rem; line-height:1.5; color:var(--text);
+  background:linear-gradient(90deg,rgba(225,173,88,.16),rgba(225,173,88,.06));
+  border-bottom:1px solid rgba(225,173,88,.34); }
+.sim-banner b { font-family:var(--font-display); color:var(--amber); letter-spacing:.02em; }

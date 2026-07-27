@@ -48,6 +48,12 @@ body { padding:0; background:#04060b; overflow:hidden; display:grid; place-items
   grid-template-columns:var(--rail-w) var(--sidebar-w) minmax(0,1fr);
   grid-template-rows:var(--topbar-h) minmax(0,1fr);
   height:100%; }
+/* Das Simulationsband bekommt eine eigene Zeile, sonst legt es sich über den
+   Inhalt statt ihn zu verschieben. */
+.app:has(> .sim-banner:not([hidden])) { grid-template-rows:var(--topbar-h) auto minmax(0,1fr); }
+.app:has(> .sim-banner:not([hidden])) .rail { grid-row:1/4; }
+.app:has(> .sim-banner:not([hidden])) .sidebar { grid-row:3; }
+.app:has(> .sim-banner:not([hidden])) .dashboard { grid-row:3; }
 
 /* ---------------------------------------------------------------- responsive
    Three things scale with the window, and each has a reason:

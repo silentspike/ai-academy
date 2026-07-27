@@ -130,7 +130,9 @@ route('test', async (view, ctx, [phaseId]) => {
   }
   // Dialogue gating: each phase requires a solid expert conversation before the test
   const boss = st.bossResults?.[phaseId];
-  if (!boss?.passed) {
+  // In simulation the dress rehearsal is not required — the test itself is one
+  // of the things to be walked through.
+  if (!boss?.passed && !ctx.simulation) {
     const { scenarios } = await data();
     const sz = scenarios.find(x => x.id.startsWith('sz-' + phaseId + '-'));
     const g = card(`<div class="chead gold"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-lock"/></svg></span>
@@ -199,7 +201,7 @@ route('examen', async (view, ctx) => {
   try { await llm.refreshHealth(); llm.evaluateGate(); } catch { /* unten */ }
   const st = ctx.state;
   st.examAttempts ??= []; st.scoreSeries ??= {};
-  const gate = examGate(st, { kompetenzen, cards: st.cards ?? [], nowMs: Date.now() });
+  const gate = examGate(st, { kompetenzen, cards: st.cards ?? [], nowMs: Date.now(), simulation: ctx.simulation });
 
   // Marathon warning: after a very long session an exam measures exhaustion, not knowledge
   const { sessionStatus } = await import('./ritual.js');

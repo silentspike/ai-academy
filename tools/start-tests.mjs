@@ -325,5 +325,30 @@ console.log('Prompt-Isolation (summativ)');
     coach.includes('GIFT_NOTIZ') && coach.includes('GIFT_JOURNAL'));
 }
 
+// ---------- Simulation ist eine Eigenschaft des Prozesses, nicht des Lernstands ----------
+// Ein Schalter im Zustand koennte ueber Export/Import in den echten Lernstand
+// wandern. Ein Startparameter kann das nicht — und die systemd-Unit des echten
+// Betriebs uebergibt ihn nicht. Diese beiden Zusagen werden hier geprueft, weil
+// sie sonst nur im Kommentar stehen.
+console.log('Simulation: strukturelle Trennung');
+{
+  const fs = await import('node:fs');
+  const bridge = fs.readFileSync(new URL('../bridge/bridge.mjs', import.meta.url), 'utf-8');
+  t('Bridge kennt --simulation als Startparameter', /simulation:\s*args\.includes\('--simulation'\)/.test(bridge));
+  t('health meldet die Simulation', /simulation:\s*OPT\.simulation/.test(bridge));
+  t('Simulation wird NICHT aus dem Lernstand gelesen',
+    !/state\.simulation|progress\.simulation/.test(bridge));
+
+  const unit = fs.readFileSync(new URL('../bridge/ai-act-akademie.service', import.meta.url), 'utf-8');
+  t('systemd-Unit des echten Betriebs uebergibt --simulation NICHT', !unit.includes('--simulation'));
+
+  const skript = fs.readFileSync(new URL('../test-instanz.sh', import.meta.url), 'utf-8');
+  t('Testinstanz startet standardmaessig in Simulation', /SIM=--simulation/.test(skript));
+  t('Testinstanz kann die Sperren wieder anschalten', /--echte-regeln\)\s*SIM=""/.test(skript));
+
+  const shell = fs.readFileSync(new URL('../public/index.html', import.meta.url), 'utf-8');
+  t('Simulationsband ist im Markup und startet verborgen', /id="sim-banner"[^>]*hidden/.test(shell));
+}
+
 console.log(`\n${pass} PASS, ${fail} FAIL`);
 process.exit(fail ? 1 : 0);
