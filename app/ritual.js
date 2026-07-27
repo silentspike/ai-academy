@@ -61,7 +61,7 @@ route('heute', async (view, ctx) => {
     <span class="sub">Feste Reihenfolge: kein „Womit fange ich an?" (#32). Wiederholung ist Pflicht VOR neuem Stoff.</span></span></div>
     <div class="ritual">
       ${takt(0, 'Pflicht-Review', `Kern ${s.review.kern.length} · Aufholen ${s.review.aufhol.length} · Retention-Checks ${s.review.retentionChecks.length}`, s.review.done, '#/karten', false)}
-      ${takt(1, `Einheiten (${s.unitsDone}/${s.unitsPlanned})`, s.review.done ? 'Neuer Stoff freigeschaltet' : 'Gesperrt bis das Review erledigt ist', s.unitsDone >= s.unitsPlanned, '#/lernen', !canStartUnit(s, ctx.simulation))}
+      ${takt(1, `Einheiten (${s.unitsDone}/${s.unitsPlanned})`, canStartUnit(s, ctx.simulation) ? 'Neuer Stoff freigeschaltet' : 'Gesperrt bis das Review erledigt ist', s.unitsDone >= s.unitsPlanned, '#/lernen', !canStartUnit(s, ctx.simulation))}
       ${takt(2, 'Tages-Drill', '5 Fragen: 3 Schwäche · 1 Zufall · 1 Grenzfall', s.drill.done, '#/drill', false)}
       ${takt(3, 'Abschluss-Karte', 'Bilanz, Kurve, Morgen-Vorschau', s.step === 'wrapup' && s.wrapupSeen, '#/wrapup', false)}
     </div>
