@@ -29,10 +29,27 @@ function coachNachschlag(mount, unit, question, result, confidence, ctx) {
       `${sicherUndFalsch ? ' — und war mir dabei SICHER (Scheinwissen-Signal, sprich das an)' : ''}:\n\n` +
       `„${question.prompt}"\n\nGib mir in 2–3 Sätzen einen sokratischen Hinweis (keine Lösung vorsagen), ` +
       `der mir hilft, das Muster dahinter zu behalten. Kein Lob ohne Substanz.`,
-  }).then(r => {
+  }).then(async r => {
     const txt = (r?.text ?? '').trim();
+    // Rank 8 of the source hierarchy: the model is never itself a legal source.
+    // Its claims are checked against the provisions the content actually cites,
+    // and an unsourced legal statement is labelled as such rather than shown as
+    // if it rested on the official journal.
+    let quellen = '';
+    try {
+      const { ladeRegister, pruefeAntwort } = await import('./quellenpruefung.js');
+      const befund = pruefeAntwort(r, await ladeRegister());
+      if (befund.beanstandet.length) {
+        quellen = `<p class="coach-unbelegt"><b>Nicht verifiziert:</b> ` +
+          befund.beanstandet.map(b => escapeHtml(b.text || '(ohne Text)') +
+            (b.unbekannt.length ? ` <span class="mono">[${b.unbekannt.map(escapeHtml).join(', ')} nicht im Quellenpaket]</span>` : ' <span class="mono">[ohne Fundstelle]</span>')).join(' · ') +
+          `</p>`;
+      } else if (befund.geprueft) {
+        quellen = `<p class="coach-belegt">${befund.geprueft} rechtliche Aussage${befund.geprueft === 1 ? '' : 'n'} gegen das Quellenpaket geprüft.</p>`;
+      }
+    } catch { /* ohne Register lieber kein Siegel als ein falsches */ }
     box.innerHTML = txt
-      ? `<div class="coach-head">Coach</div><p>${escapeHtml(txt)}</p><span class="grade-label mono">Bewertungstyp: LLM-unterstützt · formativ (zählt nicht für Kompetenz-Bewertung)</span>`
+      ? `<div class="coach-head">Coach</div><p>${escapeHtml(txt)}</p>${quellen}<span class="grade-label mono">Bewertungstyp: LLM-unterstützt · formativ (zählt nicht für Kompetenz-Bewertung)</span>`
       : '';
     if (!txt) box.remove();
   }).catch(() => box.remove());   // Coach ist Zusatz — Ausfall darf den Lernfluss nicht stören
