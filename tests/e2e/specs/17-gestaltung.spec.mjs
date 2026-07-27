@@ -1,4 +1,13 @@
 import { test, expect, schliesseOverlays, warteAufAnsicht, phasen } from '../harness.mjs';
+import { readFileSync } from 'node:fs';
+
+/** The token table out of DESIGN-SYSTEM.md §1, as the document itself writes it. */
+function tokenAusReferenz() {
+  const doc = readFileSync(new URL('../../../DESIGN-SYSTEM.md', import.meta.url), 'utf-8');
+  return [...doc.matchAll(/^\| `(--[a-z0-9-]+)` \| `([^`]+)` \|/gm)]
+    .map(([, name, wert]) => ({ name, wert: wert.trim() }))
+    .filter(t => !t.wert.includes('var('));   // abgeleitete Werte prüft der Browser selbst
+}
 
 // The design reference, checked instead of looked at.
 //
@@ -179,6 +188,42 @@ test.describe('design system', () => {
       else if (m.flaeche && /^rgba\(0, 0, 0, 0\) none$/.test(m.flaeche)) ohne.push(route + ' (Symbol ohne Fläche)');
     }
     expect(ohne, `views without an icon or image: ${ohne.join(', ')}`).toEqual([]);
+  });
+
+  test('every token in the design reference is the one the product uses', async ({ page, zustand }) => {
+    // DESIGN-SYSTEM.md calls itself binding — and fifteen of its twenty colour
+    // values had not matched the build since v2.0. A document that describes
+    // something else than the product is worse than none: it gets quoted in
+    // reviews. This makes the two provable against each other.
+    const soll = tokenAusReferenz();
+    expect(soll.length, 'no token table found in DESIGN-SYSTEM.md').toBeGreaterThan(10);
+
+    await zustand('mittenInPhase3');
+    await page.goto('/#/dashboard', { waitUntil: 'load' });
+    await schliesseOverlays(page);
+    await warteAufAnsicht(page);
+
+    const ist = await page.evaluate((namen) => {
+      const cs = getComputedStyle(document.documentElement);
+      return Object.fromEntries(namen.map(n => [n, cs.getPropertyValue(n).trim()]));
+    }, soll.map(t => t.name));
+
+    const norm = (v) => v.replace(/\s+/g, '').toLowerCase();
+    const abweichung = soll.filter(t => norm(ist[t.name] ?? '') !== norm(t.wert))
+      .map(t => `${t.name}: Referenz ${t.wert} · Produkt ${ist[t.name] || '(fehlt)'}`);
+    expect(abweichung, `DESIGN-SYSTEM.md and the product disagree:\n  ${abweichung.join('\n  ')}`).toEqual([]);
+  });
+
+  test('the token check would notice a table that drifted', async ({ page, zustand }) => {
+    // Negative control: the comparison above is worth exactly as much as its
+    // ability to fail. A value the product does not use has to be caught.
+    await zustand('mittenInPhase3');
+    await page.goto('/#/dashboard', { waitUntil: 'load' });
+    await schliesseOverlays(page);
+    await warteAufAnsicht(page);
+    const ist = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--emerald').trim());
+    expect(ist).not.toBe('#3ddc97');   // der Wert, der bis heute in der Tabelle stand
+    expect(ist.length, 'the token does not exist at all').toBeGreaterThan(3);
   });
 
   test('the type levels differ in size, weight and colour', async ({ page, zustand }) => {
