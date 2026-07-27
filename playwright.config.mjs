@@ -107,7 +107,10 @@ export default defineConfig({
     // friends via apt on a machine that is not Debian).
     {
       name: 'webkit',
-      use: { ...devices['Desktop Safari'], viewport: VIEWPORT },
+      // deviceScaleFactor back to 1: the Safari device profile carries a Retina 2,
+      // and this suite compares pixels at 1x — measured on the first run, which
+      // failed the window-size guard with dpr 2. The guard was right.
+      use: { ...devices['Desktop Safari'], viewport: VIEWPORT, deviceScaleFactor: 1 },
       testMatch: /(00-smoke|02-navigation|06-widgets|09-haertung|16-formulare)\.spec\.mjs/,
     },
     // Visual comparison runs in one browser only: a second engine renders text

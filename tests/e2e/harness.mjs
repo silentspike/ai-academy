@@ -409,7 +409,16 @@ export const test = base.extend({
       }
       // 'load', not 'networkidle': the application keeps a connection open, so
       // waiting for the network to fall silent waits forever.
-      await page.reload({ waitUntil: 'load' });
+      //
+      // WebKit cancels a reload that arrives while it is still settling a
+      // navigation — "Navigation canceled by policy check", an engine difference
+      // rather than a product fault. One retry, and only for that message: any
+      // other reload failure still fails the test.
+      await page.reload({ waitUntil: 'load' }).catch(async (e) => {
+        if (!/canceled by policy check/i.test(String(e.message))) throw e;
+        await page.waitForTimeout(200);
+        await page.reload({ waitUntil: 'load' });
+      });
       await page.waitForFunction(() => !!document.querySelector('.sidebar, .rail, nav, main'), { timeout: 15_000 });
       // Dismissing here is right for almost every test — but a test ABOUT the
       // first-launch overlays cannot have them clicked away during setup. Since
