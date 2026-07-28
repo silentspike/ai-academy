@@ -200,7 +200,15 @@ body { padding:0; background:#04060b; overflow:hidden; display:grid; place-items
   box-shadow:0 0 8px -1px rgba(138,112,239,.5), inset 0 0 5px rgba(138,112,239,.3); }
 .ph.active .lbl .u { background:transparent; }
 .ph.active .lbl .u i { width:55%; background:var(--violet); }
-.ph.active::after { content:'›'; margin-left:auto; color:#b6a5ff; font-size:1.05rem; }
+/* War das Textzeichen › als Symbolersatz — dieselbe Klasse Fehler wie das
+   Text-Haekchen in der Seitenleiste. Jetzt das Zeichen aus dem eigenen Satz. */
+.ph .ph-chevron { display:none; }
+.ph.active .ph-chevron { display:block; margin-left:auto; width:1rem; height:1rem;
+  color:#b6a5ff; fill:none; stroke:currentColor; }
+.ph .ph-pfeil .ph-chevron { display:block; width:1rem; height:1rem; }
+/* Auch der bestandene Haken war das Textzeichen ✓. */
+.ph .pcheck .ph-haken { width:1rem; height:1rem; fill:none; stroke:currentColor;
+  stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
 .ph .count { margin-left:auto; background:rgba(138,112,239,.14); border:1px solid rgba(138,112,239,.28);
   border-radius:7px; padding:.02rem .5rem; font-size:.7rem; color:#b6a5ff;
   font-variant-numeric:tabular-nums; }
@@ -209,6 +217,23 @@ body { padding:0; background:#04060b; overflow:hidden; display:grid; place-items
 /* Hauptbereich */
 .dashboard { grid-column:3; grid-row:2; padding:12px; min-height:0; }
 .dashboard.single { overflow-y:auto; }
+/* Der Einrichtungs-Ablauf besteht aus kurzen Karten. Oben angeschlagen ließ er
+   zwei Drittel der Fläche leer — die Komposition war offen, nicht knapp. Reicht
+   der Inhalt nicht bis zum unteren Rand, steht er mittig; wird er länger,
+   verhält sich alles wie sonst. */
+.dashboard.single:has(.ob-fortschritt) { display:flex; flex-direction:column; justify-content:center;
+  /* stretch, sonst schrumpfen die Karten in der Spaltenrichtung auf ihre
+     Inhaltsbreite — die Ansicht wurde dadurch schmal statt mittig. */
+  align-items:stretch; }
+/* Breite ausdrücklich setzen: In einer Flex-Spalte lassen die auto-Ränder aus
+   `.dashboard.single > *` die Karte auf Inhaltsbreite schrumpfen (614 statt
+   1024 px). Mit fester Breite zentrieren dieselben Ränder wie vorher. */
+.dashboard.single:has(.ob-fortschritt) > * { flex:none; width:min(64rem,100%); }
+/* Zustandsseiten (Sperre, Fehlerlage) bestehen aus einer kurzen Karte. Oben
+   angeschlagen blieben darunter drei Viertel der Seite leer — dieselbe Regel
+   wie fuer den Einrichtungs-Ablauf. */
+.dashboard.single:has(> .sperr-karte) { display:flex; flex-direction:column; justify-content:center; }
+.dashboard.single:has(> .sperr-karte) > * { flex:none; width:min(64rem,100%); }
 /* Single-column views (units, phases, exams). The card may be wide — widgets,
    tables and timelines need the room — but running text inside it is capped at a
    readable measure. In rem, so it follows the font size, which itself grows on
@@ -272,8 +297,18 @@ body { padding:0; background:#04060b; overflow:hidden; display:grid; place-items
    and this block sat above them — so the stacked layout was overwritten by the
    two-column defaults it was meant to replace. "Fällige Karten" ended up 34px
    tall around 107px of content, with its heading outside the card. */
+/* Hinweiskarten (Machbarkeit, Erhaltungsmodus) stehen ueber dem Raster.
+   Das Raster hat genau zwei Zeilen und `overflow:hidden` — eine dritte,
+   implizite Zeile bekam keine Hoehe, und die Warnung lag ueber der
+   Artikel-Landkarte statt ueber ihr. Also je Hinweis eine eigene Zeile. */
+.dash-grid > .hinweis-karte { grid-column:1/-1; }
+.dash-grid:has(> .hinweis-karte) { grid-template-rows:auto minmax(0,1.08fr) minmax(0,.92fr); }
+.dash-grid:has(> .hinweis-karte + .hinweis-karte) {
+  grid-template-rows:auto auto minmax(0,1.08fr) minmax(0,.92fr); }
+
 @media (max-width: 1100px) {
   .dash-grid { grid-template-columns:minmax(0,1fr); grid-template-rows:auto; overflow-y:auto; }
+  .dash-grid:has(> .hinweis-karte) { grid-template-rows:auto; }
   .dash-grid .right-col { grid-template-rows:auto auto auto; }
   /* Stacked, the cards size to their content. Keeping the clipped, height-capped
      behaviour of the two-column layout cut "Fällige Karten" in half and pushed
@@ -355,8 +390,33 @@ body { padding:0; background:#04060b; overflow:hidden; display:grid; place-items
 /* Einheiten-Ansicht (§3-Bauplan) */
 .unit { max-width:860px; margin:0 auto; display:flex; flex-direction:column; gap:12px;
   padding-bottom:24px; }
-.unit-tag { font-size:10px; font-weight:600; letter-spacing:.14em; text-transform:uppercase;
-  color:var(--faint); margin-bottom:8px; }
+.unit-tag { display:flex; align-items:center; gap:7px; font-size:10px; font-weight:600;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--faint); margin-bottom:8px; }
+/* Fuer JEDES Vorkommen, nicht nur in Marke und Plakette: ohne eigene Groesse
+   fuellt ein Sprite-Symbol seinen Kasten aus — im Coach-Kopf wurde es 150 px
+   gross (im Bild gesehen). Dieselbe Fehlerklasse wie beim Zurueck-Pfeil. */
+.ut-sym { width:.82rem; height:.82rem; flex:none; fill:none;
+  stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; }
+/* Aufklapper trugen das Standard-Dreieck des Browsers; das ganze Werkzeug hat
+   sonst sein eigenes Zeichen. */
+/* Fuer JEDEN Aufklapper, nicht nur die in der Einheit: im ErwG-Verzeichnis
+   standen noch die Standard-Dreiecke des Browsers. */
+/* NICHT als Flex-Zeile: das macht jeden Glossarbegriff in der Aufschrift zu
+   einem eigenen Kasten — im ErwG-Verzeichnis zerfiel die Zeile in Spalten
+   (im Bild gesehen). Das Zeichen laeuft als Inline-Element mit. */
+summary { list-style:none; }
+summary::-webkit-details-marker { display:none; }
+/* Geometrisch gezeichnet statt als Sprite: eine Maske mit Fragment-Verweis auf
+   ein <symbol> laedt in Chromium nicht, der Aufklapper stand danach ganz ohne
+   Zeichen da (im Bild geprueft). */
+summary::before {
+  content:''; display:inline-block; vertical-align:middle; width:.4rem; height:.4rem;
+  margin:0 9px 3px 2px;
+  border-right:2px solid currentColor; border-bottom:2px solid currentColor;
+  transform:rotate(-45deg); transition:transform 180ms var(--ease-out); }
+details[open] > summary::before { transform:rotate(45deg); }
+.unit-block { animation:reihe-auf 300ms var(--ease-out) both;
+  animation-delay:calc(60ms * var(--i, 0)); }
 .unit-problem { border-color:rgba(138,112,239,.35); }
 .unit-merkbild { border-color:rgba(225,173,88,.3); background:linear-gradient(180deg,rgba(225,173,88,.05),transparent 60%), var(--grad-card); }
 .unit-merkbild .unit-tag { color:var(--gold); }
@@ -386,6 +446,12 @@ body { padding:0; background:#04060b; overflow:hidden; display:grid; place-items
   background:radial-gradient(circle at 70% 20%, rgba(52,211,153,.22), transparent 62%); pointer-events:none; }
 .chead.violett .csym::after { background:radial-gradient(circle at 70% 20%, rgba(138,112,239,.24), transparent 62%); }
 .chead.gold .csym::after { background:radial-gradient(circle at 70% 20%, rgba(225,173,88,.22), transparent 62%); }
+/* Warnung: Der Kopf trägt den Zustand mit — sonst steht ein grünes Symbol über
+   einer Meldung, die gerade sagt, dass etwas nicht aufgeht. */
+.chead.warnung .csym::after { background:radial-gradient(circle at 70% 20%, rgba(225,173,88,.24), transparent 62%); }
+.chead.warnung .csym { background:linear-gradient(150deg, rgba(225,173,88,.18), rgba(225,173,88,.05));
+  border-color:rgba(225,173,88,.30); }
+.chead.warnung .csym svg { color:var(--amber,#e1ad58); filter:drop-shadow(0 0 6px rgba(225,173,88,.45)); }
 .chead.violett .csym { background:linear-gradient(150deg, rgba(138,112,239,.18), rgba(138,112,239,.05));
   border-color:rgba(138,112,239,.28); }
 .chead.violett .csym svg { color:var(--violet, #b6a5ff); filter:drop-shadow(0 0 6px rgba(138,112,239,.45)); }
@@ -431,6 +497,11 @@ body { padding:0; background:#04060b; overflow:hidden; display:grid; place-items
 .ph .lbl .ph-bar { display:block; height:2.5px; border-radius:2px; background:rgba(151,169,202,.10);
   overflow:hidden; margin-top:4px; }
 .ph .lbl .ph-bar i { display:block; height:100%; background:var(--emerald); opacity:.9; transition:width .4s ease; }
+/* „Heute" und „Dashboard" blieben unmarkiert, waehrend die schmale Leiste
+   links ihren Punkt hervorhob — auf dem Dashboard war also markiert, wo man
+   ist, und daneben stand derselbe Eintrag unbeteiligt herum. */
+.lernnav .ph.active { background:rgba(138,112,239,.10); border:1px solid rgba(138,112,239,.34);
+  color:var(--text); font-weight:600; }
 .ph.phase-aktiv { background:rgba(138,112,239,.10); border:1px solid rgba(138,112,239,.34); }
 .ph.phase-aktiv .lbl .ph-name { color:var(--text); font-weight:600; }
 .ph.phase-aktiv .lbl .ph-bar i { background:var(--violet, #8a70ef); }
@@ -565,7 +636,8 @@ body { padding:0; background:#04060b; overflow:hidden; display:grid; place-items
 @keyframes reihe-auf { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
 
 @media (prefers-reduced-motion:reduce) {
-  .dashboard > .card, .lern-row { animation:none !important; }
+  .dashboard > .card, .lern-row, .unit-block { animation:none !important; }
+  .ph .lbl .ph-bar i, .pring { animation:none !important; }
 }
 
 
@@ -585,3 +657,13 @@ body { padding:0; background:#04060b; overflow:hidden; display:grid; place-items
   .formular-fuss .btn-primary, .ain-fuss .btn-primary { transition:none; }
   .formular-fuss .btn-primary:hover { transform:none; }
 }
+
+/* Balken und Ringe der Lernstruktur hatten nur `transition` — die greift erst,
+   wenn sich ein Wert an einem BESTEHENDEN Element aendert. Beim Aufbau der
+   Seitenleiste steht der Endwert sofort im Markup, also war nie eine Fuellung
+   zu sehen. Derselbe Fall wie beim Fortschritt im Einrichtungs-Ablauf: es
+   braucht ein Keyframe vom Nullwert aus. */
+@keyframes balken-fuellt { from { width:0; } }
+@keyframes ring-fuellt { from { --pring-deg:0deg; } }
+.ph .lbl .ph-bar i { animation:balken-fuellt .55s var(--ease-out) both; }
+.pring { animation:ring-fuellt .7s var(--ease-lin) both; }
