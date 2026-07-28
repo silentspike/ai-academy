@@ -4,7 +4,7 @@
 // A prepared profile skips the wizard: it comes from data/profiles/ via /api/profile.
 import { route } from './router.js';
 import { LlmAdapter } from './llm-adapter.js';
-import { feasibilityCheck, stoffUmfang, STOFF_MINUTEN_GESAMT } from './pacing.js';
+import { feasibilityCheck, stoffUmfang } from './pacing.js';
 import { einheitenGesamt } from './content-index.js';
 import { setzeSetupModus } from './app.js';
 
