@@ -58,7 +58,7 @@ route('heute', async (view, ctx) => {
     </a>`;
 
   view.appendChild(card(`<div class="chead violett"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-kalender"/></svg></span><span class="t"><h3>Heute — dein Ritual</h3>
-    <span class="sub">Feste Reihenfolge: kein „Womit fange ich an?" (#32). Wiederholung ist Pflicht VOR neuem Stoff.</span></span></div>
+    <span class="sub">Vier Schritte, immer in derselben Reihenfolge. Wiederholung kommt vor neuem Stoff.</span></span></div>
     <div class="ritual">
       ${takt(0, 'Pflicht-Review', `Kern ${s.review.kern.length} · Aufholen ${s.review.aufhol.length} · Retention-Checks ${s.review.retentionChecks.length}`, s.review.done, '#/karten', false)}
       ${takt(1, `Einheiten (${s.unitsDone}/${s.unitsPlanned})`, canStartUnit(s, ctx.simulation) ? 'Neuer Stoff freigeschaltet' : 'Gesperrt bis das Review erledigt ist', s.unitsDone >= s.unitsPlanned, '#/lernen', !canStartUnit(s, ctx.simulation))}
@@ -121,8 +121,7 @@ route('drill', async (view, ctx) => {
       st.drillSeen = [...seen, ...questions.map(q => q.id)].slice(-120);
       ctx.saveState();
       mount.appendChild(card(`<h3>Drill erledigt — ${correct}/${questions.length}</h3>
-        <p class="dim">Aktiver Abruf zum Sitzungsende: der stärkste Retention-Hebel (§3).</p>
-        <a class="btn-primary" href="#/wrapup">Zur Abschluss-Karte</a>`));
+            <a class="btn-primary" href="#/wrapup">Zur Abschluss-Karte</a>`));
       return;
     }
     const q = questions[i];
@@ -175,7 +174,7 @@ route('wrapup', async (view, ctx) => {
   if (grosseSession && !st.exportHintShownToday) {
     st.exportHintShownToday = dayKey();
     const ex = card(`<b>Sicherheitsnetz:</b> Große Lernsitzung — jetzt einmal exportieren.
-      <span class="dim">${localBackend ? 'Browser-Speicher kann (v. a. in Safari) geräumt werden; ' : ''}der Export macht den Stand auch gerätewechselbar (§5.5).</span>
+      <span class="dim">${localBackend ? 'Browser-Speicher kann (v. a. in Safari) geräumt werden; ' : ''}der Export macht den Stand auch gerätewechselbar.</span>
       <div style="margin-top:8px"><button class="btn" id="w-export">Lernstand exportieren</button></div>`);
     view.appendChild(ex);
     ex.querySelector('#w-export').onclick = async () => {
