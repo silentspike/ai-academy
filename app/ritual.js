@@ -9,7 +9,7 @@ import {
 } from './session.js';
 import { splitQueues } from './engine-leitner.js';
 import { aggregateCompetencies, weakestCompetencies } from './competency.js';
-import { driftCheck } from './pacing.js';
+import { driftCheck, stoffUmfang } from './pacing.js';
 import { renderQuestion } from './engine-quiz.js';
 import { applyEvent, zaehleHoch } from './gamification.js';
 import { einheitenGesamt } from './content-index.js';
@@ -161,7 +161,7 @@ route('wrapup', async (view, ctx) => {
   let drift = { onTrack: true, drift: 0 };
   if (st.milestones?.length && st.pace) {
     const start = st.events?.[0]?.ts ?? Date.now();
-    drift = driftCheck({ ...st.pace, milestones: st.milestones }, { totalUnits: UNITS_TOTAL, minutesPerUnit: 25 }, progress, start, Date.now());
+    drift = driftCheck({ ...st.pace, milestones: st.milestones }, stoffUmfang(UNITS_TOTAL), progress, start, Date.now());
   }
   const w = wrapupCard(s, st, drift, Date.now());
   s.wrapupSeen = true;

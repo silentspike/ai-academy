@@ -121,4 +121,58 @@ test.describe('first launch', () => {
     expect(schritte, 'onboarding cannot be advanced at all').toBeGreaterThan(0);
     await erfasse(page, '#/onboarding');
   });
+
+  // Der Machbarkeits-Schritt hatte drei Fehler übereinander, jeder allein
+  // ausreichend: `feasibilityCheck` liefert ein ARRAY, gelesen wurde
+  // `res.feasible` (auf einem Array immer undefined → IMMER die Warnung); das
+  // Feld heißt `neededMinutesPerDay`, gelesen wurde `neededPerDay` → die Seite
+  // sagte „~undefined min/Tag"; und der Stoff kam als `{ totalMinutes }`, gelesen
+  // werden `totalUnits`/`minutesPerUnit` → die Rechnung lief auf NaN.
+  test('the feasibility step computes instead of always warning', async ({ page, zustand }) => {
+    await zustand('nachPlacement');
+    await page.evaluate(() => localStorage.clear());
+    await page.goto('/#/onboarding', { waitUntil: 'load' });
+    await schliesseOverlays(page);
+    await warteAufAnsicht(page);
+
+    const schritt = async (werte = {}) => {
+      await page.evaluate((w) => {
+        for (const [id, v] of Object.entries(w)) {
+          const el = document.getElementById(id);
+          if (el) { el.value = v; el.dispatchEvent(new Event('change', { bubbles: true })); }
+        }
+        const b = [...document.querySelectorAll('#view button')].find(x => /weiter|los geht/i.test(x.textContent));
+        b?.click();
+      }, werte);
+      await page.waitForTimeout(700);
+    };
+    // Bis zum Lernprofil durch: Verbinden → Fachprofil → Lernprofil
+    for (let i = 0; i < 6; i++) {
+      const titel = await page.evaluate(() => document.querySelector('#view h3')?.innerText ?? '');
+      if (/Lernprofil/.test(titel)) break;
+      await schritt({ 'ob-org': 'Regionalbank' });
+    }
+
+    // Großzügiges Pensum: muss MACHBAR sein und darf keine Warnung zeigen.
+    await schritt({ 'ob-ziel': '2026-12-31', 'ob-min': '120', 'ob-tage': '6' });
+    let text = await page.evaluate(() => document.getElementById('view').innerText);
+    expect(text, 'the feasibility step never says a generous plan works').toMatch(/Machbar/);
+    expect(text, 'the calculation shows undefined instead of a number').not.toMatch(/undefined|NaN/);
+
+    // Der Rückweg führt ins Lernprofil UND behält die Eingaben.
+    await page.evaluate(() => [...document.querySelectorAll('#view button')]
+      .find(b => /Pensum anpassen/i.test(b.textContent))?.click());
+    await page.waitForTimeout(700);
+    expect(await page.evaluate(() => document.querySelector('#view h3')?.innerText))
+      .toMatch(/Lernprofil/);
+    expect(await page.evaluate(() => document.getElementById('ob-min')?.value),
+      'the way back resets what was typed').toBe('120');
+
+    // Knappes Pensum: muss durchfallen und sagen, WAS fehlt.
+    await schritt({ 'ob-ziel': '2026-08-15', 'ob-min': '20', 'ob-tage': '2' });
+    text = await page.evaluate(() => document.getElementById('view').innerText);
+    expect(text, 'an impossible plan is waved through').toMatch(/geht sich nicht aus/);
+    expect(text, 'it does not say what is missing').toMatch(/Es fehlen rund [\d,]+ Stunden/);
+    expect(text).not.toMatch(/undefined|NaN/);
+  });
 });
