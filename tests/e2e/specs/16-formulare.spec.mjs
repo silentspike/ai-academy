@@ -120,4 +120,31 @@ test.describe('forms', () => {
     expect(daneben.length, 'the collapsed form is not detected — the check proves nothing')
       .toBeGreaterThan(0);
   });
+
+  // Der eigene Pfeil des Auswahlfelds hing an `background-repeat: no-repeat` aus
+  // der Grundregel. Die Fokus-Regel setzte `background` als KURZFORM — das setzt
+  // repeat auf `repeat` und size auf `auto` zurück, und der Haken kachelte quer
+  // über das Feld, quer durch den gewählten Wert. Gemessen im Fokus, weil nur
+  // dort der Fehler auftrat.
+  test('the select keeps a single arrow while focused', async ({ page, zustand }) => {
+    // Das Auswahlfeld für den Kurven-Zeitraum steht im Dashboard und ist ohne
+    // Einrichtung erreichbar — im Onboarding wäre die Messung an ein Fixture
+    // ohne Profil gebunden und würde still übersprungen.
+    await zustand('mittenInPhase3');
+    await page.goto('/#/dashboard', { waitUntil: 'load' });
+    await schliesseOverlays(page);
+    await warteAufAnsicht(page);
+
+    const gemessen = await page.evaluate(() => {
+      const sel = document.getElementById('d-curve-range');
+      if (!sel) return null;
+      sel.focus();
+      const cs = getComputedStyle(sel);
+      return { fokussiert: document.activeElement === sel, repeat: cs.backgroundRepeat, size: cs.backgroundSize };
+    });
+    expect(gemessen, 'the dashboard has no select — the check would prove nothing').not.toBeNull();
+    expect(gemessen.fokussiert, 'the select did not take focus, so the focused state was never measured').toBe(true);
+    expect(gemessen.repeat, 'the arrow tiles across the focused select').toBe('no-repeat');
+    expect(gemessen.size, 'the arrow is drawn at its natural size and covers the value').not.toBe('auto');
+  });
 });

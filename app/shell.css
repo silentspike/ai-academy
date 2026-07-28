@@ -448,8 +448,11 @@ body { padding:0; background:#04060b; overflow:hidden; display:grid; place-items
 .hm-summe b { font-family:var(--font-num); color:var(--text); font-weight:600; }
 
 .zeitraum { margin-left:auto; }
-.zeitraum select { background:var(--panel-2, rgba(255,255,255,.04)); color:var(--text);
-  border:1px solid var(--line); border-radius:8px; padding:4px 8px; font:inherit; font-size:.74rem; }
+/* background-COLOR, nicht die Kurzform — sonst fällt der eigene Pfeil des
+   Auswahlfelds auf `repeat`/`auto` zurück und kachelt über den Wert. Dieselbe
+   Stelle gab es in styles.css für den Fokus-Zustand; hier galt sie immer. */
+.zeitraum select { background-color:var(--panel-2, rgba(255,255,255,.04)); color:var(--text);
+  border:1px solid var(--line); border-radius:8px; padding:4px 26px 4px 8px; font:inherit; font-size:.74rem; }
 
 .coach-karte { display:flex; gap:14px; align-items:flex-start; }
 .coach-karte img { width:clamp(72px, 22%, 132px); border-radius:12px; flex:none;
