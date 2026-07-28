@@ -541,6 +541,10 @@ button:disabled { opacity:.45; cursor:not-allowed; }
   /* App-Chrome weg, Nachweis im Normalfluss — visibility/absolute scheitert an
      transformierten Ancestors (Reveal-Animation), daher display-basiert. */
   .rail,.topbar,.sidebar,nav,aside,header,button,.gloss-tip{display:none!important}
+  /* Der Simulations-Streifen der Anwendung wurde mitgedruckt und stand als
+     Bedienleiste ueber der Urkunde — die ihren eigenen Simulations-Kasten
+     traegt, im Ton eines Dokuments. Doppelt und im falschen Register. */
+  .sim-banner{display:none!important}
   html,body{background:#fff!important}
   body>*:not(:has(.nachweis)){display:none!important}
   .app,.app-shell,#view,.view,main{display:block!important;height:auto!important;overflow:visible!important;transform:none!important;animation:none!important;grid-template-columns:none!important;grid-template-rows:none!important;background:#fff!important;box-shadow:none!important}
@@ -1140,3 +1144,14 @@ a.btn-primary { padding:9px 15px; border-radius:9px; font:500 var(--fs-sm)/1.4 v
 .erg-zeile b { font-size:.78rem; color:var(--text); }
 .nachschulung { margin-top:20px; padding-top:16px; border-top:1px solid var(--line); }
 @media (max-width:900px){ .erg-zeile { grid-template-columns:1fr auto; } .erg-bar { grid-column:1/-1; } }
+
+/* Uhr waehrend Examens-Teil A: 60 Minuten standen im Tor, waehrend der Pruefung
+   war davon nichts zu sehen. */
+.ex-uhr { display:flex; align-items:center; gap:11px; padding:10px 14px; margin-top:12px; }
+.ex-uhr .ut-sym { color:var(--dim); }
+.ex-uhr-wert { font-family:var(--font-display); font-size:1.5rem; color:var(--text); }
+.ex-uhr-txt { font-size:.82rem; color:var(--dim); }
+.ex-uhr.knapp { border-color:rgba(225,173,88,.35); }
+.ex-uhr.knapp .ut-sym, .ex-uhr.knapp .ex-uhr-wert { color:var(--amber,#e1ad58); }
+.ex-uhr.drueber { border-color:rgba(217,117,104,.35); }
+.ex-uhr.drueber .ut-sym, .ex-uhr.drueber .ex-uhr-wert { color:var(--red); }

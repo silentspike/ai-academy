@@ -337,17 +337,41 @@ route('examen', async (view, ctx) => {
   paintSeries(view, st.scoreSeries);
   head.querySelector('#ex-start').onclick = () => {
     head.remove();
+    // Die Marathon-Warnung blieb waehrend der ganzen Pruefung stehen — sie ist
+    // eine Entscheidungshilfe VOR dem Antritt, danach nur noch Ablenkung.
+    for (const w of view.querySelectorAll('.lage-warnung')) w.closest('.card')?.remove();
     const attempt = st.examAttempts.length;
     const exam = buildExamA(pool, { salt: 'exam' + attempt });
     const t0 = Date.now();
+    // 60 Minuten stehen im Tor — waehrend der Pruefung war davon nichts zu sehen.
+    // Eine Uhr, die die verbleibende Zeit zeigt und in der letzten Viertelstunde
+    // die Farbe wechselt; abgelaufen wird sie nicht abgebrochen (der Bauplan
+    // kennt kein hartes Limit), sie sagt es nur.
+    const uhr = document.createElement('div');
+    uhr.className = 'card ex-uhr';
+    view.appendChild(uhr);
+    const MINUTEN = 60;
+    const tick = () => {
+      const rest = MINUTEN * 60_000 - (Date.now() - t0);
+      const ueber = rest < 0;
+      const m = Math.floor(Math.abs(rest) / 60_000);
+      const sek = Math.floor((Math.abs(rest) % 60_000) / 1000);
+      uhr.className = `card ex-uhr${ueber ? ' drueber' : rest < 15 * 60_000 ? ' knapp' : ''}`;
+      uhr.innerHTML = `<svg class="ut-sym" aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-uhr"/></svg>
+        <span class="ex-uhr-wert mono">${ueber ? '+' : ''}${m}:${String(sek).padStart(2, '0')}</span>
+        <span class="ex-uhr-txt">${ueber ? 'über der Richtzeit — zu Ende bringen, es wird nichts abgebrochen' : 'von 60 Minuten übrig'}</span>`;
+    };
+    tick();
+    const uhrLauf = setInterval(tick, 1000);
     runQuestions(view, exam.questions, {
       mode: 'exam', kind: 'exam', llm,
       onDone: async resultsA => {
+        clearInterval(uhrLauf); uhr.remove();
         const evA = evaluateTest({ questions: exam.questions, results: resultsA, kompetenzen });
         // Part B: the open-book capstone from the fixed core; any reskin lives in the profile only
         const cap = scenarios.find(s => s.id === 'sz-capstone-kern');
         view.appendChild(card(`<div class="chead gold"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-fach-waage"/></svg></span>
-          <span class="t"><h3>Teil B — der Abschlussfall</h3><span class="sub">Etwa 30 Minuten, mit dem Verordnungstext</span></span></div><p>${cap.setting_hint ?? cap.title}</p>
+          <span class="t"><h3>Teil B — der Abschlussfall</h3><span class="sub">Etwa 30 Minuten, mit dem Verordnungstext</span></span></div>${cap.setting_hint ? `<p>${cap.setting_hint}</p>` : ''}
           <p class="dim">Methodik, Fundstellen, Schlussfolgerung — bewertet nach fixer Rubrik.</p>`));
         const capQ = { id: 'capstone', type: 'freetext', prompt: cap.prompt ?? cap.title, competency: 'K18', level: 'C', rubric: cap.rubric, model_answer: cap.model_answer ?? '' };
         runQuestions(view, [capQ], {
@@ -364,9 +388,31 @@ route('examen', async (view, ctx) => {
             const { checkRewards: cr } = await import('./rewards.js');
             cr(st, document, { examPassed: passed });
             await ctx.saveState();
-            view.appendChild(card(`<h3>${passed ? 'EXAMEN BESTANDEN' : 'Nicht bestanden'}</h3>
-              <p>Teil A: ${(evA.pct * 100).toFixed(0)} % (${evA.passed ? 'bestanden' : evA.reason}) · Teil B: ${(bPct * 100).toFixed(0)} %</p>
-              ${passed ? '<p><a href="#/lernnachweis">→ Persönlichen Lernnachweis erstellen</a></p>' : '<p class="dim">Nächster Antritt frühestens morgen (einer pro Kalendertag) — Nachschulung empfohlen.</p>'}`));
+            // Der groesste Moment des Werkzeugs stand in Grossbuchstaben da
+            // („EXAMEN BESTANDEN"), die beiden Teilnoten in einer Klammerzeile
+            // mit dem internen Grund darin, und der Weg zum Lernnachweis als
+            // Textpfeil-Verweis.
+            const gruende = { critical_error: 'ein Fehler aus der Durchfall-Liste',
+              kern_mindestleistung: 'eine Kern-Kompetenz unter der Mindestleistung', score: 'zu wenige Punkte' };
+            view.appendChild(card(`<div class="erg ${passed ? 'gut' : 'schlecht'}">
+                <svg class="erg-sym" aria-hidden="true"><use href="assets/icons/sprite.svg#${passed ? 'icon-fach-trophy' : 'icon-act-retry'}"/></svg>
+                <div class="erg-txt">
+                  <h3>${passed ? 'Examen bestanden' : 'Examen nicht bestanden'}</h3>
+                  <p class="erg-wert"><b>${(((evA.pct + bPct) / 2) * 100).toFixed(0)} %</b> im Schnitt beider Teile</p>
+                </div>
+              </div>
+              <div class="erg-komp">
+                <div class="erg-zeile"><span class="erg-name">Teil A — 40 Fragen ohne Hilfsmittel</span>
+                  <span class="erg-bar"><i style="width:${Math.round(evA.pct * 100)}%" class="${evA.passed ? 'gut' : 'schwach'}"></i></span>
+                  <b class="mono">${(evA.pct * 100).toFixed(0)} %</b></div>
+                <div class="erg-zeile"><span class="erg-name">Teil B — der Abschlussfall</span>
+                  <span class="erg-bar"><i style="width:${Math.round(bPct * 100)}%" class="${bPct >= PASS_SCORE ? 'gut' : 'schwach'}"></i></span>
+                  <b class="mono">${(bPct * 100).toFixed(0)} %</b></div>
+              </div>
+              ${!evA.passed && evA.reason ? `<p class="erg-grund">Teil A scheiterte an: ${gruende[evA.reason] ?? evA.reason}.</p>` : ''}
+              <div class="formular-fuss">${passed
+                ? '<a class="btn-primary" href="#/lernnachweis">Lernnachweis erstellen</a>'
+                : '<span class="feld-hilfe">Der nächste Antritt ist frühestens morgen möglich — einer pro Kalendertag. Die Nacht dazwischen ist Teil der Methode.</span>'}</div>`));
           },
         });
       },
@@ -545,14 +591,14 @@ route('lernnachweis', async (view, ctx) => {
         <dt>Kapiteltests</dt>
         <dd><b>${Object.values(st.chapterTests ?? {}).filter(t => t.passed).length}</b> von 9 bestanden</dd>
         <dt>Rechtsstand</dt>
-        <dd>${RECHTSSTAND} <span class="dim">(VO 2024/1689 idF 2026/1744)</span></dd>
+        <dd>${new Date(RECHTSSTAND).toLocaleDateString('de-AT', { day: 'numeric', month: 'long', year: 'numeric' })} <span class="dim">(VO 2024/1689 in der Fassung 2026/1744)</span></dd>
         <dt>Bewertung</dt>
-        <dd><span class="mono">${model}</span> · Rubrik <span class="mono">${pv}</span> · Content <span class="mono">c1</span></dd>
+        <dd><span class="mono">${model}</span> · Bewertungsmaßstab <span class="mono">${pv}</span> · Inhaltsstand <span class="mono">c1</span></dd>
       </dl>
       <hr>
       <h3>Transparenz-Rückseite</h3>
       <dl class="nw-fakten">
-        <dt>Score-Serien</dt>
+        <dt>Ergebnis-Reihen</dt>
         <dd>${Object.values(abgeleitet).filter(s => typeof s.first?.pct === 'number').map(s => `${(s.first.pct * 100).toFixed(0)} / ${(s.latest.pct * 100).toFixed(0)} / ${(s.best.pct * 100).toFixed(0)} %`).join(' · ') || '—'}
             <span class="dim">— erster / letzter / bester Versuch je Bewertungsregime</span></dd>
         <dt>Einsprüche</dt>
