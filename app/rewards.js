@@ -59,7 +59,7 @@ export function checkRewards(state, doc = document, { anchor = null, phaseComple
     fired.push({ tier: 'gross', kind: 'phase', phase: phaseCompleted });
   }
   if (examPassed) {
-    ceremony(doc, CEREMONY.GROSS, { title: 'Examen bestanden', text: 'Teil A (Closed Book) und Capstone (Open Book) — der Lernnachweis steht bereit.', image: 'assets/badges/endstufe-krone.webp' });
+    ceremony(doc, CEREMONY.GROSS, { title: 'Examen bestanden', text: 'Beide Teile bestanden — der Lernnachweis steht bereit.', image: 'assets/badges/endstufe-krone.webp' });
     fired.push({ tier: 'gross', kind: 'examen' });
   }
   void anchor;
