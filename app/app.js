@@ -940,7 +940,21 @@ import { LlmAdapter } from './llm-adapter.js';
 route('boss', async (view, ctx, [scenarioId]) => {
   const sc = await fetch('content/scenarios.json').then(r => r.json());
   const scenario = sc.scenarios.find(s => s.id === (scenarioId ?? 'sz-p2-stimmungsradar'));
-  if (!scenario) { view.innerHTML = '<div class="card"><p class="dim">Szenario nicht gefunden.</p></div>'; return; }
+  // War ein grauer Dreiwortsatz ohne Zeichen, ohne Grund, ohne Weg — und ohne
+  // die Kennung, die nicht stimmt.
+  if (!scenario) {
+    view.innerHTML = `<div class="card sperr-karte">
+      <div class="lage lage-warnung">
+        <span class="lage-symbol"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-warn"/></svg></span>
+        <div class="lage-txt">
+          <h3>Dieses Gespräch gibt es nicht</h3>
+          <p>Zu <span class="mono">${String(scenarioId ?? '—').replace(/[<>&]/g, '')}</span> ist kein Fachgespräch hinterlegt.
+          Vermutlich ein alter Verweis oder ein Tippfehler in der Adresse.</p>
+        </div>
+      </div>
+      <div class="formular-fuss"><a class="btn-primary" href="#/lernen">Zur Übersicht aller Phasen</a></div></div>`;
+    return;
+  }
   const arch = (await fetch('content/archetypes.json').then(r => r.json())).archetypes
     .find(a => a.id === scenario.persona_archetype);
   // Archetype to crew figure: artwork and persona card per conversation type
@@ -986,8 +1000,16 @@ route('boss', async (view, ctx, [scenarioId]) => {
   // No forced full height: the card grows with the conversation. Pinned to 100%
   // it kept a 490px void between the opening line and the reply box.
   wrap.style.cssText = 'display:flex;flex-direction:column';
-  wrap.innerHTML = `<div class="chead"><span class="t"><h3>${scenario.title}</h3><span class="sub">Bosskampf · ${arch?.name ?? ''}${scenario.persona.organisation ? ` · ${scenario.persona.organisation}` : ''} · Phase <span id="b-phase">1</span>/${scenario.phases.length}</span></span>
-    <span class="actions"><button id="b-next" class="btn" style="font-size:.75rem">Phase abschließen ▸</button></span></div>
+  // „Phase 1/3" stand nur als Text in der Unterzeile — bei einem Gespraech mit
+  // drei Abschnitten gehoert der Stand als Bild dazu. Und der Knopf trug das
+  // Textzeichen ▸.
+  wrap.innerHTML = `<div class="chead"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-dialog"/></svg></span>
+    <span class="t"><h3>${scenario.title}</h3><span class="sub">Fachgespräch · ${arch?.name ?? ''}${scenario.persona.organisation ? ` · ${scenario.persona.organisation}` : ''}</span></span>
+    <span class="actions"><button id="b-next" class="btn">Abschnitt abschließen
+      <svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-ui-chevron"/></svg></button></span></div>
+    <div class="boss-stand" role="img" aria-label="Abschnitt 1 von ${scenario.phases.length}">
+      ${scenario.phases.map((_, i) => `<span class="boss-punkt${i === 0 ? ' jetzt' : ''}" data-nr="${i}"></span>`).join('')}
+      <span class="boss-stand-txt">Abschnitt <b id="b-phase">1</b> von ${scenario.phases.length}</span></div>
     <div id="b-dlg" style="min-height:0"></div>`;
   view.appendChild(wrap);
   const dmount = wrap.querySelector('#b-dlg');
@@ -1028,6 +1050,11 @@ route('boss', async (view, ctx, [scenarioId]) => {
   wrap.querySelector('#b-next').onclick = async () => {
     advancePhase(scenario, run);
     wrap.querySelector('#b-phase').textContent = String(run.phase_index + 1);
+    for (const p of wrap.querySelectorAll('.boss-punkt')) {
+      const nr = Number(p.dataset.nr);
+      p.classList.toggle('fertig', nr < run.phase_index);
+      p.classList.toggle('jetzt', nr === run.phase_index);
+    }
     if (run.finished) {
       // Grading: a FRESH, isolated call with only the transcript and the rubric
       dmount.innerHTML = '<p class="dim">Bewertung läuft (frischer Prüfer-Aufruf)…</p>';
@@ -1045,7 +1072,7 @@ route('boss', async (view, ctx, [scenarioId]) => {
       try {
         const j = await llm.judgeBoss({ scenarioCore: { title: scenario.title, goals: scenario.goals.map(g => g.text), critical_errors: scenario.critical_errors }, rubric: scenario.rubric, transcript: run.transcript });
         dmount.innerHTML = '';
-        renderAssessmentCard(dmount, { goals: payload.goals, feedback: (solide ? 'Urteil: solide — Kapiteltest freigeschaltet. ' : 'Urteil: noch nicht solide — Wiederholung mit anderem Gesprächsverlauf empfohlen. ') + (j.feedback ?? '') });
+        renderAssessmentCard(dmount, { goals: payload.goals, feedback: (solide ? 'Das reicht: Der Kapiteltest dieser Phase ist damit frei. ' : 'Noch nicht sicher genug — ein zweites Gespräch mit anderem Verlauf bringt dich weiter. ') + (j.feedback ?? '') });
       } catch (e) { dmount.innerHTML = `<p class="dim">Bewertung fehlgeschlagen: ${e.message} — Gating-Urteil (deterministisch): ${solide ? 'solide' : 'nicht solide'}.</p>`; }
     } else {
       const hint = scenario.phases[run.phase_index].opening_hint;

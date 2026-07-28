@@ -1155,3 +1155,29 @@ a.btn-primary { padding:9px 15px; border-radius:9px; font:500 var(--fs-sm)/1.4 v
 .ex-uhr.knapp .ut-sym, .ex-uhr.knapp .ex-uhr-wert { color:var(--amber,#e1ad58); }
 .ex-uhr.drueber { border-color:rgba(217,117,104,.35); }
 .ex-uhr.drueber .ut-sym, .ex-uhr.drueber .ex-uhr-wert { color:var(--red); }
+
+/* Stand im Fachgespraech: „Phase 1/3" stand nur als Text in der Unterzeile. */
+.boss-stand { display:flex; align-items:center; gap:7px; margin:2px 0 14px; }
+.boss-punkt { width:.55rem; height:.55rem; border-radius:50%; background:rgba(151,169,202,.16);
+  transition:background 200ms var(--ease-out), transform 200ms var(--ease-out); }
+.boss-punkt.fertig { background:var(--emerald); }
+.boss-punkt.jetzt { background:var(--violet,#8a70ef); transform:scale(1.25); }
+.boss-stand-txt { margin-left:8px; font-size:.76rem; color:var(--faint); }
+.boss-stand-txt b { font-family:var(--font-display); color:var(--text); }
+.chead .actions button { display:inline-flex; align-items:center; gap:7px; font-size:.75rem; }
+.chead .actions button svg { width:.8rem; height:.8rem; fill:none; stroke:currentColor;
+  stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+/* Der Senden-Knopf war so hoch wie das ganze Textfeld. */
+.dlg-inputrow { align-items:flex-end; }
+.dlg-inputrow button { align-self:flex-end; }
+
+/* Gespraechsziele: trugen die Textzeichen ✓ und ○ und die Kompetenz-Kennung
+   als Anhaengsel — die sagt dem Lernenden an dieser Stelle nichts. */
+.dlg-goal { display:flex; align-items:flex-start; gap:10px; padding:7px 0; line-height:1.5; }
+.dlg-goal-sym { width:.95rem; height:.95rem; margin-top:.18rem; flex:none; fill:none;
+  stroke:currentColor; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; }
+.dlg-goal.hit .dlg-goal-sym { color:var(--emerald); }
+.dlg-goal.miss .dlg-goal-sym { color:var(--faint); }
+.dlg-goal.miss span { color:var(--dim); }
+.dlg-feedback { margin-top:14px; padding-top:14px; border-top:1px solid var(--line); line-height:1.6; }
+.dlg-assessment .chead .sub b { font-family:var(--font-display); color:var(--text); }
