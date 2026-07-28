@@ -23,7 +23,7 @@ export function checkRewards(state, doc = document, { anchor = null, phaseComple
   const lvl = levelFor(state.xp ?? 0, titel);
   if ((state.level ?? 1) < lvl.level) {
     state.level = lvl.level;
-    ceremony(doc, CEREMONY.GROSS, { title: `Level ${lvl.level} — ${lvl.title}`, text: 'Aktivitäts-XP treiben Level und Badges; dein Können zeigt das Kompetenz-Radar (#28).', image: 'assets/badges/endstufe-krone.webp', stats: [{ k: 'XP', v: state.xp ?? 0 }, { k: 'Level', v: lvl.level }] });
+    ceremony(doc, CEREMONY.GROSS, { title: `Level ${lvl.level} — ${lvl.title}`, text: 'Aktivitäts-XP treiben Level und Badges; dein Können zeigt das Kompetenz-Radar.', image: 'assets/badges/endstufe-krone.webp', stats: [{ k: 'XP', v: state.xp ?? 0 }, { k: 'Level', v: lvl.level }] });
     fired.push({ tier: 'gross', kind: 'level', level: lvl.level, title: lvl.title });
   } else if (state.level == null) {
     state.level = lvl.level;
@@ -96,7 +96,7 @@ export function renderBadgeGallery(mount, state) {
       <img src="${badgeArt(b.id)}" alt="" onerror="this.style.visibility='hidden'">
       <span>${b.title}</span>
     </div>`).join('')}</div>
-   <p class="dim">${have.size}/${BADGES.length} verdient · XP belohnt Arbeit, das Kompetenz-Radar zeigt Können (#28 — beides bleibt getrennt).</p>`;
+   <p class="dim">${have.size}/${BADGES.length} verdient · XP belohnt Arbeit, das Kompetenz-Radar zeigt Können.</p>`;
   return { verdient: have.size, gesamt: BADGES.length };
 }
 

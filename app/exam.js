@@ -142,7 +142,7 @@ route('test', async (view, ctx, [phaseId]) => {
         <div class="tor-pfeil" aria-hidden="true">→</div>
         <div class="tor-schritt"><span class="tor-nr">2</span><b>Kapiteltest</b><span>Teil 1 Triage ohne Hilfsmittel, Teil 2 Quellenarbeit am Verordnungstext</span></div>
       </div>
-      <p class="tor-warum">Die Generalprobe steht vor der Prüfung: wer das Gespräch nicht trägt, reißt im Test die Anwendungsfragen — und ein verbrannter Versuch kostet mehr als eine Wiederholung (§4.2).</p>
+      <p class="tor-warum">Das Fachgespräch ist die Generalprobe für die Anwendungsfragen im Test.</p>
       <div class="ex-start-zeile">${sz ? `<button class="btn-primary" onclick="location.hash='#/boss/${sz.id}'">Zum Bosskampf: ${sz.title}</button>` : '<p class="dim">Kein Szenario für diese Phase hinterlegt.</p>'}</div>
       ${boss ? `<p class="dim" style="margin-top:12px">Letzter Versuch: ${boss.achieved}/${boss.total} Ziele — Wiederholung mit anderem Gesprächsverlauf möglich.</p>` : ''}`);
     g.classList.add('examen-buehne');
@@ -186,9 +186,9 @@ route('test', async (view, ctx, [phaseId]) => {
             if (!ev.passed) {
               const units = []; // Einheiten-Kompetenz-Mapping steckt in den Unit-JSONs — Nachschulung nennt Fragen-IDs
               const plan = nachschulungPlan(ev, { pool, units, scenarios });
-              res.insertAdjacentHTML('beforeend', `<h4>Pflicht-Nachschulung (je Kompetenz, 100 %-Hürde, dann Retake heute möglich)</h4>
+              res.insertAdjacentHTML('beforeend', `<h4>Pflicht-Nachschulung (je Kompetenz, 100 %-Hürde, danach heute noch ein Antritt möglich)</h4>
                 <ul>${plan.map(p => `<li><b>${p.competency}</b>: ${p.questions.length} Fragen (${p.questions.slice(0, 3).join(', ')} …)${p.szenario ? ` + Kurzszenario <a href="#/boss/${p.szenario}">${p.szenario}</a>` : ''}</li>`).join('')}</ul>
-                <button class="btn" onclick="location.hash='#/test/${phaseId}';window.dispatchEvent(new HashChangeEvent('hashchange'))">Retake (neue Fragen)</button>`);
+                <button class="btn" onclick="location.hash='#/test/${phaseId}';window.dispatchEvent(new HashChangeEvent('hashchange'))">Neuer Antritt (neue Fragen)</button>`);
             }
           },
         });
@@ -267,7 +267,7 @@ route('examen', async (view, ctx) => {
             await ctx.saveState();
             view.appendChild(card(`<h3>${passed ? 'EXAMEN BESTANDEN' : 'Nicht bestanden'}</h3>
               <p>Teil A: ${(evA.pct * 100).toFixed(0)} % (${evA.passed ? 'bestanden' : evA.reason}) · Teil B: ${(bPct * 100).toFixed(0)} %</p>
-              ${passed ? '<p><a href="#/lernnachweis">→ Persönlichen Lernnachweis erstellen</a></p>' : '<p class="dim">Retake frühestens morgen (1 Antritt/Kalendertag) — Nachschulung empfohlen.</p>'}`));
+              ${passed ? '<p><a href="#/lernnachweis">→ Persönlichen Lernnachweis erstellen</a></p>' : '<p class="dim">Nächster Antritt frühestens morgen (einer pro Kalendertag) — Nachschulung empfohlen.</p>'}`));
           },
         });
       },
@@ -302,7 +302,7 @@ route('placement', async (view, ctx) => {
   const qs = placementBuild(pool, { salt: 'pl-' + ((ctx.state.placementRuns ?? 0) + 1) });
   view.appendChild(card(`<div class="chead violett"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-ziel"/></svg></span><span class="t"><h3>Placement (~15 min)</h3>
     <span class="sub">20 Fragen quer durch alle Phasen</span></span></div>
-    <p class="dim">Ergebnis sind STARTEMPFEHLUNGEN — übersprungen wird eine Einheit erst nach bestandenem Challenge-Test (#19); Tests bleiben immer Pflicht.</p>`));
+    <p class="dim">Ergebnis sind Startempfehlungen. Eine Einheit überspringst du erst nach einem bestandenen Challenge-Test; Tests bleiben immer Pflicht.</p>`));
   runQuestions(view, qs, {
     mode: 'exam', kind: 'placement', llm,
     onDone: async results => {
@@ -331,7 +331,7 @@ route('challenge', async (view, ctx, [unitId]) => {
 
   const intro = card(`<div class="chead gold"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-pruefung"/></svg></span><span class="t"><h3>Challenge-Test — ${unit.title}</h3>
     <span class="sub">${ch.questions.length} Fragen zur Kompetenz ${unit.competency} · Hürde ${ch.passRequired * 100} % · Closed Book</span></span></div>
-    <p>Bestehst du, wird die Einheit als <b>übersprungen</b> markiert (Karten laufen trotzdem durchs Leitner-System, der Kapiteltest bleibt Pflicht, #12/#19).</p>
+    <p>Bestehst du, wird die Einheit als <b>übersprungen</b> markiert. Die Karten bleiben im Wiederholungs-System, der Kapiteltest bleibt Pflicht.</p>
     <button class="btn-primary" id="ch-start">Challenge starten</button>`);
   view.appendChild(intro);
   intro.querySelector('#ch-start').onclick = () => {
@@ -347,7 +347,7 @@ route('challenge', async (view, ctx, [unitId]) => {
         view.appendChild(card(`<h3>${bestanden ? 'Bestanden — Einheit übersprungen' : 'Nicht bestanden'} (${(ev.pct * 100).toFixed(0)} %)</h3>
           <p>${bestanden
             ? 'Die Einheit gilt als nachgewiesen und erscheint in der Lernen-Ansicht als übersprungen. Karten der Einheit bleiben im Wiederholungs-System.'
-            : `Unter ${ch.passRequired * 100} % — die Einheit bleibt im Lernpfad. Das ist der Sinn des Verfahrens: Skips werden einzeln verdient (#19).`}</p>
+            : `Unter ${ch.passRequired * 100} % — die Einheit bleibt im Lernpfad.`}</p>
           <a class="btn" href="#/einheit/${unit.id}">Zur Einheit</a> <a class="btn" href="#/lernen">Zur Übersicht</a>`));
       },
     });
@@ -393,7 +393,7 @@ route('lernnachweis', async (view, ctx) => {
         <dd>${bestAll ? `<b>${(bestAll.pct * 100).toFixed(0)} %</b>${typeof bestAll.a === 'number' && typeof bestAll.b === 'number' ? ` — Teil A ${(bestAll.a * 100).toFixed(0)} %, Teil B ${(bestAll.b * 100).toFixed(0)} %` : ''}${bestAll.day ? `, am ${bestAll.day}` : ''}` : 'noch kein bestandenes Examen'}</dd>
         <dt>Level und Punkte</dt>
         <dd>Level <b>${st.level ?? 1}</b> · <b>${(st.xp ?? 0).toLocaleString('de-AT')}</b> XP
-            <span class="dim">— Aktivität, nicht Kompetenz (#28)</span></dd>
+            <span class="dim">— Aktivität, nicht Kompetenz</span></dd>
         <dt>Kapiteltests</dt>
         <dd><b>${Object.values(st.chapterTests ?? {}).filter(t => t.passed).length}</b> von 9 bestanden</dd>
         <dt>Rechtsstand</dt>
