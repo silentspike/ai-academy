@@ -454,7 +454,7 @@ route('dashboard', async (view, ctx) => {
       if (eng.length) {
         const w = document.createElement('div');
         w.className = 'card feas-note';
-        w.innerHTML = `<b>Ehrliche Rechnung:</b> Für „${eng[0].label ?? 'dein Ziel'}" bräuchtest du ~${eng[0].neededMinutesPerDay ?? '?'} min/Tag (geplant: ${s.pace.minutesPerDay}). <a href="#/einstellungen">Ziel oder Pensum anpassen</a> — ein Plan, der rechnerisch nicht aufgeht, erzeugt nur Schuldgefühle (§5.1).`;
+        w.innerHTML = `<b>Ehrliche Rechnung:</b> Für „${eng[0].label ?? 'dein Ziel'}" bräuchtest du ~${eng[0].neededMinutesPerDay ?? '?'} min/Tag (geplant: ${s.pace.minutesPerDay}). <a href="#/einstellungen">Ziel oder Pensum anpassen</a>.`;
         view.appendChild(w);
       }
     } catch { /* Pacing ist Zusatz */ }
@@ -534,7 +534,7 @@ route('dashboard', async (view, ctx) => {
           <img src="assets/characters/crew/01-coach-zufrieden.webp" alt="" loading="lazy" onerror="this.style.display='none'">
           <div class="coach-text" id="d-coach"></div>
         </div></div>
-      <div class="card"><div class="chead" style="margin-bottom:4px"><span class="t"><h3>Badges</h3><span class="sub">Aktivität — nicht Kompetenz (#28)</span></span></div><div id="d-badges"></div></div>
+      <div class="card"><div class="chead" style="margin-bottom:4px"><span class="t"><h3>Badges</h3><span class="sub">Aktivität — nicht Kompetenz</span></span></div><div id="d-badges"></div></div>
       <div class="card duo-card"><div class="duo">
         <div><div class="chead" style="margin-bottom:4px"><span class="t"><h3>XP · Wochen</h3></span></div><div id="d-xp"></div></div>
         <div><div class="chead" style="margin-bottom:4px"><span class="t"><h3>Examen</h3></span></div><div id="d-exam"></div></div>
@@ -656,7 +656,7 @@ const PHASE_LABEL = { p1: 'Fundament', p2: 'Verbote', p3: 'Einstufung', p4: 'Pfl
  * little if the product never says it.
  */
 const PHASE_NOTIZ = {
-  p8: 'Nicht dein Kerngebiet — aber genau die Artikel, die in Diskussionen unvermittelt auftauchen. Als Überblick, nicht zum Anwenden (#3).',
+  p8: 'Nicht dein Kerngebiet — aber genau die Artikel, die in Diskussionen unvermittelt auftauchen. Als Überblick, nicht zum Anwenden.',
   p10: 'Kür: die Erwägungsgründe liefern die Auslegungsargumente, die in Diskussionen den Ausschlag geben.',
 };
 
@@ -696,7 +696,7 @@ route('lernen', async (view, ctx, [phaseFilter]) => {
       row.innerHTML = `<a class="ph ${status}" href="#/einheit/${u.id}">
           <span class="ring">${done.has(u.id) ? '✓' : skipped.has(u.id) ? '»' : u.level}</span>
           <span class="u-titel">${u.title}</span><span class="u-komp">${u.competency ?? ''}</span></a>
-        ${status ? '' : `<a class="btn-mini" href="#/challenge/${u.id}" title="Challenge-Test: 6 Fragen, 80 % — bei Bestehen wird die Einheit übersprungen (#19)">Challenge</a>`}`;
+        ${status ? '' : `<a class="btn-mini" href="#/challenge/${u.id}" title="Challenge-Test: 6 Fragen, 80 % — bei Bestehen wird die Einheit übersprungen">Challenge</a>`}`;
       list.appendChild(row);
     }
     const test = st.chapterTests?.[p];
@@ -717,7 +717,7 @@ route('einheit', async (view, ctx, [unitId]) => {
     const c = document.createElement('div');
     c.className = 'card';
     c.innerHTML = `<h3>Erst wiederholen, dann Neues</h3>
-      <p>Heute ${s.review.kern.length === 1 ? 'ist' : 'sind'} <b>${s.review.kern.length}</b> Karte${s.review.kern.length === 1 ? '' : 'n'} regulär fällig. Verteilte Wiederholung VOR neuem Stoff ist der robusteste Lern-Hebel — deshalb ist dieser Schritt Pflicht (§3, #32).</p>
+      <p>Heute ${s.review.kern.length === 1 ? 'ist' : 'sind'} <b>${s.review.kern.length}</b> Karte${s.review.kern.length === 1 ? '' : 'n'} regulär fällig. Wiederholung kommt vor neuem Stoff.</p>
       <a class="btn-primary" href="#/karten">Zum Pflicht-Review</a> <a class="btn" href="#/heute">Ritual-Übersicht</a>`;
     view.appendChild(c);
     return;
@@ -726,7 +726,7 @@ route('einheit', async (view, ctx, [unitId]) => {
   if (st.block.due) {
     const b = document.createElement('div');
     b.className = 'card block-note';
-    b.innerHTML = `<b>Intensiv-Block ${st.block.block} erreicht (~60 min).</b> <span class="dim">Kurz aufstehen — Konsolidierung im Stundentakt schlägt Durchhalten (#33).</span>`;
+    b.innerHTML = `<b>Intensiv-Block ${st.block.block} erreicht (~60 min).</b> <span class="dim">Kurz aufstehen — fünf Minuten Pause, dann weiter.</span>`;
     view.appendChild(b);
     ctx.saveState();
   }
@@ -780,7 +780,7 @@ route('karten', async (view, ctx) => {
     if (startGesamt === null) startGesamt = gesamt;
     const erledigt = Math.max(0, startGesamt - gesamt);
     const istAufhol = !q.kern.includes(c);
-    view.innerHTML = `<div class="card"><div class="chead violett"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-karten"/></svg></span><span class="t"><h3>Wiederholung</h3><span class="sub">Kern ${q.kern.length} · Aufholen heute ${aufholToday.length} · Pflicht vor neuem Stoff (#34)</span></span></div>
+    view.innerHTML = `<div class="card"><div class="chead violett"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-karten"/></svg></span><span class="t"><h3>Wiederholung</h3><span class="sub">Kern ${q.kern.length} · Aufholen heute ${aufholToday.length} · Pflicht vor neuem Stoff</span></span></div>
       <div class="karte-lauf"><span class="karte-lauf-bar"><i style="width:${Math.round(erledigt / Math.max(startGesamt, 1) * 100)}%"></i></span>
         <span class="karte-lauf-txt">${erledigt} von ${startGesamt} · noch <b>${gesamt}</b> ${gesamt === 1 ? 'Karte' : 'Karten'}</span></div>
       <div class="karte-blatt">
@@ -794,7 +794,7 @@ route('karten', async (view, ctx) => {
             <button data-r="richtig-sicher" class="ku ku-ja">richtig · sicher</button>
             <button data-r="richtig-unsicher" class="ku ku-halb">richtig · unsicher</button>
             <button data-r="falsch" class="ku ku-nein">falsch</button></div>
-          <p class="karte-hinweis">„sicher“ verlängert den Abstand am stärksten — „unsicher“ hält die Karte nah dran (Leitner, §3).</p>
+          <p class="karte-hinweis">„sicher“ verlängert den Abstand am stärksten — „unsicher“ hält die Karte nah dran.</p>
         </div>
       </div></div>`;
     view.querySelector('#k-flip').onclick = () => { view.querySelector('#k-back').hidden = false; view.querySelector('#k-flip').hidden = true; };
@@ -961,7 +961,7 @@ route('einstellungen', (view, ctx) => {
     <label class="feld"><span class="feld-name">Meilenstein 2 (Datum)</span><input id="s-m2" type="date" value="${ms[1]?.date ?? ''}"><span class="feld-hilfe" id="s-m2-lang">${datumLang(ms[1]?.date)}</span></label>
     </div>
     <div class="formular-fuss"><span class="dim" id="s-msg"></span><button class="btn-primary" id="s-save">Speichern</button></div>
-    <p class="dim fussnote">Rechtsstand ${LEGAL_STATE.replace('Rechtsstand ', '')} · Bewertungs-Regime wechselt bei Modell-/Rubrik-Änderung automatisch in eine neue Score-Serie (#17).</p>`;
+    <p class="dim fussnote">Rechtsstand ${LEGAL_STATE.replace('Rechtsstand ', '')} · Ändern sich Modell oder Bewertungsrubrik, werden Ergebnisse ab dann getrennt gezählt.</p>`;
   view.appendChild(c);
   // Ausgeschriebenes Datum unter dem Feld. Ein natives Datumsfeld wird in der
   // Sprache der Browser-Anwendung dargestellt, nicht in der des Dokuments:

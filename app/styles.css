@@ -367,6 +367,9 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 .nachweis .dim,.nachweis .dim *{color:#475569}
 .nachweis hr{border:0;border-top:1px solid #e2e8f0;margin:26px 0 20px}
 .nachweis .mono{font-family:var(--font-mono);font-size:.82em;color:#475569}
+/* Fehler am Feld, nicht im Browser-Dialog: Ein Alert sagt nicht, WO es klemmt. */
+.feld-fehler{display:block;margin-top:5px;font-size:.8rem;color:#fca5a5}
+.feld input[aria-invalid="true"],.feld select[aria-invalid="true"]{border-color:#b91c1c;outline:none}
 .nachweis-disclaimer{border:1.5px solid #b45309;background:#fef3c7;color:#78350f;
   padding:12px 14px;border-radius:7px;font-size:.82rem;line-height:1.55;margin:0 0 22px}
 /* Facts as a list, not as five paragraphs that read like a letter. */
