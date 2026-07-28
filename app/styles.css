@@ -1114,3 +1114,6 @@ a.btn-primary { padding:9px 15px; border-radius:9px; font:500 var(--fs-sm)/1.4 v
 .test-eckdaten { display:flex; flex-wrap:wrap; gap:10px 24px; align-items:baseline; margin:14px 0 16px; }
 .test-eckdaten span { color:var(--dim); font-size:.86rem; }
 .test-eckdaten b { font-family:var(--font-display); font-size:1.25rem; color:var(--text); margin-right:5px; }
+
+.tor-pfeil svg { width:1.1rem; height:1.1rem; fill:none; stroke:currentColor; stroke-width:2;
+  stroke-linecap:round; stroke-linejoin:round; }

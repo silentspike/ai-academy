@@ -47,6 +47,12 @@ function card(html) { const d = document.createElement('div'); d.className = 'ca
 async function runQuestions(view, questions, { mode, kind, llm, onDone }) {
   const results = [];
   let i = 0;
+  // Ein zweiter Klick auf dieselbe Frage (Doppelklick, oder Antwort und
+  // Sicherheits-Abfrage kurz hintereinander) plante `step` ein zweites Mal ein.
+  // Folge: `i` lief ueber das Ende hinaus und `onDone` feuerte mehrfach — im Bild
+  // stand die Ergebniskarte DREIMAL untereinander, samt drei „Neuer Antritt"-Knoepfen.
+  let fertig = false;
+  let beantwortet = -1;
   const mount = document.createElement('div');
   view.appendChild(mount);
   // Assessment and appeal cards survive moving to the next question: the mount is
@@ -56,7 +62,7 @@ async function runQuestions(view, questions, { mode, kind, llm, onDone }) {
   view.appendChild(resultsArea);
   const step = () => {
     mount.innerHTML = '';
-    if (i >= questions.length) { onDone(results); return; }
+    if (i >= questions.length) { if (!fertig) { fertig = true; onDone(results); } return; }
     const q = questions[i];
     // Counter and question on ONE surface — as two cards they read as unrelated
     // blocks, and only the first one was inside the reading column.
@@ -68,6 +74,8 @@ async function runQuestions(view, questions, { mode, kind, llm, onDone }) {
     head.appendChild(qm);
     renderQuestion(qm, q, {
       onAnswered: async (res, conf) => {
+        if (beantwortet === i) return;   // dieselbe Frage nur einmal zaehlen
+        beantwortet = i;
         if (res.verdict === 'pending_agent') {
           qm.insertAdjacentHTML('beforeend', '<p class="dim">Bewertung läuft (frischer Prüfer-Aufruf)…</p>');
           try {
@@ -136,7 +144,22 @@ route('test', async (view, ctx, [phaseId]) => {
   const attempts = (st.chapterTests[phaseId]?.attempts ?? 0);
 
   if (!llm.summativeAllowed) {
-    view.appendChild(card(`<h3>Kapiteltest ${phaseId?.toUpperCase()}</h3><p class="dim">Prüfungen gesperrt: ${llm.gate.reason}</p>`));
+    // War eine Ueberschrift mit dem Kuerzel und ein grauer Satz, der den
+    // technischen Grund unveraendert durchreichte. Dieselbe Lage-Karte wie im
+    // Einrichtungs-Ablauf: Schloss, Ueberschrift, Grund, Weg.
+    const gesperrt = card(`<div class="lage lage-warnung">
+        <span class="lage-symbol"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-lock"/></svg></span>
+        <div class="lage-txt">
+          <h3>Prüfungen sind gesperrt</h3>
+          <p>${llm.gate.reason}. Prüfungen dieser Akademie zählen nur, wenn sie von einem
+          Modell bewertet werden, dessen Maßstab wir kennen — sonst hieße dieselbe Note
+          bei jedem etwas anderes.</p>
+          <p class="feld-hilfe">Starte die Bridge mit einem unterstützten Modell neu, dann geht es hier weiter.</p>
+        </div>
+      </div>
+      <div class="formular-fuss"><a class="btn" href="#/lernen/${phaseId}">Zurück zur Phase</a></div>`);
+    gesperrt.classList.add('sperr-karte');
+    view.appendChild(gesperrt);
     return;
   }
   // Dialogue gating: each phase requires a solid expert conversation before the test
@@ -147,11 +170,11 @@ route('test', async (view, ctx, [phaseId]) => {
     const { scenarios } = await data();
     const sz = scenarios.find(x => x.id.startsWith('sz-' + phaseId + '-'));
     const g = card(`<div class="chead gold"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-lock"/></svg></span>
-      <span class="t"><h3>Kapiteltest ${phaseId.toUpperCase()}</h3><span class="sub">Noch gesperrt — erst das Fachgespräch</span></span></div>
+      <span class="t"><h3>Kapiteltest — ${PHASEN_NAME[phaseId] ?? phaseId.toUpperCase()}</h3><span class="sub">Noch gesperrt — erst das Fachgespräch</span></span></div>
       <div class="tor-weg">
-        <div class="tor-schritt jetzt"><span class="tor-nr">1</span><b>Bosskampf</b><span>Fachgespräch der Phase — Mindesturteil „solide“: ≥ 50 % der Gesprächsziele, keine Critical-Falle</span></div>
-        <div class="tor-pfeil" aria-hidden="true">→</div>
-        <div class="tor-schritt"><span class="tor-nr">2</span><b>Kapiteltest</b><span>Teil 1 Triage ohne Hilfsmittel, Teil 2 Quellenarbeit am Verordnungstext</span></div>
+        <div class="tor-schritt jetzt"><span class="tor-nr">1</span><b>Bosskampf</b><span>Das Fachgespräch dieser Phase. Bestanden ab der Hälfte der Gesprächsziele — und ohne in eine der Fallen zu tappen, die sofort durchfallen lassen.</span></div>
+        <div class="tor-pfeil" aria-hidden="true"><svg><use href="assets/icons/sprite.svg#icon-ui-chevron"/></svg></div>
+        <div class="tor-schritt"><span class="tor-nr">2</span><b>Kapiteltest</b><span>Erst Fragen ohne Hilfsmittel, dann Aufgaben am Verordnungstext.</span></div>
       </div>
       <p class="tor-warum">Das Fachgespräch ist die Generalprobe für die Anwendungsfragen im Test.</p>
       <div class="ex-start-zeile">${sz ? `<button class="btn-primary" onclick="location.hash='#/boss/${sz.id}'">Zum Bosskampf: ${sz.title}</button>` : '<p class="dim">Kein Szenario für diese Phase hinterlegt.</p>'}</div>
@@ -179,7 +202,10 @@ route('test', async (view, ctx, [phaseId]) => {
     runQuestions(view, test.part1, {
       mode: 'exam', kind: 'chapter1', llm,
       onDone: r1 => {
-        view.appendChild(card('<h3>Teil 2 — Quellenarbeit (Open Book)</h3><p class="dim">Der Verordnungstext (Originaltext-Boxen der Einheiten) darf verwendet werden.</p>'));
+        // „(Open Book)" und „Originaltext-Boxen der Einheiten" waren unsere Woerter.
+        view.appendChild(card(`<div class="chead"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-fach-paragraph"/></svg></span>
+          <span class="t"><h3>Teil 2 — Arbeit am Verordnungstext</h3>
+          <span class="sub">Hier darfst du nachschlagen: Der Wortlaut der Verordnung steht in den Einheiten zum Aufklappen bereit.</span></span></div>`));
         runQuestions(view, test.part2, {
           mode: 'open', kind: 'chapter2', llm,
           onDone: async r2 => {
