@@ -45,7 +45,7 @@
         <span class="pill mono" id="tb-legal">Rechtsstand 27.7.2026</span>
         <div class="suchbox" id="tb-suche">
           <svg class="such-icon" aria-hidden="true"><use href="assets/icons/sprite.svg#icon-act-suche"/></svg>
-          <input id="tb-suche-feld" type="search" placeholder="Einheit, Begriff oder Artikel suchen"
+          <input id="tb-suche-feld" type="search" placeholder="Einheit, Begriff, Artikel …"
                  autocomplete="off" aria-label="Suche in Einheiten, Glossar und Fundstellen">
           <div class="such-treffer-liste" id="tb-suche-treffer" hidden></div>
         </div>
@@ -76,7 +76,7 @@
       <div class="setup-fortschritt" id="setup-fortschritt" hidden></div>
       <div class="lernnav" id="lernnav">
       <div class="sect">Lernstruktur</div>
-      <a class="ph" data-nav="heute" href="#/heute"><svg class="ico" style="width:1.05rem"><use href="assets/icons/sprite.svg#icon-st-kalender"/></svg> Heute <span class="count" id="ritual-step">1/4</span><svg class="ph-chevron" aria-hidden="true"><use href="assets/icons/sprite.svg#icon-ui-chevron"/></svg></a>
+      <a class="ph" data-nav="heute" href="#/heute"><svg class="ico" style="width:1.05rem"><use href="assets/icons/sprite.svg#icon-st-kalender"/></svg> Heute <span class="count" id="ritual-step" title="Schritt im Tagesablauf">1/4</span><svg class="ph-chevron" aria-hidden="true"><use href="assets/icons/sprite.svg#icon-ui-chevron"/></svg></a>
       <a class="ph" data-nav="dashboard" href="#/dashboard"><svg class="ico" style="width:1.05rem"><use href="assets/icons/sprite.svg#icon-nav-dashboard"/></svg> Dashboard<svg class="ph-chevron" aria-hidden="true"><use href="assets/icons/sprite.svg#icon-ui-chevron"/></svg></a>
       <div class="sep"></div>
       <div id="phase-tree" class="phase-tree"></div>
@@ -88,8 +88,10 @@
     </aside>
 
     <div id="sim-banner" class="sim-banner" hidden>
-      <b>Simulation</b> — alle Lernpfad-Sperren offen (Examens-Gate, Tagesantritt, Pflicht-Review, Bosskampf-Vorbedingung).
-      Eigener Lernstand, getrennter Prozess. Ergebnisse hier zählen nichts.
+      <svg class="ut-sym" aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-unlock"/></svg>
+      <b>Simulation</b> — hier sind alle Sperren offen: Examen, Tagesablauf, Pflicht-Wiederholung
+      und das Fachgespräch vor dem Kapiteltest. Eigener Lernstand, eigener Prozess.
+      Was hier passiert, zählt nicht.
     </div>
     <main class="dashboard single" id="view"></main>
   </div>

@@ -150,7 +150,10 @@ body { padding:0; background:#04060b; overflow:hidden; display:grid; place-items
   font-variant-numeric:tabular-nums; font-size:.86rem; position:relative; top:.5px; }
 .pill svg { width:1.02rem; height:1.02rem; }
 .pill.mono { font-family:var(--font-mono); font-size:.72rem; letter-spacing:.02em; }
-.tb-right { display:flex; gap:8px; align-items:center; }
+/* Rechts halten, auch wenn die linke Gruppe leer ist: im Einrichtungs-Modus
+   gibt es weder XP noch Level, und die Rechtsstand-Plakette rutschte damit an
+   den linken Rand — dieselbe Leiste sah in den zwei Zustaenden verschieden aus. */
+.tb-right { display:flex; gap:8px; align-items:center; margin-left:auto; }
 .tb-right .pill { flex:0 0 auto; }
 .iconbtn { width:38px; height:38px; border-radius:50%;
   background:var(--grad-card-soft); border:1px solid var(--line);
