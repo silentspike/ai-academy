@@ -60,8 +60,9 @@ async function runQuestions(view, questions, { mode, kind, llm, onDone }) {
     const q = questions[i];
     // Counter and question on ONE surface — as two cards they read as unrelated
     // blocks, and only the first one was inside the reading column.
-    const head = card(`<div class="q-meta"><span class="q-zaehler">Frage ${i + 1}<i>/${questions.length}</i></span>
-      <span class="q-marken"><span class="q-marke">${q.competency}</span><span class="q-marke">Stufe ${q.level}</span>${mode === 'exam' ? '<span class="q-marke streng">Closed Book</span>' : mode === 'open' ? '<span class="q-marke">Verordnungstext erlaubt</span>' : ''}</span></div>`);
+    const head = card(`<div class="q-fortschritt" role="img" aria-label="Frage ${i + 1} von ${questions.length}"><i style="width:${Math.round((i + 1) / questions.length * 100)}%"></i></div>
+      <div class="q-meta"><span class="q-zaehler">Frage ${i + 1}<i>/${questions.length}</i></span>
+      <span class="q-marken"><span class="q-marke">${q.competency}</span><span class="q-marke">Stufe ${q.level}</span>${mode === 'exam' ? '<span class="q-marke streng">ohne Hilfsmittel</span>' : mode === 'open' ? '<span class="q-marke">Verordnungstext erlaubt</span>' : ''}</span></div>`);
     mount.appendChild(head);
     const qm = document.createElement('div');
     head.appendChild(qm);
@@ -82,10 +83,14 @@ async function runQuestions(view, questions, { mode, kind, llm, onDone }) {
             // checked against the shipped provisions, and an unsourced one says so.
             // It matters more here than anywhere else — this text explains a mark.
             const quellen = await quellenHinweis(r);
-            const fb = card(`<p><b>${r.score}/${r.max || 10}</b> — ${r.feedback ?? ''}</p>${quellen}${lab}
-              <details><summary>Einspruch einlegen</summary>
-              <textarea class="q-freetext" rows="2" placeholder="Begründung des Einspruchs …"></textarea>
-              <button class="btn">Einspruch abschicken (frische Zweitprüfung)</button>
+            // Die Bewertung begann mit „2/10 — " im Fliesstext. Die Punktzahl ist
+            // die Kernzahl dieser Karte und gehoert entsprechend gesetzt.
+            const fb = card(`<div class="bew-kopf"><span class="bew-wert"><b>${r.score}</b><span>von ${r.max || 10}</span></span>
+                <p class="bew-text">${r.feedback ?? ''}</p></div>${quellen}${lab}
+              <details class="bew-einspruch"><summary>Einspruch einlegen</summary>
+              <p class="feld-hilfe">Eine zweite Bewertung entscheidet neu — sie sieht deine Antwort und die Aufgabenstellung, aber nicht die erste Bewertung.</p>
+              <textarea class="q-freetext" rows="2" placeholder="Woran ist die Bewertung deiner Ansicht nach vorbeigegangen?"></textarea>
+              <div class="formular-fuss"><button class="btn">Einspruch abschicken</button></div>
               <span class="dim" style="display:block"></span></details>`);
             resultsArea.appendChild(fb);
             fb.querySelector('button').onclick = async ev => {
@@ -116,6 +121,12 @@ async function runQuestions(view, questions, { mode, kind, llm, onDone }) {
 }
 
 // ---------------------------------------------------------------- Kapiteltest #/test/p2
+// Phasen-Namen fuer die Kopfzeilen der Pruefungen: „Kapiteltest P5" sagte dem
+// Lernenden nichts, „Phase 5 · Transparenz" schon.
+const PHASEN_NAME = { p1: 'Phase 1 · Fundament', p2: 'Phase 2 · Verbote', p3: 'Phase 3 · Einstufung',
+  p4: 'Phase 4 · Pflichten', p5: 'Phase 5 · Transparenz', p6: 'Phase 6 · GPAI', p7: 'Phase 7 · Aufsicht',
+  p8: 'Phase 8 · Randwissen', p9: 'Phase 9 · Ländermodul AT', p10: 'Phase 10 · Auslegung' };
+
 route('test', async (view, ctx, [phaseId]) => {
   const { pool, kompetenzen, scenarios } = await data();
   const llm = new LlmAdapter({});
@@ -154,9 +165,13 @@ route('test', async (view, ctx, [phaseId]) => {
   // Kopf mit Symbol wie in jeder anderen Ansicht (Heute, Drill, Wiederholung,
   // Examen). Kapiteltest und Placement waren die zwei Einstiege ohne — nebeneinander
   // gesehen sahen sie aus, als gehörten sie nicht zum selben Werkzeug.
-  const intro = card(`<div class="chead"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-pruefung"/></svg></span><span class="t"><h3>Kapiteltest ${phaseId.toUpperCase()} — zweiteilig</h3>
-    <span class="sub">Teil 1 „Triage" (${test.part1.length} Fragen, Closed Book) → Teil 2 „Quellenarbeit" (${test.part2.length} Aufgaben, Verordnungstext erlaubt)</span></span></div>
-    <p>Bestehensgrenze ${PASS_SCORE * 100} % · <a href="docs/CRITICAL-ERRORS.md" target="_blank">Critical-Error-Liste</a> · Antritt ${attempts + 1}</p>
+  const intro = card(`<div class="chead"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-pruefung"/></svg></span><span class="t"><h3>Kapiteltest — ${PHASEN_NAME[phaseId] ?? phaseId.toUpperCase()}</h3>
+    <span class="sub">Zwei Teile: erst ${test.part1.length} Fragen ohne Hilfsmittel, dann ${test.part2.length} Aufgaben mit dem Verordnungstext.</span></span></div>
+    <div class="test-eckdaten">
+      <span><b>${PASS_SCORE * 100} %</b> zum Bestehen</span>
+      <span><b>${attempts + 1}.</b> Antritt</span>
+      <span><a href="docs/CRITICAL-ERRORS.md" target="_blank">Fehler, die sofort durchfallen lassen</a></span>
+    </div>
     <button class="btn-primary" id="t-start">Teil 1 starten</button>`);
   view.appendChild(intro);
   intro.querySelector('#t-start').onclick = () => {
@@ -219,12 +234,12 @@ route('examen', async (view, ctx) => {
         <span class="sub">Der Nachweis, dass es sitzt</span></span></div>
       <div class="ex-teile">
         <div class="ex-teil"><span class="ex-nr">A</span><b>40 Fragen · 60 Minuten</b>
-          <span>Closed Book — keine Hilfsmittel, wie im Meeting</span></div>
+          <span>Ohne Hilfsmittel — so wie im Meeting, wenn niemand nachschlagen kann</span></div>
         <div class="ex-teil"><span class="ex-nr">B</span><b>Capstone · ~30 Minuten</b>
           <span>Open Book — ein Fall mit dem Verordnungstext am Tisch</span></div>
       </div>
       <p class="ex-regel">Beide Teile müssen bestanden werden · höchstens ein Antritt pro Kalendertag</p>
-      <p class="dim ex-fuss">Rechtsstand ${RECHTSSTAND} · <a href="docs/CRITICAL-ERRORS.md" target="_blank">Critical-Error-Liste</a> · <a href="docs/CUT-SCORE-BLUEPRINT.md" target="_blank">Cut-Score-Begründung</a></p>
+      <p class="dim ex-fuss">Rechtsstand ${RECHTSSTAND} · <a href="docs/CRITICAL-ERRORS.md" target="_blank">Fehler, die sofort durchfallen lassen</a> · <a href="docs/CUT-SCORE-BLUEPRINT.md" target="_blank">Warum die Grenze bei 80 % liegt</a></p>
     </div>`);
   view.appendChild(head);
 
@@ -309,8 +324,26 @@ route('placement', async (view, ctx) => {
       const rec = placementRecommend(qs, results.map(r => ({ correct: (r.score ?? 0) >= 1 })));
       ctx.state.placement = rec; ctx.state.placementRuns = (ctx.state.placementRuns ?? 0) + 1;
       await ctx.saveState();
-      view.appendChild(card(`<h3>Startempfehlungen</h3><ul>` + Object.entries(rec).map(([ph, r]) =>
-        `<li><b>${ph.toUpperCase()}</b> — ${(r.quote * 100).toFixed(0)} % → ${r.empfehlung === 'challenge_moeglich' ? 'stark: Challenge-Tests je Einheit möglich' : r.empfehlung === 'zuegig' ? 'zügig durchgehen' : 'gründlich lernen'}</li>`).join('') + `</ul>`));
+      // Die Empfehlung war eine Standard-Aufzählung mit Phasen-Kürzeln („P2 — 50 %“).
+      // Der Nutzer kennt keine Kürzel, und ein Prozentvergleich über zehn Zeilen ist
+      // ein Bild, keine Liste. Jetzt: Phasenname, Balken, Farbe nach Empfehlung.
+      const { PHASEN } = await import('./app.js');
+      const name = id => PHASEN.find(([pid]) => pid === id)?.[1] ?? id.toUpperCase();
+      const stufe = e => e === 'challenge_moeglich' ? { k: 'stark', t: 'Challenge-Test möglich' }
+        : e === 'zuegig' ? { k: 'mittel', t: 'zügig durchgehen' } : { k: 'neu', t: 'gründlich lernen' };
+      view.appendChild(card(`<div class="chead"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-fach-heatmap"/></svg></span><span class="t"><h3>Wo du schon stehst</h3>
+          <span class="sub">Empfehlung je Phase — übersprungen wird erst nach einem bestandenen Challenge-Test</span></span></div>
+        <!-- Reihenfolge aus PHASEN, nicht aus der Schlüsselreihenfolge des Ergebnisses:
+             sonst steht „Verbote“ vor „Fundament“. -->
+        <div class="pl-liste">${PHASEN.map(([pid]) => [pid, rec[pid]]).filter(([, r]) => r).map(([ph, r]) => {
+          const st = stufe(r.empfehlung);
+          return `<div class="pl-zeile ${st.k}">
+            <span class="pl-name">${name(ph)}</span>
+            <span class="pl-spur"><i style="width:${Math.max(3, Math.round(r.quote * 100))}%"></i></span>
+            <span class="pl-quote">${(r.quote * 100).toFixed(0)} %</span>
+            <span class="pl-tipp">${st.t}</span></div>`;
+        }).join('')}</div>
+        <div class="formular-fuss"><a class="btn-primary" href="#/heute">Zum ersten Lerntag</a></div>`));
     },
   });
 });
@@ -330,7 +363,7 @@ route('challenge', async (view, ctx, [unitId]) => {
     { salt: 'ch' + ((st.challengeAttempts?.[unit.id] ?? 0) + 1) });
 
   const intro = card(`<div class="chead gold"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-pruefung"/></svg></span><span class="t"><h3>Challenge-Test — ${unit.title}</h3>
-    <span class="sub">${ch.questions.length} Fragen zur Kompetenz ${unit.competency} · Hürde ${ch.passRequired * 100} % · Closed Book</span></span></div>
+    <span class="sub">${ch.questions.length} Fragen zur Kompetenz ${unit.competency} · Hürde ${ch.passRequired * 100} % · ohne Hilfsmittel</span></span></div>
     <p>Bestehst du, wird die Einheit als <b>übersprungen</b> markiert. Die Karten bleiben im Wiederholungs-System, der Kapiteltest bleibt Pflicht.</p>
     <button class="btn-primary" id="ch-start">Challenge starten</button>`);
   view.appendChild(intro);

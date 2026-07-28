@@ -115,7 +115,7 @@ export function heroOnce(state, doc = document) {
       <h1>AI-Act-Akademie</h1>
       <p>Den EU AI Act nicht nachlesen, sondern anwenden können — Einstufung, Pflichten, Fristen.
          Auf dem Rechtsstand, der wirklich gilt.</p>
-      <button class="btn-primary">Los geht's</button>
+      <button class="btn-primary">Los geht’s</button>
     </div>`;
   doc.body.appendChild(ov);
   return new Promise(res => {

@@ -53,20 +53,26 @@ route('heute', async (view, ctx) => {
   const takt = (i, name, sub, done, href, gesperrt) => `
     <a class="ritual-step${done ? ' done' : ''}${i === idx ? ' active' : ''}${gesperrt ? ' locked' : ''}"
        ${gesperrt ? '' : `href="${href}"`}>
-      <span class="ritual-num">${done ? '✓' : i + 1}</span>
+      <span class="ritual-num">${done
+        ? '<svg class="ritual-sym" aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-check"/></svg>'
+        : gesperrt
+        ? '<svg class="ritual-sym" aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-lock"/></svg>'
+        : i + 1}</span>
       <span class="ritual-txt"><b>${name}</b><span class="dim">${sub}</span></span>
     </a>`;
 
   view.appendChild(card(`<div class="chead violett"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-kalender"/></svg></span><span class="t"><h3>Heute — dein Ritual</h3>
-    <span class="sub">Vier Schritte, immer in derselben Reihenfolge. Wiederholung kommt vor neuem Stoff.</span></span></div>
+    <span class="sub">Vier Schritte, immer in derselben Reihenfolge. Wiederholung kommt vor neuem Stoff. <b class="schritt-zaehler">Schritt ${idx + 1} von ${STEPS.length}</b></span></span></div>
+    <div class="ob-fortschritt ritual-fortschritt" role="img" aria-label="Schritt ${idx + 1} von ${STEPS.length}">
+      <i style="width:${Math.round((idx + 1) / STEPS.length * 100)}%"></i></div>
     <div class="ritual">
-      ${takt(0, 'Pflicht-Review', `Kern ${s.review.kern.length} · Aufholen ${s.review.aufhol.length} · Retention-Checks ${s.review.retentionChecks.length}`, s.review.done, '#/karten', false)}
+      ${takt(0, 'Pflicht-Review', `<b class="ritual-zahl">${s.review.kern.length}</b> im Kern · <b class="ritual-zahl">${s.review.aufhol.length}</b> zum Aufholen · <b class="ritual-zahl">${s.review.retentionChecks.length}</b> Behaltens-Prüfungen`, s.review.done, '#/karten', false)}
       ${takt(1, `Einheiten (${s.unitsDone}/${s.unitsPlanned})`, canStartUnit(s, ctx.simulation) ? 'Neuer Stoff freigeschaltet' : 'Gesperrt bis das Review erledigt ist', s.unitsDone >= s.unitsPlanned, '#/lernen', !canStartUnit(s, ctx.simulation))}
       ${takt(2, 'Tages-Drill', '5 Fragen: 3 Schwäche · 1 Zufall · 1 Grenzfall', s.drill.done, '#/drill', false)}
       ${takt(3, 'Abschluss-Karte', 'Bilanz, Kurve, Morgen-Vorschau', s.step === 'wrapup' && s.wrapupSeen, '#/wrapup', false)}
     </div>
-    ${marathon.warn ? `<p class="ritual-warn">⚠ ${marathon.text}</p>` : ''}
-    ${s.blocks.count ? `<p class="dim">Intensiv-Blöcke heute: ${s.blocks.count} (nach je ~60 min ein Mini-Block mit Pausenvorschlag, #33)</p>` : ''}`));
+    ${marathon.warn ? `<p class="ritual-warn"><svg class="ritual-sym" aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-warn"/></svg> ${marathon.text}</p>` : ''}
+    ${s.blocks.count ? `<p class="dim">Pausen-Blöcke heute: <b class="ritual-zahl">${s.blocks.count}</b> — nach je etwa einer Stunde kommt ein kurzer Block mit fünf Blitzfragen und einem Pausenvorschlag.</p>` : ''}`));
 
   // Detect completion automatically: nothing due any more means step 1 is done
   if (!s.review.done && q.kern.length === 0) { completeStep(s, 'review'); await ctx.saveState(); }
@@ -107,9 +113,18 @@ route('drill', async (view, ctx) => {
   ];
   while (chosen.length < s.drill.size) chosen.push(...pick(q => !chosen.includes(q), 1));
   const questions = chosen.slice(0, s.drill.size);
+  // Die Unterzeile nannte die Kompetenzen als Kuerzel (K02 · K01 · K12) und
+  // dahinter unser eigenes Vokabular („straffrei", „Pool", „Varianten").
+  // Kuerzel stehen im Datensatz, Namen gehoeren in den Text.
+  let weakNamen = weak.join(' · ');
+  try {
+    const kk = (await fetch('content/competencies.json').then(r => r.json())).kompetenzen ?? [];
+    const namen = weak.map(id => kk.find(k => k.id === id)?.name).filter(Boolean);
+    if (namen.length) weakNamen = namen.slice(0, 2).join(', ') + (namen.length > 2 ? ' u. a.' : '');
+  } catch { /* Namen sind Zusatz — im Zweifel bleiben die Kuerzel */ }
 
   view.appendChild(card(`<div class="chead gold"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-flamme"/></svg></span><span class="t"><h3>Tages-Drill</h3>
-    <span class="sub">${weak.length ? `Schwächen-gewichtet: ${weak.join(' · ')}` : 'Noch keine Schwächen-Historie — gemischte Auswahl'} · straffrei · Pool ${pool.length} Kernfragen + ${variantPool.length} Varianten</span></span></div>`));
+    <span class="sub">${s.drill.size} Fragen zum Tagesabschluss${weak.length ? `, gewichtet nach dem, was zuletzt wackelte (${weakNamen})` : ' aus dem ganzen Stoff'}. Fehler kosten hier nichts.</span></span></div>`));
   const mount = document.createElement('div');
   view.appendChild(mount);
 
@@ -120,14 +135,27 @@ route('drill', async (view, ctx) => {
       completeStep(s, 'drill');
       st.drillSeen = [...seen, ...questions.map(q => q.id)].slice(-120);
       ctx.saveState();
-      mount.appendChild(card(`<h3>Drill erledigt — ${correct}/${questions.length}</h3>
-            <a class="btn-primary" href="#/wrapup">Zur Abschluss-Karte</a>`));
+      // War eine Ueberschrift mit einem Bruch und einem Knopf. Der Drill schliesst
+      // den Lerntag ab — dieser Moment darf man sehen, und die Zahl gehoert gross.
+      const quote = correct / questions.length;
+      const ton = quote >= 0.8 ? 'gut' : quote >= 0.5 ? 'mittel' : 'schwach';
+      const satz = quote === 1 ? 'Alles getroffen. Der Tag ist zu.'
+        : quote >= 0.8 ? 'Sitzt. Was danebenging, kommt über die Wiederholung von selbst zurück.'
+        : quote >= 0.5 ? 'Die Hälfte steht. Die Fehler von heute sind die Karten von morgen.'
+        : 'Heute war zäh — genau die Fragen legt dir die Wiederholung wieder vor.';
+      mount.appendChild(card(`<div class="drill-ende ${ton}">
+          <svg class="drill-ende-sym" aria-hidden="true"><use href="assets/icons/sprite.svg#${quote >= 0.5 ? 'icon-st-check' : 'icon-act-retry'}"/></svg>
+          <p class="drill-ende-wert"><b>${correct}</b> von ${questions.length}</p>
+          <p class="drill-ende-satz">${satz}</p>
+          <a class="btn-primary" href="#/wrapup">Zur Abschluss-Karte</a>
+        </div>`));
       return;
     }
     const q = questions[i];
     // One surface per question: the counter used to sit in a card of its own and
     // the question in none, so the two read as unrelated blocks of different width.
-    const box = card(`<div class="q-meta"><span class="q-zaehler">Frage ${i + 1}<i>/${questions.length}</i></span>
+    const box = card(`<div class="q-fortschritt" role="img" aria-label="Frage ${i + 1} von ${questions.length}"><i style="width:${Math.round((i + 1) / questions.length * 100)}%"></i></div>
+      <div class="q-meta"><span class="q-zaehler">Frage ${i + 1}<i>/${questions.length}</i></span>
       <span class="q-marken"><span class="q-marke">${q.competency}</span><span class="q-marke">Stufe ${q.level}</span>${q.variant_of ? '<span class="q-marke variante" title="Aus der Fakten-DB erzeugt — nie in Prüfungen">Variante</span>' : ''}</span></div>`);
     mount.appendChild(box);
     const qm = document.createElement('div'); box.appendChild(qm);
@@ -173,9 +201,16 @@ route('wrapup', async (view, ctx) => {
   const localBackend = (ctx.storage?.backendName ?? '') === 'localStorage' || !ctx.storage?.backendName;
   if (grosseSession && !st.exportHintShownToday) {
     st.exportHintShownToday = dayKey();
-    const ex = card(`<b>Sicherheitsnetz:</b> Große Lernsitzung — jetzt einmal exportieren.
-      <span class="dim">${localBackend ? 'Browser-Speicher kann (v. a. in Safari) geräumt werden; ' : ''}der Export macht den Stand auch gerätewechselbar.</span>
-      <div style="margin-top:8px"><button class="btn" id="w-export">Lernstand exportieren</button></div>`);
+    // War fetter Fliesstext ohne Kopf und ohne Zeichen — mitten in einem
+    // Werkzeug, in dem jede andere Karte beides hat.
+    const ex = card(`<div class="lage hinweis-karte-inhalt">
+        <span class="lage-symbol lage-symbol-info"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-export"/></svg></span>
+        <div class="lage-txt">
+          <h3>Sicherheitsnetz für heute</h3>
+          <p>Das war eine große Lernsitzung. ${localBackend ? 'Der Browser-Speicher kann geräumt werden — vor allem in Safari. ' : ''}Ein Export sichert den Stand und macht ihn auf einem anderen Gerät nutzbar.</p>
+        </div>
+        <p class="lage-aktion"><button class="btn" id="w-export">Lernstand exportieren</button></p>
+      </div>`);
     view.appendChild(ex);
     ex.querySelector('#w-export').onclick = async () => {
       const bundle = await ctx.storage.exportAll();
@@ -183,7 +218,12 @@ route('wrapup', async (view, ctx) => {
       a.href = URL.createObjectURL(new Blob([JSON.stringify(bundle, null, 1)], { type: 'application/json' }));
       a.download = `ai-act-akademie-lernstand-${dayKey()}.json`;
       a.click(); URL.revokeObjectURL(a.href);
-      ex.querySelector('.dim').textContent = 'Exportiert — Datei sicher ablegen. Import über den Self-Check.';
+      // Der Erfolg trug bisher keine Farbe — die Meldung stand im selben Ton wie
+      // die Aufforderung davor.
+      ex.querySelector('.lage').classList.add('lage-erledigt');
+      ex.querySelector('.lage-symbol use').setAttribute('href', 'assets/icons/sprite.svg#icon-st-check');
+      ex.querySelector('.lage-txt h3').textContent = 'Lernstand gesichert';
+      ex.querySelector('.lage-txt p').textContent = 'Die Datei liegt in deinem Download-Ordner. Sicher ablegen — zurückholen lässt sie sich über die Selbstprüfung.';
     };
   }
 
@@ -203,8 +243,8 @@ route('wrapup', async (view, ctx) => {
     <div class="wrap-kurs ${w.drift.onTrack ? 'gut' : 'drift'}">
     ${w.drift.onTrack
       ? '<p><b>Auf Kurs</b> gegenüber der Soll-Kurve.</p>'
-      : `<p><b>${(w.drift.drift * 100).toFixed(0)} % hinter der Soll-Kurve</b> — bewusst entscheiden statt schleifen lassen:</p>
-         <ul>${(w.drift.options ?? []).map(o => `<li>${o.text}</li>`).join('')}</ul>
+      : `<p class="wk-lead"><b class="wk-wert">${Math.abs(Number((w.drift.drift * 100).toFixed(0)))} %</b> hinter der Soll-Kurve — besser jetzt entscheiden als es schleifen lassen:</p>
+         <ul class="wk-wege">${(w.drift.options ?? []).map(o => `<li><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-ui-chevron"/></svg><span>${o.text}</span></li>`).join('')}</ul>
          <a class="btn" href="#/einstellungen">Einstellungen öffnen</a>`}
     </div>
     <div class="wrap-morgen"><span class="wm-tag">Morgen</span>

@@ -110,7 +110,9 @@ export function renderTimeline(mount, milestones, opts = {}) {
     g.classList.add('tl-m');
     g.dataset.mid = m.id;
     g.innerHTML =
-      `<title>${m.label}${m.detail ? ' — ' + m.detail : ''}</title>` +
+      // Der Titel zeigt die volle Angabe, wenn es eine gibt — sonst wiederholte er
+      // nur die gekuerzte Beschriftung, die daneben ohnehin steht.
+      `<title>${m.detail ?? m.label}</title>` +
       `<line x1="${cx}" y1="0" x2="${cx}" y2="${cy}" stroke="rgba(151,169,202,.28)" stroke-dasharray="2 3"/>` +
       `<circle cx="${cx}" cy="${cy}" r="5" fill="${m.changed_by_omnibus ? '#e1ad58' : '#65d8b2'}"/>` +
       (m.changed_by_omnibus ? `<circle cx="${cx}" cy="${cy}" r="8.5" fill="none" stroke="rgba(225,173,88,.4)"/>` : '') +
@@ -173,8 +175,13 @@ export function renderAnnexExplorer(mount, areas, opts = {}) {
     card.innerHTML = `<span class="annex-nr">${a.nr}</span><span class="annex-t">${a.title}</span>` +
       (a.org_relevant ? '<span class="annex-flag">relevant für dein Profil</span>' : '');
     card.addEventListener('click', () => {
+      // Die gewaehlte Kachel war von den uebrigen nicht zu unterscheiden — man
+      // sah den Text unten, aber nicht, wo er herkam.
+      for (const andere of wrap.querySelectorAll('.annex-item')) andere.classList.remove('gewaehlt');
+      card.classList.add('gewaehlt');
       detail.innerHTML = `<h4>Anhang III Nr. ${a.nr} — ${a.title}</h4><p>${a.simple}</p>` +
-        (a.examples?.length ? `<ul>${a.examples.map(e => `<li>${e}</li>`).join('')}</ul>` : '') +
+        // Standard-Aufzaehlung mit runden Punkten war die letzte im Werkzeug.
+        (a.examples?.length ? `<ul class="annex-bsp">${a.examples.map(e => `<li>${e}</li>`).join('')}</ul>` : '') +
         `<span class="mono" data-hilfsmittel>${a.legal_basis ?? ''}</span>`;
       opts.onSelect?.(a);
     });
@@ -237,10 +244,17 @@ export function renderRoleSwitch(mount, steps, opts = {}) {
       }));
     }
     if (state.done) {
-      wrap.appendChild(Object.assign(doc.createElement('div'), {
-        className: 'rolesw-result card',
-        innerHTML: `<b>Ergebnis:</b> ${state.result}`
-      }));
+      // Das Ergebnis begann mit fettem Fliesstext, und danach gab es keinen Weg
+      // zurueck: Wer den anderen Zweig sehen wollte, musste die Seite neu laden.
+      const erg = doc.createElement('div');
+      erg.className = 'rolesw-result card';
+      erg.innerHTML = `<div class="lage">
+          <span class="lage-symbol lage-symbol-info"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-fach-rollen"/></svg></span>
+          <div class="lage-txt"><h3>Ergebnis</h3><p>${state.result}</p></div>
+        </div>
+        <div class="formular-fuss"><button class="btn" data-act="neu">Anderen Weg durchspielen</button></div>`;
+      erg.querySelector('[data-act=neu]').addEventListener('click', () => { answers.clear(); paint(); });
+      wrap.appendChild(erg);
       opts.onResult?.(state);
     } else if (state.at) {
       const s = steps.find(x => x.id === state.at);
