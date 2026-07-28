@@ -1117,3 +1117,26 @@ a.btn-primary { padding:9px 15px; border-radius:9px; font:500 var(--fs-sm)/1.4 v
 
 .tor-pfeil svg { width:1.1rem; height:1.1rem; fill:none; stroke:currentColor; stroke-width:2;
   stroke-linecap:round; stroke-linejoin:round; }
+
+/* Ergebnis eines Kapiteltests: war eine Ueberschrift mit Prozentzahl darin. */
+.erg { display:flex; align-items:center; gap:16px; }
+.erg-sym { width:2.4rem; height:2.4rem; flex:none; fill:none; stroke:currentColor; stroke-width:1.6;
+  stroke-linecap:round; stroke-linejoin:round; }
+.erg.gut .erg-sym { color:var(--emerald); }
+.erg.schlecht .erg-sym { color:var(--amber,#e1ad58); }
+.erg-txt h3 { margin:0 0 2px; }
+.erg-wert { margin:0; color:var(--dim); font-size:.86rem; }
+.erg-wert b { font-family:var(--font-display); font-size:1.8rem; color:var(--text); margin-right:6px; }
+.erg-grund { margin:14px 0 0; padding:10px 13px; border-radius:9px; line-height:1.6;
+  background:rgba(225,173,88,.08); border:1px solid rgba(225,173,88,.28); }
+.erg-komp { margin-top:16px; display:flex; flex-direction:column; gap:7px; }
+.erg-zeile { display:grid; grid-template-columns:minmax(0,15rem) 1fr auto; align-items:center; gap:12px; }
+.erg-name { font-size:.86rem; color:var(--dim); }
+.erg-bar { height:5px; border-radius:3px; background:rgba(151,169,202,.10); overflow:hidden; }
+.erg-bar i { display:block; height:100%; border-radius:3px; animation:balken-fuellt .55s var(--ease-out) both; }
+.erg-bar i.gut { background:var(--emerald); }
+.erg-bar i.mittel { background:var(--amber,#e1ad58); }
+.erg-bar i.schwach { background:var(--red); }
+.erg-zeile b { font-size:.78rem; color:var(--text); }
+.nachschulung { margin-top:20px; padding-top:16px; border-top:1px solid var(--line); }
+@media (max-width:900px){ .erg-zeile { grid-template-columns:1fr auto; } .erg-bar { grid-column:1/-1; } }

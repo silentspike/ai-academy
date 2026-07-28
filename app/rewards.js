@@ -47,7 +47,15 @@ export function checkRewards(state, doc = document, { anchor = null, phaseComple
 
   // 4. Phasen-Abschluss / Examen (GROSS)
   if (phaseCompleted) {
-    ceremony(doc, CEREMONY.GROSS, { title: `Phase ${phaseCompleted.toUpperCase()} abgeschlossen`, text: 'Kapiteltest bestanden — Bosskampf und Test hinter dir.', image: coverArt(phaseCompleted) });
+    // „Phase P7 abgeschlossen" — im groessten Moment des Lernwegs stand das
+    // Kuerzel statt des Namens.
+    const PHASEN_TITEL = { p1: 'Fundament', p2: 'Verbote', p3: 'Einstufung', p4: 'Pflichten',
+      p5: 'Transparenz', p6: 'GPAI', p7: 'Aufsicht', p8: 'Randwissen', p9: 'Ländermodul AT',
+      p10: 'Auslegung' };
+    const nr = phaseCompleted.replace('p', '');
+    ceremony(doc, CEREMONY.GROSS, {
+      title: `Phase ${nr} · ${PHASEN_TITEL[phaseCompleted] ?? ''} abgeschlossen`,
+      text: 'Fachgespräch und Kapiteltest hinter dir.', image: coverArt(phaseCompleted) });
     fired.push({ tier: 'gross', kind: 'phase', phase: phaseCompleted });
   }
   if (examPassed) {

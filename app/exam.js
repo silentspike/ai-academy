@@ -2,7 +2,7 @@
 // placement, remediation, appeal and the personal record of learning.
 // The logic lives in exam-core.js (DOM-free, tested); this file is flow and presentation.
 import { route } from './router.js';
-import { renderQuestion, applyMode, MODES } from './engine-quiz.js';
+import { renderQuestion, applyMode, MODES, escapeHtml } from './engine-quiz.js';
 
 /**
  * Source note for a graded answer. Empty when the assessment made no legal claim
@@ -219,17 +219,41 @@ route('test', async (view, ctx, [phaseId]) => {
             const { checkRewards } = await import('./rewards.js');
             checkRewards(st, document, { phaseCompleted: ev.passed ? phaseId : null });
             await ctx.saveState();
-            const res = card(`<h3>${ev.passed ? 'Bestanden' : 'Nicht bestanden'} — ${(ev.pct * 100).toFixed(0)} %</h3>
-              ${ev.reason === 'critical_error' ? `<p><b>Critical Error</b> (${ev.criticals.join(', ')}): Der Test gilt unabhängig von der Punktzahl als nicht bestanden.</p>` : ''}
-              ${ev.reason === 'kern_mindestleistung' ? `<p><b>Kern-Kompetenz unter Mindestleistung:</b> ${ev.kernFails.join(', ')}</p>` : ''}
-              <p class="dim">Kompetenzen: ${Object.entries(ev.perCompetency).map(([k, v]) => `${k} ${(v * 100).toFixed(0)} %`).join(' · ')}</p>`);
+            // Die Ergebniskarte begann mit „Nicht bestanden — 30 %" als Ueberschrift,
+            // darunter fette Zeilen mit Kompetenz-Kuerzeln und eine Browser-Aufzaehlung
+            // mit rohen Fragen-Kennungen („p3-q01, p3-q03 …"). Jetzt: Zeichen und
+            // Zustandston, die Note gross, Kompetenzen mit Namen und Balken.
+            const kName = id => kompetenzen.find(k => k.id === id)?.name ?? id;
+            const proz = v => `${(v * 100).toFixed(0)} %`;
+            const res = card(`<div class="erg ${ev.passed ? 'gut' : 'schlecht'}">
+                <svg class="erg-sym" aria-hidden="true"><use href="assets/icons/sprite.svg#${ev.passed ? 'icon-st-check' : 'icon-act-retry'}"/></svg>
+                <div class="erg-txt">
+                  <h3>${ev.passed ? 'Bestanden' : 'Nicht bestanden'}</h3>
+                  <p class="erg-wert"><b>${proz(ev.pct)}</b> von ${PASS_SCORE * 100} % nötig</p>
+                </div>
+              </div>
+              ${ev.reason === 'critical_error' ? `<p class="erg-grund"><b>${ev.criticals.length === 1 ? 'Ein Fehler' : `${ev.criticals.length} Fehler`} aus der Durchfall-Liste:</b> ${
+                // `criticals` traegt Fragen-Kennungen (p9-q11), nicht Kompetenzen — die
+                // standen roh im Nutzertext. Gemeint ist, WORAN es lag: der Kompetenzname
+                // der betroffenen Frage.
+                [...new Set(ev.criticals.map(id => kName(questions.find(q => q.id === id)?.competency ?? id)))].join(', ')
+              }. Der Test gilt damit unabhängig von der Punktzahl als nicht bestanden — im Beruf wäre das ein Compliance-Vorfall.</p>` : ''}
+              ${ev.reason === 'kern_mindestleistung' ? `<p class="erg-grund"><b>Eine Kern-Kompetenz liegt unter der Mindestleistung:</b> ${ev.kernFails.map(c => kName(c)).join(', ')}.</p>` : ''}
+              <div class="erg-komp">${Object.entries(ev.perCompetency).sort((a, b) => a[1] - b[1]).map(([k, v]) => `
+                <div class="erg-zeile"><span class="erg-name">${kName(k)}</span>
+                  <span class="erg-bar"><i style="width:${Math.round(v * 100)}%" class="${v >= PASS_SCORE ? 'gut' : v >= 0.5 ? 'mittel' : 'schwach'}"></i></span>
+                  <b class="mono">${proz(v)}</b></div>`).join('')}</div>`);
             view.appendChild(res);
             if (!ev.passed) {
-              const units = []; // Einheiten-Kompetenz-Mapping steckt in den Unit-JSONs — Nachschulung nennt Fragen-IDs
+              const units = []; // Einheiten-Kompetenz-Mapping steckt in den Unit-JSONs
               const plan = nachschulungPlan(ev, { pool, units, scenarios });
-              res.insertAdjacentHTML('beforeend', `<h4>Pflicht-Nachschulung (je Kompetenz, 100 %-Hürde, danach heute noch ein Antritt möglich)</h4>
-                <ul>${plan.map(p => `<li><b>${p.competency}</b>: ${p.questions.length} Fragen (${p.questions.slice(0, 3).join(', ')} …)${p.szenario ? ` + Kurzszenario <a href="#/boss/${p.szenario}">${p.szenario}</a>` : ''}</li>`).join('')}</ul>
-                <button class="btn" onclick="location.hash='#/test/${phaseId}';window.dispatchEvent(new HashChangeEvent('hashchange'))">Neuer Antritt (neue Fragen)</button>`);
+              res.insertAdjacentHTML('beforeend', `<div class="nachschulung">
+                <div class="unit-tag"><svg class="ut-sym" aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-lernen"/></svg>Pflicht-Nachschulung</div>
+                <p class="feld-hilfe">Erst diese Punkte nachholen — je Kompetenz alle Fragen richtig. Danach ist heute noch ein Antritt möglich.</p>
+                <ul class="wk-wege">${plan.map(p => `<li><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-ui-chevron"/></svg>
+                  <span><b>${kName(p.competency)}</b> — ${p.questions.length} Fragen${p.szenario ? `, dazu ein Kurzgespräch: <a href="#/boss/${p.szenario}">jetzt führen</a>` : ''}</span></li>`).join('')}</ul>
+                <div class="formular-fuss"><button class="btn-primary" onclick="location.hash='#/test/${phaseId}';window.dispatchEvent(new HashChangeEvent('hashchange'))">Neuer Antritt mit neuen Fragen</button></div>
+              </div>`);
             }
           },
         });
@@ -381,7 +405,22 @@ route('challenge', async (view, ctx, [unitId]) => {
   const { pool, kompetenzen } = await data();
   const idx = await fetch('content/units/index.json').then(r => r.json());
   const unit = idx.units.find(u => u.id === unitId);
-  if (!unit) { view.appendChild(card('<p class="dim">Einheit unbekannt.</p>')); return; }
+  // War ein grauer Zweiwortsatz: „Einheit unbekannt." Kein Zeichen, kein Grund,
+  // kein Weg — und die Adresse, die nicht stimmt, stand nirgends.
+  if (!unit) {
+    const fehl = card(`<div class="lage lage-warnung">
+        <span class="lage-symbol"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-warn"/></svg></span>
+        <div class="lage-txt">
+          <h3>Diese Einheit gibt es nicht</h3>
+          <p>Zu <span class="mono">${escapeHtml(String(unitId ?? '—'))}</span> ist keine Einheit hinterlegt.
+          Vermutlich ein alter Verweis oder ein Tippfehler in der Adresse.</p>
+        </div>
+      </div>
+      <div class="formular-fuss"><a class="btn-primary" href="#/lernen">Zur Übersicht aller Phasen</a></div>`);
+    fehl.classList.add('sperr-karte');
+    view.appendChild(fehl);
+    return;
+  }
   const llm = new LlmAdapter({});
   try { await llm.refreshHealth(); llm.evaluateGate(); } catch { /* Freetext-Bewertung ggf. nicht verfügbar */ }
   const st = ctx.state;
@@ -389,9 +428,14 @@ route('challenge', async (view, ctx, [unitId]) => {
     { salt: 'ch' + ((st.challengeAttempts?.[unit.id] ?? 0) + 1) });
 
   const intro = card(`<div class="chead gold"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-pruefung"/></svg></span><span class="t"><h3>Challenge-Test — ${unit.title}</h3>
-    <span class="sub">${ch.questions.length} Fragen zur Kompetenz ${unit.competency} · Hürde ${ch.passRequired * 100} % · ohne Hilfsmittel</span></span></div>
-    <p>Bestehst du, wird die Einheit als <b>übersprungen</b> markiert. Die Karten bleiben im Wiederholungs-System, der Kapiteltest bleibt Pflicht.</p>
-    <button class="btn-primary" id="ch-start">Challenge starten</button>`);
+    <span class="sub">Kurzprüfung zur Kompetenz „${kompetenzen.find(k => k.id === unit.competency)?.name ?? unit.competency}"</span></span></div>
+    <div class="test-eckdaten">
+      <span><b>${ch.questions.length}</b> Fragen</span>
+      <span><b>${ch.passRequired * 100} %</b> zum Bestehen</span>
+      <span>ohne Hilfsmittel</span>
+    </div>
+    <p>Bestehst du, gilt die Einheit als <b>übersprungen</b>. Die Karten daraus bleiben trotzdem in der Wiederholung, und der Kapiteltest bleibt Pflicht.</p>
+    <div class="formular-fuss"><button class="btn-primary" id="ch-start">Kurzprüfung starten</button></div>`);
   view.appendChild(intro);
   intro.querySelector('#ch-start').onclick = () => {
     intro.remove();
@@ -403,11 +447,22 @@ route('challenge', async (view, ctx, [unitId]) => {
         const bestanden = ev.pct >= ch.passRequired && !ev.criticals.length;
         if (bestanden) st.unit_skipped = [...new Set([...(st.unit_skipped ?? []), unit.id])];
         await ctx.saveState();
-        view.appendChild(card(`<h3>${bestanden ? 'Bestanden — Einheit übersprungen' : 'Nicht bestanden'} (${(ev.pct * 100).toFixed(0)} %)</h3>
+        // Dieselbe Ergebnisform wie beim Kapiteltest: Zeichen, Zustandston, Note gross.
+        // Vorher stand alles in einer Ueberschrift mit der Note in Klammern.
+        view.appendChild(card(`<div class="erg ${bestanden ? 'gut' : 'schlecht'}">
+            <svg class="erg-sym" aria-hidden="true"><use href="assets/icons/sprite.svg#${bestanden ? 'icon-st-check' : 'icon-act-retry'}"/></svg>
+            <div class="erg-txt">
+              <h3>${bestanden ? 'Bestanden — Einheit übersprungen' : 'Nicht bestanden'}</h3>
+              <p class="erg-wert"><b>${(ev.pct * 100).toFixed(0)} %</b> von ${ch.passRequired * 100} % nötig</p>
+            </div>
+          </div>
           <p>${bestanden
-            ? 'Die Einheit gilt als nachgewiesen und erscheint in der Lernen-Ansicht als übersprungen. Karten der Einheit bleiben im Wiederholungs-System.'
-            : `Unter ${ch.passRequired * 100} % — die Einheit bleibt im Lernpfad.`}</p>
-          <a class="btn" href="#/einheit/${unit.id}">Zur Einheit</a> <a class="btn" href="#/lernen">Zur Übersicht</a>`));
+            ? 'Die Einheit gilt als nachgewiesen und steht in der Übersicht als übersprungen. Ihre Karten bleiben in der Wiederholung — überspringen heißt nicht vergessen.'
+            : 'Die Einheit bleibt im Lernpfad. Ein neuer Versuch ist jederzeit möglich, mit anderen Fragen.'}</p>
+          <div class="formular-fuss">
+            <a class="btn" href="#/lernen">Zur Übersicht</a>
+            <a class="btn-primary" href="#/einheit/${unit.id}">Zur Einheit</a>
+          </div>`));
       },
     });
   };
