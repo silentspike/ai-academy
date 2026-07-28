@@ -43,6 +43,21 @@ export function feasibilityCheck(profile, stoff, nowMs) {
   return results;
 }
 
+/**
+ * Umfang des Stoffs — EINE Stelle für alle, die damit rechnen.
+ *
+ * Vier Aufrufer setzten `minutesPerUnit: 25` je für sich; das ist die reine
+ * Lesezeit einer Einheit und lässt Fragen, Wiederholung, Kapitelprüfungen,
+ * Fachgespräche und das Examen aus. Der ganze AI Act erschien so als Sache von
+ * sieben Stunden, und der Machbarkeits-Check konnte gar nicht mehr „zu knapp"
+ * sagen. Der Gesamtwert ist die Planungsgröße aus dem Bauplan (~40 h); geteilt
+ * durch die tatsächliche Zahl der Einheiten ergibt er das Budget je Einheit.
+ */
+export const STOFF_MINUTEN_GESAMT = 2400;
+export function stoffUmfang(totalUnits, doneUnits = 0) {
+  return { totalUnits, minutesPerUnit: Math.round(STOFF_MINUTEN_GESAMT / Math.max(1, totalUnits)), doneUnits };
+}
+
 /** Target curve: expected progress (0..1) per day up to the final milestone. */
 export function targetCurve(profile, stoff, startMs) {
   const end = Math.max(...(profile.milestones ?? []).map(m => Date.parse(m.date)), startMs + 30 * DAY_MS);

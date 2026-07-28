@@ -113,7 +113,11 @@ input, select, textarea {
 }
 input:hover, select:hover, textarea:hover { border-color:var(--line-strong); }
 input:focus, select:focus, textarea:focus {
-  outline:none; border-color:rgba(101,216,178,.55); background:var(--panel-2);
+  /* background-COLOR, nicht die Kurzform: `background` setzt background-repeat auf
+     `repeat` und background-size auf `auto` zurück. Das Auswahlfeld bekam seinen
+     Pfeil damit im Fokus gekachelt — sieben Haken quer über das Feld, quer durch
+     den gewählten Wert. */
+  outline:none; border-color:rgba(101,216,178,.55); background-color:var(--panel-2);
   box-shadow:0 0 0 3px rgba(101,216,178,.12);
 }
 input::placeholder, textarea::placeholder { color:var(--faint); opacity:1; }
@@ -367,6 +371,9 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 .nachweis .dim,.nachweis .dim *{color:#475569}
 .nachweis hr{border:0;border-top:1px solid #e2e8f0;margin:26px 0 20px}
 .nachweis .mono{font-family:var(--font-mono);font-size:.82em;color:#475569}
+/* Die offengelegte Rechnung im Machbarkeits-Schritt. */
+.feas-rechnung{margin:10px 0 0;padding-left:18px;font-size:.86rem;line-height:1.7;color:var(--dim)}
+.feas-rechnung b{color:var(--text)}
 /* Fehler am Feld, nicht im Browser-Dialog: Ein Alert sagt nicht, WO es klemmt. */
 .feld-fehler{display:block;margin-top:5px;font-size:.8rem;color:#fca5a5}
 .feld input[aria-invalid="true"],.feld select[aria-invalid="true"]{border-color:#b91c1c;outline:none}
