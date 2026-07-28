@@ -30,7 +30,7 @@ export function validatePersonalization(obj) {
     // Hard surface boundary: ONLY organisation, role and domain vocabulary — legal fields are forbidden
     const verboten = ['facts', 'goals', 'rubric', 'critical', 'phases', 'legal'];
     for (const k of Object.keys(s)) if (verboten.some(v => k.toLowerCase().includes(v)))
-      errors.push(`szenario_einkleidung ${s.scenario_id}: Feld '${k}' überschreitet die Oberflächen-Grenze (§5.2)`);
+      errors.push(`szenario_einkleidung ${s.scenario_id}: Feld '${k}' darf die Oberfläche nicht verlassen`);
   }
   return { ok: errors.length === 0, errors };
 }
@@ -94,16 +94,18 @@ route('onboarding', async (view, ctx) => {
     // 1 Fachprofil
     () => {
       const f = draft.fachprofil;
-      const c = card(`<p class="formular-intro"><b>Der Stoff bleibt vollständig</b> — alle Artikel
-        und Anhänge des AI Act, nichts weggelassen. Diese Angaben bestimmen nur die
-        <b>Reihenfolge</b> und die <b>Einkleidung</b>: welche Kapitel zuerst drankommen, in welchem
-        Umfeld die Fälle spielen und mit wem du die Fachgespräche führst. Alles später änderbar.</p>
+      // Der Absatz sagte dreimal, was die Eingabe NICHT tut, in unserem Vokabular
+      // („Einkleidung") und gegen eine Befürchtung, die an dieser Stelle niemand hat —
+      // er weckte den Verdacht erst, den er ausräumen wollte. Was jedes Feld bewirkt,
+      // steht ohnehin darunter in der Feldhilfe.
+      const c = card(`<p class="formular-intro">Damit die Beispiele aus deinem Alltag kommen
+        und nicht aus einem Lehrbuch. Alles später änderbar.</p>
       <div class="formular">
         <label class="feld feld-breit"><span class="feld-name">Organisation/Branche</span><input id="ob-org" value="${f.organisation ?? ''}" placeholder="z. B. Regionalbank, Krankenhaus, Handelskette"><span class="feld-hilfe">Bestimmt, in welchem Umfeld die Fallbeispiele und Fachgespräche spielen.</span></label>
         <label class="feld"><span class="feld-name">Rolle der Organisation</span><select id="ob-rolle"><option value="betreiber">Betreiber (KI wird eingesetzt)</option><option value="anbieter">Anbieter (KI wird entwickelt)</option><option value="beides">Beides</option></select><span class="feld-hilfe">Entscheidet, welche Pflichtenkapitel Vorrang bekommen.</span></label>
         <label class="feld"><span class="feld-name">Land</span><select id="ob-land"><option>AT</option><option>DE</option><option>EU-sonstig</option></select><span class="feld-hilfe">Wählt das Ländermodul in Phase 9.</span></label>
         <label class="feld"><span class="feld-name">Ihre Job-Rolle</span><input id="ob-job" value="${f.job_rolle ?? ''}" placeholder="z. B. KI-Koordinatorin, IT-Leitung"><span class="feld-hilfe">Bestimmt, mit wem du in den Fachgesprächen sprichst.</span></label>
-        <label class="feld"><span class="feld-name">Vorwissen</span><select id="ob-vor"><option value="einsteiger">Einsteiger:in (Worked Examples zuerst)</option><option value="mittel">Mittel</option><option value="erfahren">Erfahren (Problem-first)</option></select><span class="feld-hilfe">Einsteiger sehen erst ein durchgerechnetes Beispiel, Erfahrene starten mit dem Fall.</span></label>
+        <label class="feld"><span class="feld-name">Vorwissen</span><select id="ob-vor"><option value="einsteiger">Einsteiger</option><option value="mittel">Mittel</option><option value="erfahren">Erfahren</option></select><span class="feld-hilfe">Einsteiger sehen erst ein durchgerechnetes Beispiel, Erfahrene starten mit dem Fall.</span></label>
         <label class="feld feld-breit"><span class="feld-name">Fach-Domäne / Datenarten</span><input id="ob-dom" value="${f.domaene ?? ''}" placeholder="z. B. Bonitätsdaten, Patientendaten"><span class="feld-hilfe">Legt fest, welche Datenarten in den Beispielen vorkommen — das ändert die Einstufungsfragen.</span></label>
       </div>
       <div class="formular-fuss"><button class="btn-primary">Weiter</button></div>`);
@@ -117,7 +119,22 @@ route('onboarding', async (view, ctx) => {
           vorwissen: c.querySelector('#ob-vor').value,
           domaene: c.querySelector('#ob-dom').value.trim(),
         };
-        if (!draft.fachprofil.organisation) return alert('Organisation fehlt');
+        // Kein Browser-Alert für einen fehlenden Pflichtwert: Er reißt den Nutzer
+        // aus der Seite, sagt nicht, WO der Fehler sitzt, und blockiert obendrein
+        // jede Automatisierung. Der Hinweis gehört an das Feld.
+        const orgFeld = c.querySelector('#ob-org');
+        const alterFehler = c.querySelector('.feld-fehler');
+        if (alterFehler) alterFehler.remove();
+        orgFeld.removeAttribute('aria-invalid');
+        if (!draft.fachprofil.organisation) {
+          orgFeld.setAttribute('aria-invalid', 'true');
+          const hinweis = document.createElement('span');
+          hinweis.className = 'feld-fehler';
+          hinweis.textContent = 'Bitte eine Organisation oder Branche angeben — daran hängen die Beispiele.';
+          orgFeld.closest('.feld').appendChild(hinweis);
+          orgFeld.focus();
+          return;
+        }
         next();
       };
     },
@@ -169,7 +186,7 @@ route('onboarding', async (view, ctx) => {
       const res = await personalizeWithRetry(callLlm, { fachprofil: draft.fachprofil, lernprofil: draft.lernprofil });
       if (res.ok) {
         draft.personalisierung = res.data;
-        c.innerHTML = `<p>✓ Personalisierung übernommen (${res.attempts}. Versuch): Endtitel „${res.data.level_endtitel}", ${res.data.relevanz_overrides.length} Relevanz-Anpassungen, ${res.data.beispiel_einkleidungen.length} Beispiel-Einkleidungen, ${res.data.szenario_einkleidungen.length} Szenario-Einkleidungen.</p><button class="btn-primary">Weiter</button>`;
+        c.innerHTML = `<p>✓ Fertig zugeschnitten: Beispiele, Fälle und Gesprächspartner spielen jetzt in deinem Umfeld. Deine Endstufe heißt „${res.data.level_endtitel}".</p><button class="btn-primary">Weiter</button>`;
       } else {
         c.innerHTML = `<p>Personalisierung nach ${res.attempts} Versuchen invalide (${res.errors.slice(0, 2).join('; ')}). Du kannst mit generischem Profil starten und später erneut personalisieren.</p><button class="btn-primary">Ohne Personalisierung weiter</button>`;
       }
@@ -177,7 +194,7 @@ route('onboarding', async (view, ctx) => {
     },
     // 5 placement (recommendations only)
     () => {
-      const c = card('<p>20 Fragen quer durch alle Phasen (~15 min) — Ergebnis sind Startempfehlungen; Einheiten-Skips erfordern Challenge-Tests.</p><button class="btn-primary" id="ob-pl">Placement starten</button> <button class="btn" id="ob-skip">Überspringen</button>');
+      const c = card('<p>20 Fragen quer durch alle Phasen (~15 min) — Ergebnis sind Startempfehlungen; eine Einheit überspringst du nur mit einem bestandenen Challenge-Test.</p><button class="btn-primary" id="ob-pl">Placement starten</button> <button class="btn" id="ob-skip">Überspringen</button>');
       view.appendChild(c);
       c.querySelector('#ob-pl').onclick = () => { finishProfile(); location.hash = '#/placement'; };
       c.querySelector('#ob-skip').onclick = () => next();
@@ -185,7 +202,7 @@ route('onboarding', async (view, ctx) => {
     // 6 Los
     () => {
       finishProfile();
-      const c = card('<h3>Fertig!</h3><p>Dein Profil steuert jetzt Beispiele, Szenario-Einkleidung und Zielkurve.</p><button class="btn-primary">Zum Dashboard</button>');
+      const c = card('<h3>Fertig!</h3><p>Beispiele, Fälle und dein Zeitplan sind auf dich zugeschnitten.</p><button class="btn-primary">Zum Dashboard</button>');
       view.appendChild(c);
       c.querySelector('button').onclick = () => { location.hash = '#/dashboard'; };
     },

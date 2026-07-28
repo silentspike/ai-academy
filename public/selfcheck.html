@@ -42,7 +42,7 @@
 <div class="bg-layers"><div class="bg-aurora a"></div><div class="bg-aurora b"></div><div class="bg-aurora c"></div><div class="bg-grid"></div><div class="bg-vignette"></div></div>
 <div class="card sc-karte">
   <h1>AI-Act-Akademie</h1>
-  <div class="sub">Self-Check (Plan §5.6) — vor dem ersten Lernen. Es antwortet ein KI-System;
+  <div class="sub">Self-Check — vor dem ersten Lernen. Es antwortet ein KI-System;
     Bewertungen tragen Modell- und Rubrik-Label (Art.-50-Transparenz).</div>
   <div id="checks">Self-Check läuft …</div>
   <div id="ampel"></div>
@@ -53,6 +53,10 @@
     <button id="btn-import">Lernstand importieren</button>
     <input type="file" id="file-import" accept="application/json">
   </div>
+  <!-- Rückmeldung auf der Seite statt im Browser-Dialog: Ein Alert blockiert die
+       Seite, verlässt die Gestaltung und ist beim Export der schlechteste Ort für
+       einen Hinweis, den man lesen soll, bevor man die Datei weitergibt. -->
+  <p id="datei-hinweis" class="sub" role="status" hidden></p>
 </div>
 <script>window.BRIDGE_TOKEN = '__BRIDGE_TOKEN__';</script>
 <script type="module">
@@ -93,15 +97,19 @@
     link.href = URL.createObjectURL(blob); link.download = 'akademie-diagnose.json'; link.click();
     URL.revokeObjectURL(link.href);
   };
+  const melde = (text) => {
+    const el = document.getElementById('datei-hinweis');
+    el.textContent = text; el.hidden = false;
+  };
   document.getElementById('btn-export').onclick = async () => {
-    alert('Hinweis: Der Export enthält deine Antworten und Notizen — gib die Datei nur weiter, wenn du das willst.');
     storage.downloadExport(await storage.exportAll());
+    melde('Datei gespeichert. Sie enthält deine Antworten und Notizen — gib sie nur weiter, wenn du das willst.');
   };
   document.getElementById('btn-import').onclick = () => document.getElementById('file-import').click();
   document.getElementById('file-import').onchange = async (e) => {
     const f = e.target.files[0]; if (!f) return;
     await storage.importAll(JSON.parse(await f.text()));
-    alert('Import abgeschlossen.');
+    melde('Import abgeschlossen — der Lernstand aus der Datei ist übernommen.');
   };
 
   run();

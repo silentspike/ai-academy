@@ -55,6 +55,13 @@ for (const item of INCLUDE) {
 }
 // Remove runtime leftovers from the staging directory
 rmSync(join(stage, 'public/.playwright-cli'), { recursive: true, force: true });
+// Entwickler-Seiten gehören nicht ins ausgelieferte Paket: Sie sind nirgends
+// verlinkt, aber über die Adresse erreichbar — und `design-preview.html` zeigt
+// erfundene Lernfortschritte („Stark dranbleiben! Deine Lernkurve zeigt klare
+// Fortschritte"), die jemand für seinen eigenen Stand halten kann.
+for (const seite of ['public/design-preview.html', 'public/engine-test.html']) {
+  rmSync(join(stage, seite), { force: true });
+}
 rmSync(join(stage, '.playwright-cli'), { recursive: true, force: true });
 // cpSync keeps the mode, but a package built from a fresh checkout on a system
 // that ignores the executable bit would ship a .command nobody can double-click.

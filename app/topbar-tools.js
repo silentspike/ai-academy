@@ -153,7 +153,7 @@ export function verdrahteTopbar(ctx, { doc = document } = {}) {
     const lauf = async () => {
       if (pruefungLaeuft(doc)) {
         liste.hidden = false;
-        liste.innerHTML = '<div class="such-leer">Während einer Prüfung ohne Hilfsmittel ist die Suche aus (#13).</div>';
+        liste.innerHTML = '<div class="such-leer">Während einer Prüfung ohne Hilfsmittel ist die Suche aus.</div>';
         return;
       }
       const idx = await sucheIndex();
