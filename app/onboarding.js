@@ -4,7 +4,8 @@
 // A prepared profile skips the wizard: it comes from data/profiles/ via /api/profile.
 import { route } from './router.js';
 import { LlmAdapter } from './llm-adapter.js';
-import { feasibilityCheck } from './pacing.js';
+import { feasibilityCheck, stoffUmfang, STOFF_MINUTEN_GESAMT } from './pacing.js';
+import { einheitenGesamt } from './content-index.js';
 import { setzeSetupModus } from './app.js';
 
 // ---------------------------------------------------------------- Personalisierungs-Validierung
@@ -65,6 +66,7 @@ route('onboarding', async (view, ctx) => {
   // Renderer läuft nur bei Routenwechseln, ein Schritt im Wizard ist keiner.
   // Ohne das stand links „Verbinden", während rechts Schritt 2 zu sehen war.
   const next = () => { draft.step++; ctx.saveState(); setzeSetupModus(ctx); render(); };
+  const zurueck = (ziel) => { draft.step = ziel; ctx.saveState(); setzeSetupModus(ctx); render(); };
 
   const STEPS = [
     // 0 Verbinden
@@ -140,17 +142,37 @@ route('onboarding', async (view, ctx) => {
     },
     // 2 Lernprofil
     () => {
+      // Vorbelegung aus dem Entwurf: Über „Pensum anpassen" kommt man hierher
+      // ZURÜCK — und fand seine Eingaben auf 30 min und 4 Tage zurückgesetzt,
+      // weil die Werte fest im Formular standen.
+      const lpv = draft.lernprofil ?? {};
+      const gewaehlt = (v, wert) => v === wert ? ' selected' : '';
       const c = card(`<p class="formular-intro">Daraus entsteht deine Soll-Kurve. Im nächsten
         Schritt rechnet die Akademie nach, ob Ziel und Pensum zusammenpassen — und sagt es,
         wenn nicht.</p>
       <div class="formular">
-        <label class="feld"><span class="feld-name">Lernmotiv</span><select id="ob-motiv"><option value="jobstart">Jobstart</option><option value="pruefung">Prüfung</option><option value="projekt">Projekt</option><option value="interesse">Interesse</option></select></label>
-        <label class="feld"><span class="feld-name">Zieltermin (optional)</span><input id="ob-ziel" type="date"><span class="feld-hilfe">Etwa ein Prüfungstermin oder ein Dienstantritt. Leer lassen, wenn es keinen gibt.</span></label>
-        <label class="feld"><span class="feld-name">Minuten pro Tag</span><input id="ob-min" type="number" value="30" min="10" max="480"><span class="feld-hilfe">Grundlage der Soll-Kurve. Ehrlich schätzen — die Rechnung im nächsten Schritt hängt daran.</span></label>
-        <label class="feld"><span class="feld-name">Lerntage pro Woche</span><input id="ob-tage" type="number" value="4" min="1" max="7"><span class="feld-hilfe">Auch das Wochenziel richtet sich danach.</span></label>
+        <label class="feld"><span class="feld-name">Lernmotiv</span><select id="ob-motiv"><option value="jobstart"${gewaehlt(lpv.motiv, 'jobstart')}>Jobstart</option><option value="pruefung"${gewaehlt(lpv.motiv, 'pruefung')}>Prüfung</option><option value="projekt"${gewaehlt(lpv.motiv, 'projekt')}>Projekt</option><option value="interesse"${gewaehlt(lpv.motiv, 'interesse')}>Interesse</option></select></label>
+        <label class="feld"><span class="feld-name">Zieltermin (optional)</span><input id="ob-ziel" type="date" value="${lpv.zieltermine?.[0]?.date ?? ''}"><span class="feld-hilfe" id="ob-ziel-klar">Etwa ein Prüfungstermin oder ein Dienstantritt. Leer lassen, wenn es keinen gibt.</span></label>
+        <label class="feld"><span class="feld-name">Minuten pro Tag</span><input id="ob-min" type="number" value="${lpv.minutesPerDay ?? 30}" min="10" max="480"><span class="feld-hilfe">Grundlage der Soll-Kurve. Ehrlich schätzen — die Rechnung im nächsten Schritt hängt daran.</span></label>
+        <label class="feld"><span class="feld-name">Lerntage pro Woche</span><input id="ob-tage" type="number" value="${lpv.daysPerWeek ?? 4}" min="1" max="7"><span class="feld-hilfe">Auch das Wochenziel richtet sich danach.</span></label>
       </div>
       <div class="formular-fuss"><button class="btn-primary">Weiter</button></div>`);
       view.appendChild(c);
+      // Das Datumsfeld zeigt sein Format nach der Browsersprache — auf einem
+      // englischen Chrome „mm/dd/yyyy". Der ausgeschriebene Tag darunter zeigt,
+      // welches Datum tatsächlich angekommen ist.
+      const zielFeld = c.querySelector('#ob-ziel');
+      const zielKlar = c.querySelector('#ob-ziel-klar');
+      const zeigeDatum = () => {
+        if (!zielFeld.value) {
+          zielKlar.textContent = 'Etwa ein Prüfungstermin oder ein Dienstantritt. Leer lassen, wenn es keinen gibt.';
+          return;
+        }
+        zielKlar.textContent = new Date(zielFeld.value + 'T12:00:00')
+          .toLocaleDateString('de-AT', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+      };
+      zielFeld.addEventListener('change', zeigeDatum);
+      zeigeDatum();
       c.querySelector('button').onclick = () => {
         const ziel = c.querySelector('#ob-ziel').value;
         draft.lernprofil = {
@@ -162,21 +184,46 @@ route('onboarding', async (view, ctx) => {
         next();
       };
     },
-    // 3 Machbarkeits-Check (ehrliche Rechnung, §5.1)
-    () => {
+    // 3 Machbarkeits-Check — die ehrliche Rechnung
+    //
+    // Drei Fehler steckten hier übereinander, und jeder allein hätte gereicht:
+    // `feasibilityCheck` liefert ein ARRAY (ein Eintrag je Meilenstein), gelesen
+    // wurde `res.feasible` — auf einem Array immer undefined, also immer der
+    // Warn-Zweig, egal wie großzügig das Pensum war. Das Feld heißt
+    // `neededMinutesPerDay`, gelesen wurde `neededPerDay` → „~undefined min/Tag".
+    // Und der Stoff wurde als `{ totalMinutes }` übergeben, gelesen werden
+    // `totalUnits` und `minutesPerUnit` → die Rechnung lief auf NaN.
+    async () => {
       const lp = draft.lernprofil;
-      const stoff = { totalMinutes: 2400 };            // ~40 h Gesamtstoff (Blueprint-Schätzung)
+      const UNITS = await einheitenGesamt();
+      const stoff = stoffUmfang(UNITS);
       const ziel = lp.zieltermine[0]?.date;
-      let html = '<p>Kein Zieltermin — Lernkurve läuft ohne Termindruck.</p>';
+      let html = '<p>Kein Zieltermin — die Lernkurve läuft ohne Termindruck.</p>';
       if (ziel) {
-        const res = feasibilityCheck({ ...lp, milestones: [{ date: ziel, share: 1 }] }, stoff, Date.now());
+        const [res] = feasibilityCheck({ ...lp, milestones: [{ id: 'ziel', label: 'dein Ziel', date: ziel, share: 1 }] }, stoff, Date.now());
+        const std = m => (m / 60).toFixed(1).replace('.', ',');
+        const tage = Math.max(0, Math.ceil((Date.parse(ziel) - Date.now()) / 86400000));
+        const datum = new Date(ziel).toLocaleDateString('de-AT', { day: '2-digit', month: 'long', year: 'numeric' });
+        // Die Rechnung offenlegen: Ohne sie weiß niemand, WAS an seiner Eingabe
+        // nicht passt — und ob er am Termin, am Pensum oder an den Lerntagen dreht.
+        const rechnung = `<ul class="feas-rechnung">
+            <li>Bis ${datum}: <b>${tage} Tage</b>, bei ${lp.daysPerWeek} Lerntagen pro Woche sind das rund ${Math.round(tage * lp.daysPerWeek / 7)} Lerntage.</li>
+            <li>Dein Pensum: ${lp.minutesPerDay} min → <b>${std(res.availableMinutes)} Stunden</b> verfügbar.</li>
+            <li>Der Stoff: ${UNITS} Einheiten samt Fragen, Wiederholung und Prüfungen → <b>${std(res.requiredMinutes)} Stunden</b> nötig.</li>
+          </ul>`;
         html = res.feasible
-          ? `<p>✓ Machbar: Für dein Ziel brauchst du ~${res.neededPerDay ?? lp.minutesPerDay} min/Tag — dein Pensum reicht.</p>`
-          : `<p>⚠ Ehrliche Rechnung: Für dein Ziel bräuchtest du ~<b>${res.neededPerDay} min/Tag</b> (geplant: ${lp.minutesPerDay}). Ziel verschieben oder Pensum erhöhen?</p>`;
+          ? `<p>✓ <b>Machbar.</b> ~${res.neededMinutesPerDay} min/Tag würden reichen, du hast ${lp.minutesPerDay} eingeplant.</p>${rechnung}`
+          : `<p>⚠ <b>Das geht sich nicht aus.</b> Es fehlen rund <b>${std(res.requiredMinutes - res.availableMinutes)} Stunden</b>: Für dein Ziel bräuchtest du <b>~${res.neededMinutesPerDay} min/Tag</b>, geplant sind ${lp.minutesPerDay}.</p>${rechnung}
+             <p class="dim">Drei Stellschrauben: späterer Termin, mehr Minuten pro Tag oder mehr Lerntage pro Woche.</p>`;
       }
-      const c = card(html + '<button class="btn-primary">Weiter</button>');
+      const c = card(html + `<div class="formular-fuss">
+        <button class="btn" id="mb-zurueck">Pensum anpassen</button>
+        <button class="btn-primary" id="mb-weiter">Weiter</button></div>`);
       view.appendChild(c);
-      c.querySelector('button').onclick = next;
+      // Zurück ins Lernprofil: Dort stehen Termin, Minuten und Lerntage — die
+      // drei Werte, an denen diese Rechnung hängt.
+      c.querySelector('#mb-zurueck').onclick = () => zurueck(2);
+      c.querySelector('#mb-weiter').onclick = next;
     },
     // 4 Personalisierung (app-orchestriert, JSON-validiert, Retry)
     async () => {

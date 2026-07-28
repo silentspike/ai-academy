@@ -448,11 +448,27 @@ export async function warteAufAnsicht(page, timeout = 20_000) {
   // and is not one.
   const ende = Date.now() + timeout;
   for (;;) {
-    const da = await page.evaluate(
-      () => (document.getElementById('view')?.children.length ?? 0) > 0).catch(() => false);
+    // Nicht „hat ein Kind", sondern „ist fertig": Das Gerüst steht sofort, die
+    // Landkarte, das Radar und der Coach kommen aus asynchronen Schritten
+    // danach. Auf das Gerüst zu warten hieß, mal den fertigen Zustand zu messen
+    // und mal einen halben — die Ursache wechselnder Fehlschläge in
+    // 07-dashboard, die einzeln immer bestanden.
+    const da = await page.evaluate(() => {
+      const v = document.getElementById('view');
+      if (!v || (v.children.length ?? 0) === 0) return false;
+      return v.dataset.fertig !== '0';
+    }).catch(() => false);
     if (da) return;
     if (Date.now() > ende) {
-      throw new Error(`the view stayed empty for ${timeout} ms at ${await page.evaluate(() => location.hash)}`);
+      // Zwei verschiedene Lagen, zwei verschiedene Meldungen: eine leere Ansicht
+      // ist ein anderer Fehler als eine, die nie fertig meldet.
+      const lage = await page.evaluate(() => {
+        const v = document.getElementById('view');
+        return { kinder: v?.children.length ?? 0, fertig: v?.dataset.fertig ?? '—', hash: location.hash };
+      }).catch(() => null);
+      throw new Error(lage && lage.kinder > 0
+        ? `the view never reported itself finished within ${timeout} ms (data-fertig=${lage.fertig}) at ${lage.hash}`
+        : `the view stayed empty for ${timeout} ms at ${lage?.hash ?? '?'}`);
     }
     await page.waitForTimeout(150);
   }

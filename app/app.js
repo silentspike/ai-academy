@@ -114,7 +114,16 @@ export async function startApp({ mountId = 'view' } = {}) {
     view.classList.remove('reveal');
     void view.offsetWidth;                 // Reveal-Animation neu triggern
     view.classList.add('reveal');
-    fn?.(view, ctx, args);
+    // Fertig-Merker: Die meisten Routen sind async und füllen Landkarte, Radar,
+    // Kurve und Coach ERST nach dem Gerüst. Wer nur darauf wartet, dass die
+    // Ansicht ein Kind hat, misst das Gerüst — und liest je nach Laufzeit mal
+    // 133 Kacheln, mal null. Genau daran hingen wechselnde Fehlschläge in
+    // 07-dashboard, die in der geteilten CI nie zusammen liefen.
+    view.dataset.fertig = '0';
+    const ergebnis = fn?.(view, ctx, args);
+    const fertig = () => { view.dataset.fertig = '1'; };
+    if (ergebnis && typeof ergebnis.then === 'function') ergebnis.then(fertig, fertig);
+    else fertig();
     decorate(view);       // synchronous routes are marked up immediately …
     markActiveNav(path);
   };
@@ -446,10 +455,10 @@ route('dashboard', async (view, ctx) => {
   // Feasibility and drift hints also for curated profiles, not only during onboarding
   if (s.milestones?.length && s.pace) {
     try {
-      const { feasibilityCheck } = await import('./pacing.js');
+      const { feasibilityCheck, stoffUmfang } = await import('./pacing.js');
       const UNITS = await einheitenGesamt();
       const feas = feasibilityCheck({ ...s.pace, milestones: s.milestones },
-        { totalUnits: UNITS, minutesPerUnit: 25, doneUnits: (s.unit_done?.length ?? 0) + (s.unit_skipped?.length ?? 0) }, Date.now());
+        stoffUmfang(UNITS, (s.unit_done?.length ?? 0) + (s.unit_skipped?.length ?? 0)), Date.now());
       const eng = (Array.isArray(feas) ? feas : [feas]).filter(f => f && f.feasible === false);
       if (eng.length) {
         const w = document.createElement('div');
@@ -579,10 +588,10 @@ route('dashboard', async (view, ctx) => {
     // Abschluss-Karte aus derselben Berechnung „Auf Kurs" meldete. Beide Stellen
     // fragen jetzt driftCheck — eine Größe, eine Quelle.
     const letzterIst = curve.ist.at(-1)?.value ?? 0;
-    const { driftCheck } = await import('./pacing.js');
+    const { driftCheck, stoffUmfang } = await import('./pacing.js');
     const kurs = (s.milestones?.length && s.pace)
       ? driftCheck({ ...s.pace, milestones: s.milestones },
-                   { totalUnits: UNITS_TOTAL, minutesPerUnit: 25 }, letzterIst, start, Date.now())
+                   stoffUmfang(UNITS_TOTAL), letzterIst, start, Date.now())
       : { onTrack: true, drift: 0 };
     const sollHeute = Math.max(0, letzterIst - kurs.drift);
     const teile = [];
