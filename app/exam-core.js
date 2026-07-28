@@ -148,8 +148,12 @@ export function examGate(state, { kompetenzen, cards = [], nowMs, simulation = f
   if (simulation) return { allowed: true, reasons: [], simulation: true };
   const reasons = [];
   const tests = state.chapterTests || {};
+  // Die Gruende landen unveraendert im Nutzertext. „Kapiteltest P3" und
+  // „Kern-Kompetenz K06" sagen dem Lernenden nichts — die Namen schon.
+  const PHASEN_NAME = { 1: 'Fundament', 2: 'Verbote', 3: 'Einstufung', 4: 'Pflichten',
+    5: 'Transparenz', 6: 'GPAI', 7: 'Aufsicht', 8: 'Randwissen', 9: 'Ländermodul AT' };
   for (let p = 1; p <= 9; p++) {
-    if (!tests['p' + p]?.passed) reasons.push(`Kapiteltest P${p} nicht bestanden`);
+    if (!tests['p' + p]?.passed) reasons.push(`Kapiteltest der Phase ${p} · ${PHASEN_NAME[p]} noch nicht bestanden`);
   }
   // Core competencies at the "retained" tier (seven-day confirmation), via card retention
   const kernIds = (kompetenzen || []).filter(k => k.kern).map(k => k.id);
@@ -157,7 +161,7 @@ export function examGate(state, { kompetenzen, cards = [], nowMs, simulation = f
   for (const kid of kernIds) {
     const kCards = cards.filter(c => (c.competency ?? c.meta?.competency) === kid);
     if (!kCards.length || !kCards.some(c => okStages.has(c.retention)))
-      reasons.push(`Kern-Kompetenz ${kid} nicht auf Stufe „behalten" (7-Tage-Bestätigung fehlt)`);
+      reasons.push(`„${(kompetenzen || []).find(k => k.id === kid)?.name ?? kid}" ist noch nicht sicher behalten — dafür fehlt die Bestätigung nach sieben Tagen`);
   }
   // 1 Antritt pro Kalendertag (#11)
   const d = new Date(nowMs);

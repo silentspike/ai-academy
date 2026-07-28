@@ -274,7 +274,11 @@ route('examen', async (view, ctx) => {
   // Marathon warning: after a very long session an exam measures exhaustion, not knowledge
   const { sessionStatus } = await import('./ritual.js');
   const mw = sessionStatus(st).marathon;
-  if (mw.warn) view.appendChild(card(`<p class="ritual-warn">⚠ ${mw.text}</p>`));
+  // War ein Absatz, der mit dem Textzeichen ⚠ begann.
+  if (mw.warn) view.appendChild(card(`<div class="lage lage-warnung">
+      <span class="lage-symbol"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-uhr"/></svg></span>
+      <div class="lage-txt"><h3>Lieber morgen früh</h3><p>${mw.text}</p></div>
+    </div>`));
 
   // The moment the whole product builds towards. It rendered as a small box in
   // a large empty area — the same weight as a settings panel.
@@ -285,17 +289,46 @@ route('examen', async (view, ctx) => {
       <div class="ex-teile">
         <div class="ex-teil"><span class="ex-nr">A</span><b>40 Fragen · 60 Minuten</b>
           <span>Ohne Hilfsmittel — so wie im Meeting, wenn niemand nachschlagen kann</span></div>
-        <div class="ex-teil"><span class="ex-nr">B</span><b>Capstone · ~30 Minuten</b>
-          <span>Open Book — ein Fall mit dem Verordnungstext am Tisch</span></div>
+        <div class="ex-teil"><span class="ex-nr">B</span><b>Abschlussfall · etwa 30 Minuten</b>
+          <span>Ein Fall mit dem Verordnungstext am Tisch — nachschlagen ist ausdrücklich erlaubt</span></div>
       </div>
       <p class="ex-regel">Beide Teile müssen bestanden werden · höchstens ein Antritt pro Kalendertag</p>
-      <p class="dim ex-fuss">Rechtsstand ${RECHTSSTAND} · <a href="docs/CRITICAL-ERRORS.md" target="_blank">Fehler, die sofort durchfallen lassen</a> · <a href="docs/CUT-SCORE-BLUEPRINT.md" target="_blank">Warum die Grenze bei 80 % liegt</a></p>
+      <p class="dim ex-fuss">Rechtsstand ${new Date(RECHTSSTAND).toLocaleDateString('de-AT')} · <a href="docs/CRITICAL-ERRORS.md" target="_blank">Fehler, die sofort durchfallen lassen</a> · <a href="docs/CUT-SCORE-BLUEPRINT.md" target="_blank">Warum die Grenze bei 80 % liegt</a></p>
     </div>`);
   view.appendChild(head);
 
-  if (!llm.summativeAllowed) { head.insertAdjacentHTML('beforeend', `<p><b>Gesperrt:</b> ${llm.gate.reason}</p>`); return; }
+  // War ein Absatz „Gesperrt: <technischer Grund>" — dieselbe Lage-Karte wie im
+  // Kapiteltest, damit ein Zustand ueberall gleich aussieht.
+  if (!llm.summativeAllowed) {
+    head.insertAdjacentHTML('beforeend', `<div class="ex-gesperrt">
+      <div class="lage lage-warnung">
+        <span class="lage-symbol"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-lock"/></svg></span>
+        <div class="lage-txt">
+          <h3>Das Examen ist gesperrt</h3>
+          <p>${llm.gate.reason}. Ein Abschluss zählt nur, wenn er von einem Modell bewertet
+          wurde, dessen Maßstab wir kennen — sonst wäre dieselbe Note bei jedem etwas anderes.</p>
+          <p class="feld-hilfe">Starte die Bridge mit einem unterstützten Modell neu, dann geht es hier weiter.</p>
+        </div>
+      </div>
+    </div>`);
+    paintSeries(view, st.scoreSeries);
+    return;
+  }
   if (!gate.allowed) {
-    head.insertAdjacentHTML('beforeend', `<h4>Examens-Gate (Schloss aktiv)</h4><ul>${gate.reasons.map(r => `<li>${r}</li>`).join('')}</ul>`);
+    // War „Examens-Gate (Schloss aktiv)" — unser Wort — und darunter eine
+    // Browser-Aufzaehlung der Gruende ohne Zeichen und ohne Weg dorthin.
+    head.insertAdjacentHTML('beforeend', `<div class="ex-gesperrt">
+      <div class="lage lage-warnung">
+        <span class="lage-symbol"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-lock"/></svg></span>
+        <div class="lage-txt">
+          <h3>Das Examen ist noch zu</h3>
+          <p>Es öffnet sich, wenn die Kapitel wirklich sitzen — nicht, wenn sie einmal
+          angeklickt wurden. Was noch fehlt:</p>
+        </div>
+      </div>
+      <ul class="wk-wege">${gate.reasons.map(r => `<li><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-ui-chevron"/></svg><span>${r}</span></li>`).join('')}</ul>
+      <div class="formular-fuss"><a class="btn-primary" href="#/lernen">Zur Übersicht der Phasen</a></div>
+    </div>`);
     paintSeries(view, st.scoreSeries);
     return;
   }
@@ -313,7 +346,8 @@ route('examen', async (view, ctx) => {
         const evA = evaluateTest({ questions: exam.questions, results: resultsA, kompetenzen });
         // Part B: the open-book capstone from the fixed core; any reskin lives in the profile only
         const cap = scenarios.find(s => s.id === 'sz-capstone-kern');
-        view.appendChild(card(`<h3>Teil B — Capstone (Open Book, ~30 min)</h3><p>${cap.setting_hint ?? cap.title}</p>
+        view.appendChild(card(`<div class="chead gold"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-fach-waage"/></svg></span>
+          <span class="t"><h3>Teil B — der Abschlussfall</h3><span class="sub">Etwa 30 Minuten, mit dem Verordnungstext</span></span></div><p>${cap.setting_hint ?? cap.title}</p>
           <p class="dim">Methodik, Fundstellen, Schlussfolgerung — bewertet nach fixer Rubrik.</p>`));
         const capQ = { id: 'capstone', type: 'freetext', prompt: cap.prompt ?? cap.title, competency: 'K18', level: 'C', rubric: cap.rubric, model_answer: cap.model_answer ?? '' };
         runQuestions(view, [capQ], {
