@@ -138,7 +138,14 @@
   const melde = (ton, text) => {
     const el = document.getElementById('datei-hinweis');
     el.className = ton;
-    el.innerHTML = `${sym(TON[ton])}<span>${text}</span>`;
+    // Der Text kann aus der Umgebung stammen — der Name einer gewaehlten Datei
+    // waere sonst Markup, das die Seite ausfuehrt. Zeichen als Knoten, Text als
+    // Text: dann gibt es nichts zu deuten.
+    el.replaceChildren();
+    el.insertAdjacentHTML('beforeend', sym(TON[ton]));
+    const huelle = document.createElement('span');
+    huelle.textContent = text;
+    el.appendChild(huelle);
     el.hidden = false;
   };
   document.getElementById('btn-export').onclick = async () => {
