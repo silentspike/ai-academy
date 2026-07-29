@@ -75,8 +75,13 @@ test.describe('design system', () => {
         }
         return [...eigenschaften];
       });
+      // --pring-deg ist der Winkel des conic-gradient im Fortschrittsring: die
+      // Eigenschaft selbst treibt kein Layout, sie faerbt einen Hintergrund —
+      // dieselbe Klasse wie das ohnehin erlaubte 'background'. Ohne sie liesse
+      // sich ein sich fuellender Ring in CSS ueberhaupt nicht animieren.
       const erlaubt = new Set(['transform', 'opacity', 'filter', 'background', 'background-position',
-        'box-shadow', 'color', 'border-color', 'width', 'stroke-dashoffset', 'visibility']);
+        'box-shadow', 'color', 'border-color', 'width', 'stroke-dashoffset', 'visibility',
+        '--pring-deg']);
       const layoutTreiber = keyframes.filter(p => ['top', 'left', 'right', 'bottom', 'height',
         'margin', 'margin-top', 'padding'].includes(p));
       expect(layoutTreiber, `keyframes animate layout properties: ${layoutTreiber.join(', ')}`).toEqual([]);

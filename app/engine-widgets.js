@@ -102,7 +102,12 @@ export function renderTimeline(mount, milestones, opts = {}) {
   // considerably wider than average. Hence two passes: insert every label first,
   // then measure its ACTUAL width, and only then assign the row.
 
-  const ZEILEN = 5, ZEILENHOEHE = 20, OBEN = 34, ABSTAND = 8;
+  // Fuenf feste Zeilen reichten nicht: fand eine Beschriftung keine freie Zeile,
+  // wurde sie gekuerzt — und wenn selbst der Rest nicht passte, brach die Schleife
+  // ab und zwei Beschriftungen standen uebereinander (gemessen an der Omnibus-
+  // Einheit: „Art. 6 Abs. 5 …" und „NEUE A…"). Jetzt waechst die Zeilenzahl, bis
+  // jede Beschriftung Platz hat; die Grafik wird entsprechend hoeher.
+  const ZEILENHOEHE = 20, OBEN = 34, ABSTAND = 8;
   const cy = H - 56;
   const gruppen = sorted.map(m => {
     const cx = x(m.date);
@@ -137,27 +142,53 @@ export function renderTimeline(mount, milestones, opts = {}) {
     return b || text.textContent.length * 6;
   };
 
-  const belegtBis = new Array(ZEILEN).fill(-Infinity);
+  const belegtBis = [-Infinity, -Infinity, -Infinity, -Infinity, -Infinity];
   for (const { m, g, cx } of gruppen) {
     const text = g.querySelector('text');
     let breite = messen(text);
     let lane = belegtBis.findIndex(kante => cx - breite / 2 > kante + ABSTAND);
     if (lane === -1) {
-      // No free row: take the one ending furthest left and shorten the label until
-      // it no longer collides. The full text is not lost — it sits in the <title>
-      // and shows up as a tooltip.
-      lane = belegtBis.indexOf(Math.min(...belegtBis));
+      // Erst kuerzen — die volle Angabe bleibt im <title> und erscheint beim
+      // Ueberfahren. Passt auch die gekuerzte Fassung nirgends, kommt eine
+      // Zeile dazu, statt zwei Beschriftungen uebereinanderzudrucken.
+      const kuerzeste = belegtBis.indexOf(Math.min(...belegtBis));
       let txt = String(m.label);
-      while (txt.length > 6 && cx - breite / 2 <= belegtBis[lane] + ABSTAND) {
+      while (txt.length > 6 && cx - breite / 2 <= belegtBis[kuerzeste] + ABSTAND) {
         txt = txt.replace(/[…\s]*.$/, '');
         text.textContent = txt + '…';
         breite = messen(text);
+      }
+      if (cx - breite / 2 > belegtBis[kuerzeste] + ABSTAND) {
+        lane = kuerzeste;
+      } else {
+        text.textContent = String(m.label);           // neue Zeile: ungekuerzt zeigen
+        breite = messen(text);
+        belegtBis.push(-Infinity);
+        lane = belegtBis.length - 1;
       }
     }
     belegtBis[lane] = cx + breite / 2;
     const ty = OBEN + lane * ZEILENHOEHE;
     text.setAttribute('y', ty);
     g.querySelector('line').setAttribute('y1', ty + 6);
+  }
+  // Die Hoehe war auf fuenf Zeilen festgelegt; kommen Zeilen dazu, muessen
+  // Zeichenflaeche und Achse mitwachsen, sonst stehen sie ausserhalb.
+  const zusatz = Math.max(0, belegtBis.length - 5) * ZEILENHOEHE;
+  if (zusatz) {
+    const HN = H + zusatz;
+    svg.setAttribute('viewBox', `0 0 ${W} ${HN}`);
+    for (const el of svg.querySelectorAll('line, text, circle, g')) {
+      for (const attr of ['y1', 'y2', 'y', 'cy']) {
+        const v = el.getAttribute(attr);
+        if (v === null) continue;
+        const zahl = Number(v);
+        if (!Number.isFinite(zahl)) continue;
+        // Alles, was an der Achse oder darunter haengt, rutscht mit; die
+        // Beschriftungszeilen oben bleiben, wo sie sind.
+        if (zahl >= cy) el.setAttribute(attr, String(zahl + zusatz));
+      }
+    }
   }
   return svg;
 }

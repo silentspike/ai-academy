@@ -16,8 +16,11 @@ test.describe('examination system', () => {
     const text = await page.evaluate(() => document.getElementById('view').innerText);
     // The lock is not just stated, it is itemised — the learner must be able to
     // see what is missing rather than face a closed door (#16).
-    expect(text, 'the exam does not show a closed gate').toMatch(/Schloss aktiv|gesperrt/i);
-    expect(text, 'the gate names no reason').toMatch(/Kapiteltest P\d nicht bestanden/);
+    // Wortlaut seit dem Design-Durchgang: „Das Examen ist noch zu".
+    expect(text, 'the exam does not show a closed gate').toMatch(/noch zu|gesperrt/i);
+    // Die Gruende nennen seit dem Design-Durchgang den Phasennamen statt des
+    // Kuerzels: „Kapiteltest der Phase 3 · Einstufung noch nicht bestanden".
+    expect(text, 'the gate names no reason').toMatch(/Kapiteltest der Phase \d/);
     const start = page.locator('#view button:has-text("Examen starten")');
     expect(await start.count(), 'the exam can be started although the gate is closed').toBe(0);
     await erfasse(page, '#/examen');
@@ -103,8 +106,11 @@ test.describe('examination system', () => {
 
     let zuege = 0;
     for (let i = 0; i < 6; i++) {
-      const zug = page.locator('#view button:visible:not([disabled])')
-        .filter({ hasNotText: 'Phase abschließen' }).first();
+      // Ueber die Kennung statt ueber die Beschriftung: der Knopf hiess frueher
+      // „Phase abschließen" und heisst seit dem Design-Durchgang „Abschnitt
+      // abschließen" — der Textfilter griff nicht mehr, und der Test brach das
+      // Gespraech im ersten Durchgang ab, statt Zuege zu machen.
+      const zug = page.locator('#view button:visible:not([disabled]):not(#b-next)').first();
       if (!await zug.count()) break;
       // The conversation re-renders around the click, so a detached node here
       // means the turn landed — not that the control was broken.
@@ -146,7 +152,8 @@ test.describe('examination system', () => {
     expect(text, 'the record does not deny accreditation').toMatch(/[Kk]ein akkreditiertes Zertifikat/);
     expect(text).toMatch(/unbeaufsichtigt/i);
     expect(text).toMatch(/nicht durch eine unabhängige Stelle verifiziert/i);
-    expect(text, 'the legal baseline is missing from the record').toMatch(/2026-07-27|27\.7\.2026/);
+    // Der Nachweis schreibt das Datum seit dem Design-Durchgang aus: „27. Juli 2026".
+    expect(text, 'the legal baseline is missing from the record').toMatch(/2026-07-27|27\.7\.2026|27\. Juli 2026/);
 
     // The disclaimer must sit in the visible front block, not somewhere below.
     const vorne = await page.evaluate(() =>

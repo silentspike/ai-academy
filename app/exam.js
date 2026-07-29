@@ -2,6 +2,7 @@
 // placement, remediation, appeal and the personal record of learning.
 // The logic lives in exam-core.js (DOM-free, tested); this file is flow and presentation.
 import { route } from './router.js';
+import { kompetenzName, stufenName, setKompetenzen, PHASEN_NAME } from './competency.js';
 import { renderQuestion, applyMode, MODES, escapeHtml } from './engine-quiz.js';
 
 /**
@@ -37,6 +38,7 @@ async function data() {
     fetch('content/competencies.json').then(r => r.json()),
     fetch('content/scenarios.json').then(r => r.json()),
   ]);
+  setKompetenzen(comp.kompetenzen);   // Klarnamen fuer die Fragemarken
   return (_data = { pool: qc.questions, kompetenzen: comp.kompetenzen, scenarios: sc.scenarios });
 }
 
@@ -68,7 +70,7 @@ async function runQuestions(view, questions, { mode, kind, llm, onDone }) {
     // blocks, and only the first one was inside the reading column.
     const head = card(`<div class="q-fortschritt" role="img" aria-label="Frage ${i + 1} von ${questions.length}"><i style="width:${Math.round((i + 1) / questions.length * 100)}%"></i></div>
       <div class="q-meta"><span class="q-zaehler">Frage ${i + 1}<i>/${questions.length}</i></span>
-      <span class="q-marken"><span class="q-marke">${q.competency}</span><span class="q-marke">Stufe ${q.level}</span>${mode === 'exam' ? '<span class="q-marke streng">ohne Hilfsmittel</span>' : mode === 'open' ? '<span class="q-marke">Verordnungstext erlaubt</span>' : ''}</span></div>`);
+      <span class="q-marken"><span class="q-marke">${kompetenzName(q.competency)}</span><span class="q-marke">${stufenName(q.level)}</span>${mode === 'exam' ? '<span class="q-marke streng">ohne Hilfsmittel</span>' : mode === 'open' ? '<span class="q-marke">Verordnungstext erlaubt</span>' : ''}</span></div>`);
     mount.appendChild(head);
     const qm = document.createElement('div');
     head.appendChild(qm);
@@ -131,9 +133,7 @@ async function runQuestions(view, questions, { mode, kind, llm, onDone }) {
 // ---------------------------------------------------------------- Kapiteltest #/test/p2
 // Phasen-Namen fuer die Kopfzeilen der Pruefungen: „Kapiteltest P5" sagte dem
 // Lernenden nichts, „Phase 5 · Transparenz" schon.
-const PHASEN_NAME = { p1: 'Phase 1 · Fundament', p2: 'Phase 2 · Verbote', p3: 'Phase 3 · Einstufung',
-  p4: 'Phase 4 · Pflichten', p5: 'Phase 5 · Transparenz', p6: 'Phase 6 · GPAI', p7: 'Phase 7 · Aufsicht',
-  p8: 'Phase 8 · Randwissen', p9: 'Phase 9 · Ländermodul AT', p10: 'Phase 10 · Auslegung' };
+// Phasennamen: gemeinsame Quelle in competency.js
 
 route('test', async (view, ctx, [phaseId]) => {
   const { pool, kompetenzen, scenarios } = await data();
@@ -575,9 +575,10 @@ route('lernnachweis', async (view, ctx) => {
     <div class="nachweis" id="nachweis">
       <h2>Persönlicher Lernnachweis</h2>
       <p class="nw-unter">AI-Act-Akademie · ausgestellt am ${new Date().toLocaleDateString('de-AT')}</p>
-      ${ctx.simulation ? `<p class="nachweis-disclaimer nachweis-sim"><b>Aus einer Simulation.</b> Die Lernpfad-Sperren
-      waren offen — Examens-Gate, Tagesantritt, Pflicht-Review und Bosskampf-Vorbedingung. Was hier
-      steht, belegt keinen Lernstand.</p>` : ''}
+      ${ctx.simulation ? `<p class="nachweis-disclaimer nachweis-sim"><b>Aus einer Simulation.</b> Alle Sperren
+      standen offen: das Examen war ohne bestandene Kapiteltests zugänglich, es galt keine Antrittsgrenze
+      pro Tag, die Pflicht-Wiederholung entfiel und das Fachgespräch war vor dem Kapiteltest nicht nötig.
+      Was hier steht, belegt keinen Lernstand.</p>` : ''}
       <p class="nachweis-disclaimer"><b>Persönlicher, unbeaufsichtigter Lernnachweis.</b> Identität und Prüfungsbedingungen
       wurden nicht durch eine unabhängige Stelle verifiziert. Teile der Bewertung sind KI-unterstützt.
       Kein akkreditiertes Zertifikat. Nicht bestimmt für den Einsatz durch Bildungseinrichtungen

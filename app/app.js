@@ -435,7 +435,7 @@ function markActiveNav(path) {
 // ---------- Routen ----------
 
 import { renderHeatmap, renderRadar, renderCurve, renderXpBars, renderExamHistory } from './dashboard.js';
-import { aggregateCompetencies, radarData } from './competency.js';
+import { aggregateCompetencies, radarData, kompetenzName, stufenName, ladeKompetenzen } from './competency.js';
 import { splitQueues } from './engine-leitner.js';
 import { ceremony, CEREMONY, levelFor, weekProgress, wochenpunkte, zaehleHoch } from './gamification.js';
 import { einheitenGesamt, coverPfad } from './content-index.js';
@@ -863,6 +863,7 @@ route('karten', async (view, ctx) => {
       await ctx.saveState();
     } catch { /* Glossar-Karten sind Zusatz */ }
   }
+  await ladeKompetenzen();                // Klarnamen fuer die Karten-Marken
   let startGesamt = null;                 // Tagespensum beim Einstieg — Bezugsgröße des Balkens
   const paint = () => {
     const q = splitQueues(ctx.state.cards ?? [], Date.now());
@@ -899,7 +900,7 @@ route('karten', async (view, ctx) => {
       <div class="karte-lauf"><span class="karte-lauf-bar"><i style="width:${Math.round(erledigt / Math.max(startGesamt, 1) * 100)}%"></i></span>
         <span class="karte-lauf-txt">${erledigt} von ${startGesamt} · noch <b>${gesamt}</b> ${gesamt === 1 ? 'Karte' : 'Karten'}</span></div>
       <div class="karte-blatt">
-        <div class="karte-marken"><span class="q-marke">${c.competency ?? 'ohne Kompetenz'}</span>${c.level ? `<span class="q-marke">Stufe ${c.level}</span>` : ''}<span class="q-marke ${istAufhol ? 'variante' : ''}">${istAufhol ? 'Aufholen' : 'Kern'}</span>${c.kind === 'glossar' ? '<span class="q-marke">Glossar</span>' : ''}</div>
+        <div class="karte-marken"><span class="q-marke">${c.competency ? kompetenzName(c.competency) : 'ohne Kompetenz'}</span>${c.level ? `<span class="q-marke">${stufenName(c.level)}</span>` : ''}<span class="q-marke ${istAufhol ? 'variante' : ''}">${istAufhol ? 'Aufholen' : 'Kern'}</span>${c.kind === 'glossar' ? '<span class="q-marke">Glossar</span>' : ''}</div>
         <p class="karte-front">${c.front ?? '<span class="karte-leer">Diese Karte hat keinen Fragetext — sie stammt aus einem Import oder einem Testlauf.</span>'}</p>
         <button class="btn-primary karte-flip" id="k-flip">Antwort zeigen</button>
         <div id="k-back" hidden>
