@@ -47,11 +47,19 @@ export function checkRewards(state, doc = document, { anchor = null, phaseComple
 
   // 4. Phasen-Abschluss / Examen (GROSS)
   if (phaseCompleted) {
-    ceremony(doc, CEREMONY.GROSS, { title: `Phase ${phaseCompleted.toUpperCase()} abgeschlossen`, text: 'Kapiteltest bestanden — Bosskampf und Test hinter dir.', image: coverArt(phaseCompleted) });
+    // „Phase P7 abgeschlossen" — im groessten Moment des Lernwegs stand das
+    // Kuerzel statt des Namens.
+    const PHASEN_TITEL = { p1: 'Fundament', p2: 'Verbote', p3: 'Einstufung', p4: 'Pflichten',
+      p5: 'Transparenz', p6: 'GPAI', p7: 'Aufsicht', p8: 'Randwissen', p9: 'Ländermodul AT',
+      p10: 'Auslegung' };
+    const nr = phaseCompleted.replace('p', '');
+    ceremony(doc, CEREMONY.GROSS, {
+      title: `Phase ${nr} · ${PHASEN_TITEL[phaseCompleted] ?? ''} abgeschlossen`,
+      text: 'Fachgespräch und Kapiteltest hinter dir.', image: coverArt(phaseCompleted) });
     fired.push({ tier: 'gross', kind: 'phase', phase: phaseCompleted });
   }
   if (examPassed) {
-    ceremony(doc, CEREMONY.GROSS, { title: 'Examen bestanden', text: 'Teil A (Closed Book) und Capstone (Open Book) — der Lernnachweis steht bereit.', image: 'assets/badges/endstufe-krone.webp' });
+    ceremony(doc, CEREMONY.GROSS, { title: 'Examen bestanden', text: 'Beide Teile bestanden — der Lernnachweis steht bereit.', image: 'assets/badges/endstufe-krone.webp' });
     fired.push({ tier: 'gross', kind: 'examen' });
   }
   void anchor;
@@ -115,7 +123,7 @@ export function heroOnce(state, doc = document) {
       <h1>AI-Act-Akademie</h1>
       <p>Den EU AI Act nicht nachlesen, sondern anwenden können — Einstufung, Pflichten, Fristen.
          Auf dem Rechtsstand, der wirklich gilt.</p>
-      <button class="btn-primary">Los geht's</button>
+      <button class="btn-primary">Los geht’s</button>
     </div>`;
   doc.body.appendChild(ov);
   return new Promise(res => {

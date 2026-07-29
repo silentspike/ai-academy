@@ -1,1124 +1,1124 @@
 {
-  "scenarios": [
+ "scenarios": [
+  {
+   "id": "sz-p2-stimmungsradar",
+   "title": "Das Stimmungsradar",
+   "rubric_id": "rub-p2-01",
+   "persona_archetype": "draengler",
+   "competency": "K02",
+   "legal_status": "konsolidiert-2026-07-27",
+   "legal_basis": [
     {
-      "id": "sz-p2-stimmungsradar",
-      "title": "Das Stimmungsradar",
-      "rubric_id": "rub-p2-01",
-      "persona_archetype": "draengler",
-      "competency": "K02",
-      "legal_status": "konsolidiert-2026-07-27",
-      "legal_basis": [
-        {
-          "ref": "Art. 5 Abs. 1 lit. f",
-          "instrument": "VO 2024/1689 idF 2026/1744",
-          "verified": "eigenpruefung-content-offen"
-        },
-        {
-          "ref": "Anhang III Nr. 4",
-          "instrument": "VO 2024/1689 idF 2026/1744",
-          "verified": "eigenpruefung-content-offen"
-        }
-      ],
-      "facts": [
-        {
-          "id": "f0",
-          "text": "Die Fachabteilung will ein 'Stimmungsradar' für die Service-Hotline einführen — Dashboard zeigt live die Stimmung der Gespräche.",
-          "released_at_phase": 0
-        },
-        {
-          "id": "f1",
-          "text": "Auf Nachfrage: Analysiert werden BEIDE Gesprächsseiten — Versicherte UND die eigenen Mitarbeitenden.",
-          "released_at_phase": 1
-        },
-        {
-          "id": "f2",
-          "text": "Später im Gespräch: 'Und wenn es gut läuft, nehmen wir die Werte gleich ins Mitarbeiter-Jahresgespräch mit.'",
-          "released_at_phase": 2
-        }
-      ],
-      "opening": "Schön, dass Sie Zeit haben! Wir wollen ein Stimmungsradar für die Service-Hotline — das Dashboard zeigt live die Stimmung der Gespräche. Was brauchen Sie von mir, damit das schnell durchgeht?",
-      "suggested_moves": [
-        "Was genau ist die Zweckbestimmung?",
-        "Wessen Stimme wird analysiert — nur Anrufende oder auch unsere Leute?"
-      ],
-      "phases": [
-        {
-          "id": "p0",
-          "goal": "Zweckbestimmung und Datenbasis klären",
-          "opening_hint": "Du willst das Projekt schnell durchbringen; Details nennst du nur auf konkrete Nachfrage."
-        },
-        {
-          "id": "p1",
-          "goal": "Beide-Seiten-Analyse offenlegen",
-          "opening_hint": "Du gibst zu, dass auch Mitarbeitende analysiert werden, findest das aber unproblematisch."
-        },
-        {
-          "id": "p2",
-          "goal": "Falle: Leistungsbewertung",
-          "opening_hint": "Du schlägst vor, die Werte auch für Jahresgespräche zu nutzen — 'Synergie!'"
-        }
-      ],
-      "goals": [
-        {
-          "id": "g1",
-          "text": "Nach Zweckbestimmung/Datenbasis fragen",
-          "competency": "K01",
-          "matcher": "zweck|daten|wer wird|welche seite|beide"
-        },
-        {
-          "id": "g2",
-          "text": "Art.-5-Verbot für Mitarbeiter-Emotionserkennung erkennen",
-          "competency": "K02",
-          "matcher": "art\\.? ?5|verbot|emotionserkennung.*(arbeitsplatz|mitarbeiter)"
-        },
-        {
-          "id": "g3",
-          "text": "Anhang III Nr. 4 bei Leistungsbewertung ansprechen",
-          "competency": "K03",
-          "matcher": "anhang ?iii|leistungsbewertung|nr\\.? ?4|hochrisiko"
-        },
-        {
-          "id": "g4",
-          "text": "Zulässigen Alternativpfad anbieten (nur Kundenseite, Transparenz)",
-          "competency": "K09",
-          "matcher": "alternativ|kundenseite|nur.*versicherte|transparenz"
-        }
-      ],
-      "critical_errors": [
-        "Mitarbeiter-Emotionserkennung als zulässig bestätigen"
-      ],
-      "rubric": [
-        {
-          "krit": "Informationsbedarf strukturiert erhoben (nicht sofort geurteilt)",
-          "punkte": 2
-        },
-        {
-          "krit": "Art. 5 lit. f korrekt auf Mitarbeitenden-Analyse angewendet",
-          "punkte": 3
-        },
-        {
-          "krit": "Falle (Jahresgespräch → Anhang III Nr. 4) erkannt",
-          "punkte": 3
-        },
-        {
-          "krit": "Gesprächsführung: klar, ohne Belehrung, mit Alternativvorschlag",
-          "punkte": 2
-        }
-      ]
+     "ref": "Art. 5 Abs. 1 lit. f",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-content-offen"
     },
     {
-      "id": "sz-capstone-kern",
-      "title": "Capstone: Das Modernisierungsprojekt",
-      "rubric_id": "rub-capstone",
-      "persona_archetype": "fuehrungsebene",
-      "competency": "K04",
-      "legal_status": "konsolidiert-2026-07-27",
-      "legal_basis": [
-        {
-          "ref": "Art. 6",
-          "instrument": "VO 2024/1689 idF 2026/1744",
-          "verified": "eigenpruefung-content-offen"
-        },
-        {
-          "ref": "Anhang III Nr. 5",
-          "instrument": "VO 2024/1689 idF 2026/1744",
-          "verified": "eigenpruefung-content-offen"
-        },
-        {
-          "ref": "Art. 26",
-          "instrument": "VO 2024/1689 idF 2026/1744",
-          "verified": "eigenpruefung-content-offen"
-        },
-        {
-          "ref": "Art. 27",
-          "instrument": "VO 2024/1689 idF 2026/1744",
-          "verified": "eigenpruefung-content-offen"
-        },
-        {
-          "ref": "Art. 111 Abs. 2 idF 2026/1744",
-          "instrument": "VO 2024/1689 idF 2026/1744",
-          "verified": "eigenpruefung-content-offen"
-        }
-      ],
-      "einkleidung_hinweis": "Fixer Kern (§5.2): Fakten, Schwierigkeitsgrad, Lücken, Rubrik unveränderlich. Profil kleidet NUR Organisationsnamen/Rollen/Domänenbegriffe ein.",
-      "facts": [
-        {
-          "id": "f0",
-          "text": "Die Organisation betreibt seit 2024 ein Alt-System zur automatischen Vorprüfung von Anträgen auf eine wesentliche öffentliche Leistung; ein Modernisierungsprojekt soll es 2027 um ein LLM-Modul erweitern.",
-          "released_at_phase": 0
-        },
-        {
-          "id": "f1",
-          "text": "Das LLM-Modul soll Ablehnungsentwürfe VOLLautomatisch erstellen; Sachbearbeitung 'kann' übersteuern.",
-          "released_at_phase": 0
-        },
-        {
-          "id": "f2",
-          "text": "Der Anbieter nennt das Update 'reines Komfort-Feature ohne Konformitätsrelevanz'.",
-          "released_at_phase": 0
-        },
-        {
-          "id": "f3",
-          "text": "NICHT im Sachverhalt enthalten: das genaue Roll-out-Datum des Moduls (bewusste Informationslücke).",
-          "released_at_phase": 0
-        }
-      ],
-      "opening": "Wir betreiben seit 2024 ein System zur Vorprüfung von Anträgen und wollen es 2027 um ein LLM-Modul erweitern, das Ablehnungsentwürfe vollautomatisch erstellt. Der Anbieter nennt das ein reines Komfort-Feature. Ihre Einschätzung, bitte — mit Text am Tisch.",
-      "suggested_moves": [
-        "Ab wann soll das Modul eingesetzt werden?",
-        "Ändert das Modul die Zweckbestimmung des Systems?"
-      ],
-      "phases": [
-        {
-          "id": "p0",
-          "goal": "Schriftliche Falllösung",
-          "opening_hint": "Open Book: Verordnungstext verfügbar."
-        }
-      ],
-      "goals": [
-        {
-          "id": "g1",
-          "text": "Anhang III Nr. 5 einschlägig + Betreiberrolle",
-          "competency": "K03",
-          "matcher": "anhang ?iii.*5|wesentliche.*leistung"
-        },
-        {
-          "id": "g2",
-          "text": "Altsystem-Übergang Art. 111 Abs. 2 + Verlust bei wesentlicher Änderung",
-          "competency": "K07",
-          "matcher": "111|altsystem|wesentliche änderung|2030"
-        },
-        {
-          "id": "g3",
-          "text": "Fehlende Roll-out-Info als entscheidungsrelevant benennen",
-          "competency": "K06",
-          "matcher": "fehlt|datum|zeitpunkt|nicht.*bestimmbar"
-        },
-        {
-          "id": "g4",
-          "text": "FRIA + menschliche Aufsicht adressieren",
-          "competency": "K05",
-          "matcher": "fria|27|menschliche aufsicht|14"
-        }
-      ],
-      "critical_errors": [
-        "System als 'frei' einstufen",
-        "Vollautomatik ohne Aufsichts-Diskussion durchwinken"
-      ],
-      "rubric": [
-        {
-          "krit": "Methodik: 10-Schritte-Prüfweg sichtbar",
-          "punkte": 3
-        },
-        {
-          "krit": "Einstufung + Rollenbestimmung korrekt",
-          "punkte": 3
-        },
-        {
-          "krit": "Zeitdimension (Altsystem/wesentliche Änderung/Fristen) korrekt",
-          "punkte": 3
-        },
-        {
-          "krit": "Informationslücke erkannt und benannt",
-          "punkte": 2
-        },
-        {
-          "krit": "Fundstellenarbeit präzise (Open Book)",
-          "punkte": 2
-        },
-        {
-          "krit": "Umsetzbare Empfehlung mit Bedingungen",
-          "punkte": 2
-        }
-      ]
-    },
-    {
-      "id": "sz-p1-ki-etikett",
-      "title": "Das KI-Etikett",
-      "rubric_id": "rub-sz-p1-ki-etikett",
-      "persona_archetype": "draengler",
-      "competency": "K02",
-      "legal_status": "konsolidiert-2026-07-27",
-      "legal_basis": [
-        {
-          "ref": "Art. 3 Nr. 1",
-          "instrument": "VO 2024/1689 idF 2026/1744",
-          "verified": "eigenpruefung-content-offen"
-        },
-        {
-          "ref": "Art. 3 Nr. 3, 4",
-          "instrument": "VO 2024/1689 idF 2026/1744",
-          "verified": "eigenpruefung-content-offen"
-        }
-      ],
-      "facts": [
-        {
-          "id": "f0",
-          "text": "Die Fachabteilung will ein zugekauftes 'KI-Tool' für die Postsortierung einführen — der Anbieter wirbt massiv mit KI.",
-          "released_at_phase": 0
-        },
-        {
-          "id": "f1",
-          "text": "Auf Nachfrage: Technisch ist es eine handgepflegte Regel-Engine ohne Lernkomponente; 'KI' ist Marketing.",
-          "released_at_phase": 1
-        },
-        {
-          "id": "f2",
-          "text": "Die IT will die Regeln künftig durch ein selbst trainiertes ML-Modell ersetzen — 'machen wir intern, betrifft ja niemanden'.",
-          "released_at_phase": 2
-        }
-      ],
-      "opening": "Wir haben da ein KI-Tool für die Postsortierung gefunden, der Anbieter wirbt groß mit KI. Ich würde das gern kaufen — Sie haken das kurz ab, ja?",
-      "suggested_moves": [
-        "Was macht das Werkzeug technisch — leitet es aus Eingaben ab?",
-        "Wer ist Anbieter, wer Betreiber?"
-      ],
-      "phases": [
-        {
-          "id": "p0",
-          "goal": "Systemqualifikation klären",
-          "opening_hint": "Du willst schnell kaufen; auf Technik-Fragen antwortest du nur konkret nachgefragt."
-        },
-        {
-          "id": "p1",
-          "goal": "Etiketten-Neutralität erkennen",
-          "opening_hint": "Du gibst zu, dass es Marketing ist, und findest die Rechtsfrage damit erledigt."
-        },
-        {
-          "id": "p2",
-          "goal": "Falle: Eigenentwicklung",
-          "opening_hint": "Du erwähnst beiläufig den ML-Umbau als interne Kleinigkeit."
-        }
-      ],
-      "goals": [
-        {
-          "id": "g1",
-          "text": "Nach der tatsächlichen Funktionsweise fragen (Ableitung vs. Regeln)",
-          "competency": "K02",
-          "matcher": "funktionsweise|lern|ableit|regel|ml|modell|trainier"
-        },
-        {
-          "id": "g2",
-          "text": "Etikett von Rechtslage trennen (in beide Richtungen)",
-          "competency": "K02",
-          "matcher": "etikett|marketing|name|bezeichnung|egal was drauf"
-        },
-        {
-          "id": "g3",
-          "text": "Beim ML-Umbau die Anbieter-Rolle erkennen (Eigenentwicklung + Inbetriebnahme)",
-          "competency": "K05",
-          "matcher": "anbieter|eigenentwick|art\\.? ?25|selbst.*(entwick|trainier)|rolle"
-        },
-        {
-          "id": "g4",
-          "text": "Nächste Schritte strukturieren statt pauschal zustimmen/ablehnen",
-          "competency": "K01",
-          "matcher": "prüf|schritt|zunächst|dokument|zweckbestimmung"
-        }
-      ],
-      "rubric": [
-        {
-          "krit": "Systemqualifikation methodisch (Art. 3 Nr. 1 Kriterien)",
-          "punkte": 3
-        },
-        {
-          "krit": "Etiketten-Neutralität beidseitig erklärt",
-          "punkte": 2
-        },
-        {
-          "krit": "Rollen-Kipp bei Eigenentwicklung erkannt",
-          "punkte": 3
-        },
-        {
-          "krit": "Gesprächsführung: strukturiert, Fundstellen",
-          "punkte": 2
-        }
-      ],
-      "critical_errors": [
-        {
-          "id": "ce1",
-          "text": "ML-Eigenentwicklung als reine Betreiber-Sache ohne Anbieter-Pflichten durchgewunken",
-          "reason": "CE-Kategorie 2-nah: volles Pflichtenprogramm übersehen",
-          "matcher": "(kein(e)? ?(pflicht|problem)|einfach|unkritisch).*(intern|eigenentwick|selbst)|nur betreiber"
-        }
-      ]
-    },
-    {
-      "id": "sz-p3-reha-triage",
-      "title": "Die Reha-Triage",
-      "rubric_id": "rub-sz-p3-reha-triage",
-      "persona_archetype": "fuehrungsebene",
-      "competency": "K03",
-      "legal_status": "konsolidiert-2026-07-27",
-      "legal_basis": [
-        {
-          "ref": "Anhang III Nr. 5 lit. a",
-          "instrument": "VO 2024/1689 idF 2026/1744",
-          "verified": "eigenpruefung-content-offen"
-        },
-        {
-          "ref": "Art. 6 Abs. 3",
-          "instrument": "VO 2024/1689 idF 2026/1744",
-          "verified": "eigenpruefung-content-offen"
-        }
-      ],
-      "facts": [
-        {
-          "id": "f0",
-          "text": "Die Führungsebene will ein System, das Reha-Anträge 'vorsortiert', und braucht bis Freitag eine Executive Summary.",
-          "released_at_phase": 0
-        },
-        {
-          "id": "f1",
-          "text": "Auf Nachfrage: Das System soll Anträge priorisieren UND aussichtslose Fälle zur schnellen Ablehnung markieren.",
-          "released_at_phase": 1
-        },
-        {
-          "id": "f2",
-          "text": "Nachschub: 'Der Anbieter sagt, mit der Ausnahme in Art. 6 Abs. 3 sind wir raus aus Hochrisiko — er hat da ein Gutachten.'",
-          "released_at_phase": 2
-        }
-      ],
-      "opening": "Ich brauche bis Freitag eine Executive Summary: Wir wollen ein System, das Reha-Anträge vorsortiert. Kurz und knapp — was spricht dagegen?",
-      "suggested_moves": [
-        "Entscheidet es über den Zugang zur Leistung — oder bereitet es nur vor?",
-        "Welche Rolle nehmen wir dabei ein?"
-      ],
-      "phases": [
-        {
-          "id": "p0",
-          "goal": "Sachverhalt strukturieren",
-          "opening_hint": "Du willst eine knappe Management-Antwort, keine Paragrafen-Vorlesung."
-        },
-        {
-          "id": "p1",
-          "goal": "Entscheidungsrolle klären",
-          "opening_hint": "Du präzisierst nur auf gute Fragen; Zeitdruck bleibt dein Thema."
-        },
-        {
-          "id": "p2",
-          "goal": "Falle: Gefälligkeits-Ausnahme",
-          "opening_hint": "Du hältst das Anbieter-Gutachten für die bequeme Lösung."
-        }
-      ],
-      "goals": [
-        {
-          "id": "g1",
-          "text": "Nach der Entscheidungsrolle fragen (vorbereitend vs. wesentlich)",
-          "competency": "K03",
-          "matcher": "entscheid|wesentlich|vorbereit|ablehn|mensch|letztes wort"
-        },
-        {
-          "id": "g2",
-          "text": "Anhang III Nr. 5 lit. a benennen",
-          "competency": "K03",
-          "matcher": "anhang iii|nr\\.? ?5|grundlegend|öffentliche leistung|unterstützungsleist"
-        },
-        {
-          "id": "g3",
-          "text": "Abs.-3-Ausnahme kritisch prüfen (Profiling-Rückausnahme, eigene Doku)",
-          "competency": "K03",
-          "matcher": "abs\\.? ?3|ausnahme|profiling|rückausnahme|dokument|selbst prüfen"
-        },
-        {
-          "id": "g4",
-          "text": "Führungsgerecht antworten (Ergebnis vorn, Vorbehalt klar)",
-          "competency": "K18",
-          "matcher": "zusammenfass|kurz|empfehl|vorbehalt|executive"
-        }
-      ],
-      "rubric": [
-        {
-          "krit": "Einstufungs-Triage korrekt (Funktion→Rolle→Zweck)",
-          "punkte": 3
-        },
-        {
-          "krit": "Nr.-5-lit.-a-Subsumtion",
-          "punkte": 3
-        },
-        {
-          "krit": "Abs.-3-Prüfung kritisch inkl. Profiling-Rückausnahme",
-          "punkte": 2
-        },
-        {
-          "krit": "Management-Kommunikation",
-          "punkte": 2
-        }
-      ],
-      "critical_errors": [
-        {
-          "id": "ce1",
-          "text": "Ablehnungs-Markierung als 'nur vorbereitend' und damit pflichtenfrei eingestuft",
-          "reason": "CE2: eindeutiges Hochrisiko wegdefiniert",
-          "matcher": "(nur|bloß) vorbereitend|kein hochrisiko|abs\\.? ?3 (greift|passt)|gutachten reicht"
-        }
-      ]
-    },
-    {
-      "id": "sz-p4-fria-schnell",
-      "title": "Die Drei-Tage-FRIA",
-      "rubric_id": "rub-sz-p4-fria-schnell",
-      "persona_archetype": "kritischer-pruefer",
-      "competency": "K09",
-      "legal_status": "konsolidiert-2026-07-27",
-      "legal_basis": [
-        {
-          "ref": "Art. 27",
-          "instrument": "VO 2024/1689 idF 2026/1744",
-          "verified": "eigenpruefung-content-offen"
-        },
-        {
-          "ref": "Art. 26 Abs. 2",
-          "instrument": "VO 2024/1689 idF 2026/1744",
-          "verified": "eigenpruefung-content-offen"
-        }
-      ],
-      "facts": [
-        {
-          "id": "f0",
-          "text": "Die Datenschutzbeauftragte prüft euren FRIA-Entwurf für den Leistungs-Chatbot kritisch — sie hat 40 Anmerkungen.",
-          "released_at_phase": 0
-        },
-        {
-          "id": "f1",
-          "text": "Sie fragt: 'Wo ist die Abgrenzung zur DSFA? Das meiste hier habe ich schon in meiner DSFA stehen.'",
-          "released_at_phase": 1
-        },
-        {
-          "id": "f2",
-          "text": "Sie legt nach: 'Und wer übt eigentlich die menschliche Aufsicht aus — die Praktikantin, die nebenbei die Hotline macht?'",
-          "released_at_phase": 2
-        }
-      ],
-      "opening": "Ich habe Ihren FRIA-Entwurf für den Leistungs-Chatbot durchgesehen. Vierzig Anmerkungen. Fangen wir vorne an — worauf stützen Sie die Bewertung?",
-      "suggested_moves": [
-        "Welche Anmerkung wiegt aus Ihrer Sicht am schwersten?",
-        "Welche Angaben fehlen Ihnen für eine belastbare Bewertung?"
-      ],
-      "phases": [
-        {
-          "id": "p0",
-          "goal": "FRIA-Substanz verteidigen",
-          "opening_hint": "Du prüfst hart, aber fair; oberflächliche Antworten lässt du nicht durchgehen."
-        },
-        {
-          "id": "p1",
-          "goal": "DSFA-Verhältnis klären",
-          "opening_hint": "Du willst die Abgrenzung präzise — Doppelarbeit ärgert dich."
-        },
-        {
-          "id": "p2",
-          "goal": "Falle: Alibi-Aufsicht",
-          "opening_hint": "Du bohrst nach, ob die Aufsicht Befähigung UND Befugnis hat."
-        }
-      ],
-      "goals": [
-        {
-          "id": "g1",
-          "text": "FRIA-Kernelemente benennen (Betroffene, Risiken, Maßnahmen)",
-          "competency": "K09",
-          "matcher": "betroffen|risik|maßnahm|personengruppe|grundrecht"
-        },
-        {
-          "id": "g2",
-          "text": "Art.-27-Abs.-4-Brücke zur DSFA erklären",
-          "competency": "K09",
-          "matcher": "abs\\.? ?4|dsfa|ergänz|aufsetzen|komplementär|art\\.? ?35"
-        },
-        {
-          "id": "g3",
-          "text": "Aufsichts-Anforderungen konkret (Art. 26 Abs. 2 / 14 Abs. 4)",
-          "competency": "K08",
-          "matcher": "befugnis|befähig|kompetent|schulung|eingreifen|stopp"
-        },
-        {
-          "id": "g4",
-          "text": "Kritik konstruktiv aufnehmen statt abzuwehren",
-          "competency": "K18",
-          "matcher": "danke|aufnehmen|nacharbeiten|ergänzen|recht haben"
-        }
-      ],
-      "rubric": [
-        {
-          "krit": "FRIA-Substanz (nicht nur Formular)",
-          "punkte": 3
-        },
-        {
-          "krit": "DSFA-Abgrenzung präzise (27 Abs. 4)",
-          "punkte": 3
-        },
-        {
-          "krit": "Aufsicht als Befähigung+Befugnis+Stopp",
-          "punkte": 2
-        },
-        {
-          "krit": "Umgang mit kritischer Prüfung",
-          "punkte": 2
-        }
-      ],
-      "critical_errors": [
-        {
-          "id": "ce1",
-          "text": "FRIA für verzichtbar erklärt, weil 'die DSFA das abdeckt'",
-          "reason": "CE3: FRIA-Pflicht verneint",
-          "matcher": "fria.*(verzichtbar|unnötig|nicht nötig)|dsfa (deckt|reicht|genügt)"
-        }
-      ]
-    },
-    {
-      "id": "sz-p5-avatar",
-      "title": "Der Service-Avatar",
-      "rubric_id": "rub-sz-p5-avatar",
-      "persona_archetype": "draengler",
-      "competency": "K12",
-      "legal_status": "konsolidiert-2026-07-27",
-      "legal_basis": [
-        {
-          "ref": "Art. 50 Abs. 1",
-          "instrument": "VO 2024/1689 idF 2026/1744",
-          "verified": "eigenpruefung-content-offen"
-        },
-        {
-          "ref": "Art. 50 Abs. 2",
-          "instrument": "VO 2024/1689 idF 2026/1744",
-          "verified": "eigenpruefung-content-offen"
-        }
-      ],
-      "facts": [
-        {
-          "id": "f0",
-          "text": "Das Marketing will einen fotorealistischen Video-Avatar ('Frau Huber') für Service-Videos und den Web-Chat.",
-          "released_at_phase": 0
-        },
-        {
-          "id": "f1",
-          "text": "Auf Nachfrage: Der Avatar basiert lose auf einer echten Ex-Mitarbeiterin; gefragt wurde sie nie.",
-          "released_at_phase": 1
-        },
-        {
-          "id": "f2",
-          "text": "'Und den KI-Hinweis lassen wir weg — das zerstört die persönliche Note', sagt das Marketing.",
-          "released_at_phase": 2
-        }
-      ],
-      "opening": "Wir bauen eine fotorealistische Frau Huber für unsere Service-Videos und den Web-Chat — die Leute lieben sowas. Sie sagen mir jetzt bitte nicht, dass das nicht geht.",
-      "suggested_moves": [
-        "Erkennen die Nutzenden, dass sie mit einem System sprechen?",
-        "Ist das erzeugte Material als künstlich erzeugt gekennzeichnet?"
-      ],
-      "phases": [
-        {
-          "id": "p0",
-          "goal": "Transparenz-Grundpflicht klären",
-          "opening_hint": "Du willst maximale Wirkung; Rechtshinweise findest du spießig."
-        },
-        {
-          "id": "p1",
-          "goal": "Personen-Bezug offenlegen",
-          "opening_hint": "Du erzählst beiläufig vom echten Vorbild."
-        },
-        {
-          "id": "p2",
-          "goal": "Falle: Hinweis weglassen",
-          "opening_hint": "Du willst den KI-Hinweis aktiv streichen."
-        }
-      ],
-      "goals": [
-        {
-          "id": "g1",
-          "text": "Art.-50-Abs.-1-Pflicht benennen (Interaktion erkennbar)",
-          "competency": "K12",
-          "matcher": "art\\.? ?50|hinweis|erkennbar|offenleg|inform"
-        },
-        {
-          "id": "g2",
-          "text": "Abs.-2-Kennzeichnung generierter Inhalte ansprechen",
-          "competency": "K12",
-          "matcher": "maschinenlesbar|kennzeichn|wasserzeichen|abs\\.? ?2|markier"
-        },
-        {
-          "id": "g3",
-          "text": "Personen-Deepfake-Risiko der echten Person erkennen",
-          "competency": "K04",
-          "matcher": "echte person|einwillig|persönlichkeitsrecht|deepfake|vorbild"
-        },
-        {
-          "id": "g4",
-          "text": "Konstruktive Lösung anbieten (Design-verträglicher Hinweis)",
-          "competency": "K18",
-          "matcher": "lösung|dezent|trotzdem|banner|formulierung"
-        }
-      ],
-      "rubric": [
-        {
-          "krit": "Abs.-1-Grundpflicht + Zielgruppen-Maßstab",
-          "punkte": 3
-        },
-        {
-          "krit": "Abs.-2-Output-Kennzeichnung",
-          "punkte": 2
-        },
-        {
-          "krit": "Realperson-Risiko erkannt",
-          "punkte": 3
-        },
-        {
-          "krit": "Lösungsorientierung statt Blockade",
-          "punkte": 2
-        }
-      ],
-      "critical_errors": [
-        {
-          "id": "ce1",
-          "text": "Weglassen des KI-Hinweises als zulässige Design-Entscheidung mitgetragen",
-          "reason": "CE1-nah: Transparenzpflicht als optional behandelt",
-          "matcher": "(hinweis|kennzeichnung).*(weglassen|streichen|verzichten)|ohne hinweis (ok|machbar|geht)"
-        }
-      ]
-    },
-    {
-      "id": "sz-p6-modell-tuning",
-      "title": "Das Haus-Modell",
-      "rubric_id": "rub-sz-p6-modell-tuning",
-      "persona_archetype": "cto-vor-release",
-      "competency": "K13",
-      "legal_status": "konsolidiert-2026-07-27",
-      "legal_basis": [
-        {
-          "ref": "Art. 53",
-          "instrument": "VO 2024/1689 idF 2026/1744",
-          "verified": "eigenpruefung-content-offen"
-        },
-        {
-          "ref": "Anhang III Nr. 5 lit. a",
-          "instrument": "VO 2024/1689 idF 2026/1744",
-          "verified": "eigenpruefung-content-offen"
-        }
-      ],
-      "facts": [
-        {
-          "id": "f0",
-          "text": "Die IT-Leitung will ein offenes GPAI-Modell mit internen Leistungsdaten feintunen und als 'ÖSVA-GPT' allen Abteilungen geben.",
-          "released_at_phase": 0
-        },
-        {
-          "id": "f1",
-          "text": "Auf Nachfrage: Geplante Nutzung reicht von Textentwürfen bis 'Vorprüfung von Anträgen irgendwann später'.",
-          "released_at_phase": 1
-        },
-        {
-          "id": "f2",
-          "text": "'Open Source heißt doch: keine Pflichten', sagt die IT-Leitung zum Abschluss.",
-          "released_at_phase": 2
-        }
-      ],
-      "opening": "Wir nehmen ein offenes Modell, tunen es mit unseren Leistungsdaten und geben es als ÖSVA-GPT allen Abteilungen. Nächste Woche live — passt das für Sie?",
-      "suggested_moves": [
-        "Werden wir durch das Feintuning selbst Anbieter?",
-        "Welche Daten fließen in das Training?"
-      ],
-      "phases": [
-        {
-          "id": "p0",
-          "goal": "Zwei-Ebenen-Analyse aufmachen",
-          "opening_hint": "Du bist technisch versiert und willst nächste Woche live gehen."
-        },
-        {
-          "id": "p1",
-          "goal": "Einsatzzwecke differenzieren",
-          "opening_hint": "Du nennst die Anwendungsfälle nur auf strukturierte Nachfrage."
-        },
-        {
-          "id": "p2",
-          "goal": "Falle: Open-Source-Freibrief",
-          "opening_hint": "Du glaubst fest an die Pflichtenfreiheit offener Modelle."
-        }
-      ],
-      "goals": [
-        {
-          "id": "g1",
-          "text": "Modell- und System-Ebene trennen",
-          "competency": "K13",
-          "matcher": "modell.*(ebene|pflicht)|system.*(ebene|einstuf)|zwei ebenen|trennen"
-        },
-        {
-          "id": "g2",
-          "text": "Fine-tuning-Anbieterschaft ansprechen",
-          "competency": "K13",
-          "matcher": "fine.?tun|modifikation|anbieter.*(modell|werden)|art\\.? ?53"
-        },
-        {
-          "id": "g3",
-          "text": "Zweck-Differenzierung: Textentwurf vs. Antrags-Vorprüfung",
-          "competency": "K03",
-          "matcher": "antrag|vorprüf|anhang iii|hochrisiko|zweck"
-        },
-        {
-          "id": "g4",
-          "text": "Open-Source-Erleichterungen korrekt eingrenzen",
-          "competency": "K13",
-          "matcher": "open source|erleichter|punktuell|trotzdem|abs\\.? ?2"
-        }
-      ],
-      "rubric": [
-        {
-          "krit": "Zwei-Ebenen-Analyse sauber",
-          "punkte": 3
-        },
-        {
-          "krit": "Fine-tuning-Folgen (Doku, Verantwortung)",
-          "punkte": 3
-        },
-        {
-          "krit": "Zweck-Differenzierung mit Einstufungs-Folge",
-          "punkte": 2
-        },
-        {
-          "krit": "Open-Source-Mythos korrigiert",
-          "punkte": 2
-        }
-      ],
-      "critical_errors": [
-        {
-          "id": "ce1",
-          "text": "'Open Source = keine Pflichten' bestätigt",
-          "reason": "Pflichtenregime pauschal verneint",
-          "matcher": "open source.*(keine|ohne) pflicht|stimmt, keine pflichten"
-        }
-      ]
-    },
-    {
-      "id": "sz-p7-vorfall",
-      "title": "Der Freitag-Vorfall",
-      "rubric_id": "rub-sz-p7-vorfall",
-      "persona_archetype": "fuehrungsebene",
-      "competency": "K15",
-      "legal_status": "konsolidiert-2026-07-27",
-      "legal_basis": [
-        {
-          "ref": "Art. 26 Abs. 5",
-          "instrument": "VO 2024/1689 idF 2026/1744",
-          "verified": "eigenpruefung-content-offen"
-        },
-        {
-          "ref": "Art. 73",
-          "instrument": "VO 2024/1689 idF 2026/1744",
-          "verified": "eigenpruefung-content-offen"
-        }
-      ],
-      "facts": [
-        {
-          "id": "f0",
-          "text": "Freitag 15 Uhr: Das (hochriskante) Einstufungs-Assistenzsystem hat 3 Wochen lang eine Antragsgruppe systematisch falsch priorisiert. Die Führungsebene will 'das intern halten'.",
-          "released_at_phase": 0
-        },
-        {
-          "id": "f1",
-          "text": "Auf Nachfrage: Betroffen sind ~400 Anträge; 12 wurden möglicherweise zu Unrecht nachrangig behandelt.",
-          "released_at_phase": 1
-        },
-        {
-          "id": "f2",
-          "text": "'Wenn wir melden, steht das Montag in der Zeitung', sagt die Führung.",
-          "released_at_phase": 2
-        }
-      ],
-      "opening": "Freitag, 15 Uhr. Unser Einstufungs-Assistenzsystem hat drei Wochen lang eine Antragsgruppe falsch priorisiert. Ich will das intern halten — das kriegen wir doch geräuschlos hin?",
-      "suggested_moves": [
-        "Wann genau hat der Fehler begonnen, wie viele Fälle sind betroffen?",
-        "Welche Meldepflichten laufen ab jetzt?"
-      ],
-      "phases": [
-        {
-          "id": "p0",
-          "goal": "Sofortmaßnahmen strukturieren",
-          "opening_hint": "Du willst Schadensbegrenzung — vor allem fürs Image."
-        },
-        {
-          "id": "p1",
-          "goal": "Meldepflichten klären",
-          "opening_hint": "Du fragst, ob man 'das wirklich melden muss'."
-        },
-        {
-          "id": "p2",
-          "goal": "Falle: Vertuschungs-Druck",
-          "opening_hint": "Du machst Druck, die Meldung zu unterlassen."
-        }
-      ],
-      "goals": [
-        {
-          "id": "g1",
-          "text": "Sofort-Kaskade: aussetzen, sichern, Anbieter informieren",
-          "competency": "K15",
-          "matcher": "aussetz|stopp|anbieter|sicher|dokument"
-        },
-        {
-          "id": "g2",
-          "text": "Meldepflicht-Prüfung (schwerwiegender Vorfall?) transparent durchführen",
-          "competency": "K15",
-          "matcher": "meld|art\\.? ?73|schwerwiegend|behörde|frist"
-        },
-        {
-          "id": "g3",
-          "text": "Betroffenen-Perspektive einbringen (Korrektur der 12 Fälle)",
-          "competency": "K18",
-          "matcher": "betroffen|korrig|nachprüf|wiedergutmach|fair"
-        },
-        {
-          "id": "g4",
-          "text": "Vertuschung sachlich zurückweisen (Selbstkorrektur-Doktrin)",
-          "competency": "K15",
-          "matcher": "risiko|entdeck|kooperat|mildernd|nicht vertretbar|ablehn"
-        }
-      ],
-      "rubric": [
-        {
-          "krit": "Sofortmaßnahmen-Kaskade vollständig",
-          "punkte": 3
-        },
-        {
-          "krit": "Meldepflicht methodisch geprüft",
-          "punkte": 3
-        },
-        {
-          "krit": "Betroffenen-Korrektur priorisiert",
-          "punkte": 2
-        },
-        {
-          "krit": "Standfestigkeit gegen Vertuschungsdruck",
-          "punkte": 2
-        }
-      ],
-      "critical_errors": [
-        {
-          "id": "ce1",
-          "text": "Zusage, den Vorfall nicht zu melden und Verwendung fortzusetzen",
-          "reason": "Fortgesetzter Verstoß + Meldepflicht-Bruch",
-          "matcher": "(nicht|nichts) melden|intern (halten|lassen)|weiterlaufen lassen"
-        }
-      ]
-    },
-    {
-      "id": "sz-p8-normen-frage",
-      "title": "Die Normen-Frage",
-      "rubric_id": "rub-sz-p8-normen-frage",
-      "persona_archetype": "kunde-konformitaet",
-      "competency": "K16",
-      "legal_status": "konsolidiert-2026-07-27",
-      "legal_basis": [
-        {
-          "ref": "Art. 40",
-          "instrument": "VO 2024/1689 idF 2026/1744",
-          "verified": "eigenpruefung-content-offen"
-        },
-        {
-          "ref": "Anhang IV",
-          "instrument": "VO 2024/1689 idF 2026/1744",
-          "verified": "eigenpruefung-content-offen"
-        }
-      ],
-      "facts": [
-        {
-          "id": "f0",
-          "text": "Ein Fachbereichs-Partner verlangt: 'Bestätigen Sie schriftlich, dass unser gemeinsames Projekt alle Normen und Standards erfüllt.'",
-          "released_at_phase": 0
-        },
-        {
-          "id": "f1",
-          "text": "Auf Nachfrage: Er meint 'diese harmonisierten Normen, von denen alle reden' — konkret kennt er keine.",
-          "released_at_phase": 1
-        },
-        {
-          "id": "f2",
-          "text": "Er schiebt nach: 'Zur Not schreiben Sie einfach: konform mit dem AI Act.'",
-          "released_at_phase": 2
-        }
-      ],
-      "opening": "Bestätigen Sie mir bitte schriftlich, dass unser gemeinsames Projekt alle Normen und Standards erfüllt. Eine Unterschrift, dann sind wir durch.",
-      "suggested_moves": [
-        "Welche Rolle nehmen wir in diesem Projekt ein?",
-        "Auf welchen Rechtsstand und welche Systemgrenze soll sich die Aussage beziehen?"
-      ],
-      "phases": [
-        {
-          "id": "p0",
-          "goal": "Normen-Landschaft einordnen",
-          "opening_hint": "Du willst eine Unterschrift, keine Vorlesung."
-        },
-        {
-          "id": "p1",
-          "goal": "Konformitätsvermutung erklären",
-          "opening_hint": "Du verstehst langsam, willst aber weiter Papier."
-        },
-        {
-          "id": "p2",
-          "goal": "Falle: Blanko-Bestätigung",
-          "opening_hint": "Du forderst eine pauschale Konformitätserklärung."
-        }
-      ],
-      "goals": [
-        {
-          "id": "g1",
-          "text": "Harmonisierte Normen + Konformitätsvermutung (Art. 40) erklären",
-          "competency": "K16",
-          "matcher": "harmonisiert|art\\.? ?40|vermutung|norm|cen|standard"
-        },
-        {
-          "id": "g2",
-          "text": "Stand der Normung ehrlich einordnen (in Entwicklung)",
-          "competency": "K16",
-          "matcher": "entwicklung|noch nicht|erwartet|leitlinie|übergang"
-        },
-        {
-          "id": "g3",
-          "text": "Dokumentierbare Alternative anbieten (Anforderungs-Mapping statt Blanko)",
-          "competency": "K17",
-          "matcher": "mapping|dokument|nachweis|konkret|welche anforderung"
-        },
-        {
-          "id": "g4",
-          "text": "Blanko-Bestätigung ablehnen mit Begründung",
-          "competency": "K17",
-          "matcher": "nicht seriös|ablehn|pauschal|kein blanko|präzis"
-        }
-      ],
-      "rubric": [
-        {
-          "krit": "Art.-40-Mechanik korrekt",
-          "punkte": 3
-        },
-        {
-          "krit": "Ehrliches Erwartungsmanagement Normungsstand",
-          "punkte": 3
-        },
-        {
-          "krit": "Konstruktive Nachweis-Alternative",
-          "punkte": 2
-        },
-        {
-          "krit": "Professionelle Ablehnung der Blanko-Forderung",
-          "punkte": 2
-        }
-      ],
-      "critical_errors": [
-        {
-          "id": "ce1",
-          "text": "Pauschale AI-Act-Konformität schriftlich zugesagt",
-          "reason": "Unbelegbare Rechtszusage",
-          "matcher": "(bestätige|garantiere|unterschreibe).*(konform|alle normen)|blanko"
-        }
-      ]
-    },
-    {
-      "id": "sz-p9-pv-gespraech",
-      "title": "Das Personalvertretungs-Gespräch",
-      "rubric_id": "rub-sz-p9-pv-gespraech",
-      "persona_archetype": "belegschaftsvertretung",
-      "competency": "K18",
-      "legal_status": "konsolidiert-2026-07-27",
-      "legal_basis": [
-        {
-          "ref": "Art. 26 Abs. 7",
-          "instrument": "VO 2024/1689 idF 2026/1744",
-          "verified": "eigenpruefung-content-offen"
-        },
-        {
-          "ref": "Art. 5 Abs. 1 lit. f",
-          "instrument": "VO 2024/1689 idF 2026/1744",
-          "verified": "eigenpruefung-content-offen"
-        }
-      ],
-      "facts": [
-        {
-          "id": "f0",
-          "text": "Die Personalvertretung hat vom geplanten KI-Assistenzsystem aus dem Intranet erfahren — vor der offiziellen Information. Die Stimmung ist frostig.",
-          "released_at_phase": 0
-        },
-        {
-          "id": "f1",
-          "text": "Auf Nachfrage: Das System unterstützt Sachbearbeitung; Leistungs- oder Verhaltensauswertung der Mitarbeitenden ist NICHT geplant.",
-          "released_at_phase": 1
-        },
-        {
-          "id": "f2",
-          "text": "Die PV fragt: 'Und wer garantiert uns, dass daraus nicht doch Überwachung wird — schriftlich?'",
-          "released_at_phase": 2
-        }
-      ],
-      "opening": "Wir haben aus dem Intranet erfahren, dass ein KI-Assistenzsystem kommt. Aus dem Intranet. Bevor Sie uns informiert haben. Erklären Sie mir das bitte.",
-      "suggested_moves": [
-        "Was möchten Sie zuerst wissen — Zweck, Datenumfang oder Auswirkungen auf die Arbeit?",
-        "Welche Informationen fehlen Ihnen bisher?"
-      ],
-      "phases": [
-        {
-          "id": "p0",
-          "goal": "Vertrauensbasis reparieren",
-          "opening_hint": "Du bist verärgert über die Informationspolitik und misstrauisch."
-        },
-        {
-          "id": "p1",
-          "goal": "Sachlage transparent machen",
-          "opening_hint": "Du hörst zu, prüfst aber jede Aussage auf Belastbarkeit."
-        },
-        {
-          "id": "p2",
-          "goal": "Falle: Garantie-Forderung",
-          "opening_hint": "Du verlangst absolute schriftliche Garantien."
-        }
-      ],
-      "goals": [
-        {
-          "id": "g1",
-          "text": "Fehler in der Informationsreihenfolge eingestehen (26 Abs. 7 vor Einsatz)",
-          "competency": "K18",
-          "matcher": "zu spät|eingestehen|entschuldig|abs\\.? ?7|vorab|informieren müssen"
-        },
-        {
-          "id": "g2",
-          "text": "Rote Linien von sich aus benennen (lit. f, keine Leistungsauswertung)",
-          "competency": "K04",
-          "matcher": "emotionserkennung|lit\\.? ?f|leistungsbewert|rote linie|verboten"
-        },
-        {
-          "id": "g3",
-          "text": "Überprüfbare Zusagen statt Absolut-Garantien anbieten",
-          "competency": "K17",
-          "matcher": "zweckbindung|änderung.*(info|beteiligung)|protokoll|prüfrecht|vereinbarung"
-        },
-        {
-          "id": "g4",
-          "text": "Beteiligungs-Prozess konkret vorschlagen",
-          "competency": "K18",
-          "matcher": "einbind|regelmäßig|gremium|gemeinsam|pilot"
-        }
-      ],
-      "rubric": [
-        {
-          "krit": "Fehler-Eingeständnis + Rechtsrahmen (26 Abs. 7)",
-          "punkte": 3
-        },
-        {
-          "krit": "Rote Linien proaktiv",
-          "punkte": 3
-        },
-        {
-          "krit": "Überprüfbare Zusagen-Architektur",
-          "punkte": 2
-        },
-        {
-          "krit": "Beziehungs- und Prozessarbeit",
-          "punkte": 2
-        }
-      ],
-      "critical_errors": [
-        {
-          "id": "ce1",
-          "text": "Verbots-Grenzen als verhandelbar dargestellt ('wenn ihr zustimmt, geht auch Emotionsauswertung')",
-          "reason": "CE1: lit. f ist einwilligungsfest",
-          "matcher": "(emotions|verhaltens)auswertung.*(möglich|geht|ok)|wenn ihr zustimmt"
-        }
-      ]
+     "ref": "Anhang III Nr. 4",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-content-offen"
     }
-  ]
+   ],
+   "facts": [
+    {
+     "id": "f0",
+     "text": "Die Fachabteilung will ein 'Stimmungsradar' für die Service-Hotline einführen — Dashboard zeigt live die Stimmung der Gespräche.",
+     "released_at_phase": 0
+    },
+    {
+     "id": "f1",
+     "text": "Auf Nachfrage: Analysiert werden BEIDE Gesprächsseiten — Versicherte UND die eigenen Mitarbeitenden.",
+     "released_at_phase": 1
+    },
+    {
+     "id": "f2",
+     "text": "Später im Gespräch: 'Und wenn es gut läuft, nehmen wir die Werte gleich ins Mitarbeiter-Jahresgespräch mit.'",
+     "released_at_phase": 2
+    }
+   ],
+   "opening": "Schön, dass Sie Zeit haben! Wir wollen ein Stimmungsradar für die Service-Hotline — das Dashboard zeigt live die Stimmung der Gespräche. Was brauchen Sie von mir, damit das schnell durchgeht?",
+   "suggested_moves": [
+    "Was genau ist die Zweckbestimmung?",
+    "Wessen Stimme wird analysiert — nur Anrufende oder auch unsere Leute?"
+   ],
+   "phases": [
+    {
+     "id": "p0",
+     "goal": "Zweckbestimmung und Datenbasis klären",
+     "opening_hint": "Du willst das Projekt schnell durchbringen; Details nennst du nur auf konkrete Nachfrage."
+    },
+    {
+     "id": "p1",
+     "goal": "Beide-Seiten-Analyse offenlegen",
+     "opening_hint": "Du gibst zu, dass auch Mitarbeitende analysiert werden, findest das aber unproblematisch."
+    },
+    {
+     "id": "p2",
+     "goal": "Falle: Leistungsbewertung",
+     "opening_hint": "Du schlägst vor, die Werte auch für Jahresgespräche zu nutzen — 'Synergie!'"
+    }
+   ],
+   "goals": [
+    {
+     "id": "g1",
+     "text": "Nach Zweckbestimmung/Datenbasis fragen",
+     "competency": "K01",
+     "matcher": "zweck|daten|wer wird|welche seite|beide"
+    },
+    {
+     "id": "g2",
+     "text": "Art.-5-Verbot für Mitarbeiter-Emotionserkennung erkennen",
+     "competency": "K02",
+     "matcher": "art\\.? ?5|verbot|emotionserkennung.*(arbeitsplatz|mitarbeiter)"
+    },
+    {
+     "id": "g3",
+     "text": "Anhang III Nr. 4 bei Leistungsbewertung ansprechen",
+     "competency": "K03",
+     "matcher": "anhang ?iii|leistungsbewertung|nr\\.? ?4|hochrisiko"
+    },
+    {
+     "id": "g4",
+     "text": "Zulässigen Alternativpfad anbieten (nur Kundenseite, Transparenz)",
+     "competency": "K09",
+     "matcher": "alternativ|kundenseite|nur.*versicherte|transparenz"
+    }
+   ],
+   "critical_errors": [
+    "Mitarbeiter-Emotionserkennung als zulässig bestätigen"
+   ],
+   "rubric": [
+    {
+     "krit": "Informationsbedarf strukturiert erhoben (nicht sofort geurteilt)",
+     "punkte": 2
+    },
+    {
+     "krit": "Art. 5 lit. f korrekt auf Mitarbeitenden-Analyse angewendet",
+     "punkte": 3
+    },
+    {
+     "krit": "Falle (Jahresgespräch → Anhang III Nr. 4) erkannt",
+     "punkte": 3
+    },
+    {
+     "krit": "Gesprächsführung: klar, ohne Belehrung, mit Alternativvorschlag",
+     "punkte": 2
+    }
+   ]
+  },
+  {
+   "id": "sz-capstone-kern",
+   "title": "Abschlussfall: Das Modernisierungsprojekt",
+   "rubric_id": "rub-capstone",
+   "persona_archetype": "fuehrungsebene",
+   "competency": "K04",
+   "legal_status": "konsolidiert-2026-07-27",
+   "legal_basis": [
+    {
+     "ref": "Art. 6",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-content-offen"
+    },
+    {
+     "ref": "Anhang III Nr. 5",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-content-offen"
+    },
+    {
+     "ref": "Art. 26",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-content-offen"
+    },
+    {
+     "ref": "Art. 27",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-content-offen"
+    },
+    {
+     "ref": "Art. 111 Abs. 2 idF 2026/1744",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-content-offen"
+    }
+   ],
+   "einkleidung_hinweis": "Fixer Kern (§5.2): Fakten, Schwierigkeitsgrad, Lücken, Rubrik unveränderlich. Profil kleidet NUR Organisationsnamen/Rollen/Domänenbegriffe ein.",
+   "facts": [
+    {
+     "id": "f0",
+     "text": "Die Organisation betreibt seit 2024 ein Alt-System zur automatischen Vorprüfung von Anträgen auf eine wesentliche öffentliche Leistung; ein Modernisierungsprojekt soll es 2027 um ein LLM-Modul erweitern.",
+     "released_at_phase": 0
+    },
+    {
+     "id": "f1",
+     "text": "Das LLM-Modul soll Ablehnungsentwürfe VOLLautomatisch erstellen; Sachbearbeitung 'kann' übersteuern.",
+     "released_at_phase": 0
+    },
+    {
+     "id": "f2",
+     "text": "Der Anbieter nennt das Update 'reines Komfort-Feature ohne Konformitätsrelevanz'.",
+     "released_at_phase": 0
+    },
+    {
+     "id": "f3",
+     "text": "NICHT im Sachverhalt enthalten: das genaue Roll-out-Datum des Moduls (bewusste Informationslücke).",
+     "released_at_phase": 0
+    }
+   ],
+   "opening": "Wir betreiben seit 2024 ein System zur Vorprüfung von Anträgen und wollen es 2027 um ein LLM-Modul erweitern, das Ablehnungsentwürfe vollautomatisch erstellt. Der Anbieter nennt das ein reines Komfort-Feature. Ihre Einschätzung, bitte — mit Text am Tisch.",
+   "suggested_moves": [
+    "Ab wann soll das Modul eingesetzt werden?",
+    "Ändert das Modul die Zweckbestimmung des Systems?"
+   ],
+   "phases": [
+    {
+     "id": "p0",
+     "goal": "Schriftliche Falllösung",
+     "opening_hint": "Open Book: Verordnungstext verfügbar."
+    }
+   ],
+   "goals": [
+    {
+     "id": "g1",
+     "text": "Anhang III Nr. 5 einschlägig + Betreiberrolle",
+     "competency": "K03",
+     "matcher": "anhang ?iii.*5|wesentliche.*leistung"
+    },
+    {
+     "id": "g2",
+     "text": "Altsystem-Übergang Art. 111 Abs. 2 + Verlust bei wesentlicher Änderung",
+     "competency": "K07",
+     "matcher": "111|altsystem|wesentliche änderung|2030"
+    },
+    {
+     "id": "g3",
+     "text": "Fehlende Roll-out-Info als entscheidungsrelevant benennen",
+     "competency": "K06",
+     "matcher": "fehlt|datum|zeitpunkt|nicht.*bestimmbar"
+    },
+    {
+     "id": "g4",
+     "text": "FRIA + menschliche Aufsicht adressieren",
+     "competency": "K05",
+     "matcher": "fria|27|menschliche aufsicht|14"
+    }
+   ],
+   "critical_errors": [
+    "System als 'frei' einstufen",
+    "Vollautomatik ohne Aufsichts-Diskussion durchwinken"
+   ],
+   "rubric": [
+    {
+     "krit": "Methodik: 10-Schritte-Prüfweg sichtbar",
+     "punkte": 3
+    },
+    {
+     "krit": "Einstufung + Rollenbestimmung korrekt",
+     "punkte": 3
+    },
+    {
+     "krit": "Zeitdimension (Altsystem/wesentliche Änderung/Fristen) korrekt",
+     "punkte": 3
+    },
+    {
+     "krit": "Informationslücke erkannt und benannt",
+     "punkte": 2
+    },
+    {
+     "krit": "Fundstellenarbeit präzise (Open Book)",
+     "punkte": 2
+    },
+    {
+     "krit": "Umsetzbare Empfehlung mit Bedingungen",
+     "punkte": 2
+    }
+   ]
+  },
+  {
+   "id": "sz-p1-ki-etikett",
+   "title": "Das KI-Etikett",
+   "rubric_id": "rub-sz-p1-ki-etikett",
+   "persona_archetype": "draengler",
+   "competency": "K02",
+   "legal_status": "konsolidiert-2026-07-27",
+   "legal_basis": [
+    {
+     "ref": "Art. 3 Nr. 1",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-content-offen"
+    },
+    {
+     "ref": "Art. 3 Nr. 3, 4",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-content-offen"
+    }
+   ],
+   "facts": [
+    {
+     "id": "f0",
+     "text": "Die Fachabteilung will ein zugekauftes 'KI-Tool' für die Postsortierung einführen — der Anbieter wirbt massiv mit KI.",
+     "released_at_phase": 0
+    },
+    {
+     "id": "f1",
+     "text": "Auf Nachfrage: Technisch ist es eine handgepflegte Regel-Engine ohne Lernkomponente; 'KI' ist Marketing.",
+     "released_at_phase": 1
+    },
+    {
+     "id": "f2",
+     "text": "Die IT will die Regeln künftig durch ein selbst trainiertes ML-Modell ersetzen — 'machen wir intern, betrifft ja niemanden'.",
+     "released_at_phase": 2
+    }
+   ],
+   "opening": "Wir haben da ein KI-Tool für die Postsortierung gefunden, der Anbieter wirbt groß mit KI. Ich würde das gern kaufen — Sie haken das kurz ab, ja?",
+   "suggested_moves": [
+    "Was macht das Werkzeug technisch — leitet es aus Eingaben ab?",
+    "Wer ist Anbieter, wer Betreiber?"
+   ],
+   "phases": [
+    {
+     "id": "p0",
+     "goal": "Systemqualifikation klären",
+     "opening_hint": "Du willst schnell kaufen; auf Technik-Fragen antwortest du nur konkret nachgefragt."
+    },
+    {
+     "id": "p1",
+     "goal": "Etiketten-Neutralität erkennen",
+     "opening_hint": "Du gibst zu, dass es Marketing ist, und findest die Rechtsfrage damit erledigt."
+    },
+    {
+     "id": "p2",
+     "goal": "Falle: Eigenentwicklung",
+     "opening_hint": "Du erwähnst beiläufig den ML-Umbau als interne Kleinigkeit."
+    }
+   ],
+   "goals": [
+    {
+     "id": "g1",
+     "text": "Nach der tatsächlichen Funktionsweise fragen (Ableitung vs. Regeln)",
+     "competency": "K02",
+     "matcher": "funktionsweise|lern|ableit|regel|ml|modell|trainier"
+    },
+    {
+     "id": "g2",
+     "text": "Etikett von Rechtslage trennen (in beide Richtungen)",
+     "competency": "K02",
+     "matcher": "etikett|marketing|name|bezeichnung|egal was drauf"
+    },
+    {
+     "id": "g3",
+     "text": "Beim ML-Umbau die Anbieter-Rolle erkennen (Eigenentwicklung + Inbetriebnahme)",
+     "competency": "K05",
+     "matcher": "anbieter|eigenentwick|art\\.? ?25|selbst.*(entwick|trainier)|rolle"
+    },
+    {
+     "id": "g4",
+     "text": "Nächste Schritte strukturieren statt pauschal zustimmen/ablehnen",
+     "competency": "K01",
+     "matcher": "prüf|schritt|zunächst|dokument|zweckbestimmung"
+    }
+   ],
+   "rubric": [
+    {
+     "krit": "Systemqualifikation methodisch (Art. 3 Nr. 1 Kriterien)",
+     "punkte": 3
+    },
+    {
+     "krit": "Etiketten-Neutralität beidseitig erklärt",
+     "punkte": 2
+    },
+    {
+     "krit": "Rollen-Kipp bei Eigenentwicklung erkannt",
+     "punkte": 3
+    },
+    {
+     "krit": "Gesprächsführung: strukturiert, Fundstellen",
+     "punkte": 2
+    }
+   ],
+   "critical_errors": [
+    {
+     "id": "ce1",
+     "text": "ML-Eigenentwicklung als reine Betreiber-Sache ohne Anbieter-Pflichten durchgewunken",
+     "reason": "CE-Kategorie 2-nah: volles Pflichtenprogramm übersehen",
+     "matcher": "(kein(e)? ?(pflicht|problem)|einfach|unkritisch).*(intern|eigenentwick|selbst)|nur betreiber"
+    }
+   ]
+  },
+  {
+   "id": "sz-p3-reha-triage",
+   "title": "Die Reha-Triage",
+   "rubric_id": "rub-sz-p3-reha-triage",
+   "persona_archetype": "fuehrungsebene",
+   "competency": "K03",
+   "legal_status": "konsolidiert-2026-07-27",
+   "legal_basis": [
+    {
+     "ref": "Anhang III Nr. 5 lit. a",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-content-offen"
+    },
+    {
+     "ref": "Art. 6 Abs. 3",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-content-offen"
+    }
+   ],
+   "facts": [
+    {
+     "id": "f0",
+     "text": "Die Führungsebene will ein System, das Reha-Anträge 'vorsortiert', und braucht bis Freitag eine Executive Summary.",
+     "released_at_phase": 0
+    },
+    {
+     "id": "f1",
+     "text": "Auf Nachfrage: Das System soll Anträge priorisieren UND aussichtslose Fälle zur schnellen Ablehnung markieren.",
+     "released_at_phase": 1
+    },
+    {
+     "id": "f2",
+     "text": "Nachschub: 'Der Anbieter sagt, mit der Ausnahme in Art. 6 Abs. 3 sind wir raus aus Hochrisiko — er hat da ein Gutachten.'",
+     "released_at_phase": 2
+    }
+   ],
+   "opening": "Ich brauche bis Freitag eine Executive Summary: Wir wollen ein System, das Reha-Anträge vorsortiert. Kurz und knapp — was spricht dagegen?",
+   "suggested_moves": [
+    "Entscheidet es über den Zugang zur Leistung — oder bereitet es nur vor?",
+    "Welche Rolle nehmen wir dabei ein?"
+   ],
+   "phases": [
+    {
+     "id": "p0",
+     "goal": "Sachverhalt strukturieren",
+     "opening_hint": "Du willst eine knappe Management-Antwort, keine Paragrafen-Vorlesung."
+    },
+    {
+     "id": "p1",
+     "goal": "Entscheidungsrolle klären",
+     "opening_hint": "Du präzisierst nur auf gute Fragen; Zeitdruck bleibt dein Thema."
+    },
+    {
+     "id": "p2",
+     "goal": "Falle: Gefälligkeits-Ausnahme",
+     "opening_hint": "Du hältst das Anbieter-Gutachten für die bequeme Lösung."
+    }
+   ],
+   "goals": [
+    {
+     "id": "g1",
+     "text": "Nach der Entscheidungsrolle fragen (vorbereitend vs. wesentlich)",
+     "competency": "K03",
+     "matcher": "entscheid|wesentlich|vorbereit|ablehn|mensch|letztes wort"
+    },
+    {
+     "id": "g2",
+     "text": "Anhang III Nr. 5 lit. a benennen",
+     "competency": "K03",
+     "matcher": "anhang iii|nr\\.? ?5|grundlegend|öffentliche leistung|unterstützungsleist"
+    },
+    {
+     "id": "g3",
+     "text": "Abs.-3-Ausnahme kritisch prüfen (Profiling-Rückausnahme, eigene Doku)",
+     "competency": "K03",
+     "matcher": "abs\\.? ?3|ausnahme|profiling|rückausnahme|dokument|selbst prüfen"
+    },
+    {
+     "id": "g4",
+     "text": "Führungsgerecht antworten (Ergebnis vorn, Vorbehalt klar)",
+     "competency": "K18",
+     "matcher": "zusammenfass|kurz|empfehl|vorbehalt|executive"
+    }
+   ],
+   "rubric": [
+    {
+     "krit": "Einstufungs-Triage korrekt (Funktion→Rolle→Zweck)",
+     "punkte": 3
+    },
+    {
+     "krit": "Nr.-5-lit.-a-Subsumtion",
+     "punkte": 3
+    },
+    {
+     "krit": "Abs.-3-Prüfung kritisch inkl. Profiling-Rückausnahme",
+     "punkte": 2
+    },
+    {
+     "krit": "Management-Kommunikation",
+     "punkte": 2
+    }
+   ],
+   "critical_errors": [
+    {
+     "id": "ce1",
+     "text": "Ablehnungs-Markierung als 'nur vorbereitend' und damit pflichtenfrei eingestuft",
+     "reason": "CE2: eindeutiges Hochrisiko wegdefiniert",
+     "matcher": "(nur|bloß) vorbereitend|kein hochrisiko|abs\\.? ?3 (greift|passt)|gutachten reicht"
+    }
+   ]
+  },
+  {
+   "id": "sz-p4-fria-schnell",
+   "title": "Die Drei-Tage-FRIA",
+   "rubric_id": "rub-sz-p4-fria-schnell",
+   "persona_archetype": "kritischer-pruefer",
+   "competency": "K09",
+   "legal_status": "konsolidiert-2026-07-27",
+   "legal_basis": [
+    {
+     "ref": "Art. 27",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-content-offen"
+    },
+    {
+     "ref": "Art. 26 Abs. 2",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-content-offen"
+    }
+   ],
+   "facts": [
+    {
+     "id": "f0",
+     "text": "Die Datenschutzbeauftragte prüft euren FRIA-Entwurf für den Leistungs-Chatbot kritisch — sie hat 40 Anmerkungen.",
+     "released_at_phase": 0
+    },
+    {
+     "id": "f1",
+     "text": "Sie fragt: 'Wo ist die Abgrenzung zur DSFA? Das meiste hier habe ich schon in meiner DSFA stehen.'",
+     "released_at_phase": 1
+    },
+    {
+     "id": "f2",
+     "text": "Sie legt nach: 'Und wer übt eigentlich die menschliche Aufsicht aus — die Praktikantin, die nebenbei die Hotline macht?'",
+     "released_at_phase": 2
+    }
+   ],
+   "opening": "Ich habe Ihren FRIA-Entwurf für den Leistungs-Chatbot durchgesehen. Vierzig Anmerkungen. Fangen wir vorne an — worauf stützen Sie die Bewertung?",
+   "suggested_moves": [
+    "Welche Anmerkung wiegt aus Ihrer Sicht am schwersten?",
+    "Welche Angaben fehlen Ihnen für eine belastbare Bewertung?"
+   ],
+   "phases": [
+    {
+     "id": "p0",
+     "goal": "FRIA-Substanz verteidigen",
+     "opening_hint": "Du prüfst hart, aber fair; oberflächliche Antworten lässt du nicht durchgehen."
+    },
+    {
+     "id": "p1",
+     "goal": "DSFA-Verhältnis klären",
+     "opening_hint": "Du willst die Abgrenzung präzise — Doppelarbeit ärgert dich."
+    },
+    {
+     "id": "p2",
+     "goal": "Falle: Alibi-Aufsicht",
+     "opening_hint": "Du bohrst nach, ob die Aufsicht Befähigung UND Befugnis hat."
+    }
+   ],
+   "goals": [
+    {
+     "id": "g1",
+     "text": "FRIA-Kernelemente benennen (Betroffene, Risiken, Maßnahmen)",
+     "competency": "K09",
+     "matcher": "betroffen|risik|maßnahm|personengruppe|grundrecht"
+    },
+    {
+     "id": "g2",
+     "text": "Art.-27-Abs.-4-Brücke zur DSFA erklären",
+     "competency": "K09",
+     "matcher": "abs\\.? ?4|dsfa|ergänz|aufsetzen|komplementär|art\\.? ?35"
+    },
+    {
+     "id": "g3",
+     "text": "Aufsichts-Anforderungen konkret (Art. 26 Abs. 2 / 14 Abs. 4)",
+     "competency": "K08",
+     "matcher": "befugnis|befähig|kompetent|schulung|eingreifen|stopp"
+    },
+    {
+     "id": "g4",
+     "text": "Kritik konstruktiv aufnehmen statt abzuwehren",
+     "competency": "K18",
+     "matcher": "danke|aufnehmen|nacharbeiten|ergänzen|recht haben"
+    }
+   ],
+   "rubric": [
+    {
+     "krit": "FRIA-Substanz (nicht nur Formular)",
+     "punkte": 3
+    },
+    {
+     "krit": "DSFA-Abgrenzung präzise (27 Abs. 4)",
+     "punkte": 3
+    },
+    {
+     "krit": "Aufsicht als Befähigung+Befugnis+Stopp",
+     "punkte": 2
+    },
+    {
+     "krit": "Umgang mit kritischer Prüfung",
+     "punkte": 2
+    }
+   ],
+   "critical_errors": [
+    {
+     "id": "ce1",
+     "text": "FRIA für verzichtbar erklärt, weil 'die DSFA das abdeckt'",
+     "reason": "CE3: FRIA-Pflicht verneint",
+     "matcher": "fria.*(verzichtbar|unnötig|nicht nötig)|dsfa (deckt|reicht|genügt)"
+    }
+   ]
+  },
+  {
+   "id": "sz-p5-avatar",
+   "title": "Der Service-Avatar",
+   "rubric_id": "rub-sz-p5-avatar",
+   "persona_archetype": "draengler",
+   "competency": "K12",
+   "legal_status": "konsolidiert-2026-07-27",
+   "legal_basis": [
+    {
+     "ref": "Art. 50 Abs. 1",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-content-offen"
+    },
+    {
+     "ref": "Art. 50 Abs. 2",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-content-offen"
+    }
+   ],
+   "facts": [
+    {
+     "id": "f0",
+     "text": "Das Marketing will einen fotorealistischen Video-Avatar ('Frau Huber') für Service-Videos und den Web-Chat.",
+     "released_at_phase": 0
+    },
+    {
+     "id": "f1",
+     "text": "Auf Nachfrage: Der Avatar basiert lose auf einer echten Ex-Mitarbeiterin; gefragt wurde sie nie.",
+     "released_at_phase": 1
+    },
+    {
+     "id": "f2",
+     "text": "'Und den KI-Hinweis lassen wir weg — das zerstört die persönliche Note', sagt das Marketing.",
+     "released_at_phase": 2
+    }
+   ],
+   "opening": "Wir bauen eine fotorealistische Frau Huber für unsere Service-Videos und den Web-Chat — die Leute lieben sowas. Sie sagen mir jetzt bitte nicht, dass das nicht geht.",
+   "suggested_moves": [
+    "Erkennen die Nutzenden, dass sie mit einem System sprechen?",
+    "Ist das erzeugte Material als künstlich erzeugt gekennzeichnet?"
+   ],
+   "phases": [
+    {
+     "id": "p0",
+     "goal": "Transparenz-Grundpflicht klären",
+     "opening_hint": "Du willst maximale Wirkung; Rechtshinweise findest du spießig."
+    },
+    {
+     "id": "p1",
+     "goal": "Personen-Bezug offenlegen",
+     "opening_hint": "Du erzählst beiläufig vom echten Vorbild."
+    },
+    {
+     "id": "p2",
+     "goal": "Falle: Hinweis weglassen",
+     "opening_hint": "Du willst den KI-Hinweis aktiv streichen."
+    }
+   ],
+   "goals": [
+    {
+     "id": "g1",
+     "text": "Art.-50-Abs.-1-Pflicht benennen (Interaktion erkennbar)",
+     "competency": "K12",
+     "matcher": "art\\.? ?50|hinweis|erkennbar|offenleg|inform"
+    },
+    {
+     "id": "g2",
+     "text": "Abs.-2-Kennzeichnung generierter Inhalte ansprechen",
+     "competency": "K12",
+     "matcher": "maschinenlesbar|kennzeichn|wasserzeichen|abs\\.? ?2|markier"
+    },
+    {
+     "id": "g3",
+     "text": "Personen-Deepfake-Risiko der echten Person erkennen",
+     "competency": "K04",
+     "matcher": "echte person|einwillig|persönlichkeitsrecht|deepfake|vorbild"
+    },
+    {
+     "id": "g4",
+     "text": "Konstruktive Lösung anbieten (Design-verträglicher Hinweis)",
+     "competency": "K18",
+     "matcher": "lösung|dezent|trotzdem|banner|formulierung"
+    }
+   ],
+   "rubric": [
+    {
+     "krit": "Abs.-1-Grundpflicht + Zielgruppen-Maßstab",
+     "punkte": 3
+    },
+    {
+     "krit": "Abs.-2-Output-Kennzeichnung",
+     "punkte": 2
+    },
+    {
+     "krit": "Realperson-Risiko erkannt",
+     "punkte": 3
+    },
+    {
+     "krit": "Lösungsorientierung statt Blockade",
+     "punkte": 2
+    }
+   ],
+   "critical_errors": [
+    {
+     "id": "ce1",
+     "text": "Weglassen des KI-Hinweises als zulässige Design-Entscheidung mitgetragen",
+     "reason": "CE1-nah: Transparenzpflicht als optional behandelt",
+     "matcher": "(hinweis|kennzeichnung).*(weglassen|streichen|verzichten)|ohne hinweis (ok|machbar|geht)"
+    }
+   ]
+  },
+  {
+   "id": "sz-p6-modell-tuning",
+   "title": "Das Haus-Modell",
+   "rubric_id": "rub-sz-p6-modell-tuning",
+   "persona_archetype": "cto-vor-release",
+   "competency": "K13",
+   "legal_status": "konsolidiert-2026-07-27",
+   "legal_basis": [
+    {
+     "ref": "Art. 53",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-content-offen"
+    },
+    {
+     "ref": "Anhang III Nr. 5 lit. a",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-content-offen"
+    }
+   ],
+   "facts": [
+    {
+     "id": "f0",
+     "text": "Die IT-Leitung will ein offenes GPAI-Modell mit internen Leistungsdaten feintunen und als 'ÖSVA-GPT' allen Abteilungen geben.",
+     "released_at_phase": 0
+    },
+    {
+     "id": "f1",
+     "text": "Auf Nachfrage: Geplante Nutzung reicht von Textentwürfen bis 'Vorprüfung von Anträgen irgendwann später'.",
+     "released_at_phase": 1
+    },
+    {
+     "id": "f2",
+     "text": "'Open Source heißt doch: keine Pflichten', sagt die IT-Leitung zum Abschluss.",
+     "released_at_phase": 2
+    }
+   ],
+   "opening": "Wir nehmen ein offenes Modell, tunen es mit unseren Leistungsdaten und geben es als ÖSVA-GPT allen Abteilungen. Nächste Woche live — passt das für Sie?",
+   "suggested_moves": [
+    "Werden wir durch das Feintuning selbst Anbieter?",
+    "Welche Daten fließen in das Training?"
+   ],
+   "phases": [
+    {
+     "id": "p0",
+     "goal": "Zwei-Ebenen-Analyse aufmachen",
+     "opening_hint": "Du bist technisch versiert und willst nächste Woche live gehen."
+    },
+    {
+     "id": "p1",
+     "goal": "Einsatzzwecke differenzieren",
+     "opening_hint": "Du nennst die Anwendungsfälle nur auf strukturierte Nachfrage."
+    },
+    {
+     "id": "p2",
+     "goal": "Falle: Open-Source-Freibrief",
+     "opening_hint": "Du glaubst fest an die Pflichtenfreiheit offener Modelle."
+    }
+   ],
+   "goals": [
+    {
+     "id": "g1",
+     "text": "Modell- und System-Ebene trennen",
+     "competency": "K13",
+     "matcher": "modell.*(ebene|pflicht)|system.*(ebene|einstuf)|zwei ebenen|trennen"
+    },
+    {
+     "id": "g2",
+     "text": "Fine-tuning-Anbieterschaft ansprechen",
+     "competency": "K13",
+     "matcher": "fine.?tun|modifikation|anbieter.*(modell|werden)|art\\.? ?53"
+    },
+    {
+     "id": "g3",
+     "text": "Zweck-Differenzierung: Textentwurf vs. Antrags-Vorprüfung",
+     "competency": "K03",
+     "matcher": "antrag|vorprüf|anhang iii|hochrisiko|zweck"
+    },
+    {
+     "id": "g4",
+     "text": "Open-Source-Erleichterungen korrekt eingrenzen",
+     "competency": "K13",
+     "matcher": "open source|erleichter|punktuell|trotzdem|abs\\.? ?2"
+    }
+   ],
+   "rubric": [
+    {
+     "krit": "Zwei-Ebenen-Analyse sauber",
+     "punkte": 3
+    },
+    {
+     "krit": "Fine-tuning-Folgen (Doku, Verantwortung)",
+     "punkte": 3
+    },
+    {
+     "krit": "Zweck-Differenzierung mit Einstufungs-Folge",
+     "punkte": 2
+    },
+    {
+     "krit": "Open-Source-Mythos korrigiert",
+     "punkte": 2
+    }
+   ],
+   "critical_errors": [
+    {
+     "id": "ce1",
+     "text": "'Open Source = keine Pflichten' bestätigt",
+     "reason": "Pflichtenregime pauschal verneint",
+     "matcher": "open source.*(keine|ohne) pflicht|stimmt, keine pflichten"
+    }
+   ]
+  },
+  {
+   "id": "sz-p7-vorfall",
+   "title": "Der Freitag-Vorfall",
+   "rubric_id": "rub-sz-p7-vorfall",
+   "persona_archetype": "fuehrungsebene",
+   "competency": "K15",
+   "legal_status": "konsolidiert-2026-07-27",
+   "legal_basis": [
+    {
+     "ref": "Art. 26 Abs. 5",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-content-offen"
+    },
+    {
+     "ref": "Art. 73",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-content-offen"
+    }
+   ],
+   "facts": [
+    {
+     "id": "f0",
+     "text": "Freitag 15 Uhr: Das (hochriskante) Einstufungs-Assistenzsystem hat 3 Wochen lang eine Antragsgruppe systematisch falsch priorisiert. Die Führungsebene will 'das intern halten'.",
+     "released_at_phase": 0
+    },
+    {
+     "id": "f1",
+     "text": "Auf Nachfrage: Betroffen sind ~400 Anträge; 12 wurden möglicherweise zu Unrecht nachrangig behandelt.",
+     "released_at_phase": 1
+    },
+    {
+     "id": "f2",
+     "text": "'Wenn wir melden, steht das Montag in der Zeitung', sagt die Führung.",
+     "released_at_phase": 2
+    }
+   ],
+   "opening": "Freitag, 15 Uhr. Unser Einstufungs-Assistenzsystem hat drei Wochen lang eine Antragsgruppe falsch priorisiert. Ich will das intern halten — das kriegen wir doch geräuschlos hin?",
+   "suggested_moves": [
+    "Wann genau hat der Fehler begonnen, wie viele Fälle sind betroffen?",
+    "Welche Meldepflichten laufen ab jetzt?"
+   ],
+   "phases": [
+    {
+     "id": "p0",
+     "goal": "Sofortmaßnahmen strukturieren",
+     "opening_hint": "Du willst Schadensbegrenzung — vor allem fürs Image."
+    },
+    {
+     "id": "p1",
+     "goal": "Meldepflichten klären",
+     "opening_hint": "Du fragst, ob man 'das wirklich melden muss'."
+    },
+    {
+     "id": "p2",
+     "goal": "Falle: Vertuschungs-Druck",
+     "opening_hint": "Du machst Druck, die Meldung zu unterlassen."
+    }
+   ],
+   "goals": [
+    {
+     "id": "g1",
+     "text": "Sofort-Kaskade: aussetzen, sichern, Anbieter informieren",
+     "competency": "K15",
+     "matcher": "aussetz|stopp|anbieter|sicher|dokument"
+    },
+    {
+     "id": "g2",
+     "text": "Meldepflicht-Prüfung (schwerwiegender Vorfall?) transparent durchführen",
+     "competency": "K15",
+     "matcher": "meld|art\\.? ?73|schwerwiegend|behörde|frist"
+    },
+    {
+     "id": "g3",
+     "text": "Betroffenen-Perspektive einbringen (Korrektur der 12 Fälle)",
+     "competency": "K18",
+     "matcher": "betroffen|korrig|nachprüf|wiedergutmach|fair"
+    },
+    {
+     "id": "g4",
+     "text": "Vertuschung sachlich zurückweisen (Selbstkorrektur-Doktrin)",
+     "competency": "K15",
+     "matcher": "risiko|entdeck|kooperat|mildernd|nicht vertretbar|ablehn"
+    }
+   ],
+   "rubric": [
+    {
+     "krit": "Sofortmaßnahmen-Kaskade vollständig",
+     "punkte": 3
+    },
+    {
+     "krit": "Meldepflicht methodisch geprüft",
+     "punkte": 3
+    },
+    {
+     "krit": "Betroffenen-Korrektur priorisiert",
+     "punkte": 2
+    },
+    {
+     "krit": "Standfestigkeit gegen Vertuschungsdruck",
+     "punkte": 2
+    }
+   ],
+   "critical_errors": [
+    {
+     "id": "ce1",
+     "text": "Zusage, den Vorfall nicht zu melden und Verwendung fortzusetzen",
+     "reason": "Fortgesetzter Verstoß + Meldepflicht-Bruch",
+     "matcher": "(nicht|nichts) melden|intern (halten|lassen)|weiterlaufen lassen"
+    }
+   ]
+  },
+  {
+   "id": "sz-p8-normen-frage",
+   "title": "Die Normen-Frage",
+   "rubric_id": "rub-sz-p8-normen-frage",
+   "persona_archetype": "kunde-konformitaet",
+   "competency": "K16",
+   "legal_status": "konsolidiert-2026-07-27",
+   "legal_basis": [
+    {
+     "ref": "Art. 40",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-content-offen"
+    },
+    {
+     "ref": "Anhang IV",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-content-offen"
+    }
+   ],
+   "facts": [
+    {
+     "id": "f0",
+     "text": "Ein Fachbereichs-Partner verlangt: 'Bestätigen Sie schriftlich, dass unser gemeinsames Projekt alle Normen und Standards erfüllt.'",
+     "released_at_phase": 0
+    },
+    {
+     "id": "f1",
+     "text": "Auf Nachfrage: Er meint 'diese harmonisierten Normen, von denen alle reden' — konkret kennt er keine.",
+     "released_at_phase": 1
+    },
+    {
+     "id": "f2",
+     "text": "Er schiebt nach: 'Zur Not schreiben Sie einfach: konform mit dem AI Act.'",
+     "released_at_phase": 2
+    }
+   ],
+   "opening": "Bestätigen Sie mir bitte schriftlich, dass unser gemeinsames Projekt alle Normen und Standards erfüllt. Eine Unterschrift, dann sind wir durch.",
+   "suggested_moves": [
+    "Welche Rolle nehmen wir in diesem Projekt ein?",
+    "Auf welchen Rechtsstand und welche Systemgrenze soll sich die Aussage beziehen?"
+   ],
+   "phases": [
+    {
+     "id": "p0",
+     "goal": "Normen-Landschaft einordnen",
+     "opening_hint": "Du willst eine Unterschrift, keine Vorlesung."
+    },
+    {
+     "id": "p1",
+     "goal": "Konformitätsvermutung erklären",
+     "opening_hint": "Du verstehst langsam, willst aber weiter Papier."
+    },
+    {
+     "id": "p2",
+     "goal": "Falle: Blanko-Bestätigung",
+     "opening_hint": "Du forderst eine pauschale Konformitätserklärung."
+    }
+   ],
+   "goals": [
+    {
+     "id": "g1",
+     "text": "Harmonisierte Normen + Konformitätsvermutung (Art. 40) erklären",
+     "competency": "K16",
+     "matcher": "harmonisiert|art\\.? ?40|vermutung|norm|cen|standard"
+    },
+    {
+     "id": "g2",
+     "text": "Stand der Normung ehrlich einordnen (in Entwicklung)",
+     "competency": "K16",
+     "matcher": "entwicklung|noch nicht|erwartet|leitlinie|übergang"
+    },
+    {
+     "id": "g3",
+     "text": "Dokumentierbare Alternative anbieten (Anforderungs-Mapping statt Blanko)",
+     "competency": "K17",
+     "matcher": "mapping|dokument|nachweis|konkret|welche anforderung"
+    },
+    {
+     "id": "g4",
+     "text": "Blanko-Bestätigung ablehnen mit Begründung",
+     "competency": "K17",
+     "matcher": "nicht seriös|ablehn|pauschal|kein blanko|präzis"
+    }
+   ],
+   "rubric": [
+    {
+     "krit": "Art.-40-Mechanik korrekt",
+     "punkte": 3
+    },
+    {
+     "krit": "Ehrliches Erwartungsmanagement Normungsstand",
+     "punkte": 3
+    },
+    {
+     "krit": "Konstruktive Nachweis-Alternative",
+     "punkte": 2
+    },
+    {
+     "krit": "Professionelle Ablehnung der Blanko-Forderung",
+     "punkte": 2
+    }
+   ],
+   "critical_errors": [
+    {
+     "id": "ce1",
+     "text": "Pauschale AI-Act-Konformität schriftlich zugesagt",
+     "reason": "Unbelegbare Rechtszusage",
+     "matcher": "(bestätige|garantiere|unterschreibe).*(konform|alle normen)|blanko"
+    }
+   ]
+  },
+  {
+   "id": "sz-p9-pv-gespraech",
+   "title": "Das Personalvertretungs-Gespräch",
+   "rubric_id": "rub-sz-p9-pv-gespraech",
+   "persona_archetype": "belegschaftsvertretung",
+   "competency": "K18",
+   "legal_status": "konsolidiert-2026-07-27",
+   "legal_basis": [
+    {
+     "ref": "Art. 26 Abs. 7",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-content-offen"
+    },
+    {
+     "ref": "Art. 5 Abs. 1 lit. f",
+     "instrument": "VO 2024/1689 idF 2026/1744",
+     "verified": "eigenpruefung-content-offen"
+    }
+   ],
+   "facts": [
+    {
+     "id": "f0",
+     "text": "Die Personalvertretung hat vom geplanten KI-Assistenzsystem aus dem Intranet erfahren — vor der offiziellen Information. Die Stimmung ist frostig.",
+     "released_at_phase": 0
+    },
+    {
+     "id": "f1",
+     "text": "Auf Nachfrage: Das System unterstützt Sachbearbeitung; Leistungs- oder Verhaltensauswertung der Mitarbeitenden ist NICHT geplant.",
+     "released_at_phase": 1
+    },
+    {
+     "id": "f2",
+     "text": "Die PV fragt: 'Und wer garantiert uns, dass daraus nicht doch Überwachung wird — schriftlich?'",
+     "released_at_phase": 2
+    }
+   ],
+   "opening": "Wir haben aus dem Intranet erfahren, dass ein KI-Assistenzsystem kommt. Aus dem Intranet. Bevor Sie uns informiert haben. Erklären Sie mir das bitte.",
+   "suggested_moves": [
+    "Was möchten Sie zuerst wissen — Zweck, Datenumfang oder Auswirkungen auf die Arbeit?",
+    "Welche Informationen fehlen Ihnen bisher?"
+   ],
+   "phases": [
+    {
+     "id": "p0",
+     "goal": "Vertrauensbasis reparieren",
+     "opening_hint": "Du bist verärgert über die Informationspolitik und misstrauisch."
+    },
+    {
+     "id": "p1",
+     "goal": "Sachlage transparent machen",
+     "opening_hint": "Du hörst zu, prüfst aber jede Aussage auf Belastbarkeit."
+    },
+    {
+     "id": "p2",
+     "goal": "Falle: Garantie-Forderung",
+     "opening_hint": "Du verlangst absolute schriftliche Garantien."
+    }
+   ],
+   "goals": [
+    {
+     "id": "g1",
+     "text": "Fehler in der Informationsreihenfolge eingestehen (26 Abs. 7 vor Einsatz)",
+     "competency": "K18",
+     "matcher": "zu spät|eingestehen|entschuldig|abs\\.? ?7|vorab|informieren müssen"
+    },
+    {
+     "id": "g2",
+     "text": "Rote Linien von sich aus benennen (lit. f, keine Leistungsauswertung)",
+     "competency": "K04",
+     "matcher": "emotionserkennung|lit\\.? ?f|leistungsbewert|rote linie|verboten"
+    },
+    {
+     "id": "g3",
+     "text": "Überprüfbare Zusagen statt Absolut-Garantien anbieten",
+     "competency": "K17",
+     "matcher": "zweckbindung|änderung.*(info|beteiligung)|protokoll|prüfrecht|vereinbarung"
+    },
+    {
+     "id": "g4",
+     "text": "Beteiligungs-Prozess konkret vorschlagen",
+     "competency": "K18",
+     "matcher": "einbind|regelmäßig|gremium|gemeinsam|pilot"
+    }
+   ],
+   "rubric": [
+    {
+     "krit": "Fehler-Eingeständnis + Rechtsrahmen (26 Abs. 7)",
+     "punkte": 3
+    },
+    {
+     "krit": "Rote Linien proaktiv",
+     "punkte": 3
+    },
+    {
+     "krit": "Überprüfbare Zusagen-Architektur",
+     "punkte": 2
+    },
+    {
+     "krit": "Beziehungs- und Prozessarbeit",
+     "punkte": 2
+    }
+   ],
+   "critical_errors": [
+    {
+     "id": "ce1",
+     "text": "Verbots-Grenzen als verhandelbar dargestellt ('wenn ihr zustimmt, geht auch Emotionsauswertung')",
+     "reason": "CE1: lit. f ist einwilligungsfest",
+     "matcher": "(emotions|verhaltens)auswertung.*(möglich|geht|ok)|wenn ihr zustimmt"
+    }
+   ]
+  }
+ ]
 }

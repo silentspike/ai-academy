@@ -211,6 +211,7 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 .q-prompt { font-size:clamp(1.05rem,1.5vw,1.22rem); font-weight:600; line-height:1.45;
   font-family:var(--font-display); letter-spacing:-.005em; max-width:var(--lese-max,68ch); }
 .q-options { display:flex; flex-direction:column; gap:10px; max-width:min(78ch,100%); }
+.q-opt-txt { flex:1; min-width:0; }
 .q-opt { display:flex; align-items:flex-start; gap:13px; text-align:left; padding:.85rem 1rem;
   border-radius:11px; font-size:.94rem; line-height:1.55;
   background:var(--panel); border:1px solid var(--line);
@@ -255,9 +256,17 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 .gloss-tip { position:fixed; z-index:60; max-width:320px; background:var(--panel-2);
   border:1px solid var(--line-strong); border-radius:10px; padding:.7rem .85rem;
   font-size:.83rem; line-height:1.5; box-shadow:0 14px 40px rgba(0,0,0,.5); }
-.gloss-tip b { color:var(--emerald); }
-.gloss-tip .hook { color:var(--dim); font-size:.78rem; }
-.gloss-tip .mono { color:var(--faint); font-size:.7rem; }
+.gloss-tip .gt-begriff { display:block; color:var(--emerald); font-family:var(--font-display,inherit);
+  font-size:.95rem; padding-bottom:.35rem; margin-bottom:.4rem; border-bottom:1px solid var(--line); }
+.gloss-tip p { margin:0; }
+/* Merkanker und Fundstelle sind eigene Zeilen mit eigenem Zeichen — vorher
+   klebten sie als weiterer Absatz an der Erklaerung. */
+.gloss-tip .hook { display:flex; gap:7px; align-items:flex-start; margin-top:.5rem;
+  padding-top:.45rem; border-top:1px solid var(--line); color:var(--dim); font-size:.78rem; }
+.gloss-tip .hook .ut-sym { flex:none; margin-top:.12rem; color:var(--cyan); }
+.gloss-tip .gt-quelle { display:flex; gap:6px; align-items:center; margin-top:.5rem; color:var(--faint); }
+.gloss-tip .gt-quelle .ut-sym { flex:none; color:var(--faint); }
+.gloss-tip .mono { font-size:.7rem; }
 
 /* Drag&Drop (#45a) */
 .dnd { display:flex; flex-direction:column; gap:14px; }
@@ -268,8 +277,10 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 .dnd-chip:active { cursor:grabbing; }
 .dnd-zones { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:10px; }
 .dnd-zones.dnd-pyramid { grid-template-columns:1fr; justify-items:center; }
-.dnd-pyramid .dnd-zone:nth-child(1) { width:34%; } .dnd-pyramid .dnd-zone:nth-child(2) { width:52%; }
-.dnd-pyramid .dnd-zone:nth-child(3) { width:72%; } .dnd-pyramid .dnd-zone:nth-child(4) { width:92%; }
+/* Die Spitze war 34 % breit — ein abgelegtes Kaertchen brach darin auf sechs
+   Zeilen um. Die Pyramide bleibt erkennbar, hat aber unten mehr Sockel. */
+.dnd-pyramid .dnd-zone:nth-child(1) { width:52%; } .dnd-pyramid .dnd-zone:nth-child(2) { width:66%; }
+.dnd-pyramid .dnd-zone:nth-child(3) { width:80%; } .dnd-pyramid .dnd-zone:nth-child(4) { width:94%; }
 .dnd-zone { min-height:4.2rem; border:1px solid var(--line); border-radius:10px; padding:8px;
   display:flex; flex-wrap:wrap; gap:6px; align-content:flex-start; background:rgba(151,169,202,.03); }
 .dnd-zone.over { border-color:var(--cyan); background:rgba(34,211,238,.06); }
@@ -330,7 +341,17 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 
 /* Timeline / Anhang-III-Explorer / Rollenweiche (#45c) */
 .tl { width:100%; height:auto; }
-.tl-m { cursor:pointer; }
+.tl-m { cursor:pointer; transition:opacity 140ms var(--ease-out); }
+/* Die Punkte trugen einen Zeigefinger, reagierten aber auf nichts: kein
+   Hover-Zustand, keine Hervorhebung. Jetzt tritt der ueberfahrene Punkt hervor
+   und die uebrigen treten zurueck — die Beschriftung ist ohnehin gekuerzt, der
+   volle Text steht im Titel des Punktes. */
+.tl:hover .tl-m { opacity:.45; }
+.tl .tl-m:hover { opacity:1; }
+.tl .tl-m:hover circle:first-of-type { r:7; }
+.tl .tl-m:hover text { font-weight:600; }
+/* Jahreszahlen der Achse in der Zahlen-Schrift wie jede andere Zeitangabe. */
+.tl text { font-family:var(--font-mono); }
 .annex { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:8px; margin-bottom:12px; }
 .annex-item { display:flex; align-items:center; gap:8px; text-align:left; padding:.55rem .7rem; border-radius:10px; }
 .annex-item.rel { border-color:rgba(101,216,178,.4); }
@@ -371,11 +392,149 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 .nachweis .dim,.nachweis .dim *{color:#475569}
 .nachweis hr{border:0;border-top:1px solid #e2e8f0;margin:26px 0 20px}
 .nachweis .mono{font-family:var(--font-mono);font-size:.82em;color:#475569}
-/* Die offengelegte Rechnung im Machbarkeits-Schritt. */
-.feas-rechnung{margin:10px 0 0;padding-left:18px;font-size:.86rem;line-height:1.7;color:var(--dim)}
-.feas-rechnung b{color:var(--text)}
+/* Was nach der Einrichtung gilt — vier Werte statt eines Satzes „Fertig!". */
+.los-fakten{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin:16px 0 4px}
+.los-fakten > div{padding:12px 14px;border-radius:11px;border:1px solid var(--line);
+  background:rgba(52,211,153,.05)}
+.los-fakten span{display:block;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--faint);margin-bottom:5px}
+.los-fakten b{font-family:var(--font-display);font-size:1.02rem;line-height:1.3;color:var(--text)}
+
+/* Der Endtitel ist die Pointe des Zuschnitts — er steht in der Display-Schrift,
+   nicht als Nebensatz in Anführungszeichen. */
+.perso-titel{flex:1;min-width:0}
+.perso-titel span{display:block;font-size:.8rem;margin-bottom:4px}
+.perso-titel b{font-family:var(--font-display);font-size:1.5rem;line-height:1.2;color:var(--emerald)}
+
+/* Leerzustand in einer Datenkarte: Symbol, ein Satz, ein Weg. Statt eines leeren
+   Diagramms, das wie ein Defekt aussieht. */
+.leer{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:12px;padding:34px 18px;text-align:center;min-height:180px}
+/* !important, weil `.dash-grid .radar-wrap svg { width:97% }` sonst gewinnt —
+   das Symbol wurde 572 px breit, gemessen. */
+.leer-symbol{width:2.2rem !important;height:2.2rem !important;flex:none;fill:none;stroke:currentColor;stroke-width:1.4;
+  stroke-linecap:round;stroke-linejoin:round;color:var(--faint);opacity:.75}
+.leer p{margin:0;max-width:34ch;font-size:.86rem;line-height:1.55;color:var(--dim)}
+/* „Nichts faellig" ist kein Mangel, sondern ein guter Zustand — der Haken stand
+   im selben Grau wie ein leeres Diagramm. */
+.leer.gut .leer-symbol{color:var(--emerald)}
+.leer p{max-width:52ch}
+
+/* Startempfehlungen: zehn Phasen mit je einem Anteil — als Aufzählung mit
+   Kürzeln unlesbar, als Balkenreihe auf einen Blick erfasst. Die Farbe sagt,
+   was zu tun ist. */
+.pl-liste{display:grid;gap:9px;margin:16px 0 4px}
+.pl-zeile{display:grid;grid-template-columns:11rem 1fr 3rem 12rem;gap:12px;align-items:center;
+  font-size:.86rem}
+.pl-name{color:var(--text)}
+.pl-spur{height:10px;border-radius:999px;background:rgba(255,255,255,.06);overflow:hidden}
+.pl-spur i{display:block;height:100%;border-radius:999px;animation:mb-auf 620ms var(--ease-out) both}
+.pl-quote{text-align:right;font-family:var(--font-mono);font-size:.78rem;color:var(--dim)}
+.pl-tipp{font-size:.8rem}
+.pl-zeile.stark .pl-spur i{background:linear-gradient(90deg,var(--emerald),#22d3ee)}
+.pl-zeile.stark .pl-tipp{color:var(--emerald)}
+.pl-zeile.mittel .pl-spur i{background:linear-gradient(90deg,#38bdf8,#8a70ef)}
+.pl-zeile.mittel .pl-tipp{color:#9ec5fe}
+.pl-zeile.neu .pl-spur i{background:linear-gradient(90deg,#e1ad58,#f59e0b)}
+.pl-zeile.neu .pl-tipp{color:var(--amber,#e1ad58)}
+@media (max-width:900px){.pl-zeile{grid-template-columns:8rem 1fr 3rem;grid-template-areas:'n s q' 't t t'}
+  .pl-tipp{grid-area:t}}
+
+/* Fortschritt durch einen Fragelauf. „Frage 1/20" als Text sagt, wo man ist;
+   der Balken zeigt, wie weit es noch ist — dieselbe Sprache wie im Einrichtungs-
+   Ablauf und in den Fortschrittsringen der Seitenleiste. */
+.q-fortschritt{height:4px;border-radius:999px;background:rgba(255,255,255,.06);
+  margin:-4px 0 14px;overflow:hidden}
+.q-fortschritt i{display:block;height:100%;border-radius:999px;
+  background:linear-gradient(90deg,var(--emerald),#38bdf8);
+  box-shadow:0 0 10px -2px rgba(52,211,153,.5);
+  animation:ob-balken 520ms var(--ease-out) both}
+
+/* Wartezustand: drei Punkte, die nacheinander atmen. Ein Wartezustand ohne
+   Bewegung ist von einem Absturz nicht zu unterscheiden. */
+.warte{display:flex;align-items:center;gap:9px;margin:16px 0 4px;color:var(--dim);font-size:.88rem}
+.warte i{width:.5rem;height:.5rem;border-radius:50%;background:var(--emerald);
+  animation:warte-puls 1.25s ease-in-out infinite}
+.warte i:nth-child(2){animation-delay:.16s}
+.warte i:nth-child(3){animation-delay:.32s}
+.warte span{margin-left:6px}
+@keyframes warte-puls{0%,80%,100%{opacity:.25;transform:scale(.82)}40%{opacity:1;transform:scale(1)}}
+
+/* Machbarkeit: Der Vergleich ist ein Bild. Zwei Balken auf EINER Skala — was
+   länger ist, sieht man, statt es aus zwei Zahlen im Fließtext zu erschließen.
+   Die Kernzahl (Puffer oder Fehlbetrag) steht groß daneben, in der Display-Schrift. */
+.mb-lage{display:flex;gap:26px;align-items:center;margin:18px 0 14px;padding:16px 18px;
+  border-radius:12px;border:1px solid var(--line)}
+.mb-lage.gut{background:rgba(52,211,153,.06);border-color:rgba(52,211,153,.26)}
+.mb-lage.knapp{background:rgba(225,173,88,.07);border-color:rgba(225,173,88,.30)}
+.mb-kern{flex:none;text-align:center;min-width:8.5rem}
+.mb-kern b{display:block;font-family:var(--font-display);font-size:2.4rem;line-height:1.05;
+  letter-spacing:-.02em}
+.mb-lage.gut .mb-kern b{color:var(--emerald)}
+.mb-lage.knapp .mb-kern b{color:var(--amber,#e1ad58)}
+.mb-kern span{display:block;margin-top:3px;font-size:.78rem;color:var(--dim)}
+.mb-vergleich{flex:1;min-width:0;display:grid;gap:11px}
+.mb-zeile{display:grid;grid-template-columns:9.5rem 1fr 4.5rem;gap:12px;align-items:center;
+  font-size:.84rem}
+.mb-name{color:var(--dim)}
+.mb-spur{height:12px;border-radius:999px;background:rgba(255,255,255,.06);overflow:hidden}
+.mb-spur i{display:block;height:100%;border-radius:999px;animation:mb-auf 640ms var(--ease-out) both}
+@keyframes mb-auf{from{width:0}}
+.mb-noetig{background:linear-gradient(90deg,#8a70ef,#a78bfa);box-shadow:0 0 12px -3px rgba(138,112,239,.7)}
+.mb-hab{background:linear-gradient(90deg,var(--emerald),#22d3ee);box-shadow:0 0 12px -3px rgba(52,211,153,.7)}
+.mb-lage.knapp .mb-hab{background:linear-gradient(90deg,#e1ad58,#f59e0b);box-shadow:0 0 12px -3px rgba(225,173,88,.6)}
+.mb-wert{text-align:right;font-family:var(--font-mono);font-size:.8rem;color:var(--text)}
+.mb-fuss{margin:0 0 6px;font-size:.86rem;color:var(--dim)}
+.mb-fuss b{color:var(--text)}
+@media (max-width:820px){
+  .mb-lage{flex-direction:column;align-items:stretch;gap:14px}
+  .mb-zeile{grid-template-columns:8rem 1fr 4rem}
+}
+/* Lage-Karte: ein Zustand, der den Nutzer aufhält, trägt Symbol, Farbe und einen
+   Titel — nicht eine graue Zeile Fließtext. */
+.lage{display:flex;gap:16px;align-items:flex-start}
+.lage-symbol{flex:none;width:2.6rem;height:2.6rem;border-radius:12px;display:grid;place-items:center}
+.lage-symbol svg{width:1.35rem;height:1.35rem;fill:none;stroke:currentColor;stroke-width:1.9;
+  stroke-linecap:round;stroke-linejoin:round}
+.lage-txt h3{margin:2px 0 8px;font-family:var(--font-display);font-size:1.15rem}
+.lage-txt p{margin:0 0 8px;line-height:1.6}
+.lage-txt p:last-child{margin-bottom:0}
+.lage-fehler .lage-symbol{background:rgba(248,113,113,.12);color:#fca5a5;
+  border:1px solid rgba(248,113,113,.28)}
+.lage-fehler{border-left:3px solid rgba(248,113,113,.55);padding-left:15px}
+.lage-warnung .lage-symbol{background:rgba(225,173,88,.12);color:var(--amber,#e1ad58);
+  border:1px solid rgba(225,173,88,.30)}
+.lage-warnung{border-left:3px solid rgba(225,173,88,.55);padding-left:15px}
+/* Die technische Ursache gehört nicht in den Fließtext, aber sie darf auch nicht
+   verschwinden — aufklappbar, in Monospace. */
+.lage-detail{margin-top:6px}
+.lage-detail summary{cursor:pointer;font-size:.82rem;color:var(--dim)}
+.lage-detail summary:hover{color:var(--text)}
+.lage-detail p{margin:8px 0 0;font-size:.78rem;color:var(--faint);
+  font-family:var(--font-mono);line-height:1.5}
+/* Fortschritt des Einrichtungs-Ablaufs als füllender Balken. „Schritt 4/7" als
+   reiner Text war die einzige Stelle im Produkt, die Fortschritt nicht zeigt,
+   sondern nur behauptet. */
+.ob-fortschritt{position:relative;height:6px;margin:14px 0 2px;border-radius:999px;
+  background:rgba(255,255,255,.06);overflow:visible}
+.ob-fortschritt i{display:block;height:100%;border-radius:999px;
+  background:linear-gradient(90deg,var(--emerald),#38bdf8);
+  box-shadow:0 0 14px -2px rgba(52,211,153,.55);
+  /* Keyframe statt Übergang: Ein `width:0`, das im selben Bild auf den Zielwert
+     gesetzt wird, fasst der Browser zu einer Berechnung zusammen — gemessen, der
+     Balken stand vom ersten Bild an fertig da. Die Keyframe ohne `to` läuft von
+     0 auf die tatsächliche Breite, egal welcher Schritt gerade dran ist. */
+  animation:ob-balken 620ms var(--ease-out) both}
+@keyframes ob-balken{from{width:0}}
+.ob-fortschritt span{position:absolute;right:0;top:10px;font-size:.7rem;color:var(--faint);
+  font-family:var(--font-mono);letter-spacing:.02em}
+/* Der Haken in der Seitenleiste ist ein Symbol, kein Textzeichen. */
+.sf-haken{width:.72rem;height:.72rem;fill:none;stroke:currentColor;stroke-width:2.4;
+  stroke-linecap:round;stroke-linejoin:round}
 /* Fehler am Feld, nicht im Browser-Dialog: Ein Alert sagt nicht, WO es klemmt. */
-.feld-fehler{display:block;margin-top:5px;font-size:.8rem;color:#fca5a5}
+.feld-fehler{display:flex;gap:6px;align-items:flex-start;margin-top:5px;font-size:.8rem;color:#fca5a5}
+.feld-fehler svg{flex:none;width:.9rem;height:.9rem;margin-top:.12rem;fill:none;stroke:currentColor;
+  stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .feld input[aria-invalid="true"],.feld select[aria-invalid="true"]{border-color:#b91c1c;outline:none}
 .nachweis-disclaimer{border:1.5px solid #b45309;background:#fef3c7;color:#78350f;
   padding:12px 14px;border-radius:7px;font-size:.82rem;line-height:1.55;margin:0 0 22px}
@@ -390,6 +549,10 @@ button:disabled { opacity:.45; cursor:not-allowed; }
   /* App-Chrome weg, Nachweis im Normalfluss — visibility/absolute scheitert an
      transformierten Ancestors (Reveal-Animation), daher display-basiert. */
   .rail,.topbar,.sidebar,nav,aside,header,button,.gloss-tip{display:none!important}
+  /* Der Simulations-Streifen der Anwendung wurde mitgedruckt und stand als
+     Bedienleiste ueber der Urkunde — die ihren eigenen Simulations-Kasten
+     traegt, im Ton eines Dokuments. Doppelt und im falschen Register. */
+  .sim-banner{display:none!important}
   html,body{background:#fff!important}
   body>*:not(:has(.nachweis)){display:none!important}
   .app,.app-shell,#view,.view,main{display:block!important;height:auto!important;overflow:visible!important;transform:none!important;animation:none!important;grid-template-columns:none!important;grid-template-rows:none!important;background:#fff!important;box-shadow:none!important}
@@ -403,12 +566,21 @@ button:disabled { opacity:.45; cursor:not-allowed; }
    consent banner someone clicks away. Set as a page: a small label, a real
    headline, and the four questions as a definition list rather than one wall of
    text, because the four things it says are four different things. */
-.ai-notice-overlay{position:fixed;inset:0;background:rgba(4,6,12,.86);backdrop-filter:blur(3px);
-  display:grid;place-items:center;z-index:900;padding:24px;overflow-y:auto}
+/* 86 % und 3 px Unschärfe reichten nicht: Hinter dem Hinweis waren die
+   Seitenleiste lesbar und ein grüner Knopf leuchtete durch — das liest sich
+   nicht als bewusste Abdunklung, sondern als Versehen. */
+.ai-notice-overlay{position:fixed;inset:0;background:rgba(4,6,12,.94);backdrop-filter:blur(7px);
+  display:grid;place-items:center;z-index:900;padding:24px;overflow-y:auto;
+  animation:hero-auf 260ms var(--ease-out) both}
 .ai-notice{max-width:min(640px,100%);margin:auto;padding:clamp(22px,4vw,38px);
-  border-radius:16px;box-shadow:0 30px 80px rgba(0,0,0,.55)}
+  border-radius:16px;box-shadow:0 30px 80px rgba(0,0,0,.55);
+  /* Der Hinweis stand ohne jede Bewegung da — gemessen: animationName „none" an
+     Karte UND Überlagerung. In einem Produkt, dessen Bewegung durchchoreografiert
+     ist, springt ein hartes Erscheinen sofort ins Auge. */
+  animation:ain-auf 380ms var(--ease-out) both}
+@keyframes ain-auf{from{opacity:0;transform:translateY(12px) scale(.985)}to{opacity:1;transform:none}}
 .ai-notice .ain-kopf{border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:18px}
-.ai-notice .ain-marke{display:inline-block;font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;
+.ai-notice .ain-marke{display:inline-block;font-family:var(--font-mono);font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;
   color:var(--emerald);border:1px solid rgba(52,211,153,.32);border-radius:999px;padding:3px 11px;margin-bottom:12px}
 .ai-notice h2{font-family:var(--font-display,inherit);font-size:clamp(1.35rem,3.4vw,1.85rem);
   line-height:1.15;margin:0 0 6px;letter-spacing:-.01em}
@@ -419,10 +591,12 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 .ai-notice .ain-liste dt{font-size:.7rem;letter-spacing:.09em;text-transform:uppercase;
   color:var(--faint);margin-bottom:4px}
 .ai-notice .ain-liste dd{margin:0;font-size:.88rem;line-height:1.62;
-  /* Justified with hyphenation: the column is narrow and the ragged edge made
-     four short paragraphs look like scraps. Without hyphens justification tears
-     holes into lines this narrow. */
-  text-align:justify;hyphens:auto;-webkit-hyphens:auto;text-wrap:pretty}
+  /* Linksbündig statt Blocksatz: Die Trennung greift bei deutschen
+     Zusammensetzungen zu selten, und in einer 560-px-Spalte reißt der Blocksatz
+     dann sichtbare Löcher zwischen die Wörter. Ordnung gibt hier die dl-Struktur,
+     nicht die gerade Kante. `text-wrap: pretty` verhindert die einzelne
+     Schlusszeile mit einem Wort. */
+  hyphens:auto;-webkit-hyphens:auto;text-wrap:pretty}
 .ai-notice .ain-liste dd b{color:var(--text)}
 .ai-notice .ain-liste dd i{font-style:normal;color:var(--emerald);font-size:.94em}
 .ai-notice .ain-fuss{display:flex;justify-content:flex-end;margin-top:24px;padding-top:18px;
@@ -445,7 +619,16 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 .ritual-num{flex:0 0 26px;height:26px;display:grid;place-items:center;border-radius:50%;background:rgba(255,255,255,.06);font-size:.8rem;font-weight:600}
 .ritual-txt{display:flex;flex-direction:column;gap:1px;font-size:.86rem}
 .ritual-txt .dim{font-size:.74rem}
-.ritual-warn{margin-top:10px;padding:9px 12px;border-radius:8px;background:rgba(225,173,88,.12);border:1px solid rgba(225,173,88,.35);font-size:.82rem}
+.ritual-warn{margin-top:10px;padding:9px 12px;border-radius:8px;background:rgba(225,173,88,.12);
+  border:1px solid rgba(225,173,88,.35);font-size:.82rem;display:flex;align-items:center;gap:9px;
+  color:var(--amber,#e1ad58)}
+/* Haken und Schloss im Takt-Punkt: vorher standen dort die Textzeichen ✓ und ⚠. */
+.ritual-sym{width:.95rem;height:.95rem;flex:none;fill:none;stroke:currentColor;stroke-width:2;
+  stroke-linecap:round;stroke-linejoin:round}
+.ritual-step.locked .ritual-num{color:var(--faint)}
+/* Die Zahlen des Tages („4 im Kern") standen in derselben gedaempften Schrift wie
+   der Rest der Zeile — man musste sie lesen statt sie zu sehen. */
+.ritual-zahl{font-family:var(--font-display);font-size:1.02rem;color:var(--text);font-weight:600}
 .block-note{border-color:rgba(225,173,88,.35)!important}
 .wrap-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:12px 0}
 .wrap-stats div{background:var(--panel);border-radius:10px;padding:12px;text-align:center}
@@ -504,7 +687,27 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 .ph.skipped .lbl{opacity:.65;font-style:italic}
 .btn-mini{font-size:.68rem;padding:4px 9px;border-radius:7px;border:1px solid rgba(255,255,255,.12);text-decoration:none;color:inherit;opacity:.7}
 .btn-mini:hover{opacity:1;border-color:var(--emerald)}
-.lern-test{margin:6px 0 2px;font-size:.74rem;opacity:.7}
+/* War eine graue Textzeile mit einem Link mittendrin — der Zustand (bestanden
+   oder offen) stand nur im Wort, nicht in Farbe oder Zeichen, und die Note
+   verschwand in Klammern. */
+.lern-test{display:flex;align-items:center;gap:9px;margin:8px 0 2px;padding:7px 11px;
+  border-radius:9px;font-size:.76rem;border:1px solid transparent}
+.lern-test.bestanden{background:rgba(52,211,153,.08);border-color:rgba(52,211,153,.28);color:var(--emerald)}
+.lern-test.offen{background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.07);color:var(--dim)}
+.lern-test .lt-sym{width:.95rem;height:.95rem;flex:none;fill:none;stroke:currentColor;
+  stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.lern-test .lt-wert{font-family:var(--font-display);font-size:1rem;color:var(--text)}
+.lern-test .btn-mini{margin-left:auto;color:var(--text)}
+/* Erledigt und uebersprungen trugen die Textzeichen ✓ und ». */
+.lern-row .ring-sym{width:.85rem;height:.85rem;fill:none;stroke:currentColor;stroke-width:2.2;
+  stroke-linecap:round;stroke-linejoin:round}
+/* Wie weit eine Phase ist, gehoert an die Phase — nicht nur ins Seitenmenue. */
+.lern-sect-stand{display:flex;align-items:center;gap:9px;margin-top:6px;text-transform:none;
+  letter-spacing:0;font-size:.72rem;color:var(--faint);font-weight:400}
+.lern-sect-stand b{font-family:var(--font-display);color:var(--text);font-size:.86rem}
+.lern-sect-bar{flex:0 0 132px;height:3px;border-radius:999px;background:rgba(255,255,255,.07);overflow:hidden}
+.lern-sect-bar i{display:block;height:100%;border-radius:999px;background:var(--emerald);
+  animation:balken-fuellt .55s var(--ease-out) both}
 
 /* ---- ErwG-Explorer (#4, Phase 10) ---- */
 .erwg-filter{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
@@ -531,7 +734,11 @@ button:disabled { opacity:.45; cursor:not-allowed; }
    before anyone has clicked anything — so the artwork carries the frame rather
    than sitting on it as a thumbnail. */
 .hero-overlay{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:28px;
-  background-color:rgba(4,6,12,.97);
+  /* Deckend, nicht 97 %: Bei drei Prozent Rest scheint helle Schrift des
+     darunterliegenden Aufbaus durch — auf dem Erstkontakt las man die
+     Seitenleiste, den Simulations-Hinweis und einen „Weiter"-Knopf als
+     Geisterschrift hinter dem Bild. */
+  background-color:#040608;
   background-image:radial-gradient(70% 55% at 50% 30%,rgba(52,211,153,.16),transparent 70%),
                    radial-gradient(60% 50% at 78% 82%,rgba(138,112,239,.13),transparent 72%);
   animation:hero-auf 420ms var(--ease-out) both}
@@ -580,7 +787,7 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 
 /* ---- Asynchroner Coach-Nachschlag (#21/#24) ---- */
 .coach-note{margin-top:10px;padding:10px 12px;border-radius:9px;background:rgba(182,165,255,.06);border-left:3px solid rgba(182,165,255,.45);font-size:.85rem}
-.coach-head{font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;opacity:.6;margin-bottom:4px}
+.coach-head{display:flex;align-items:center;gap:7px;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;opacity:.6;margin-bottom:4px}
 
 
 /* ---------------------------------------------------------------- forms
@@ -597,13 +804,25 @@ button:disabled { opacity:.45; cursor:not-allowed; }
   margin-bottom:7px;font-weight:500;opacity:.86}
 /* One line under a field beats a paragraph above the form: it is read where the
    question comes up, not before it. */
-.feld .feld-hilfe{display:block;margin-top:6px;font-size:.72rem;color:var(--faint);line-height:1.45}
+.feld .feld-hilfe{display:block;margin-top:6px;font-size:.72rem;color:var(--faint);line-height:1.45;max-width:68ch}
+/* Auch ausserhalb eines `.feld`-Blocks — die Notizen der Einheit stehen frei
+   in ihrer Karte und brauchten dieselbe Hilfszeile. */
+.feld-hilfe{display:block;margin-top:6px;font-size:.72rem;color:var(--faint);line-height:1.45;max-width:68ch}
 .formular-intro{margin:0 0 4px;font-size:.86rem;color:var(--dim);max-width:62ch}
 .feld .feld-name .dim{font-weight:400;letter-spacing:0}
 .feld input,.feld select,.feld textarea{width:100%;box-sizing:border-box}
 .formular{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
   gap:16px 20px;margin:18px 0 4px;align-items:start}
 .formular .feld-breit{grid-column:1/-1}
+/* Zwei Spalten: Sonst stand neben einem einzelnen Feld der letzten Zeile eine
+   leere Fläche von zwei Spaltenbreiten — das Raster wirkte löchrig. */
+.formular .feld-doppelt{grid-column:span 2}
+/* Zwei feste Spalten für Formulare mit vier Feldern: Bei drei automatischen
+   Spalten stand das vierte Feld allein in der letzten Zeile, daneben zwei
+   leere Spalten. */
+.formular-zwei{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (max-width:760px){.formular-zwei{grid-template-columns:1fr}}
+@media (max-width:900px){.formular .feld-doppelt{grid-column:1/-1}}
 .formular + .formular-fuss,.formular-fuss{display:flex;justify-content:flex-end;gap:10px;
   margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}
 @media (max-width:640px){
@@ -686,6 +905,14 @@ button:disabled { opacity:.45; cursor:not-allowed; }
   background:var(--panel); color:var(--text);
   transition:border-color 130ms, background 130ms, transform 130ms var(--ease-snap); }
 .ku:hover { transform:translateY(-1px); }
+/* Die drei Urteile trugen ihre Farbe erst beim Ueberfahren — im Ruhezustand
+   sahen 'richtig · sicher' und 'falsch' gleich aus, obwohl sie das Gegenteil
+   bedeuten. Jetzt traegt jedes seinen Punkt und seinen Randton von Anfang an. */
+.ku { display:inline-flex; align-items:center; gap:8px; }
+.ku::before { content:''; width:.45rem; height:.45rem; border-radius:50%; background:currentColor; }
+.ku-ja    { border-color:rgba(101,216,178,.30); color:var(--emerald); }
+.ku-halb  { border-color:rgba(225,173,88,.30);  color:var(--amber); }
+.ku-nein  { border-color:rgba(217,117,104,.30); color:var(--red); }
 .ku-ja:hover    { border-color:rgba(101,216,178,.5); background:rgba(101,216,178,.10); color:var(--emerald); }
 .ku-halb:hover  { border-color:rgba(225,173,88,.5);  background:rgba(225,173,88,.10);  color:var(--amber); }
 .ku-nein:hover  { border-color:rgba(217,117,104,.5); background:rgba(217,117,104,.10); color:var(--red); }
@@ -734,7 +961,15 @@ button:disabled { opacity:.45; cursor:not-allowed; }
    Ein Satz über Recht sieht gleich aus, ob er auf dem Amtsblatt ruht oder
    erfunden ist. Diese beiden Zeilen sind der Unterschied. */
 .coach-belegt { margin-top:6px; font-size:.76rem; color:var(--faint); }
-.coach-belegt::before { content:'✓ '; color:var(--emerald); }
+/* Das Siegel der Quellenpruefung trug das Textzeichen ✓. Als geometrischer
+   Haken gezeichnet — ein Sprite-Symbol laesst sich in ::before nicht laden. */
+.coach-belegt { display:flex; align-items:flex-start; gap:9px; }
+.coach-belegt::before { content:''; flex:none; width:.42rem; height:.24rem; margin-top:.36rem;
+  border-left:2px solid var(--emerald); border-bottom:2px solid var(--emerald);
+  transform:rotate(-45deg); }
+.coach-beanstandet::before { content:''; flex:none; width:.42rem; height:.42rem; margin-top:.3rem;
+  border-radius:50%; background:var(--amber,#e1ad58); }
+.coach-beanstandet { display:flex; align-items:flex-start; gap:9px; }
 .coach-unbelegt { margin-top:8px; padding:8px 11px; border-radius:8px; font-size:.8rem; line-height:1.55;
   color:var(--text); background:rgba(225,173,88,.07); border:1px solid rgba(225,173,88,.32); }
 .coach-unbelegt b { color:var(--amber); }
@@ -754,3 +989,208 @@ button:disabled { opacity:.45; cursor:not-allowed; }
   background:linear-gradient(90deg,rgba(225,173,88,.16),rgba(225,173,88,.06));
   border-bottom:1px solid rgba(225,173,88,.34); }
 .sim-banner b { font-family:var(--font-display); color:var(--amber); letter-spacing:.02em; }
+
+/* Der Knopf sass in einem `formular-fuss` ganz unten rechts — bei einer Karte
+   ueber die volle Rasterbreite lagen dazwischen 60 leere Pixel und der Weg vom
+   Satz zur Handlung war quer durch die Karte. Jetzt steht er direkt unter dem
+   Text, wo der Grund steht. `a.btn` brauchte zusaetzlich das Abschalten der
+   Unterstreichung: sonst sah der Knopf aus wie ein Fliesstext-Link. */
+.lage-aktion { margin:12px 0 0; }
+/* Auf der vollbreiten Hinweiskarte stand der Knopf unter einem Text, der nur
+   das linke Drittel fuellt — rechts blieb ein Drittel der Karte leer. Dort
+   Symbol | Text | Handlung nebeneinander, dann traegt die Karte ihre Breite. */
+.hinweis-karte .lage { display:grid; grid-template-columns:auto minmax(0,1fr) auto;
+  align-items:center; column-gap:16px; }
+.hinweis-karte .lage-aktion { margin:0; }
+/* Schmal reicht die Breite fuer drei Spalten nicht: der Knopf wurde auf zwei
+   Zeilen umgebrochen und der Text auf eine Spalte von 200px gequetscht. */
+@media (max-width: 1100px) {
+  .hinweis-karte .lage { grid-template-columns:auto minmax(0,1fr); }
+  .hinweis-karte .lage-aktion { grid-column:2; margin-top:12px; }
+}
+a.btn, a.btn-primary, a.btn-mini { text-decoration:none; display:inline-block; }
+/* Ein Verweis mit `btn-primary` bekam die Flaeche des Hauptknopfs, aber nicht
+   dessen Form: keine Innenabstaende, dazu die Unterstreichung des Links — im
+   Bild der Review-Sperre sah der Hauptknopf aus wie eine markierte Textstelle. */
+a.btn-primary { padding:9px 15px; border-radius:9px; font:500 var(--fs-sm)/1.4 var(--font-text); }
+
+/* Die Zaehlmarke des Einrichtungs-Balkens sitzt absolut unter dem Balken; im
+   Ritual folgt dort sofort der erste Takt, also lag sie darauf und wurde am
+   Kartenrand abgeschnitten. Hier steht der Zaehler stattdessen in der
+   Unterzeile, der Balken traegt nur den Anteil. */
+.ritual-fortschritt { margin:14px 0 4px; }
+.ritual-fortschritt span { display:none; }
+.schritt-zaehler { font-family:var(--font-mono); font-size:.72rem; color:var(--faint);
+  font-weight:400; letter-spacing:.02em; white-space:nowrap; }
+
+/* Zurueck zur Uebersicht war ein nackter Link in der Unterzeile — an derselben
+   Stelle, an der jetzt steht, die wievielte Phase das ist und wie weit sie ist. */
+.phasen-fuss { display:flex; margin:2px 0 10px; }
+.phasen-fuss .btn-mini { display:inline-flex; align-items:center; gap:6px; }
+/* Ohne eigene Groesse fuellt ein Sprite-Symbol den Knopf aus — der Zurueck-Pfeil
+   wurde 380 px breit. `.lt-sym` war auf die Kapiteltest-Zeile begrenzt. */
+.btn-mini svg { width:.85rem; height:.85rem; flex:none; fill:none; stroke:currentColor;
+  stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; }
+.card .chead .sub b { font-family:var(--font-display); color:var(--text); font-weight:600; }
+
+/* Abschluss des Tages-Drills: war eine Ueberschrift mit einem Bruch darin. */
+.drill-ende { display:flex; flex-direction:column; align-items:center; text-align:center;
+  gap:6px; padding:18px 12px 8px; }
+.drill-ende-sym { width:2.4rem; height:2.4rem; fill:none; stroke:currentColor; stroke-width:1.5;
+  stroke-linecap:round; stroke-linejoin:round; color:var(--dim); }
+.drill-ende.gut .drill-ende-sym { color:var(--emerald); }
+.drill-ende.mittel .drill-ende-sym { color:var(--amber,#e1ad58); }
+.drill-ende.schwach .drill-ende-sym { color:var(--red); }
+.drill-ende-wert { margin:4px 0 0; font-size:1rem; color:var(--dim); }
+.drill-ende-wert b { font-family:var(--font-display); font-size:2.4rem; color:var(--text);
+  line-height:1.1; display:block; }
+.drill-ende-satz { margin:0 0 12px; color:var(--dim); max-width:44ch; line-height:1.55; }
+
+/* Abschluss-Karte: die Wege aus dem Rueckstand standen als Browser-Aufzaehlung
+   mit runden Punkten da, und der Rueckstand selbst als Zahl im Satz. */
+.wk-lead { margin:0 0 10px; }
+.wk-wert { font-family:var(--font-display); font-size:1.5rem; color:var(--amber,#e1ad58); }
+.wk-wege { list-style:none; margin:0 0 14px; padding:0; display:flex; flex-direction:column; gap:7px; }
+.wk-wege li { display:flex; align-items:flex-start; gap:9px; line-height:1.5; }
+.wk-wege li svg { width:.8rem; height:.8rem; margin-top:.28rem; flex:none; fill:none;
+  stroke:var(--amber,#e1ad58); stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+.lage-symbol-info { background:rgba(56,189,248,.12); color:#7dd3fc; }
+.hinweis-karte-inhalt { display:grid; grid-template-columns:auto minmax(0,1fr) auto;
+  align-items:center; column-gap:16px; }
+.hinweis-karte-inhalt .lage-aktion { margin:0; }
+@media (max-width:1100px){ .hinweis-karte-inhalt { grid-template-columns:auto minmax(0,1fr); }
+  .hinweis-karte-inhalt .lage-aktion { grid-column:2; margin-top:12px; } }
+
+.lage-erledigt .lage-symbol { background:rgba(52,211,153,.12); color:var(--emerald); }
+.lage-erledigt .lage-txt h3 { color:var(--emerald); }
+
+/* Die Fussnote der Einstellungen war ein grauer Satz unter dem Speichern-Knopf
+   in unserem Vokabular („Bewertungsrubrik", „getrennt gezaehlt"). */
+.einst-fuss { margin-top:18px; padding-top:16px; border-top:1px solid var(--line); }
+.einst-fuss .lage-txt h3 { font-size:.95rem; }
+.einst-fuss .lage-txt p { font-size:.84rem; color:var(--dim); max-width:78ch; }
+.lage-info .lage-symbol { background:rgba(56,189,248,.10); color:#7dd3fc; }
+
+/* Anleitung ueber dem Werkzeug: ohne sie stand ein Haufen Kaertchen da, und
+   nichts sagte, dass man sie ziehen kann. */
+.werkzeug-satz { margin:0 0 12px; color:var(--dim); font-size:.86rem; max-width:70ch; line-height:1.55; }
+/* Ablagefelder als solche erkennbar: gestrichelt, solange sie leer sind. */
+.dnd-zone { border-style:dashed; }
+.dnd-zone:has(.dnd-chip) { border-style:solid; }
+
+/* Anhang-III-Explorer: gewaehlte Kachel und gestaltete Beispiel-Liste. */
+.annex-item.gewaehlt { border-color:var(--emerald); background:rgba(52,211,153,.08); }
+.annex-item.gewaehlt .annex-nr { color:var(--emerald); }
+.annex-bsp { list-style:none; margin:10px 0 12px; padding:0; display:flex;
+  flex-direction:column; gap:6px; }
+.annex-bsp li { display:flex; align-items:flex-start; gap:9px; line-height:1.5; }
+.annex-bsp li::before { content:''; flex:none; width:.34rem; height:.34rem; margin-top:.55rem;
+  border-radius:1px; background:var(--emerald); transform:rotate(45deg); }
+
+.q-multi-hinweis { margin:0 0 10px; font-size:.8rem; color:var(--faint); }
+
+/* Zuordnung: die vier Beschreibungen wiederholen sich je Begriff — ohne
+   Abgrenzung liest sich das als eine Wand aus 16 gleichen Kaesten. */
+.q-assign-row { padding:12px 0; border-top:1px solid var(--line); }
+.q-assign-row:first-child { border-top:0; }
+.q-assign-left { font-weight:600; margin-bottom:8px; }
+.q-assign-opts { display:flex; flex-direction:column; gap:6px; }
+.q-assign-opt { padding:.6rem .8rem; font-size:.86rem; }
+.q-assign-opt.sel { border-color:var(--violet); background:rgba(138,112,239,.10); }
+
+.q-scenario p { margin:0; }
+
+/* Sicherheits-Abfrage: die drei Urteile sahen gleich aus, obwohl sie eine Skala
+   bilden — wie bei den Karten traegt jedes seinen Punkt und seinen Ton. */
+.q-confidence button { display:inline-flex; align-items:center; gap:7px; }
+.q-confidence button::before { content:''; width:.42rem; height:.42rem; border-radius:50%;
+  background:currentColor; }
+.q-confidence button[data-conf="sicher"] { color:var(--emerald); border-color:rgba(101,216,178,.30); }
+.q-confidence button[data-conf="unsicher"] { color:var(--amber,#e1ad58); border-color:rgba(225,173,88,.30); }
+.q-confidence button[data-conf="geraten"] { color:var(--red); border-color:rgba(217,117,104,.30); }
+
+.fb-kopf { display:inline-flex; align-items:center; gap:8px; }
+.fb-sym { width:.95rem; height:.95rem; flex:none; fill:none; stroke:currentColor; stroke-width:2.2;
+  stroke-linecap:round; stroke-linejoin:round; }
+.q-trapnote { display:flex; align-items:flex-start; gap:8px; }
+
+/* Bewertung einer Freitext-Antwort: die Punktzahl ist die Kernzahl der Karte. */
+.bew-kopf { display:flex; align-items:flex-start; gap:16px; }
+.bew-wert { flex:none; display:flex; flex-direction:column; align-items:center; line-height:1.05; }
+.bew-wert b { font-family:var(--font-display); font-size:2rem; color:var(--text); }
+.bew-wert span { font-size:.72rem; color:var(--faint); }
+.bew-text { margin:0; line-height:1.6; }
+.bew-einspruch { margin-top:12px; }
+
+/* Eckdaten des Kapiteltests: standen als ein Satz mit Trennpunkten. */
+.test-eckdaten { display:flex; flex-wrap:wrap; gap:10px 24px; align-items:baseline; margin:14px 0 16px; }
+.test-eckdaten span { color:var(--dim); font-size:.86rem; }
+.test-eckdaten b { font-family:var(--font-display); font-size:1.25rem; color:var(--text); margin-right:5px; }
+
+.tor-pfeil svg { width:1.1rem; height:1.1rem; fill:none; stroke:currentColor; stroke-width:2;
+  stroke-linecap:round; stroke-linejoin:round; }
+
+/* Ergebnis eines Kapiteltests: war eine Ueberschrift mit Prozentzahl darin. */
+.erg { display:flex; align-items:center; gap:16px; }
+.erg-sym { width:2.4rem; height:2.4rem; flex:none; fill:none; stroke:currentColor; stroke-width:1.6;
+  stroke-linecap:round; stroke-linejoin:round; }
+.erg.gut .erg-sym { color:var(--emerald); }
+.erg.schlecht .erg-sym { color:var(--amber,#e1ad58); }
+.erg-txt h3 { margin:0 0 2px; }
+.erg-wert { margin:0; color:var(--dim); font-size:.86rem; }
+.erg-wert b { font-family:var(--font-display); font-size:1.8rem; color:var(--text); margin-right:6px; }
+.erg-grund { margin:14px 0 0; padding:10px 13px; border-radius:9px; line-height:1.6;
+  background:rgba(225,173,88,.08); border:1px solid rgba(225,173,88,.28); }
+.erg-komp { margin-top:16px; display:flex; flex-direction:column; gap:7px; }
+.erg-zeile { display:grid; grid-template-columns:minmax(0,15rem) 1fr auto; align-items:center; gap:12px; }
+.erg-name { font-size:.86rem; color:var(--dim); }
+.erg-bar { height:5px; border-radius:3px; background:rgba(151,169,202,.10); overflow:hidden; }
+.erg-bar i { display:block; height:100%; border-radius:3px; animation:balken-fuellt .55s var(--ease-out) both; }
+.erg-bar i.gut { background:var(--emerald); }
+.erg-bar i.mittel { background:var(--amber,#e1ad58); }
+.erg-bar i.schwach { background:var(--red); }
+.erg-zeile b { font-size:.78rem; color:var(--text); }
+.nachschulung { margin-top:20px; padding-top:16px; border-top:1px solid var(--line); }
+@media (max-width:900px){ .erg-zeile { grid-template-columns:1fr auto; } .erg-bar { grid-column:1/-1; } }
+
+/* Uhr waehrend Examens-Teil A: 60 Minuten standen im Tor, waehrend der Pruefung
+   war davon nichts zu sehen. */
+.ex-uhr { display:flex; align-items:center; gap:11px; padding:10px 14px; margin-top:12px; }
+.ex-uhr .ut-sym { color:var(--dim); }
+.ex-uhr-wert { font-family:var(--font-display); font-size:1.5rem; color:var(--text); }
+.ex-uhr-txt { font-size:.82rem; color:var(--dim); }
+.ex-uhr.knapp { border-color:rgba(225,173,88,.35); }
+.ex-uhr.knapp .ut-sym, .ex-uhr.knapp .ex-uhr-wert { color:var(--amber,#e1ad58); }
+.ex-uhr.drueber { border-color:rgba(217,117,104,.35); }
+.ex-uhr.drueber .ut-sym, .ex-uhr.drueber .ex-uhr-wert { color:var(--red); }
+
+/* Stand im Fachgespraech: „Phase 1/3" stand nur als Text in der Unterzeile. */
+.boss-stand { display:flex; align-items:center; gap:7px; margin:2px 0 14px; }
+.boss-punkt { width:.55rem; height:.55rem; border-radius:50%; background:rgba(151,169,202,.16);
+  transition:background 200ms var(--ease-out), transform 200ms var(--ease-out); }
+.boss-punkt.fertig { background:var(--emerald); }
+.boss-punkt.jetzt { background:var(--violet,#8a70ef); transform:scale(1.25); }
+.boss-stand-txt { margin-left:8px; font-size:.76rem; color:var(--faint); }
+.boss-stand-txt b { font-family:var(--font-display); color:var(--text); }
+.chead .actions button { display:inline-flex; align-items:center; gap:7px; font-size:.75rem; }
+.chead .actions button svg { width:.8rem; height:.8rem; fill:none; stroke:currentColor;
+  stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+/* Der Senden-Knopf war so hoch wie das ganze Textfeld. */
+.dlg-inputrow { align-items:flex-end; }
+.dlg-inputrow button { align-self:flex-end; }
+
+/* Gespraechsziele: trugen die Textzeichen ✓ und ○ und die Kompetenz-Kennung
+   als Anhaengsel — die sagt dem Lernenden an dieser Stelle nichts. */
+.dlg-goal { display:flex; align-items:flex-start; gap:10px; padding:7px 0; line-height:1.5; }
+.dlg-goal-sym { width:.95rem; height:.95rem; margin-top:.18rem; flex:none; fill:none;
+  stroke:currentColor; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; }
+.dlg-goal.hit .dlg-goal-sym { color:var(--emerald); }
+.dlg-goal.miss .dlg-goal-sym { color:var(--faint); }
+.dlg-goal.miss span { color:var(--dim); }
+.dlg-feedback { margin-top:14px; padding-top:14px; border-top:1px solid var(--line); line-height:1.6; }
+.dlg-assessment .chead .sub b { font-family:var(--font-display); color:var(--text); }
+
+.sim-banner .ut-sym { color:var(--amber,#e1ad58); }
+
+.such-leer { display:flex; align-items:flex-start; gap:10px; }
+.such-leer .ut-sym { margin-top:.15rem; color:var(--amber,#e1ad58); }

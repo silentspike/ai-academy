@@ -114,9 +114,12 @@ export function attachTooltip(doc) {
     if (el.closest(GESCHLOSSEN)) return;
     const e = TERMS.get(el.dataset.term);
     if (!e) return;
-    tip.innerHTML = `<b>${e.term}</b><p>${e.simple}</p>` +
-      (e.memory_hook ? `<p class="hook">🧠 ${e.memory_hook}</p>` : '') +
-      (e.legal_basis ? `<span class="mono">${e.legal_basis}</span>` : '');
+    // Merkanker und Fundstelle standen ohne Zeichen und ohne Abgrenzung unter der
+    // Erklaerung — der Merkanker trug ein Emoji statt eines Zeichens aus dem Satz.
+    const sym = id => `<svg class="ut-sym" aria-hidden="true"><use href="assets/icons/sprite.svg#${id}"/></svg>`;
+    tip.innerHTML = `<b class="gt-begriff">${e.term}</b><p>${e.simple}</p>` +
+      (e.memory_hook ? `<p class="hook">${sym('icon-st-retention')}<span>${e.memory_hook}</span></p>` : '') +
+      (e.legal_basis ? `<span class="gt-quelle">${sym('icon-fach-paragraph')}<span class="mono">${e.legal_basis}</span></span>` : '');
     const r = el.getBoundingClientRect();
     tip.style.left = Math.min(r.left, doc.documentElement.clientWidth - 340) + 'px';
     tip.style.top = (r.bottom + 8) + 'px';

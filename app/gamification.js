@@ -198,11 +198,21 @@ export function confettiBurst(doc, { count = 80, duration = 1800 } = {}) {
   const ctx = c.getContext('2d');
   c.width = innerWidth; c.height = innerHeight;
   const colors = ['#65d8b2', '#e1ad58', '#8a70ef', '#22d3ee', '#e5eaf3'];
-  const parts = Array.from({ length: count }, (_, i) => ({
-    x: c.width / 2 + (i % 2 ? 1 : -1) * (i * 3 % 120), y: c.height * 0.35,
-    vx: (i * 7919 % 200 - 100) / 18, vy: -((i * 104729 % 140) + 60) / 14,
-    r: 3 + (i % 4), rot: i, col: colors[i % colors.length]
-  }));
+  // Die Streuung war +/-120 px um die Bildmitte, alle Teilchen auf derselben
+  // Hoehe: im Bild ergab das einen kompakten Fleck statt Konfetti. Jetzt ueber
+  // die halbe Bildbreite verteilt, Starthoehen gestaffelt, Geschwindigkeiten
+  // breiter gestreut — die Teilchen fliegen aus der Mitte nach aussen.
+  const parts = Array.from({ length: count }, (_, i) => {
+    const seite = i % 2 ? 1 : -1;
+    const streu = (i * 4703 % 1000) / 1000;               // 0..1, deterministisch
+    return {
+      x: c.width / 2 + seite * streu * c.width * 0.28,
+      y: c.height * (0.30 + (i * 7919 % 100) / 1000),      // 0.30..0.40
+      vx: seite * (2 + streu * 9) + (i * 2749 % 60 - 30) / 24,
+      vy: -((i * 104729 % 140) + 70) / 12,
+      r: 3 + (i % 4), rot: i, col: colors[i % colors.length]
+    };
+  });
   const t0 = performance.now();
   (function tick(t) {
     const dt = t - t0;
@@ -226,6 +236,14 @@ export function confettiBurst(doc, { count = 80, duration = 1800 } = {}) {
 export function ceremony(doc, tier, payload = {}) {
   if (tier === CEREMONY.KLEIN) {
     const el = payload.anchor ?? doc.body;
+    // `.xp-pop` ist absolut positioniert. Ist der Anker nicht selbst positioniert,
+    // bezieht sich das auf irgendeinen Vorfahren weiter oben — gemessen erschien
+    // der Punkt dann an der linken oberen Ecke einer ganz anderen Karte statt am
+    // Ort des Geschehens. Der Anker bekommt darum eine Position, falls er keine hat.
+    const doc2 = el.ownerDocument ?? doc;
+    if (el !== doc2.body && doc2.defaultView?.getComputedStyle(el).position === 'static') {
+      el.style.position = 'relative';
+    }
     const s = doc.createElement('span');
     s.className = 'xp-pop';
     s.textContent = `+${payload.xp ?? 0} XP`;

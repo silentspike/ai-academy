@@ -84,8 +84,8 @@ export class LlmAdapter {
   evaluateGate() {
     const h = this.health;
     if (!h || !h.llm) this.gate = { checked: true, frontier: false, reason: 'kein LLM verbunden' };
-    else if (!isFrontierModel(h.model)) this.gate = { checked: true, frontier: false, reason: `Modell „${h.model}" wird nicht unterstützt — nur Claude/ChatGPT-Frontier-Modelle (docs/INTENDED-PURPOSE.md)` };
-    else this.gate = { checked: true, frontier: true, reason: 'unterstütztes Frontier-Modell: ' + h.model };
+    else if (!isFrontierModel(h.model)) this.gate = { checked: true, frontier: false, reason: `Modell „${h.model}" wird nicht unterstützt — die Akademie arbeitet mit Claude oder ChatGPT` };
+    else this.gate = { checked: true, frontier: true, reason: 'unterstütztes Modell: ' + h.model };
     return this.gate;
   }
 
