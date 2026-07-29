@@ -179,7 +179,7 @@ export async function zeigeKiHinweis(state, ctx, doc = document) {
       <dd>Deine Freitexte gehen an den Anbieter des Modells. Gib dort <b>keine echten
           Personendaten und keine Organisations-Interna</b> ein.</dd>
       <dt>Wie verlässlich Noten sind</dt>
-      <dd>Maschinelle Bewertungen streuen. Jede trägt deshalb ihr Label —
+      <dd>Maschinelle Bewertungen streuen. Jede trägt deshalb ihre Kennzeichnung —
           <i>deterministisch</i> oder <i>KI-unterstützt</i> — und gegen jede kannst du
           Einspruch erheben; darüber entscheidet eine frische Zweitprüfung, die die
           erste Bewertung nicht kennt.</dd>
@@ -259,7 +259,7 @@ async function loadState(storage) {
  * Sidebar: phase tree with progress rings, a review badge counting core and catch-up,
  * and an exam lock bound to the gate rather than hard-coded.
  */
-const PHASEN = [
+export const PHASEN = [
   ['p1', 'Fundament'], ['p2', 'Verbote'], ['p3', 'Einstufung'], ['p4', 'Pflichten'], ['p5', 'Transparenz'],
   ['p6', 'GPAI'], ['p7', 'Aufsicht'], ['p8', 'Randwissen'], ['p9', 'Ländermodul AT'], ['p10', 'Auslegung'],
 ];
@@ -298,7 +298,7 @@ export async function paintSidebar(state, simulation = false) {
       <span class="pring" style="--pring-deg:${deg}deg"><i>${pid.slice(1)}</i></span>
       <span class="lbl"><span class="ph-name">Phase ${i + 1} · ${label}</span>
         <span class="ph-bar"><i style="width:${Math.round(pct * 100)}%"></i></span></span>
-      ${test?.passed ? '<span class="pcheck">✓</span>' : aktiv ? '<span class="pcheck ph-pfeil">›</span>' : ''}</a>`;
+      ${test?.passed ? '<span class="pcheck"><svg class="ph-haken" aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-check"/></svg></span>' : aktiv ? '<span class="pcheck ph-pfeil"><svg class=\"ph-chevron\" aria-hidden=\"true\"><use href=\"assets/icons/sprite.svg#icon-ui-chevron\"/></svg></span>' : ''}</a>`;
   }).join('');
 
   const q = splitQueues(state.cards ?? [], Date.now());
@@ -382,7 +382,12 @@ export function setzeSetupModus(ctx, doc = document) {
   box.style.setProperty('--fortschritt', `${Math.round(schritt / (SETUP_SCHRITTE.length - 1) * 100)}%`);
   box.innerHTML = `<div class="sf-titel">Einrichtung</div>` + SETUP_SCHRITTE.map((name, i) => {
     const zustand = i < schritt ? 'fertig' : i === schritt ? 'jetzt' : '';
-    return `<div class="setup-schritt ${zustand}"><span class="sf-nr">${i < schritt ? '✓' : i + 1}</span>${name}</div>`;
+    // Haken als Symbol aus dem eigenen Satz, nicht als Textzeichen ✓ — das
+    // rendert auf jedem System anders und passt zu keinem der übrigen Symbole.
+    const marke = i < schritt
+      ? '<svg class="sf-haken" aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-check"/></svg>'
+      : i + 1;
+    return `<div class="setup-schritt ${zustand}"><span class="sf-nr">${marke}</span>${name}</div>`;
   }).join('');
   return true;
 }
@@ -430,12 +435,17 @@ function markActiveNav(path) {
 // ---------- Routen ----------
 
 import { renderHeatmap, renderRadar, renderCurve, renderXpBars, renderExamHistory } from './dashboard.js';
-import { aggregateCompetencies, radarData } from './competency.js';
+import { aggregateCompetencies, radarData, kompetenzName, stufenName, ladeKompetenzen } from './competency.js';
 import { splitQueues } from './engine-leitner.js';
 import { ceremony, CEREMONY, levelFor, weekProgress, wochenpunkte, zaehleHoch } from './gamification.js';
 import { einheitenGesamt, coverPfad } from './content-index.js';
 
 route('dashboard', async (view, ctx) => {
+  // Gesammelt statt sofort angehängt: Weiter unten setzt die Route `view.innerHTML`
+  // — alles vorher Angehängte war damit weg. Die Machbarkeits-Warnung und der
+  // Erhaltungs-Hinweis wurden also gebaut und im selben Durchlauf gelöscht;
+  // sichtbar wurden sie nie. Gefunden beim Versuch, die Warnung zu fotografieren.
+  const hinweisKarten = [];
   // Erhaltungsmodus (#36): nach bestandenem Examen Tagesdosis + Wochen-Szenario anzeigen
   try {
     const { maintenancePlan } = await import('./erhaltung.js');
@@ -443,11 +453,11 @@ route('dashboard', async (view, ctx) => {
     const mp = maintenancePlan(ctx.state, sc.scenarios, Date.now());
     if (mp.active) {
       const m = document.createElement('div');
-      m.className = 'card maintenance-note';
+      m.className = 'card hinweis-karte maintenance-note';
       m.innerHTML = `<b>Erhaltungsmodus aktiv</b> — heute ${mp.cards.length} Karten` +
         (mp.szenarioDue ? ` · <a href="#/boss/${mp.szenarioId}">Wochen-Szenario fällig</a>` : ' · Wochen-Szenario erledigt') +
         ` <span class="dim">(Wissen ohne Nutzung zerfällt — die Minimal-Dosis dagegen.)</span>`;
-      view.appendChild(m);
+      hinweisKarten.push(m);
     }
   } catch { /* Erhaltung ist Zusatz — Dashboard rendert auch ohne */ }
   view.classList.add('dash-grid');
@@ -462,9 +472,19 @@ route('dashboard', async (view, ctx) => {
       const eng = (Array.isArray(feas) ? feas : [feas]).filter(f => f && f.feasible === false);
       if (eng.length) {
         const w = document.createElement('div');
-        w.className = 'card feas-note';
-        w.innerHTML = `<b>Ehrliche Rechnung:</b> Für „${eng[0].label ?? 'dein Ziel'}" bräuchtest du ~${eng[0].neededMinutesPerDay ?? '?'} min/Tag (geplant: ${s.pace.minutesPerDay}). <a href="#/einstellungen">Ziel oder Pensum anpassen</a>.`;
-        view.appendChild(w);
+        w.className = 'card hinweis-karte feas-note';
+        w.innerHTML = `<div class="lage lage-warnung">
+            <span class="lage-symbol"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-warn"/></svg></span>
+            <div class="lage-txt">
+              <h3>Dein Ziel „${eng[0].label ?? 'Ziel'}" geht sich nicht aus</h3>
+              <p>Dafür bräuchtest du <b>~${eng[0].neededMinutesPerDay ?? '?'} Minuten am Tag</b> —
+              geplant sind ${s.pace.minutesPerDay}. Entweder der Termin rückt nach hinten,
+              oder das Pensum nach oben.</p>
+            </div>
+              <p class="lage-aktion"><a class="btn" href="#/einstellungen">Ziel oder Pensum anpassen</a></p>
+            </div>
+          </div>`;
+        hinweisKarten.push(w);
       }
     } catch { /* Pacing ist Zusatz */ }
   }
@@ -536,9 +556,9 @@ route('dashboard', async (view, ctx) => {
       <div class="curve-wrap" id="d-curve"></div>
       <div class="viz-legende"><span style="color:var(--emerald)"><i></i>Dein Lernfortschritt</span><span><i class="gestrichelt"></i>Soll-Verlauf</span></div></div>
     <div class="right-col">
-      <div class="card due-mini"><div class="chead" style="margin-bottom:4px"><span class="t"><h3>Fällige Karten</h3></span></div>
+      <div class="card due-mini"><div class="chead" style="margin-bottom:4px"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-karten"/></svg></span><span class="t"><h3>Fällige Karten</h3></span></div>
         <div class="due-mini-nums"><div><span>Kern</span><b style="color:#b6a5ff">${q.kern.length}</b></div><div><span>Aufholen</span><b style="color:var(--gold)">${q.aufhol.length}</b></div></div></div>
-      <div class="card coach-block"><div class="chead" style="margin-bottom:8px"><span class="t"><h3>Coach</h3><span class="sub">Tagesfokus aus deinem Stand</span></span></div>
+      <div class="card coach-block"><div class="chead violett" style="margin-bottom:8px"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-dialog"/></svg></span><span class="t"><h3>Coach</h3><span class="sub">Tagesfokus aus deinem Stand</span></span></div>
         <div class="coach-karte">
           <img src="assets/characters/crew/01-coach-zufrieden.webp" alt="" loading="lazy" onerror="this.style.display='none'">
           <div class="coach-text" id="d-coach"></div>
@@ -549,6 +569,8 @@ route('dashboard', async (view, ctx) => {
         <div><div class="chead" style="margin-bottom:4px"><span class="t"><h3>Examen</h3></span></div><div id="d-exam"></div></div>
       </div></div>
     </div>`;
+  // Hinweise ganz oben ins Raster, nachdem innerHTML steht.
+  for (const karte of [...hinweisKarten].reverse()) view.prepend(karte);
   renderHeatmap(view.querySelector('#d-hm'), articles, {
     onSelect: a => {
       if (a.unit_id) return navigate(`#/einheit/${a.unit_id}`);
@@ -559,7 +581,25 @@ route('dashboard', async (view, ctx) => {
         `${a.label}: keine eigene Einheit — im Überblick „Randwissen" behandelt (${a.relevanz}).`;
     },
   });
-  renderRadar(view.querySelector('#d-radar'), axes);
+  // Leerzustände: Ein Radar ohne Daten ist ein leeres Sechseck mit einem Punkt in
+  // der Mitte, eine Kurve ohne Ereignisse eine flache Linie auf null. Beides sieht
+  // aus wie ein Defekt und sagt nichts. Wer noch nichts gelernt hat, braucht keinen
+  // leeren Graphen, sondern den nächsten Schritt.
+  const leerBlock = (symbol, satz, ziel, knopf) => `<div class="leer">
+      <svg aria-hidden="true" class="leer-symbol"><use href="assets/icons/sprite.svg#${symbol}"/></svg>
+      <p>${satz}</p>${ziel ? `<a class="btn" href="${ziel}">${knopf}</a>` : ''}</div>`;
+  // Die Achsen tragen `value` (Mittel der Kompetenz-Werte einer Gruppe), nicht
+  // `score` — die erste Fassung prüfte das falsche Feld und zeigte den
+  // Leerzustand auch dann, wenn Daten da waren. Beim zweiten Bildschirmfoto
+  // mit gefülltem Lernstand aufgefallen.
+  const hatKompetenzen = axes.some(a => (a.value ?? 0) > 0);
+  if (hatKompetenzen) renderRadar(view.querySelector('#d-radar'), axes);
+  else {
+    view.querySelector('#d-radar').innerHTML =
+      leerBlock('icon-nav-dashboard-radar', 'Sobald du die ersten Fragen beantwortet hast, steht hier, wie sicher du in welcher Kompetenz bist.', '#/heute', 'Zum Tagesablauf');
+    // Die Legende gehört zum Diagramm, nicht zum Leerzustand.
+    view.querySelector('#d-radar')?.closest('.card')?.querySelector('.viz-legende')?.remove();
+  }
 
   // Time range for the curve. Over months a full history compresses the recent
   // weeks — the part the user is actually steering by — into a few pixels.
@@ -567,7 +607,13 @@ route('dashboard', async (view, ctx) => {
     const n = Number(wochen) || 0;
     const ist = n > 0 ? curve.ist.slice(-n) : curve.ist;
     const soll = n > 0 ? curve.soll.slice(-n) : curve.soll;
-    renderCurve(view.querySelector('#d-curve'), ist, soll);
+    const hatVerlauf = (s.events ?? []).some(e => e.kind === 'unit_completed') || (s.unit_done?.length ?? 0) > 0;
+    if (hatVerlauf) renderCurve(view.querySelector('#d-curve'), ist, soll);
+    else {
+      view.querySelector('#d-curve').innerHTML =
+        leerBlock('icon-st-ziel', 'Nach deiner ersten Einheit läuft hier deine Kurve gegen die Soll-Linie.', '#/lernen', 'Zur ersten Einheit');
+      view.querySelector('#d-curve')?.closest('.card')?.querySelector('.viz-legende')?.remove();
+    }
   };
   const bereich = view.querySelector('#d-curve-range');
   zeichneKurve(bereich?.value ?? 12);
@@ -676,11 +722,18 @@ route('lernen', async (view, ctx, [phaseFilter]) => {
   const skipped = new Set(st.unit_skipped ?? []);
   const phases = phaseFilter ? [phaseFilter] : Object.keys(PHASE_LABEL);
   const cover = phaseFilter ? coverPfad(phaseFilter) : null;
+  // Die Einzelphase trug als Unterzeile nur den Link „alle Phasen" — sie sagte
+  // weder, die wievielte Phase das ist, noch wie weit sie ist. Beides liegt vor.
+  const phasenNr = Object.keys(PHASE_LABEL).indexOf(phaseFilter) + 1;
+  const phasenEinheiten = phaseFilter ? idx.units.filter(u => u.phase === phaseFilter) : [];
+  const phasenFertig = phasenEinheiten.filter(u => done.has(u.id) || skipped.has(u.id)).length;
   view.innerHTML = `<div class="card${cover ? ' hat-cover' : ''}">
     ${cover ? `<div class="phasen-cover"><img src="${cover}" alt="" loading="lazy" onerror="this.closest('.phasen-cover').remove()">
       <div class="pc-verlauf"></div><div class="pc-titel">${PHASE_LABEL[phaseFilter] ?? phaseFilter}</div></div>` : ''}
     <div class="chead"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-lernen"/></svg></span><span class="t"><h3>${phaseFilter ? 'Einheiten dieser Phase' : 'Lernen'}</h3>
-    <span class="sub">${phaseFilter ? '<a href="#/lernen">alle Phasen</a>' : 'Vollständiger Stoff, nach Rollen-Relevanz geordnet — jede Phase ist jederzeit zugänglich, die Reihenfolge ist eine Empfehlung. Überspringen erfordert einen Challenge-Test.'}</span></span></div>
+    <span class="sub">${phaseFilter ? `Phase <b>${phasenNr}</b> von <b>10</b> · <b>${phasenFertig}</b> von <b>${phasenEinheiten.length}</b> Einheiten erledigt` : 'Vollständiger Stoff, nach Rollen-Relevanz geordnet — jede Phase ist jederzeit zugänglich, die Reihenfolge ist eine Empfehlung. Überspringen erfordert einen Challenge-Test.'}</span></span></div>
+    ${phaseFilter ? `<div class="phasen-fuss"><a class="btn-mini" href="#/lernen">
+      <svg class="lt-sym" aria-hidden="true"><use href="assets/icons/sprite.svg#icon-act-zurueck"/></svg> Alle Phasen</a></div>` : ''}
     <div id="unit-list"></div></div>`;
   const list = view.querySelector('#unit-list');
   // Index for the staggered reveal. The CSS reads `--i`, and nobody ever set
@@ -691,8 +744,14 @@ route('lernen', async (view, ctx, [phaseFilter]) => {
   for (const p of phases) {
     const units = idx.units.filter(u => u.phase === p);
     if (!units.length) continue;
+    // Die Phasen-Zeile war eine reine Textmarke. Wie weit die Phase ist, stand
+    // nur im Seitenmenue — hier, wo man den Stoff auswaehlt, fehlte es.
+    const fertigInPhase = units.filter(u => done.has(u.id) || skipped.has(u.id)).length;
+    const anteilPhase = Math.round(fertigInPhase / units.length * 100);
     if (!phaseFilter) list.insertAdjacentHTML('beforeend',
-      `<div class="sect lern-sect">${p.toUpperCase()} · ${PHASE_LABEL[p] ?? ''}${PHASE_NOTIZ[p] ? `<span class="lern-sect-notiz">${PHASE_NOTIZ[p]}</span>` : ''}</div>`);
+      `<div class="sect lern-sect">${p.toUpperCase()} · ${PHASE_LABEL[p] ?? ''}${PHASE_NOTIZ[p] ? `<span class="lern-sect-notiz">${PHASE_NOTIZ[p]}</span>` : ''}
+        <span class="lern-sect-stand"><span class="lern-sect-bar"><i style="width:${anteilPhase}%"></i></span>
+          <b>${fertigInPhase}</b> von <b>${units.length}</b></span></div>`);
     for (const u of units) {
       const status = done.has(u.id) ? 'done' : skipped.has(u.id) ? 'skipped' : '';
       const row = document.createElement('div');
@@ -703,14 +762,22 @@ route('lernen', async (view, ctx, [phaseFilter]) => {
       // angewandt wird jedes Kind-Element zur eigenen Zeile — jeder Titel mit
       // einem Glossarbegriff darin zerfiel in drei Zeilen.
       row.innerHTML = `<a class="ph ${status}" href="#/einheit/${u.id}">
-          <span class="ring">${done.has(u.id) ? '✓' : skipped.has(u.id) ? '»' : u.level}</span>
+          <span class="ring">${done.has(u.id)
+            ? '<svg class="ring-sym" aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-check"/></svg>'
+            : skipped.has(u.id)
+            ? '<svg class="ring-sym" aria-hidden="true"><use href="assets/icons/sprite.svg#icon-act-weiter"/></svg>'
+            : u.level}</span>
           <span class="u-titel">${u.title}</span><span class="u-komp">${u.competency ?? ''}</span></a>
-        ${status ? '' : `<a class="btn-mini" href="#/challenge/${u.id}" title="Challenge-Test: 6 Fragen, 80 % — bei Bestehen wird die Einheit übersprungen">Challenge</a>`}`;
+        ${status ? '' : `<a class="btn-mini" href="#/challenge/${u.id}" title="Challenge-Test: 6 Fragen, 80 % — bei Bestehen wird die Einheit übersprungen">Challenge-Test</a>`}`;
       list.appendChild(row);
     }
     const test = st.chapterTests?.[p];
     if (phaseFilter || true) list.insertAdjacentHTML('beforeend',
-      `<div class="lern-test">${test?.passed ? `Kapiteltest bestanden${Number.isFinite(test.pct) ? ` (${(test.pct * 100).toFixed(0)} %)` : ''}` : 'Kapiteltest offen'} — <a href="#/test/${p}">${test?.passed ? 'erneut antreten' : 'zum Kapiteltest'}</a></div>`);
+      `<div class="lern-test ${test?.passed ? 'bestanden' : 'offen'}">
+        <svg class="lt-sym" aria-hidden="true"><use href="assets/icons/sprite.svg#${test?.passed ? 'icon-st-check' : 'icon-nav-pruefung'}"/></svg>
+        <span>Kapiteltest ${test?.passed ? 'bestanden' : 'offen'}</span>
+        ${test?.passed && Number.isFinite(test.pct) ? `<b class="lt-wert">${(test.pct * 100).toFixed(0)} %</b>` : ''}
+        <a class="btn-mini" href="#/test/${p}">${test?.passed ? 'Erneut antreten' : 'Zum Kapiteltest'}</a></div>`);
   }
 });
 
@@ -725,17 +792,40 @@ route('einheit', async (view, ctx, [unitId]) => {
   if (!canStartUnit(s, ctx.simulation)) {
     const c = document.createElement('div');
     c.className = 'card';
-    c.innerHTML = `<h3>Erst wiederholen, dann Neues</h3>
-      <p>Heute ${s.review.kern.length === 1 ? 'ist' : 'sind'} <b>${s.review.kern.length}</b> Karte${s.review.kern.length === 1 ? '' : 'n'} regulär fällig. Wiederholung kommt vor neuem Stoff.</p>
-      <a class="btn-primary" href="#/karten">Zum Pflicht-Review</a> <a class="btn" href="#/heute">Ritual-Übersicht</a>`;
+    // War eine Ueberschrift, ein Satz und zwei Links ohne Zeichen und ohne Grund.
+    // Eine Sperre muss sagen, dass sie eine ist, warum sie greift und wie man sie loest.
+    c.className = 'card sperr-karte';
+    c.innerHTML = `<div class="lage lage-warnung">
+        <span class="lage-symbol"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-lock"/></svg></span>
+        <div class="lage-txt">
+          <h3>Erst wiederholen, dann Neues</h3>
+          <p>Heute ${s.review.kern.length === 1 ? 'ist' : 'sind'} <b class="ritual-zahl">${s.review.kern.length}</b> Karte${s.review.kern.length === 1 ? '' : 'n'} regulär fällig.
+          Neuer Stoff bleibt so lange zu — Wiederholen vor Neuem ist der Grund, warum das Gelernte
+          in zwei Wochen noch da ist.</p>
+        </div>
+      </div>
+      <div class="formular-fuss">
+        <a class="btn" href="#/heute">Zum Tagesablauf</a>
+        <a class="btn-primary" href="#/karten">Wiederholung starten</a>
+      </div>`;
     view.appendChild(c);
     return;
   }
   const st = sessionStatus(ctx.state);
   if (st.block.due) {
     const b = document.createElement('div');
-    b.className = 'card block-note';
-    b.innerHTML = `<b>Intensiv-Block ${st.block.block} erreicht (~60 min).</b> <span class="dim">Kurz aufstehen — fünf Minuten Pause, dann weiter.</span>`;
+    b.className = 'card block-note hinweis-karte';
+    // War eine graue Textzeile mit dem internen Wort „Intensiv-Block" und ohne
+    // jede Handlung — dabei ist der Block laut Bauplan Pause UND fuenf Fragen.
+    b.innerHTML = `<div class="lage lage-warnung">
+        <span class="lage-symbol"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-uhr"/></svg></span>
+        <div class="lage-txt">
+          <h3>${st.block.block === 1 ? 'Eine Stunde am Stück' : `${st.block.block} Stunden am Stück`}</h3>
+          <p>Kurz aufstehen, fünf Minuten weg vom Bildschirm. Was du danach abrufst, bleibt
+          besser haften als das, was du dir jetzt noch dranhängst.</p>
+        </div>
+        <p class="lage-aktion"><a class="btn" href="#/drill">Fünf Fragen zum Auflockern</a></p>
+      </div>`;
     view.appendChild(b);
     ctx.saveState();
   }
@@ -773,13 +863,30 @@ route('karten', async (view, ctx) => {
       await ctx.saveState();
     } catch { /* Glossar-Karten sind Zusatz */ }
   }
+  await ladeKompetenzen();                // Klarnamen fuer die Karten-Marken
   let startGesamt = null;                 // Tagespensum beim Einstieg — Bezugsgröße des Balkens
   const paint = () => {
     const q = splitQueues(ctx.state.cards ?? [], Date.now());
     const aufholToday = planAufhol(q.aufholMeta, { perDay: 15 }).today;
     const queue = [...q.kern, ...aufholToday];
     if (!queue.length) {
-      view.innerHTML = `<div class="card"><div class="chead"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-karten"/></svg></span><span class="t"><h3>Wiederholung</h3><span class="sub">Nichts fällig</span></span></div><p class="dim">Kern: 0 · Aufholen heute: 0${(ctx.state.cards ?? []).length ? ` · ${(ctx.state.cards).length} Karten im System — die nächste Fälligkeit folgt automatisch` : ''}.</p></div>`;
+      // War ein grauer Satz unter der Ueberschrift. Ein Leerzustand braucht sein
+      // Zeichen, eine Aussage und einen Weg — und die naechste Faelligkeit steht
+      // im Lernstand, man muss sie nur nachsehen.
+      const alle = ctx.state.cards ?? [];
+      const naechste = alle.map(k => k.due).filter(Number.isFinite).sort((a, b) => a - b)[0];
+      const tage = naechste ? Math.max(0, Math.ceil((naechste - Date.now()) / 86_400_000)) : null;
+      const wann = tage === null ? '' : tage === 0 ? 'noch heute'
+        : tage === 1 ? 'morgen'
+        : `in ${tage} Tagen (${new Date(naechste).toLocaleDateString('de-AT', { day: 'numeric', month: 'long' })})`;
+      view.innerHTML = `<div class="card sperr-karte"><div class="chead"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-karten"/></svg></span><span class="t"><h3>Wiederholung</h3><span class="sub">Heute nichts fällig</span></span></div>
+        <div class="leer gut">
+          <svg aria-hidden="true" class="leer-symbol"><use href="assets/icons/sprite.svg#icon-st-check"/></svg>
+          <p>${alle.length
+            ? `Alle Karten sitzen im Takt. <b>${alle.length}</b> ${alle.length === 1 ? 'Karte ist' : 'Karten sind'} im System, die nächste kommt ${wann} von selbst zurück.`
+            : 'Noch keine Karten im System — sie entstehen, während du Einheiten durcharbeitest.'}</p>
+          <a class="btn" href="${alle.length ? '#/heute' : '#/lernen'}">${alle.length ? 'Zum Tagesablauf' : 'Zur ersten Einheit'}</a>
+        </div></div>`;
       return;
     }
     const c = queue[0];
@@ -793,7 +900,7 @@ route('karten', async (view, ctx) => {
       <div class="karte-lauf"><span class="karte-lauf-bar"><i style="width:${Math.round(erledigt / Math.max(startGesamt, 1) * 100)}%"></i></span>
         <span class="karte-lauf-txt">${erledigt} von ${startGesamt} · noch <b>${gesamt}</b> ${gesamt === 1 ? 'Karte' : 'Karten'}</span></div>
       <div class="karte-blatt">
-        <div class="karte-marken"><span class="q-marke">${c.competency ?? 'ohne Kompetenz'}</span>${c.level ? `<span class="q-marke">Stufe ${c.level}</span>` : ''}<span class="q-marke ${istAufhol ? 'variante' : ''}">${istAufhol ? 'Aufholen' : 'Kern'}</span>${c.kind === 'glossar' ? '<span class="q-marke">Glossar</span>' : ''}</div>
+        <div class="karte-marken"><span class="q-marke">${c.competency ? kompetenzName(c.competency) : 'ohne Kompetenz'}</span>${c.level ? `<span class="q-marke">${stufenName(c.level)}</span>` : ''}<span class="q-marke ${istAufhol ? 'variante' : ''}">${istAufhol ? 'Aufholen' : 'Kern'}</span>${c.kind === 'glossar' ? '<span class="q-marke">Glossar</span>' : ''}</div>
         <p class="karte-front">${c.front ?? '<span class="karte-leer">Diese Karte hat keinen Fragetext — sie stammt aus einem Import oder einem Testlauf.</span>'}</p>
         <button class="btn-primary karte-flip" id="k-flip">Antwort zeigen</button>
         <div id="k-back" hidden>
@@ -834,7 +941,21 @@ import { LlmAdapter } from './llm-adapter.js';
 route('boss', async (view, ctx, [scenarioId]) => {
   const sc = await fetch('content/scenarios.json').then(r => r.json());
   const scenario = sc.scenarios.find(s => s.id === (scenarioId ?? 'sz-p2-stimmungsradar'));
-  if (!scenario) { view.innerHTML = '<div class="card"><p class="dim">Szenario nicht gefunden.</p></div>'; return; }
+  // War ein grauer Dreiwortsatz ohne Zeichen, ohne Grund, ohne Weg — und ohne
+  // die Kennung, die nicht stimmt.
+  if (!scenario) {
+    view.innerHTML = `<div class="card sperr-karte">
+      <div class="lage lage-warnung">
+        <span class="lage-symbol"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-warn"/></svg></span>
+        <div class="lage-txt">
+          <h3>Dieses Gespräch gibt es nicht</h3>
+          <p>Zu <span class="mono">${String(scenarioId ?? '—').replace(/[<>&]/g, '')}</span> ist kein Fachgespräch hinterlegt.
+          Vermutlich ein alter Verweis oder ein Tippfehler in der Adresse.</p>
+        </div>
+      </div>
+      <div class="formular-fuss"><a class="btn-primary" href="#/lernen">Zur Übersicht aller Phasen</a></div></div>`;
+    return;
+  }
   const arch = (await fetch('content/archetypes.json').then(r => r.json())).archetypes
     .find(a => a.id === scenario.persona_archetype);
   // Archetype to crew figure: artwork and persona card per conversation type
@@ -880,8 +1001,16 @@ route('boss', async (view, ctx, [scenarioId]) => {
   // No forced full height: the card grows with the conversation. Pinned to 100%
   // it kept a 490px void between the opening line and the reply box.
   wrap.style.cssText = 'display:flex;flex-direction:column';
-  wrap.innerHTML = `<div class="chead"><span class="t"><h3>${scenario.title}</h3><span class="sub">Bosskampf · ${arch?.name ?? ''}${scenario.persona.organisation ? ` · ${scenario.persona.organisation}` : ''} · Phase <span id="b-phase">1</span>/${scenario.phases.length}</span></span>
-    <span class="actions"><button id="b-next" class="btn" style="font-size:.75rem">Phase abschließen ▸</button></span></div>
+  // „Phase 1/3" stand nur als Text in der Unterzeile — bei einem Gespraech mit
+  // drei Abschnitten gehoert der Stand als Bild dazu. Und der Knopf trug das
+  // Textzeichen ▸.
+  wrap.innerHTML = `<div class="chead"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-dialog"/></svg></span>
+    <span class="t"><h3>${scenario.title}</h3><span class="sub">Fachgespräch · ${arch?.name ?? ''}${scenario.persona.organisation ? ` · ${scenario.persona.organisation}` : ''}</span></span>
+    <span class="actions"><button id="b-next" class="btn">Abschnitt abschließen
+      <svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-ui-chevron"/></svg></button></span></div>
+    <div class="boss-stand" role="img" aria-label="Abschnitt 1 von ${scenario.phases.length}">
+      ${scenario.phases.map((_, i) => `<span class="boss-punkt${i === 0 ? ' jetzt' : ''}" data-nr="${i}"></span>`).join('')}
+      <span class="boss-stand-txt">Abschnitt <b id="b-phase">1</b> von ${scenario.phases.length}</span></div>
     <div id="b-dlg" style="min-height:0"></div>`;
   view.appendChild(wrap);
   const dmount = wrap.querySelector('#b-dlg');
@@ -922,6 +1051,11 @@ route('boss', async (view, ctx, [scenarioId]) => {
   wrap.querySelector('#b-next').onclick = async () => {
     advancePhase(scenario, run);
     wrap.querySelector('#b-phase').textContent = String(run.phase_index + 1);
+    for (const p of wrap.querySelectorAll('.boss-punkt')) {
+      const nr = Number(p.dataset.nr);
+      p.classList.toggle('fertig', nr < run.phase_index);
+      p.classList.toggle('jetzt', nr === run.phase_index);
+    }
     if (run.finished) {
       // Grading: a FRESH, isolated call with only the transcript and the rubric
       dmount.innerHTML = '<p class="dim">Bewertung läuft (frischer Prüfer-Aufruf)…</p>';
@@ -939,7 +1073,7 @@ route('boss', async (view, ctx, [scenarioId]) => {
       try {
         const j = await llm.judgeBoss({ scenarioCore: { title: scenario.title, goals: scenario.goals.map(g => g.text), critical_errors: scenario.critical_errors }, rubric: scenario.rubric, transcript: run.transcript });
         dmount.innerHTML = '';
-        renderAssessmentCard(dmount, { goals: payload.goals, feedback: (solide ? 'Urteil: solide — Kapiteltest freigeschaltet. ' : 'Urteil: noch nicht solide — Wiederholung mit anderem Gesprächsverlauf empfohlen. ') + (j.feedback ?? '') });
+        renderAssessmentCard(dmount, { goals: payload.goals, feedback: (solide ? 'Das reicht: Der Kapiteltest dieser Phase ist damit frei. ' : 'Noch nicht sicher genug — ein zweites Gespräch mit anderem Verlauf bringt dich weiter. ') + (j.feedback ?? '') });
       } catch (e) { dmount.innerHTML = `<p class="dim">Bewertung fehlgeschlagen: ${e.message} — Gating-Urteil (deterministisch): ${solide ? 'solide' : 'nicht solide'}.</p>`; }
     } else {
       const hint = scenario.phases[run.phase_index].opening_hint;
@@ -963,14 +1097,22 @@ route('einstellungen', (view, ctx) => {
   c.className = 'card';
   c.innerHTML = `<div class="chead violett"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-einstellungen"/></svg></span><span class="t"><h3>Einstellungen</h3><span class="sub">Lernprofil — nachträglich änderbar; die Soll-Kurve zieht automatisch nach</span></span></div>
     <div class="formular">
-    <label class="feld"><span class="feld-name">Minuten pro Tag</span><input id="s-min" type="number" min="10" max="480" value="${st.pace?.minutesPerDay ?? 45}"></label>
-    <label class="feld"><span class="feld-name">Lerntage pro Woche</span><input id="s-days" type="number" min="1" max="7" value="${st.pace?.daysPerWeek ?? 5}"></label>
-    <label class="feld"><span class="feld-name">Wochenziel (Tage mit Lernen)</span><input id="s-goal" type="number" min="1" max="7" value="${st.week?.goalDays ?? 5}"></label>
+    <label class="feld"><span class="feld-name">Minuten pro Tag</span><input id="s-min" type="number" min="10" max="480" value="${st.pace?.minutesPerDay ?? 45}">
+      <span class="feld-hilfe">Wie viel Zeit du an einem Lerntag einplanst. Daraus rechnet die Akademie, ob dein Termin aufgeht.</span></label>
+    <label class="feld"><span class="feld-name">Lerntage pro Woche</span><input id="s-days" type="number" min="1" max="7" value="${st.pace?.daysPerWeek ?? 5}">
+      <span class="feld-hilfe">Mit wie vielen Tagen du rechnest. Zusammen mit den Minuten ergibt das dein Wochenpensum.</span></label>
+    <label class="feld"><span class="feld-name">Wochenziel</span><input id="s-goal" type="number" min="1" max="7" value="${st.week?.goalDays ?? 5}">
+      <span class="feld-hilfe">An wie vielen Tagen der Woche du dich tatsächlich melden willst. Das ist die Zahl in der Kopfleiste — sie darf niedriger sein als der Plan.</span></label>
     <label class="feld"><span class="feld-name">Meilenstein 1 (Datum)</span><input id="s-m1" type="date" value="${ms[0]?.date ?? ''}"><span class="feld-hilfe" id="s-m1-lang">${datumLang(ms[0]?.date)}</span></label>
     <label class="feld"><span class="feld-name">Meilenstein 2 (Datum)</span><input id="s-m2" type="date" value="${ms[1]?.date ?? ''}"><span class="feld-hilfe" id="s-m2-lang">${datumLang(ms[1]?.date)}</span></label>
     </div>
     <div class="formular-fuss"><span class="dim" id="s-msg"></span><button class="btn-primary" id="s-save">Speichern</button></div>
-    <p class="dim fussnote">Rechtsstand ${LEGAL_STATE.replace('Rechtsstand ', '')} · Ändern sich Modell oder Bewertungsrubrik, werden Ergebnisse ab dann getrennt gezählt.</p>`;
+    <div class="lage lage-info einst-fuss">
+      <span class="lage-symbol lage-symbol-info"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-info"/></svg></span>
+      <div class="lage-txt"><h3>Womit deine Ergebnisse verglichen werden</h3>
+        <p>Deine Ergebnisse hängen am Rechtsstand <span class="mono">${LEGAL_STATE.replace('Rechtsstand ', '')}</span> und am Modell, das sie bewertet hat.
+        Ändert sich eines von beidem, beginnt eine neue Reihe — alte und neue Ergebnisse werden dann getrennt ausgewiesen statt zu einem Durchschnitt vermischt.</p></div>
+    </div>`;
   view.appendChild(c);
   // Ausgeschriebenes Datum unter dem Feld. Ein natives Datumsfeld wird in der
   // Sprache der Browser-Anwendung dargestellt, nicht in der des Dokuments:
@@ -983,7 +1125,32 @@ route('einstellungen', (view, ctx) => {
       c.querySelector('#' + id + '-lang').textContent = datumLang(feld.value);
     });
   }
+  // Ohne Pruefung liess sich „0 Minuten pro Tag" speichern — gemessen, die
+  // Meldung sagte danach „Gespeichert". Aus einer Null wird eine Soll-Kurve, die
+  // durch Null teilt. Der Hinweis gehoert an das Feld, wie im Einrichtungs-Ablauf.
+  const zeigeFehler = (feld, text) => {
+    feld.setAttribute('aria-invalid', 'true');
+    const hinweis = document.createElement('span');
+    hinweis.className = 'feld-fehler';
+    hinweis.innerHTML = '<svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-warn"/></svg>'
+      + `<span>${text}</span>`;
+    feld.closest('.feld').appendChild(hinweis);
+    feld.focus();
+  };
   c.querySelector('#s-save').onclick = () => {
+    for (const alt of c.querySelectorAll('.feld-fehler')) alt.remove();
+    for (const f of c.querySelectorAll('[aria-invalid]')) f.removeAttribute('aria-invalid');
+    c.querySelector('#s-msg').textContent = '';
+    const pruefungen = [
+      ['#s-min', 10, 480, 'Zwischen 10 und 480 Minuten — darunter trägt ein Lerntag nichts, darüber hält es niemand durch.'],
+      ['#s-days', 1, 7, 'Zwischen 1 und 7 Tagen.'],
+      ['#s-goal', 1, 7, 'Zwischen 1 und 7 Tagen.'],
+    ];
+    for (const [sel, min, max, text] of pruefungen) {
+      const feld = c.querySelector(sel);
+      const wert = Number(feld.value);
+      if (!Number.isFinite(wert) || wert < min || wert > max) { zeigeFehler(feld, text); return; }
+    }
     st.pace = { minutesPerDay: +c.querySelector('#s-min').value, daysPerWeek: +c.querySelector('#s-days').value };
     st.week = { ...(st.week ?? {}), goalDays: +c.querySelector('#s-goal').value };
     const m1 = c.querySelector('#s-m1').value, m2 = c.querySelector('#s-m2').value;

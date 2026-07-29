@@ -98,7 +98,8 @@ test.describe('first launch', () => {
     await warteAufAnsicht(page);
 
     const kopf = await page.evaluate(() => document.getElementById('view').innerText);
-    expect(kopf, 'onboarding does not show its steps').toMatch(/Schritt 1\/\d/);
+    // Der Zähler steht seit dem Design-Durchgang ausgeschrieben: „Schritt 1 von 7".
+    expect(kopf, 'onboarding does not show its steps').toMatch(/Schritt 1 von \d/);
     expect(kopf, 'onboarding does not report the connection state').toMatch(/Bridge|CLI|Modell/i);
 
     // Three steps, not ten. What this test asserts is that the wizard advances at
@@ -172,7 +173,8 @@ test.describe('first launch', () => {
     await schritt({ 'ob-ziel': '2026-08-15', 'ob-min': '20', 'ob-tage': '2' });
     text = await page.evaluate(() => document.getElementById('view').innerText);
     expect(text, 'an impossible plan is waved through').toMatch(/geht sich nicht aus/);
-    expect(text, 'it does not say what is missing').toMatch(/Es fehlen rund [\d,]+ Stunden/);
+    // Die Fehlmenge steht seit dem Design-Durchgang als Kernzahl da: „31 / Stunden fehlen".
+    expect(text, 'it does not say what is missing').toMatch(/[\d,]+\s*Stunden fehlen|Es fehlen rund [\d,]+ Stunden/);
     expect(text).not.toMatch(/undefined|NaN/);
   });
 });

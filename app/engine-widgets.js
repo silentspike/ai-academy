@@ -102,7 +102,12 @@ export function renderTimeline(mount, milestones, opts = {}) {
   // considerably wider than average. Hence two passes: insert every label first,
   // then measure its ACTUAL width, and only then assign the row.
 
-  const ZEILEN = 5, ZEILENHOEHE = 20, OBEN = 34, ABSTAND = 8;
+  // Fuenf feste Zeilen reichten nicht: fand eine Beschriftung keine freie Zeile,
+  // wurde sie gekuerzt — und wenn selbst der Rest nicht passte, brach die Schleife
+  // ab und zwei Beschriftungen standen uebereinander (gemessen an der Omnibus-
+  // Einheit: „Art. 6 Abs. 5 …" und „NEUE A…"). Jetzt waechst die Zeilenzahl, bis
+  // jede Beschriftung Platz hat; die Grafik wird entsprechend hoeher.
+  const ZEILENHOEHE = 20, OBEN = 34, ABSTAND = 8;
   const cy = H - 56;
   const gruppen = sorted.map(m => {
     const cx = x(m.date);
@@ -110,7 +115,9 @@ export function renderTimeline(mount, milestones, opts = {}) {
     g.classList.add('tl-m');
     g.dataset.mid = m.id;
     g.innerHTML =
-      `<title>${m.label}${m.detail ? ' — ' + m.detail : ''}</title>` +
+      // Der Titel zeigt die volle Angabe, wenn es eine gibt — sonst wiederholte er
+      // nur die gekuerzte Beschriftung, die daneben ohnehin steht.
+      `<title>${m.detail ?? m.label}</title>` +
       `<line x1="${cx}" y1="0" x2="${cx}" y2="${cy}" stroke="rgba(151,169,202,.28)" stroke-dasharray="2 3"/>` +
       `<circle cx="${cx}" cy="${cy}" r="5" fill="${m.changed_by_omnibus ? '#e1ad58' : '#65d8b2'}"/>` +
       (m.changed_by_omnibus ? `<circle cx="${cx}" cy="${cy}" r="8.5" fill="none" stroke="rgba(225,173,88,.4)"/>` : '') +
@@ -135,27 +142,53 @@ export function renderTimeline(mount, milestones, opts = {}) {
     return b || text.textContent.length * 6;
   };
 
-  const belegtBis = new Array(ZEILEN).fill(-Infinity);
+  const belegtBis = [-Infinity, -Infinity, -Infinity, -Infinity, -Infinity];
   for (const { m, g, cx } of gruppen) {
     const text = g.querySelector('text');
     let breite = messen(text);
     let lane = belegtBis.findIndex(kante => cx - breite / 2 > kante + ABSTAND);
     if (lane === -1) {
-      // No free row: take the one ending furthest left and shorten the label until
-      // it no longer collides. The full text is not lost — it sits in the <title>
-      // and shows up as a tooltip.
-      lane = belegtBis.indexOf(Math.min(...belegtBis));
+      // Erst kuerzen — die volle Angabe bleibt im <title> und erscheint beim
+      // Ueberfahren. Passt auch die gekuerzte Fassung nirgends, kommt eine
+      // Zeile dazu, statt zwei Beschriftungen uebereinanderzudrucken.
+      const kuerzeste = belegtBis.indexOf(Math.min(...belegtBis));
       let txt = String(m.label);
-      while (txt.length > 6 && cx - breite / 2 <= belegtBis[lane] + ABSTAND) {
+      while (txt.length > 6 && cx - breite / 2 <= belegtBis[kuerzeste] + ABSTAND) {
         txt = txt.replace(/[…\s]*.$/, '');
         text.textContent = txt + '…';
         breite = messen(text);
+      }
+      if (cx - breite / 2 > belegtBis[kuerzeste] + ABSTAND) {
+        lane = kuerzeste;
+      } else {
+        text.textContent = String(m.label);           // neue Zeile: ungekuerzt zeigen
+        breite = messen(text);
+        belegtBis.push(-Infinity);
+        lane = belegtBis.length - 1;
       }
     }
     belegtBis[lane] = cx + breite / 2;
     const ty = OBEN + lane * ZEILENHOEHE;
     text.setAttribute('y', ty);
     g.querySelector('line').setAttribute('y1', ty + 6);
+  }
+  // Die Hoehe war auf fuenf Zeilen festgelegt; kommen Zeilen dazu, muessen
+  // Zeichenflaeche und Achse mitwachsen, sonst stehen sie ausserhalb.
+  const zusatz = Math.max(0, belegtBis.length - 5) * ZEILENHOEHE;
+  if (zusatz) {
+    const HN = H + zusatz;
+    svg.setAttribute('viewBox', `0 0 ${W} ${HN}`);
+    for (const el of svg.querySelectorAll('line, text, circle, g')) {
+      for (const attr of ['y1', 'y2', 'y', 'cy']) {
+        const v = el.getAttribute(attr);
+        if (v === null) continue;
+        const zahl = Number(v);
+        if (!Number.isFinite(zahl)) continue;
+        // Alles, was an der Achse oder darunter haengt, rutscht mit; die
+        // Beschriftungszeilen oben bleiben, wo sie sind.
+        if (zahl >= cy) el.setAttribute(attr, String(zahl + zusatz));
+      }
+    }
   }
   return svg;
 }
@@ -173,8 +206,13 @@ export function renderAnnexExplorer(mount, areas, opts = {}) {
     card.innerHTML = `<span class="annex-nr">${a.nr}</span><span class="annex-t">${a.title}</span>` +
       (a.org_relevant ? '<span class="annex-flag">relevant für dein Profil</span>' : '');
     card.addEventListener('click', () => {
+      // Die gewaehlte Kachel war von den uebrigen nicht zu unterscheiden — man
+      // sah den Text unten, aber nicht, wo er herkam.
+      for (const andere of wrap.querySelectorAll('.annex-item')) andere.classList.remove('gewaehlt');
+      card.classList.add('gewaehlt');
       detail.innerHTML = `<h4>Anhang III Nr. ${a.nr} — ${a.title}</h4><p>${a.simple}</p>` +
-        (a.examples?.length ? `<ul>${a.examples.map(e => `<li>${e}</li>`).join('')}</ul>` : '') +
+        // Standard-Aufzaehlung mit runden Punkten war die letzte im Werkzeug.
+        (a.examples?.length ? `<ul class="annex-bsp">${a.examples.map(e => `<li>${e}</li>`).join('')}</ul>` : '') +
         `<span class="mono" data-hilfsmittel>${a.legal_basis ?? ''}</span>`;
       opts.onSelect?.(a);
     });
@@ -237,10 +275,17 @@ export function renderRoleSwitch(mount, steps, opts = {}) {
       }));
     }
     if (state.done) {
-      wrap.appendChild(Object.assign(doc.createElement('div'), {
-        className: 'rolesw-result card',
-        innerHTML: `<b>Ergebnis:</b> ${state.result}`
-      }));
+      // Das Ergebnis begann mit fettem Fliesstext, und danach gab es keinen Weg
+      // zurueck: Wer den anderen Zweig sehen wollte, musste die Seite neu laden.
+      const erg = doc.createElement('div');
+      erg.className = 'rolesw-result card';
+      erg.innerHTML = `<div class="lage">
+          <span class="lage-symbol lage-symbol-info"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-fach-rollen"/></svg></span>
+          <div class="lage-txt"><h3>Ergebnis</h3><p>${state.result}</p></div>
+        </div>
+        <div class="formular-fuss"><button class="btn" data-act="neu">Anderen Weg durchspielen</button></div>`;
+      erg.querySelector('[data-act=neu]').addEventListener('click', () => { answers.clear(); paint(); });
+      wrap.appendChild(erg);
       opts.onResult?.(state);
     } else if (state.at) {
       const s = steps.find(x => x.id === state.at);

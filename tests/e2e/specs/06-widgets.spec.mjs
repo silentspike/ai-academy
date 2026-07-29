@@ -123,7 +123,10 @@ test.describe('interactive widgets', () => {
     // worse than none, because it suggests an answer that never comes.
     let schritte = 0;
     for (let i = 0; i < 8; i++) {
-      const knopf = page.locator('.rolesw button:visible:not([disabled])').first();
+      // „Anderen Weg durchspielen" (data-act=neu) kam mit dem Design-Durchgang dazu.
+      // Ohne diesen Ausschluss klickt die Schleife das Ergebnis wieder weg und
+      // landet erneut bei Frage 1 — geprueft wuerde dann die erste Frage.
+      const knopf = page.locator('.rolesw button:visible:not([disabled]):not([data-act=neu])').first();
       if (!await knopf.count()) break;
       await klicke(page, knopf, `#/einheit/${wo}`);
       await page.waitForTimeout(250);

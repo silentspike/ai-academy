@@ -80,3 +80,45 @@ export function weakestCompetencies(agg, limit = 3) {
     .slice(0, limit)
     .map(([id, c]) => ({ id, score: c.score, weakestLevel: c.weakest, sureButWrong: c.sureButWrong }));
 }
+
+// --- Beschriftungen für die Oberfläche ---------------------------------
+// Kürzel wie „K06" und „Stufe A" sind unser internes Vokabular; auf dem
+// Bildschirm steht, was gemeint ist.
+export const STUFEN_NAME = { A: 'erinnern', B: 'anwenden', C: 'Grenzfall' };
+
+export function stufenName(level) {
+  return STUFEN_NAME[level] ?? level ?? '';
+}
+
+// Klarnamen einmal laden und merken — die Marken werden synchron gezeichnet.
+let _komp = [];
+let _kompLauf = null;
+
+export function setKompetenzen(liste) { if (liste?.length) _komp = liste; }
+
+export function ladeKompetenzen(fetchFn = fetch) {
+  if (_komp.length) return Promise.resolve(_komp);
+  _kompLauf ??= fetchFn('content/competencies.json')
+    .then(r => r.json())
+    .then(d => { setKompetenzen(d.kompetenzen); return _komp; })
+    .catch(() => _komp);
+  return _kompLauf;
+}
+
+/** id → Klarname aus competencies.json; fällt auf die id zurück. */
+export function kompetenzName(id, liste = null) {
+  const l = liste?.length ? liste : _komp;
+  return l.find(k => k.id === id)?.name ?? id ?? '';
+}
+
+// Phasenkuerzel („p3") sind Datei- und Datenschluessel, keine Beschriftung.
+export const PHASEN_NAME = Object.freeze({
+  p1: 'Phase 1 · Fundament', p2: 'Phase 2 · Verbote', p3: 'Phase 3 · Einstufung',
+  p4: 'Phase 4 · Pflichten', p5: 'Phase 5 · Transparenz', p6: 'Phase 6 · GPAI',
+  p7: 'Phase 7 · Aufsicht', p8: 'Phase 8 · Randwissen', p9: 'Phase 9 · Ländermodul AT',
+  p10: 'Phase 10 · Auslegung'
+});
+
+export function phasenName(id) {
+  return PHASEN_NAME[String(id ?? '').toLowerCase()] ?? String(id ?? '').toUpperCase();
+}

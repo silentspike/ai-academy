@@ -53,7 +53,7 @@ test.describe('simulation', () => {
     expect(await banner.innerText()).toMatch(/Simulation/);
 
     const text = await page.evaluate(() => document.getElementById('view').innerText);
-    expect(text, 'the exam is still locked in simulation').not.toMatch(/Examens-Gate \(Schloss aktiv\)/);
+    expect(text, 'the exam is still locked in simulation').not.toMatch(/Das Examen ist noch zu/);
     await expect(page.locator('#view button:has-text("Examen starten")')).toBeVisible();
 
     // The interface has to agree with the behaviour. It did not: the sidebar
@@ -116,7 +116,7 @@ test.describe('simulation', () => {
 
     await expect(page.locator('#sim-banner')).toBeHidden();
     const examen = await page.evaluate(() => document.getElementById('view').innerText);
-    expect(examen, 'the exam gate does not hold without simulation').toMatch(/Examens-Gate \(Schloss aktiv\)/);
+    expect(examen, 'the exam gate does not hold without simulation').toMatch(/Das Examen ist noch zu/);
     await expect(page.locator('#nav-examen')).toHaveClass(/state-locked/);
 
     await page.goto('/#/test/p3', { waitUntil: 'load' });

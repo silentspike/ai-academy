@@ -109,7 +109,12 @@ export function applyMode(root, mode) {
 
 // ---------- Rendering (Browser) ----------
 
-const ICON = { correct: '✓', partial: '≈', wrong: '✕' };
+// Zeichen aus dem eigenen Satz statt Textzeichen — ✓ ≈ ✕ standen im Feedback,
+// in einem Werkzeug, das fuer jeden Zustand ein Symbol hat.
+const ICON_ID = { correct: 'icon-st-check', partial: 'icon-st-retention', wrong: 'icon-st-x' };
+const zeichen = v => ICON_ID[v]
+  ? `<svg class="fb-sym" aria-hidden="true"><use href="assets/icons/sprite.svg#${ICON_ID[v]}"/></svg>`
+  : '';
 
 /**
  * Renders a question into `mount`. opts: {mode, onAnswered(result, confidence)}.
@@ -123,9 +128,13 @@ export function renderQuestion(mount, question, opts = {}) {
   el.dataset.qid = question.id;
 
   if (question.scenario) {
+    // Der Sachverhalt stand ohne Marke da und las sich wie ein Vorsatz der Frage.
+    // Jede andere Flaeche im Werkzeug sagt, was sie ist.
     const sc = doc.createElement('div');
     sc.className = 'q-scenario card';
-    sc.textContent = question.scenario;
+    sc.innerHTML = '<div class="unit-tag"><svg class="ut-sym" aria-hidden="true">'
+      + '<use href="assets/icons/sprite.svg#icon-fach-doku"/></svg>Sachverhalt</div>'
+      + `<p>${question.scenario.replace(/</g, '&lt;')}</p>`;
     el.appendChild(sc);
   }
   const p = doc.createElement('div');
@@ -139,19 +148,29 @@ export function renderQuestion(mount, question, opts = {}) {
     ta.placeholder = 'Einstufung + Begründung mit Fundstellen …';
     const note = doc.createElement('div');
     note.className = 'q-privacy';
-    note.textContent = 'Hinweis: Freitext geht zur Bewertung an den LLM-Anbieter — keine echten Personendaten oder Organisations-Interna eingeben.';
+    note.textContent = 'Dein Text geht zur Bewertung an das verbundene KI-Modell. Also keine echten Namen, Aktenzahlen oder Interna aus deiner Organisation hineinschreiben.';
     const btn = doc.createElement('button');
     btn.className = 'btn-primary'; btn.textContent = 'Zur Bewertung einreichen';
     btn.addEventListener('click', () => {
       const result = grade(question, { text: ta.value });
       showConfidence(doc, el, conf => opts.onAnswered?.(result, conf));
     });
-    el.append(ta, note, btn);
+    // Der Knopf lief quer ueber die ganze Karte — in einer Fusszeile rechts ist
+    // er das, was er ist: der Abschluss der Eingabe, nicht ein zweites Feld.
+    const fussFT = doc.createElement('div');
+    fussFT.className = 'formular-fuss';
+    fussFT.appendChild(btn);
+    el.append(ta, note, fussFT);
   } else if (question.type === 'assign') {
     // Assignment UI without forced dragging: click the right-hand option for each left-hand term.
     const pairs = question.pairs ?? [];
     const rights = [...new Set([...pairs.map(p => p.right), ...(question.distractors ?? [])])];
     const ist = {};
+    // Anleitung: die Zuordnung erklaerte sich bisher nur aus dem Fragetext.
+    const hinweis = doc.createElement('p');
+    hinweis.className = 'q-multi-hinweis';
+    hinweis.textContent = 'Für jeden Begriff links die passende Beschreibung wählen — die Auswahl lässt sich bis zum Bestätigen ändern.';
+    el.appendChild(hinweis);
     const wrap = doc.createElement('div');
     wrap.className = 'q-assign';
     for (const p of pairs) {
@@ -163,7 +182,11 @@ export function renderQuestion(mount, question, opts = {}) {
       opts_.className = 'q-assign-opts';
       for (const r of rights) {
         const b = doc.createElement('button');
-        b.className = 'q-opt q-assign-opt'; b.textContent = r;
+        // Eigene Huelle wie bei den uebrigen Antworten: sonst wird jeder
+        // Glossarbegriff im Text zu einem eigenen Flex-Kind und die Zeile
+        // zerfaellt in Spalten (im Bild gesehen).
+        b.className = 'q-opt q-assign-opt';
+        b.innerHTML = `<span class="q-opt-txt">${r}</span>`;
         b.addEventListener('click', () => {
           ist[p.left] = r;
           [...opts_.children].forEach(x => x.classList.remove('sel'));
@@ -174,6 +197,8 @@ export function renderQuestion(mount, question, opts = {}) {
       row.append(left, opts_);
       wrap.appendChild(row);
     }
+    const fuss = doc.createElement('div');
+    fuss.className = 'formular-fuss';
     const done = doc.createElement('button');
     done.className = 'btn-primary'; done.textContent = 'Zuordnung bestätigen';
     done.addEventListener('click', () => {
@@ -185,28 +210,51 @@ export function renderQuestion(mount, question, opts = {}) {
         opts.onAnswered?.(result, conf);
       });
     });
-    el.append(wrap, done);
+    fuss.appendChild(done);
+    el.append(wrap, fuss);
   } else {
     const multi = question.type === 'multi';
     const list = doc.createElement('div');
     list.className = 'q-options';
+    // Nichts sagte, dass hier mehrere Antworten gemeint sind — das stand nur im
+    // Fragetext, wenn er es zufaellig erwaehnte.
+    if (multi) {
+      const hinweis = doc.createElement('p');
+      hinweis.className = 'q-multi-hinweis';
+      hinweis.textContent = 'Mehrfachauswahl — wähle alle zutreffenden Antworten und bestätige dann.';
+      el.appendChild(hinweis);
+    }
     const chosen = new Set();
     for (const [i, o] of question.options.entries()) {
       const b = doc.createElement('button');
       b.className = 'q-opt'; b.dataset.oid = o.id;
-      b.innerHTML = `<span class="q-key">${i + 1}</span> ${renderOptionText(o)}`;
+      // Der Antworttext in einer eigenen Huelle: `.q-opt` ist ein Flex-Streifen
+      // (Ziffer + Text). Ohne Huelle wird jeder Glossarbegriff im Text ein
+      // eigenes Flex-Kind — im Bild zerfiel eine Antwort in drei Spalten.
+      b.innerHTML = `<span class="q-key">${i + 1}</span><span class="q-opt-txt">${renderOptionText(o)}</span>`;
       b.addEventListener('click', () => {
         if (multi) { b.classList.toggle('sel'); chosen.has(o.id) ? chosen.delete(o.id) : chosen.add(o.id); }
-        else finish({ optionId: o.id });
+        else {
+          // Bis zur Rueckmeldung war nicht mehr zu sehen, was man gewaehlt hat:
+          // waehrend der Sicherheits-Abfrage standen alle vier Antworten gleich
+          // gedaempft da (im Bild gesehen).
+          b.classList.add('sel');
+          finish({ optionId: o.id });
+        }
       });
       list.appendChild(b);
     }
     el.appendChild(list);
     if (multi) {
+      // In eine Fusszeile: quer ueber die ganze Karte sah der Knopf aus wie eine
+      // fuenfte Antwortmoeglichkeit.
+      const fuss = doc.createElement('div');
+      fuss.className = 'formular-fuss';
       const done = doc.createElement('button');
       done.className = 'btn-primary'; done.textContent = 'Auswahl bestätigen';
       done.addEventListener('click', () => finish({ optionIds: [...chosen] }));
-      el.appendChild(done);
+      fuss.appendChild(done);
+      el.appendChild(fuss);
     }
     // Tastatur 1–4 + Enter (#43)
     el.tabIndex = 0;
@@ -276,7 +324,7 @@ function paintFeedback(doc, el, question, result) {
     const fb = doc.createElement('div');
     fb.className = `q-feedback q-${result.verdict}`;
     const soll = (result.expectedPairs ?? []).map(([l, r]) => `${l} → ${r}`).join(' · ');
-    fb.innerHTML = `<b>${result.verdict === 'correct' ? '✓ Alle Zuordnungen richtig.' : result.verdict === 'partial' ? '◐ Teilweise richtig.' : '✕ Nicht richtig.'}</b>` +
+    fb.innerHTML = `<b class="fb-kopf">${zeichen(result.verdict)}${result.verdict === 'correct' ? 'Alle Zuordnungen richtig.' : result.verdict === 'partial' ? 'Teilweise richtig.' : 'Nicht richtig.'}</b>` +
       `<div class="dim">Richtige Zuordnung: ${soll}</div>` +
       (result.trap?.is_trap ? `<div class="q-trapnote">⚠ Fangfrage: ${escapeHtml(result.trap.note)}</div>` : '') +
       '<span class="grade-label mono">Bewertungstyp: deterministisch · Rechtsstand 27.7.2026</span>';
@@ -290,11 +338,11 @@ function paintFeedback(doc, el, question, result) {
   }
   const fb = doc.createElement('div');
   fb.className = `q-feedback q-${result.verdict}`;
-  let html = `<b>${ICON[result.verdict] ?? ''} ${
+  let html = `<b class="fb-kopf">${zeichen(result.verdict)}${
     result.verdict === 'correct' ? 'Richtig.' : result.verdict === 'partial' ? 'Teilweise richtig.' : 'Nicht richtig.'}</b>`;
   const expl = question.options.filter(o => o.correct && o.rationale).map(o => escapeHtml(o.rationale));
   if (expl.length) html += ` ${expl.join(' ')}`;
-  if (result.trap) html += `<div class="q-trapnote">⚠ Fangfrage: ${escapeHtml(result.trap.note)}</div>`;
+  if (result.trap) html += `<div class="q-trapnote"><svg class="fb-sym" aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-warn"/></svg>Fangfrage: ${escapeHtml(result.trap.note)}</div>`;
   if (result.critical_error) html += `<div class="q-critical">Critical Error: ${escapeHtml(result.critical_error.reason)}</div>`;
   fb.innerHTML = html;
   fb.insertAdjacentHTML('beforeend', '<span class="grade-label mono">Bewertungstyp: deterministisch · Rechtsstand 27.7.2026</span>');

@@ -16,19 +16,27 @@
   h1 { font-size:var(--fs-xl); background:var(--grad-brand);
        -webkit-background-clip:text; background-clip:text; color:transparent; margin-bottom:.35rem; }
   .sub { color:var(--dim); margin-bottom:1.6rem; font-size:.9rem; line-height:1.6; max-width:60ch; }
-  .check { display:flex; gap:.8rem; align-items:baseline; padding:.6rem 0;
+  .check { display:flex; gap:.8rem; align-items:center; padding:.6rem 0;
            border-bottom:1px solid var(--line); font-size:.9rem; }
   .check:last-of-type { border-bottom:0; }
-  .dot { width:.6rem; height:.6rem; border-radius:50%; flex:none; align-self:center; }
-  .ok .dot      { background:var(--emerald); box-shadow:0 0 0 3px rgba(101,216,178,.14); }
-  .warn .dot    { background:var(--amber);   box-shadow:0 0 0 3px rgba(225,173,88,.14); }
-  .fail .dot,
-  .blocked .dot { background:var(--red);     box-shadow:0 0 0 3px rgba(217,117,104,.14); }
-  .skipped .dot { background:var(--faint); }
+  /* Der Zustand stand als farbiger Punkt da — dieselbe Form fuer bestanden,
+     gewarnt und gescheitert. Jetzt traegt jede Zeile ihr Zeichen. */
+  .check .ut-sym { flex:none; width:1.05rem; height:1.05rem; }
+  .ok .ut-sym      { color:var(--emerald); }
+  .warn .ut-sym    { color:var(--amber); }
+  .fail .ut-sym,
+  .blocked .ut-sym { color:var(--red); }
+  .skipped .ut-sym { color:var(--faint); }
   .lbl { min-width:15rem; font-weight:500; }
   .det { color:var(--faint); font-size:.8rem; }
-  #ampel { margin:1.4rem 0 0; padding:.85rem 1.1rem; border-radius:10px; font-weight:600;
-           font-family:var(--font-display); font-size:.95rem; border:1px solid transparent; }
+  /* Die Ampel war ein Textstreifen, der ihre Farbe im Wort wiederholte
+     („GRUEN — …"). Jetzt Zeichen, Aussage, und bei Gruen der Weg weiter. */
+  #ampel { display:flex; gap:.8rem; align-items:center; margin:1.4rem 0 0;
+           padding:.85rem 1.1rem; border-radius:10px; border:1px solid transparent; }
+  #ampel .ut-sym { flex:none; width:1.4rem; height:1.4rem; }
+  #ampel b { font-family:var(--font-display); font-size:.95rem; display:block; }
+  #ampel p { margin:.15rem 0 0; font-size:.83rem; color:var(--dim); }
+  #ampel .a-txt { flex:1; }
   #ampel.ok      { background:rgba(101,216,178,.08); color:var(--emerald); border-color:rgba(101,216,178,.3); }
   #ampel.warn    { background:rgba(225,173,88,.08);  color:var(--amber);   border-color:rgba(225,173,88,.3); }
   #ampel.blocked,
@@ -36,27 +44,41 @@
   .btns { display:flex; gap:.6rem; margin-top:1.4rem; flex-wrap:wrap;
           padding-top:1.2rem; border-top:1px solid var(--line); }
   input[type=file] { display:none; }
+  #datei-hinweis { display:flex; gap:.7rem; align-items:flex-start; margin-top:1rem;
+    padding:.7rem .9rem; border-radius:10px; font-size:.85rem; line-height:1.55;
+    border:1px solid var(--line); background:rgba(151,169,202,.04); color:var(--dim); }
+  #datei-hinweis .ut-sym { flex:none; width:1.1rem; height:1.1rem; margin-top:.12rem; }
+  #datei-hinweis.gut  { border-color:rgba(101,216,178,.3); background:rgba(101,216,178,.06); }
+  #datei-hinweis.gut .ut-sym  { color:var(--emerald); }
+  #datei-hinweis.acht { border-color:rgba(225,173,88,.3);  background:rgba(225,173,88,.06); }
+  #datei-hinweis.acht .ut-sym { color:var(--amber); }
+  #datei-hinweis.schlecht { border-color:rgba(217,117,104,.32); background:rgba(217,117,104,.06); }
+  #datei-hinweis.schlecht .ut-sym { color:var(--red); }
 </style>
 </head>
 <body>
 <div class="bg-layers"><div class="bg-aurora a"></div><div class="bg-aurora b"></div><div class="bg-aurora c"></div><div class="bg-grid"></div><div class="bg-vignette"></div></div>
 <div class="card sc-karte">
   <h1>AI-Act-Akademie</h1>
-  <div class="sub">Self-Check — vor dem ersten Lernen. Es antwortet ein KI-System;
-    Bewertungen tragen Modell- und Rubrik-Label (Art.-50-Transparenz).</div>
-  <div id="checks">Self-Check läuft …</div>
+  <div class="sub">Die Selbstprüfung — sie läuft einmal vor dem ersten Lernen und sagt dir,
+    ob alles bereit ist. In dieser Akademie antwortet ein KI-Modell; jede Bewertung ist
+    mit Modell, Rubrikfassung und Rechtsstand gekennzeichnet.</div>
+  <div id="checks">Die Prüfung läuft …</div>
   <div id="ampel"></div>
   <div class="btns">
-    <button id="btn-recheck">Self-Check erneut</button>
-    <button id="btn-diag">Diagnose-Export</button>
+    <button id="btn-recheck">Noch einmal prüfen</button>
+    <button id="btn-diag">Diagnose-Datei speichern</button>
     <button id="btn-export">Lernstand exportieren</button>
     <button id="btn-import">Lernstand importieren</button>
     <input type="file" id="file-import" accept="application/json">
   </div>
   <!-- Rückmeldung auf der Seite statt im Browser-Dialog: Ein Alert blockiert die
        Seite, verlässt die Gestaltung und ist beim Export der schlechteste Ort für
-       einen Hinweis, den man lesen soll, bevor man die Datei weitergibt. -->
-  <p id="datei-hinweis" class="sub" role="status" hidden></p>
+       einen Hinweis, den man lesen soll, bevor man die Datei weitergibt.
+       Sie stand als grauer Fließtext in derselben Klasse wie der Einleitungssatz —
+       also nicht als Antwort auf eine Handlung erkennbar. Jetzt eine eigene Zeile
+       mit Zeichen und Ton. -->
+  <div id="datei-hinweis" role="status" hidden></div>
 </div>
 <script>window.BRIDGE_TOKEN = '__BRIDGE_TOKEN__';</script>
 <script type="module">
@@ -69,22 +91,34 @@
   let storage = StorageAdapter.bridgeStore({});
   let lastResult = null;
 
-  const AMPEL_TEXT = {
-    ok: 'GRÜN — alles bereit. Viel Erfolg!',
-    warn: 'GELB — nutzbar, mit Einschränkungen (Details oben).',
-    blocked: 'ROT — Prüfungen GESPERRT (Frontier-Gate). Lernen mit deterministischen Teilen möglich.',
-    fail: 'ROT — Grundfunktion gestört. Diagnose-Export an deinen Setup-Agent geben.',
+  // Die Farbe steht im Rand — im Text stand sie noch einmal als Wort („GRÜN — …").
+  // Jetzt: Zeichen, ein Satz, was das bedeutet, und bei Grün der Weg hinein.
+  const AMPEL = {
+    ok:      ['icon-st-check',  'Alles bereit',            'Verbindung, Modell, Bewertung und Speicher haben bestanden.'],
+    warn:    ['icon-st-warn',   'Nutzbar, mit Abstrichen', 'Eine Prüfung ist nicht sauber durchgelaufen — die Zeile darüber sagt, welche.'],
+    blocked: ['icon-st-lock',   'Prüfungen sind gesperrt', 'Das verbundene Modell wird nicht unterstützt. Lernen geht, Prüfungen zählen nicht.'],
+    fail:    ['icon-st-x',      'Etwas Grundlegendes fehlt', 'Speichere die Diagnose-Datei und gib sie deinem Einrichtungs-Agenten.'],
   };
 
+  const ZEICHEN = { ok: 'icon-st-check', warn: 'icon-st-warn', blocked: 'icon-st-lock',
+                    fail: 'icon-st-x', skipped: 'icon-act-weiter' };
+  const sym = (id, klasse = 'ut-sym') =>
+    `<svg class="${klasse}" aria-hidden="true"><use href="assets/icons/sprite.svg#${id}"/></svg>`;
+
   async function run() {
-    document.getElementById('checks').textContent = 'Self-Check läuft …';
+    document.getElementById('checks').textContent = 'Die Prüfung läuft …';
     try { await llm.refreshHealth(); } catch { storage = StorageAdapter.localStorage(); }
     lastResult = await runSelfCheck({ llm, storage });
     document.getElementById('checks').innerHTML = lastResult.checks.map(c =>
-      `<div class="check ${c.status}"><span class="dot"></span><span class="lbl">${c.label}</span><span class="det">${c.detail}</span></div>`).join('');
+      `<div class="check ${c.status}">${sym(ZEICHEN[c.status] ?? 'icon-st-info')}<span class="lbl">${c.label}</span><span class="det">${c.detail}</span></div>`).join('');
     const a = document.getElementById('ampel');
+    const [ikon, titel, satz] = AMPEL[lastResult.ampel];
     a.className = lastResult.ampel;
-    a.textContent = AMPEL_TEXT[lastResult.ampel];
+    a.innerHTML = `${sym(ikon)}<span class="a-txt"><b>${titel}</b><p>${satz}</p></span>` +
+      // Der Hauptknopf traegt die Farbe der Akademie — in einer roten Lage
+      // wuerde er der Lage widersprechen; dort ist es ein normaler Knopf.
+      (lastResult.ampel === 'fail' ? ''
+        : `<a class="${lastResult.ampel === 'ok' ? 'btn-primary' : 'btn'}" href="index.html">Zur Akademie</a>`);
     a.dataset.summative = String(lastResult.summativeAllowed);
   }
 
@@ -96,20 +130,41 @@
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob); link.download = 'akademie-diagnose.json'; link.click();
     URL.revokeObjectURL(link.href);
+    // Der Knopf tat sichtbar nichts — die Datei landet im Download-Ordner, ohne dass
+    // die Seite es bestaetigt. Genau dieser Knopf wird im Stoerfall gebraucht.
+    melde('gut', 'Diagnose gespeichert als „akademie-diagnose.json" — sie enthält keine Zugangsdaten und keine Lerninhalte. Gib sie deinem Einrichtungs-Agenten.');
   };
-  const melde = (text) => {
+  const TON = { gut: 'icon-st-check', acht: 'icon-st-warn', schlecht: 'icon-st-x' };
+  const melde = (ton, text) => {
     const el = document.getElementById('datei-hinweis');
-    el.textContent = text; el.hidden = false;
+    el.className = ton;
+    // Der Text kann aus der Umgebung stammen — der Name einer gewaehlten Datei
+    // waere sonst Markup, das die Seite ausfuehrt. Zeichen als Knoten, Text als
+    // Text: dann gibt es nichts zu deuten.
+    el.replaceChildren();
+    el.insertAdjacentHTML('beforeend', sym(TON[ton]));
+    const huelle = document.createElement('span');
+    huelle.textContent = text;
+    el.appendChild(huelle);
+    el.hidden = false;
   };
   document.getElementById('btn-export').onclick = async () => {
     storage.downloadExport(await storage.exportAll());
-    melde('Datei gespeichert. Sie enthält deine Antworten und Notizen — gib sie nur weiter, wenn du das willst.');
+    melde('acht', 'Datei gespeichert. Sie enthält deine Antworten und Notizen — gib sie nur weiter, wenn du das willst.');
   };
   document.getElementById('btn-import').onclick = () => document.getElementById('file-import').click();
   document.getElementById('file-import').onchange = async (e) => {
     const f = e.target.files[0]; if (!f) return;
-    await storage.importAll(JSON.parse(await f.text()));
-    melde('Import abgeschlossen — der Lernstand aus der Datei ist übernommen.');
+    // Eine fremde oder beschaedigte Datei liess das Einlesen unbehandelt scheitern:
+    // der Knopf tat sichtbar nichts, und niemand erfuhr warum.
+    try {
+      await storage.importAll(JSON.parse(await f.text()));
+      melde('gut', 'Lernstand übernommen — die Akademie startet ab jetzt mit dem Stand aus dieser Datei.');
+    } catch {
+      melde('schlecht', `„${f.name}" lässt sich nicht lesen. Erwartet wird die Datei, die „Lernstand exportieren" erzeugt hat.`);
+    } finally {
+      e.target.value = '';                 // dieselbe Datei laesst sich sonst kein zweites Mal waehlen
+    }
   };
 
   run();

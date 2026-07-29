@@ -2,7 +2,8 @@
 // placement, remediation, appeal and the personal record of learning.
 // The logic lives in exam-core.js (DOM-free, tested); this file is flow and presentation.
 import { route } from './router.js';
-import { renderQuestion, applyMode, MODES } from './engine-quiz.js';
+import { kompetenzName, stufenName, setKompetenzen, PHASEN_NAME } from './competency.js';
+import { renderQuestion, applyMode, MODES, escapeHtml } from './engine-quiz.js';
 
 /**
  * Source note for a graded answer. Empty when the assessment made no legal claim
@@ -37,6 +38,7 @@ async function data() {
     fetch('content/competencies.json').then(r => r.json()),
     fetch('content/scenarios.json').then(r => r.json()),
   ]);
+  setKompetenzen(comp.kompetenzen);   // Klarnamen fuer die Fragemarken
   return (_data = { pool: qc.questions, kompetenzen: comp.kompetenzen, scenarios: sc.scenarios });
 }
 
@@ -47,6 +49,12 @@ function card(html) { const d = document.createElement('div'); d.className = 'ca
 async function runQuestions(view, questions, { mode, kind, llm, onDone }) {
   const results = [];
   let i = 0;
+  // Ein zweiter Klick auf dieselbe Frage (Doppelklick, oder Antwort und
+  // Sicherheits-Abfrage kurz hintereinander) plante `step` ein zweites Mal ein.
+  // Folge: `i` lief ueber das Ende hinaus und `onDone` feuerte mehrfach — im Bild
+  // stand die Ergebniskarte DREIMAL untereinander, samt drei „Neuer Antritt"-Knoepfen.
+  let fertig = false;
+  let beantwortet = -1;
   const mount = document.createElement('div');
   view.appendChild(mount);
   // Assessment and appeal cards survive moving to the next question: the mount is
@@ -56,17 +64,20 @@ async function runQuestions(view, questions, { mode, kind, llm, onDone }) {
   view.appendChild(resultsArea);
   const step = () => {
     mount.innerHTML = '';
-    if (i >= questions.length) { onDone(results); return; }
+    if (i >= questions.length) { if (!fertig) { fertig = true; onDone(results); } return; }
     const q = questions[i];
     // Counter and question on ONE surface — as two cards they read as unrelated
     // blocks, and only the first one was inside the reading column.
-    const head = card(`<div class="q-meta"><span class="q-zaehler">Frage ${i + 1}<i>/${questions.length}</i></span>
-      <span class="q-marken"><span class="q-marke">${q.competency}</span><span class="q-marke">Stufe ${q.level}</span>${mode === 'exam' ? '<span class="q-marke streng">Closed Book</span>' : mode === 'open' ? '<span class="q-marke">Verordnungstext erlaubt</span>' : ''}</span></div>`);
+    const head = card(`<div class="q-fortschritt" role="img" aria-label="Frage ${i + 1} von ${questions.length}"><i style="width:${Math.round((i + 1) / questions.length * 100)}%"></i></div>
+      <div class="q-meta"><span class="q-zaehler">Frage ${i + 1}<i>/${questions.length}</i></span>
+      <span class="q-marken"><span class="q-marke">${kompetenzName(q.competency)}</span><span class="q-marke">${stufenName(q.level)}</span>${mode === 'exam' ? '<span class="q-marke streng">ohne Hilfsmittel</span>' : mode === 'open' ? '<span class="q-marke">Verordnungstext erlaubt</span>' : ''}</span></div>`);
     mount.appendChild(head);
     const qm = document.createElement('div');
     head.appendChild(qm);
     renderQuestion(qm, q, {
       onAnswered: async (res, conf) => {
+        if (beantwortet === i) return;   // dieselbe Frage nur einmal zaehlen
+        beantwortet = i;
         if (res.verdict === 'pending_agent') {
           qm.insertAdjacentHTML('beforeend', '<p class="dim">Bewertung läuft (frischer Prüfer-Aufruf)…</p>');
           try {
@@ -82,10 +93,14 @@ async function runQuestions(view, questions, { mode, kind, llm, onDone }) {
             // checked against the shipped provisions, and an unsourced one says so.
             // It matters more here than anywhere else — this text explains a mark.
             const quellen = await quellenHinweis(r);
-            const fb = card(`<p><b>${r.score}/${r.max || 10}</b> — ${r.feedback ?? ''}</p>${quellen}${lab}
-              <details><summary>Einspruch einlegen</summary>
-              <textarea class="q-freetext" rows="2" placeholder="Begründung des Einspruchs …"></textarea>
-              <button class="btn">Einspruch abschicken (frische Zweitprüfung)</button>
+            // Die Bewertung begann mit „2/10 — " im Fliesstext. Die Punktzahl ist
+            // die Kernzahl dieser Karte und gehoert entsprechend gesetzt.
+            const fb = card(`<div class="bew-kopf"><span class="bew-wert"><b>${r.score}</b><span>von ${r.max || 10}</span></span>
+                <p class="bew-text">${r.feedback ?? ''}</p></div>${quellen}${lab}
+              <details class="bew-einspruch"><summary>Einspruch einlegen</summary>
+              <p class="feld-hilfe">Eine zweite Bewertung entscheidet neu — sie sieht deine Antwort und die Aufgabenstellung, aber nicht die erste Bewertung.</p>
+              <textarea class="q-freetext" rows="2" placeholder="Woran ist die Bewertung deiner Ansicht nach vorbeigegangen?"></textarea>
+              <div class="formular-fuss"><button class="btn">Einspruch abschicken</button></div>
               <span class="dim" style="display:block"></span></details>`);
             resultsArea.appendChild(fb);
             fb.querySelector('button').onclick = async ev => {
@@ -116,6 +131,10 @@ async function runQuestions(view, questions, { mode, kind, llm, onDone }) {
 }
 
 // ---------------------------------------------------------------- Kapiteltest #/test/p2
+// Phasen-Namen fuer die Kopfzeilen der Pruefungen: „Kapiteltest P5" sagte dem
+// Lernenden nichts, „Phase 5 · Transparenz" schon.
+// Phasennamen: gemeinsame Quelle in competency.js
+
 route('test', async (view, ctx, [phaseId]) => {
   const { pool, kompetenzen, scenarios } = await data();
   const llm = new LlmAdapter({});
@@ -125,7 +144,22 @@ route('test', async (view, ctx, [phaseId]) => {
   const attempts = (st.chapterTests[phaseId]?.attempts ?? 0);
 
   if (!llm.summativeAllowed) {
-    view.appendChild(card(`<h3>Kapiteltest ${phaseId?.toUpperCase()}</h3><p class="dim">Prüfungen gesperrt: ${llm.gate.reason}</p>`));
+    // War eine Ueberschrift mit dem Kuerzel und ein grauer Satz, der den
+    // technischen Grund unveraendert durchreichte. Dieselbe Lage-Karte wie im
+    // Einrichtungs-Ablauf: Schloss, Ueberschrift, Grund, Weg.
+    const gesperrt = card(`<div class="lage lage-warnung">
+        <span class="lage-symbol"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-lock"/></svg></span>
+        <div class="lage-txt">
+          <h3>Prüfungen sind gesperrt</h3>
+          <p>${llm.gate.reason}. Prüfungen dieser Akademie zählen nur, wenn sie von einem
+          Modell bewertet werden, dessen Maßstab wir kennen — sonst hieße dieselbe Note
+          bei jedem etwas anderes.</p>
+          <p class="feld-hilfe">Starte die Bridge mit einem unterstützten Modell neu, dann geht es hier weiter.</p>
+        </div>
+      </div>
+      <div class="formular-fuss"><a class="btn" href="#/lernen/${phaseId}">Zurück zur Phase</a></div>`);
+    gesperrt.classList.add('sperr-karte');
+    view.appendChild(gesperrt);
     return;
   }
   // Dialogue gating: each phase requires a solid expert conversation before the test
@@ -136,11 +170,11 @@ route('test', async (view, ctx, [phaseId]) => {
     const { scenarios } = await data();
     const sz = scenarios.find(x => x.id.startsWith('sz-' + phaseId + '-'));
     const g = card(`<div class="chead gold"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-lock"/></svg></span>
-      <span class="t"><h3>Kapiteltest ${phaseId.toUpperCase()}</h3><span class="sub">Noch gesperrt — erst das Fachgespräch</span></span></div>
+      <span class="t"><h3>Kapiteltest — ${PHASEN_NAME[phaseId] ?? phaseId.toUpperCase()}</h3><span class="sub">Noch gesperrt — erst das Fachgespräch</span></span></div>
       <div class="tor-weg">
-        <div class="tor-schritt jetzt"><span class="tor-nr">1</span><b>Bosskampf</b><span>Fachgespräch der Phase — Mindesturteil „solide“: ≥ 50 % der Gesprächsziele, keine Critical-Falle</span></div>
-        <div class="tor-pfeil" aria-hidden="true">→</div>
-        <div class="tor-schritt"><span class="tor-nr">2</span><b>Kapiteltest</b><span>Teil 1 Triage ohne Hilfsmittel, Teil 2 Quellenarbeit am Verordnungstext</span></div>
+        <div class="tor-schritt jetzt"><span class="tor-nr">1</span><b>Bosskampf</b><span>Das Fachgespräch dieser Phase. Bestanden ab der Hälfte der Gesprächsziele — und ohne in eine der Fallen zu tappen, die sofort durchfallen lassen.</span></div>
+        <div class="tor-pfeil" aria-hidden="true"><svg><use href="assets/icons/sprite.svg#icon-ui-chevron"/></svg></div>
+        <div class="tor-schritt"><span class="tor-nr">2</span><b>Kapiteltest</b><span>Erst Fragen ohne Hilfsmittel, dann Aufgaben am Verordnungstext.</span></div>
       </div>
       <p class="tor-warum">Das Fachgespräch ist die Generalprobe für die Anwendungsfragen im Test.</p>
       <div class="ex-start-zeile">${sz ? `<button class="btn-primary" onclick="location.hash='#/boss/${sz.id}'">Zum Bosskampf: ${sz.title}</button>` : '<p class="dim">Kein Szenario für diese Phase hinterlegt.</p>'}</div>
@@ -154,9 +188,13 @@ route('test', async (view, ctx, [phaseId]) => {
   // Kopf mit Symbol wie in jeder anderen Ansicht (Heute, Drill, Wiederholung,
   // Examen). Kapiteltest und Placement waren die zwei Einstiege ohne — nebeneinander
   // gesehen sahen sie aus, als gehörten sie nicht zum selben Werkzeug.
-  const intro = card(`<div class="chead"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-pruefung"/></svg></span><span class="t"><h3>Kapiteltest ${phaseId.toUpperCase()} — zweiteilig</h3>
-    <span class="sub">Teil 1 „Triage" (${test.part1.length} Fragen, Closed Book) → Teil 2 „Quellenarbeit" (${test.part2.length} Aufgaben, Verordnungstext erlaubt)</span></span></div>
-    <p>Bestehensgrenze ${PASS_SCORE * 100} % · <a href="docs/CRITICAL-ERRORS.md" target="_blank">Critical-Error-Liste</a> · Antritt ${attempts + 1}</p>
+  const intro = card(`<div class="chead"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-pruefung"/></svg></span><span class="t"><h3>Kapiteltest — ${PHASEN_NAME[phaseId] ?? phaseId.toUpperCase()}</h3>
+    <span class="sub">Zwei Teile: erst ${test.part1.length} Fragen ohne Hilfsmittel, dann ${test.part2.length} Aufgaben mit dem Verordnungstext.</span></span></div>
+    <div class="test-eckdaten">
+      <span><b>${PASS_SCORE * 100} %</b> zum Bestehen</span>
+      <span><b>${attempts + 1}.</b> Antritt</span>
+      <span><a href="docs/CRITICAL-ERRORS.md" target="_blank">Fehler, die sofort durchfallen lassen</a></span>
+    </div>
     <button class="btn-primary" id="t-start">Teil 1 starten</button>`);
   view.appendChild(intro);
   intro.querySelector('#t-start').onclick = () => {
@@ -164,7 +202,10 @@ route('test', async (view, ctx, [phaseId]) => {
     runQuestions(view, test.part1, {
       mode: 'exam', kind: 'chapter1', llm,
       onDone: r1 => {
-        view.appendChild(card('<h3>Teil 2 — Quellenarbeit (Open Book)</h3><p class="dim">Der Verordnungstext (Originaltext-Boxen der Einheiten) darf verwendet werden.</p>'));
+        // „(Open Book)" und „Originaltext-Boxen der Einheiten" waren unsere Woerter.
+        view.appendChild(card(`<div class="chead"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-fach-paragraph"/></svg></span>
+          <span class="t"><h3>Teil 2 — Arbeit am Verordnungstext</h3>
+          <span class="sub">Hier darfst du nachschlagen: Der Wortlaut der Verordnung steht in den Einheiten zum Aufklappen bereit.</span></span></div>`));
         runQuestions(view, test.part2, {
           mode: 'open', kind: 'chapter2', llm,
           onDone: async r2 => {
@@ -178,17 +219,41 @@ route('test', async (view, ctx, [phaseId]) => {
             const { checkRewards } = await import('./rewards.js');
             checkRewards(st, document, { phaseCompleted: ev.passed ? phaseId : null });
             await ctx.saveState();
-            const res = card(`<h3>${ev.passed ? 'Bestanden' : 'Nicht bestanden'} — ${(ev.pct * 100).toFixed(0)} %</h3>
-              ${ev.reason === 'critical_error' ? `<p><b>Critical Error</b> (${ev.criticals.join(', ')}): Der Test gilt unabhängig von der Punktzahl als nicht bestanden.</p>` : ''}
-              ${ev.reason === 'kern_mindestleistung' ? `<p><b>Kern-Kompetenz unter Mindestleistung:</b> ${ev.kernFails.join(', ')}</p>` : ''}
-              <p class="dim">Kompetenzen: ${Object.entries(ev.perCompetency).map(([k, v]) => `${k} ${(v * 100).toFixed(0)} %`).join(' · ')}</p>`);
+            // Die Ergebniskarte begann mit „Nicht bestanden — 30 %" als Ueberschrift,
+            // darunter fette Zeilen mit Kompetenz-Kuerzeln und eine Browser-Aufzaehlung
+            // mit rohen Fragen-Kennungen („p3-q01, p3-q03 …"). Jetzt: Zeichen und
+            // Zustandston, die Note gross, Kompetenzen mit Namen und Balken.
+            const kName = id => kompetenzen.find(k => k.id === id)?.name ?? id;
+            const proz = v => `${(v * 100).toFixed(0)} %`;
+            const res = card(`<div class="erg ${ev.passed ? 'gut' : 'schlecht'}">
+                <svg class="erg-sym" aria-hidden="true"><use href="assets/icons/sprite.svg#${ev.passed ? 'icon-st-check' : 'icon-act-retry'}"/></svg>
+                <div class="erg-txt">
+                  <h3>${ev.passed ? 'Bestanden' : 'Nicht bestanden'}</h3>
+                  <p class="erg-wert"><b>${proz(ev.pct)}</b> von ${PASS_SCORE * 100} % nötig</p>
+                </div>
+              </div>
+              ${ev.reason === 'critical_error' ? `<p class="erg-grund"><b>${ev.criticals.length === 1 ? 'Ein Fehler' : `${ev.criticals.length} Fehler`} aus der Durchfall-Liste:</b> ${
+                // `criticals` traegt Fragen-Kennungen (p9-q11), nicht Kompetenzen — die
+                // standen roh im Nutzertext. Gemeint ist, WORAN es lag: der Kompetenzname
+                // der betroffenen Frage.
+                [...new Set(ev.criticals.map(id => kName(questions.find(q => q.id === id)?.competency ?? id)))].join(', ')
+              }. Der Test gilt damit unabhängig von der Punktzahl als nicht bestanden — im Beruf wäre das ein Compliance-Vorfall.</p>` : ''}
+              ${ev.reason === 'kern_mindestleistung' ? `<p class="erg-grund"><b>Eine Kern-Kompetenz liegt unter der Mindestleistung:</b> ${ev.kernFails.map(c => kName(c)).join(', ')}.</p>` : ''}
+              <div class="erg-komp">${Object.entries(ev.perCompetency).sort((a, b) => a[1] - b[1]).map(([k, v]) => `
+                <div class="erg-zeile"><span class="erg-name">${kName(k)}</span>
+                  <span class="erg-bar"><i style="width:${Math.round(v * 100)}%" class="${v >= PASS_SCORE ? 'gut' : v >= 0.5 ? 'mittel' : 'schwach'}"></i></span>
+                  <b class="mono">${proz(v)}</b></div>`).join('')}</div>`);
             view.appendChild(res);
             if (!ev.passed) {
-              const units = []; // Einheiten-Kompetenz-Mapping steckt in den Unit-JSONs — Nachschulung nennt Fragen-IDs
+              const units = []; // Einheiten-Kompetenz-Mapping steckt in den Unit-JSONs
               const plan = nachschulungPlan(ev, { pool, units, scenarios });
-              res.insertAdjacentHTML('beforeend', `<h4>Pflicht-Nachschulung (je Kompetenz, 100 %-Hürde, danach heute noch ein Antritt möglich)</h4>
-                <ul>${plan.map(p => `<li><b>${p.competency}</b>: ${p.questions.length} Fragen (${p.questions.slice(0, 3).join(', ')} …)${p.szenario ? ` + Kurzszenario <a href="#/boss/${p.szenario}">${p.szenario}</a>` : ''}</li>`).join('')}</ul>
-                <button class="btn" onclick="location.hash='#/test/${phaseId}';window.dispatchEvent(new HashChangeEvent('hashchange'))">Neuer Antritt (neue Fragen)</button>`);
+              res.insertAdjacentHTML('beforeend', `<div class="nachschulung">
+                <div class="unit-tag"><svg class="ut-sym" aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-lernen"/></svg>Pflicht-Nachschulung</div>
+                <p class="feld-hilfe">Erst diese Punkte nachholen — je Kompetenz alle Fragen richtig. Danach ist heute noch ein Antritt möglich.</p>
+                <ul class="wk-wege">${plan.map(p => `<li><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-ui-chevron"/></svg>
+                  <span><b>${kName(p.competency)}</b> — ${p.questions.length} Fragen${p.szenario ? `, dazu ein Kurzgespräch: <a href="#/boss/${p.szenario}">jetzt führen</a>` : ''}</span></li>`).join('')}</ul>
+                <div class="formular-fuss"><button class="btn-primary" onclick="location.hash='#/test/${phaseId}';window.dispatchEvent(new HashChangeEvent('hashchange'))">Neuer Antritt mit neuen Fragen</button></div>
+              </div>`);
             }
           },
         });
@@ -209,7 +274,11 @@ route('examen', async (view, ctx) => {
   // Marathon warning: after a very long session an exam measures exhaustion, not knowledge
   const { sessionStatus } = await import('./ritual.js');
   const mw = sessionStatus(st).marathon;
-  if (mw.warn) view.appendChild(card(`<p class="ritual-warn">⚠ ${mw.text}</p>`));
+  // War ein Absatz, der mit dem Textzeichen ⚠ begann.
+  if (mw.warn) view.appendChild(card(`<div class="lage lage-warnung">
+      <span class="lage-symbol"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-uhr"/></svg></span>
+      <div class="lage-txt"><h3>Lieber morgen früh</h3><p>${mw.text}</p></div>
+    </div>`));
 
   // The moment the whole product builds towards. It rendered as a small box in
   // a large empty area — the same weight as a settings panel.
@@ -219,18 +288,47 @@ route('examen', async (view, ctx) => {
         <span class="sub">Der Nachweis, dass es sitzt</span></span></div>
       <div class="ex-teile">
         <div class="ex-teil"><span class="ex-nr">A</span><b>40 Fragen · 60 Minuten</b>
-          <span>Closed Book — keine Hilfsmittel, wie im Meeting</span></div>
-        <div class="ex-teil"><span class="ex-nr">B</span><b>Capstone · ~30 Minuten</b>
-          <span>Open Book — ein Fall mit dem Verordnungstext am Tisch</span></div>
+          <span>Ohne Hilfsmittel — so wie im Meeting, wenn niemand nachschlagen kann</span></div>
+        <div class="ex-teil"><span class="ex-nr">B</span><b>Abschlussfall · etwa 30 Minuten</b>
+          <span>Ein Fall mit dem Verordnungstext am Tisch — nachschlagen ist ausdrücklich erlaubt</span></div>
       </div>
       <p class="ex-regel">Beide Teile müssen bestanden werden · höchstens ein Antritt pro Kalendertag</p>
-      <p class="dim ex-fuss">Rechtsstand ${RECHTSSTAND} · <a href="docs/CRITICAL-ERRORS.md" target="_blank">Critical-Error-Liste</a> · <a href="docs/CUT-SCORE-BLUEPRINT.md" target="_blank">Cut-Score-Begründung</a></p>
+      <p class="dim ex-fuss">Rechtsstand ${new Date(RECHTSSTAND).toLocaleDateString('de-AT')} · <a href="docs/CRITICAL-ERRORS.md" target="_blank">Fehler, die sofort durchfallen lassen</a> · <a href="docs/CUT-SCORE-BLUEPRINT.md" target="_blank">Warum die Grenze bei 80 % liegt</a></p>
     </div>`);
   view.appendChild(head);
 
-  if (!llm.summativeAllowed) { head.insertAdjacentHTML('beforeend', `<p><b>Gesperrt:</b> ${llm.gate.reason}</p>`); return; }
+  // War ein Absatz „Gesperrt: <technischer Grund>" — dieselbe Lage-Karte wie im
+  // Kapiteltest, damit ein Zustand ueberall gleich aussieht.
+  if (!llm.summativeAllowed) {
+    head.insertAdjacentHTML('beforeend', `<div class="ex-gesperrt">
+      <div class="lage lage-warnung">
+        <span class="lage-symbol"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-lock"/></svg></span>
+        <div class="lage-txt">
+          <h3>Das Examen ist gesperrt</h3>
+          <p>${llm.gate.reason}. Ein Abschluss zählt nur, wenn er von einem Modell bewertet
+          wurde, dessen Maßstab wir kennen — sonst wäre dieselbe Note bei jedem etwas anderes.</p>
+          <p class="feld-hilfe">Starte die Bridge mit einem unterstützten Modell neu, dann geht es hier weiter.</p>
+        </div>
+      </div>
+    </div>`);
+    paintSeries(view, st.scoreSeries);
+    return;
+  }
   if (!gate.allowed) {
-    head.insertAdjacentHTML('beforeend', `<h4>Examens-Gate (Schloss aktiv)</h4><ul>${gate.reasons.map(r => `<li>${r}</li>`).join('')}</ul>`);
+    // War „Examens-Gate (Schloss aktiv)" — unser Wort — und darunter eine
+    // Browser-Aufzaehlung der Gruende ohne Zeichen und ohne Weg dorthin.
+    head.insertAdjacentHTML('beforeend', `<div class="ex-gesperrt">
+      <div class="lage lage-warnung">
+        <span class="lage-symbol"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-lock"/></svg></span>
+        <div class="lage-txt">
+          <h3>Das Examen ist noch zu</h3>
+          <p>Es öffnet sich, wenn die Kapitel wirklich sitzen — nicht, wenn sie einmal
+          angeklickt wurden. Was noch fehlt:</p>
+        </div>
+      </div>
+      <ul class="wk-wege">${gate.reasons.map(r => `<li><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-ui-chevron"/></svg><span>${r}</span></li>`).join('')}</ul>
+      <div class="formular-fuss"><a class="btn-primary" href="#/lernen">Zur Übersicht der Phasen</a></div>
+    </div>`);
     paintSeries(view, st.scoreSeries);
     return;
   }
@@ -239,16 +337,41 @@ route('examen', async (view, ctx) => {
   paintSeries(view, st.scoreSeries);
   head.querySelector('#ex-start').onclick = () => {
     head.remove();
+    // Die Marathon-Warnung blieb waehrend der ganzen Pruefung stehen — sie ist
+    // eine Entscheidungshilfe VOR dem Antritt, danach nur noch Ablenkung.
+    for (const w of view.querySelectorAll('.lage-warnung')) w.closest('.card')?.remove();
     const attempt = st.examAttempts.length;
     const exam = buildExamA(pool, { salt: 'exam' + attempt });
     const t0 = Date.now();
+    // 60 Minuten stehen im Tor — waehrend der Pruefung war davon nichts zu sehen.
+    // Eine Uhr, die die verbleibende Zeit zeigt und in der letzten Viertelstunde
+    // die Farbe wechselt; abgelaufen wird sie nicht abgebrochen (der Bauplan
+    // kennt kein hartes Limit), sie sagt es nur.
+    const uhr = document.createElement('div');
+    uhr.className = 'card ex-uhr';
+    view.appendChild(uhr);
+    const MINUTEN = 60;
+    const tick = () => {
+      const rest = MINUTEN * 60_000 - (Date.now() - t0);
+      const ueber = rest < 0;
+      const m = Math.floor(Math.abs(rest) / 60_000);
+      const sek = Math.floor((Math.abs(rest) % 60_000) / 1000);
+      uhr.className = `card ex-uhr${ueber ? ' drueber' : rest < 15 * 60_000 ? ' knapp' : ''}`;
+      uhr.innerHTML = `<svg class="ut-sym" aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-uhr"/></svg>
+        <span class="ex-uhr-wert mono">${ueber ? '+' : ''}${m}:${String(sek).padStart(2, '0')}</span>
+        <span class="ex-uhr-txt">${ueber ? 'über der Richtzeit — zu Ende bringen, es wird nichts abgebrochen' : 'von 60 Minuten übrig'}</span>`;
+    };
+    tick();
+    const uhrLauf = setInterval(tick, 1000);
     runQuestions(view, exam.questions, {
       mode: 'exam', kind: 'exam', llm,
       onDone: async resultsA => {
+        clearInterval(uhrLauf); uhr.remove();
         const evA = evaluateTest({ questions: exam.questions, results: resultsA, kompetenzen });
         // Part B: the open-book capstone from the fixed core; any reskin lives in the profile only
         const cap = scenarios.find(s => s.id === 'sz-capstone-kern');
-        view.appendChild(card(`<h3>Teil B — Capstone (Open Book, ~30 min)</h3><p>${cap.setting_hint ?? cap.title}</p>
+        view.appendChild(card(`<div class="chead gold"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-fach-waage"/></svg></span>
+          <span class="t"><h3>Teil B — der Abschlussfall</h3><span class="sub">Etwa 30 Minuten, mit dem Verordnungstext</span></span></div>${cap.setting_hint ? `<p>${cap.setting_hint}</p>` : ''}
           <p class="dim">Methodik, Fundstellen, Schlussfolgerung — bewertet nach fixer Rubrik.</p>`));
         const capQ = { id: 'capstone', type: 'freetext', prompt: cap.prompt ?? cap.title, competency: 'K18', level: 'C', rubric: cap.rubric, model_answer: cap.model_answer ?? '' };
         runQuestions(view, [capQ], {
@@ -265,9 +388,31 @@ route('examen', async (view, ctx) => {
             const { checkRewards: cr } = await import('./rewards.js');
             cr(st, document, { examPassed: passed });
             await ctx.saveState();
-            view.appendChild(card(`<h3>${passed ? 'EXAMEN BESTANDEN' : 'Nicht bestanden'}</h3>
-              <p>Teil A: ${(evA.pct * 100).toFixed(0)} % (${evA.passed ? 'bestanden' : evA.reason}) · Teil B: ${(bPct * 100).toFixed(0)} %</p>
-              ${passed ? '<p><a href="#/lernnachweis">→ Persönlichen Lernnachweis erstellen</a></p>' : '<p class="dim">Nächster Antritt frühestens morgen (einer pro Kalendertag) — Nachschulung empfohlen.</p>'}`));
+            // Der groesste Moment des Werkzeugs stand in Grossbuchstaben da
+            // („EXAMEN BESTANDEN"), die beiden Teilnoten in einer Klammerzeile
+            // mit dem internen Grund darin, und der Weg zum Lernnachweis als
+            // Textpfeil-Verweis.
+            const gruende = { critical_error: 'ein Fehler aus der Durchfall-Liste',
+              kern_mindestleistung: 'eine Kern-Kompetenz unter der Mindestleistung', score: 'zu wenige Punkte' };
+            view.appendChild(card(`<div class="erg ${passed ? 'gut' : 'schlecht'}">
+                <svg class="erg-sym" aria-hidden="true"><use href="assets/icons/sprite.svg#${passed ? 'icon-fach-trophy' : 'icon-act-retry'}"/></svg>
+                <div class="erg-txt">
+                  <h3>${passed ? 'Examen bestanden' : 'Examen nicht bestanden'}</h3>
+                  <p class="erg-wert"><b>${(((evA.pct + bPct) / 2) * 100).toFixed(0)} %</b> im Schnitt beider Teile</p>
+                </div>
+              </div>
+              <div class="erg-komp">
+                <div class="erg-zeile"><span class="erg-name">Teil A — 40 Fragen ohne Hilfsmittel</span>
+                  <span class="erg-bar"><i style="width:${Math.round(evA.pct * 100)}%" class="${evA.passed ? 'gut' : 'schwach'}"></i></span>
+                  <b class="mono">${(evA.pct * 100).toFixed(0)} %</b></div>
+                <div class="erg-zeile"><span class="erg-name">Teil B — der Abschlussfall</span>
+                  <span class="erg-bar"><i style="width:${Math.round(bPct * 100)}%" class="${bPct >= PASS_SCORE ? 'gut' : 'schwach'}"></i></span>
+                  <b class="mono">${(bPct * 100).toFixed(0)} %</b></div>
+              </div>
+              ${!evA.passed && evA.reason ? `<p class="erg-grund">Teil A scheiterte an: ${gruende[evA.reason] ?? evA.reason}.</p>` : ''}
+              <div class="formular-fuss">${passed
+                ? '<a class="btn-primary" href="#/lernnachweis">Lernnachweis erstellen</a>'
+                : '<span class="feld-hilfe">Der nächste Antritt ist frühestens morgen möglich — einer pro Kalendertag. Die Nacht dazwischen ist Teil der Methode.</span>'}</div>`));
           },
         });
       },
@@ -309,8 +454,26 @@ route('placement', async (view, ctx) => {
       const rec = placementRecommend(qs, results.map(r => ({ correct: (r.score ?? 0) >= 1 })));
       ctx.state.placement = rec; ctx.state.placementRuns = (ctx.state.placementRuns ?? 0) + 1;
       await ctx.saveState();
-      view.appendChild(card(`<h3>Startempfehlungen</h3><ul>` + Object.entries(rec).map(([ph, r]) =>
-        `<li><b>${ph.toUpperCase()}</b> — ${(r.quote * 100).toFixed(0)} % → ${r.empfehlung === 'challenge_moeglich' ? 'stark: Challenge-Tests je Einheit möglich' : r.empfehlung === 'zuegig' ? 'zügig durchgehen' : 'gründlich lernen'}</li>`).join('') + `</ul>`));
+      // Die Empfehlung war eine Standard-Aufzählung mit Phasen-Kürzeln („P2 — 50 %“).
+      // Der Nutzer kennt keine Kürzel, und ein Prozentvergleich über zehn Zeilen ist
+      // ein Bild, keine Liste. Jetzt: Phasenname, Balken, Farbe nach Empfehlung.
+      const { PHASEN } = await import('./app.js');
+      const name = id => PHASEN.find(([pid]) => pid === id)?.[1] ?? id.toUpperCase();
+      const stufe = e => e === 'challenge_moeglich' ? { k: 'stark', t: 'Challenge-Test möglich' }
+        : e === 'zuegig' ? { k: 'mittel', t: 'zügig durchgehen' } : { k: 'neu', t: 'gründlich lernen' };
+      view.appendChild(card(`<div class="chead"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-fach-heatmap"/></svg></span><span class="t"><h3>Wo du schon stehst</h3>
+          <span class="sub">Empfehlung je Phase — übersprungen wird erst nach einem bestandenen Challenge-Test</span></span></div>
+        <!-- Reihenfolge aus PHASEN, nicht aus der Schlüsselreihenfolge des Ergebnisses:
+             sonst steht „Verbote“ vor „Fundament“. -->
+        <div class="pl-liste">${PHASEN.map(([pid]) => [pid, rec[pid]]).filter(([, r]) => r).map(([ph, r]) => {
+          const st = stufe(r.empfehlung);
+          return `<div class="pl-zeile ${st.k}">
+            <span class="pl-name">${name(ph)}</span>
+            <span class="pl-spur"><i style="width:${Math.max(3, Math.round(r.quote * 100))}%"></i></span>
+            <span class="pl-quote">${(r.quote * 100).toFixed(0)} %</span>
+            <span class="pl-tipp">${st.t}</span></div>`;
+        }).join('')}</div>
+        <div class="formular-fuss"><a class="btn-primary" href="#/heute">Zum ersten Lerntag</a></div>`));
     },
   });
 });
@@ -322,7 +485,22 @@ route('challenge', async (view, ctx, [unitId]) => {
   const { pool, kompetenzen } = await data();
   const idx = await fetch('content/units/index.json').then(r => r.json());
   const unit = idx.units.find(u => u.id === unitId);
-  if (!unit) { view.appendChild(card('<p class="dim">Einheit unbekannt.</p>')); return; }
+  // War ein grauer Zweiwortsatz: „Einheit unbekannt." Kein Zeichen, kein Grund,
+  // kein Weg — und die Adresse, die nicht stimmt, stand nirgends.
+  if (!unit) {
+    const fehl = card(`<div class="lage lage-warnung">
+        <span class="lage-symbol"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-warn"/></svg></span>
+        <div class="lage-txt">
+          <h3>Diese Einheit gibt es nicht</h3>
+          <p>Zu <span class="mono">${escapeHtml(String(unitId ?? '—'))}</span> ist keine Einheit hinterlegt.
+          Vermutlich ein alter Verweis oder ein Tippfehler in der Adresse.</p>
+        </div>
+      </div>
+      <div class="formular-fuss"><a class="btn-primary" href="#/lernen">Zur Übersicht aller Phasen</a></div>`);
+    fehl.classList.add('sperr-karte');
+    view.appendChild(fehl);
+    return;
+  }
   const llm = new LlmAdapter({});
   try { await llm.refreshHealth(); llm.evaluateGate(); } catch { /* Freetext-Bewertung ggf. nicht verfügbar */ }
   const st = ctx.state;
@@ -330,9 +508,14 @@ route('challenge', async (view, ctx, [unitId]) => {
     { salt: 'ch' + ((st.challengeAttempts?.[unit.id] ?? 0) + 1) });
 
   const intro = card(`<div class="chead gold"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-pruefung"/></svg></span><span class="t"><h3>Challenge-Test — ${unit.title}</h3>
-    <span class="sub">${ch.questions.length} Fragen zur Kompetenz ${unit.competency} · Hürde ${ch.passRequired * 100} % · Closed Book</span></span></div>
-    <p>Bestehst du, wird die Einheit als <b>übersprungen</b> markiert. Die Karten bleiben im Wiederholungs-System, der Kapiteltest bleibt Pflicht.</p>
-    <button class="btn-primary" id="ch-start">Challenge starten</button>`);
+    <span class="sub">Kurzprüfung zur Kompetenz „${kompetenzen.find(k => k.id === unit.competency)?.name ?? unit.competency}"</span></span></div>
+    <div class="test-eckdaten">
+      <span><b>${ch.questions.length}</b> Fragen</span>
+      <span><b>${ch.passRequired * 100} %</b> zum Bestehen</span>
+      <span>ohne Hilfsmittel</span>
+    </div>
+    <p>Bestehst du, gilt die Einheit als <b>übersprungen</b>. Die Karten daraus bleiben trotzdem in der Wiederholung, und der Kapiteltest bleibt Pflicht.</p>
+    <div class="formular-fuss"><button class="btn-primary" id="ch-start">Kurzprüfung starten</button></div>`);
   view.appendChild(intro);
   intro.querySelector('#ch-start').onclick = () => {
     intro.remove();
@@ -344,11 +527,22 @@ route('challenge', async (view, ctx, [unitId]) => {
         const bestanden = ev.pct >= ch.passRequired && !ev.criticals.length;
         if (bestanden) st.unit_skipped = [...new Set([...(st.unit_skipped ?? []), unit.id])];
         await ctx.saveState();
-        view.appendChild(card(`<h3>${bestanden ? 'Bestanden — Einheit übersprungen' : 'Nicht bestanden'} (${(ev.pct * 100).toFixed(0)} %)</h3>
+        // Dieselbe Ergebnisform wie beim Kapiteltest: Zeichen, Zustandston, Note gross.
+        // Vorher stand alles in einer Ueberschrift mit der Note in Klammern.
+        view.appendChild(card(`<div class="erg ${bestanden ? 'gut' : 'schlecht'}">
+            <svg class="erg-sym" aria-hidden="true"><use href="assets/icons/sprite.svg#${bestanden ? 'icon-st-check' : 'icon-act-retry'}"/></svg>
+            <div class="erg-txt">
+              <h3>${bestanden ? 'Bestanden — Einheit übersprungen' : 'Nicht bestanden'}</h3>
+              <p class="erg-wert"><b>${(ev.pct * 100).toFixed(0)} %</b> von ${ch.passRequired * 100} % nötig</p>
+            </div>
+          </div>
           <p>${bestanden
-            ? 'Die Einheit gilt als nachgewiesen und erscheint in der Lernen-Ansicht als übersprungen. Karten der Einheit bleiben im Wiederholungs-System.'
-            : `Unter ${ch.passRequired * 100} % — die Einheit bleibt im Lernpfad.`}</p>
-          <a class="btn" href="#/einheit/${unit.id}">Zur Einheit</a> <a class="btn" href="#/lernen">Zur Übersicht</a>`));
+            ? 'Die Einheit gilt als nachgewiesen und steht in der Übersicht als übersprungen. Ihre Karten bleiben in der Wiederholung — überspringen heißt nicht vergessen.'
+            : 'Die Einheit bleibt im Lernpfad. Ein neuer Versuch ist jederzeit möglich, mit anderen Fragen.'}</p>
+          <div class="formular-fuss">
+            <a class="btn" href="#/lernen">Zur Übersicht</a>
+            <a class="btn-primary" href="#/einheit/${unit.id}">Zur Einheit</a>
+          </div>`));
       },
     });
   };
@@ -381,9 +575,10 @@ route('lernnachweis', async (view, ctx) => {
     <div class="nachweis" id="nachweis">
       <h2>Persönlicher Lernnachweis</h2>
       <p class="nw-unter">AI-Act-Akademie · ausgestellt am ${new Date().toLocaleDateString('de-AT')}</p>
-      ${ctx.simulation ? `<p class="nachweis-disclaimer nachweis-sim"><b>Aus einer Simulation.</b> Die Lernpfad-Sperren
-      waren offen — Examens-Gate, Tagesantritt, Pflicht-Review und Bosskampf-Vorbedingung. Was hier
-      steht, belegt keinen Lernstand.</p>` : ''}
+      ${ctx.simulation ? `<p class="nachweis-disclaimer nachweis-sim"><b>Aus einer Simulation.</b> Alle Sperren
+      standen offen: das Examen war ohne bestandene Kapiteltests zugänglich, es galt keine Antrittsgrenze
+      pro Tag, die Pflicht-Wiederholung entfiel und das Fachgespräch war vor dem Kapiteltest nicht nötig.
+      Was hier steht, belegt keinen Lernstand.</p>` : ''}
       <p class="nachweis-disclaimer"><b>Persönlicher, unbeaufsichtigter Lernnachweis.</b> Identität und Prüfungsbedingungen
       wurden nicht durch eine unabhängige Stelle verifiziert. Teile der Bewertung sind KI-unterstützt.
       Kein akkreditiertes Zertifikat. Nicht bestimmt für den Einsatz durch Bildungseinrichtungen
@@ -397,14 +592,14 @@ route('lernnachweis', async (view, ctx) => {
         <dt>Kapiteltests</dt>
         <dd><b>${Object.values(st.chapterTests ?? {}).filter(t => t.passed).length}</b> von 9 bestanden</dd>
         <dt>Rechtsstand</dt>
-        <dd>${RECHTSSTAND} <span class="dim">(VO 2024/1689 idF 2026/1744)</span></dd>
+        <dd>${new Date(RECHTSSTAND).toLocaleDateString('de-AT', { day: 'numeric', month: 'long', year: 'numeric' })} <span class="dim">(VO 2024/1689 in der Fassung 2026/1744)</span></dd>
         <dt>Bewertung</dt>
-        <dd><span class="mono">${model}</span> · Rubrik <span class="mono">${pv}</span> · Content <span class="mono">c1</span></dd>
+        <dd><span class="mono">${model}</span> · Bewertungsmaßstab <span class="mono">${pv}</span> · Inhaltsstand <span class="mono">c1</span></dd>
       </dl>
       <hr>
       <h3>Transparenz-Rückseite</h3>
       <dl class="nw-fakten">
-        <dt>Score-Serien</dt>
+        <dt>Ergebnis-Reihen</dt>
         <dd>${Object.values(abgeleitet).filter(s => typeof s.first?.pct === 'number').map(s => `${(s.first.pct * 100).toFixed(0)} / ${(s.latest.pct * 100).toFixed(0)} / ${(s.best.pct * 100).toFixed(0)} %`).join(' · ') || '—'}
             <span class="dim">— erster / letzter / bester Versuch je Bewertungsregime</span></dd>
         <dt>Einsprüche</dt>

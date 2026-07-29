@@ -3,6 +3,7 @@
 // mnemonics and embedded widgets. Answers feed spaced repetition and competency events.
 
 import { renderQuestion } from './engine-quiz.js';
+import { kompetenzName, stufenName, ladeKompetenzen, phasenName } from './competency.js';
 import { renderTimeline, renderAssignment, renderErwgExplorer, renderAnnexExplorer, renderRoleSwitch } from './engine-widgets.js';
 import { applyEvent, ceremony, CEREMONY } from './gamification.js';
 import { LlmAdapter } from './llm-adapter.js';
@@ -49,7 +50,7 @@ function coachNachschlag(mount, unit, question, result, confidence, ctx) {
       }
     } catch { /* ohne Register lieber kein Siegel als ein falsches */ }
     box.innerHTML = txt
-      ? `<div class="coach-head">Coach</div><p>${escapeHtml(txt)}</p>${quellen}<span class="grade-label mono">Bewertungstyp: LLM-unterstützt · formativ (zählt nicht für Kompetenz-Bewertung)</span>`
+      ? `<div class="coach-head"><svg class="ut-sym" aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-dialog"/></svg>Coach</div><p>${escapeHtml(txt)}</p>${quellen}<span class="grade-label mono">Bewertungstyp: LLM-unterstützt · formativ (zählt nicht für Kompetenz-Bewertung)</span>`
       : '';
     if (!txt) box.remove();
   }).catch(() => box.remove());   // Coach ist Zusatz — Ausfall darf den Lernfluss nicht stören
@@ -58,6 +59,7 @@ import { newCard } from './engine-leitner.js';
 import { escapeHtml } from './engine-quiz.js';
 
 export async function renderUnit(mount, unitId, ctx) {
+  await ladeKompetenzen();   // Klarnamen fuer die Unterzeile
   const doc = mount.ownerDocument;
   const res = await fetch(`content/units/${unitId}.json`);
   if (!res.ok) { mount.innerHTML = `<div class="card"><p class="dim">Einheit ${escapeHtml(unitId)} nicht gefunden.</p></div>`; return null; }
@@ -68,20 +70,34 @@ export async function renderUnit(mount, unitId, ctx) {
   wrap.className = 'unit';
   wrap.innerHTML = `<div class="card unit-head">
       <div class="chead"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-lernen"/></svg></span><span class="t"><h3>${escapeHtml(unit.title)}</h3>
-      <span class="sub">${unit.phase.toUpperCase()} · ${unit.competency} · Stufe ${unit.level} · <span class="mono legal-ref">${escapeHtml(unit.legal_basis[0]?.ref ?? '')}</span></span></span>
-      <span class="actions"><span class="pill mono" style="height:26px;padding:0 .5rem" title="Rechtsstand">${unit.legal_status === 'konsolidiert-2026-07-27' ? 'RS 27.7.2026' : '⚠ ' + escapeHtml(unit.legal_status)}</span></span></div></div>`;
+      <span class="sub">${phasenName(unit.phase)} · ${kompetenzName(unit.competency)} · ${stufenName(unit.level)} · <span class="mono legal-ref">${escapeHtml(unit.legal_basis[0]?.ref ?? '')}</span></span></span>
+      <span class="actions"><span class="pill mono" style="height:26px;padding:0 .5rem" title="Rechtsstand">${unit.legal_status === 'konsolidiert-2026-07-27' ? 'RS 27.7.2026' : `<svg class="ut-sym" aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-warn"/></svg>${escapeHtml(unit.legal_status)}`}</span></span></div></div>`;
+
+
+/**
+ * Block label with its own symbol. It used to be a bare line of small capitals:
+ * the block types were distinguishable by reading, not by looking, and the
+ * concept block carried no label at all — it started straight into running text.
+ */
+const marke = (icon, text) =>
+  `<div class="unit-tag"><svg class="ut-sym" aria-hidden="true"><use href="assets/icons/sprite.svg#${icon}"/></svg>${text}</div>`;
 
   let checkCount = 0, answered = 0;
   const done = doc.createElement('div');
 
+  // Gestaffelter Aufbau wie in jeder anderen Liste des Werkzeugs: gemessen bauten
+  // sich die Bloecke der Einheit ohne jede Bewegung auf, weil die Staffel-Regel
+  // nur fuer direkte Kinder des Dashboards gilt.
+  let blockNr = 0;
   for (const b of unit.blocks) {
     const card = doc.createElement('div');
     card.className = 'card unit-block';
+    card.style.setProperty('--i', String(Math.min(blockNr++, 7)));
     switch (b.type) {
       case 'problem': {
         // Adaptiv (§3): erfahrene Profile Problem-first; Einsteiger erst Worked Example
         card.classList.add('unit-problem');
-        card.innerHTML = `<div class="unit-tag">Einstieg</div><div>${b.html}</div>`;
+        card.innerHTML = `${marke('icon-fach-ki', 'Einstieg')}<div>${b.html}</div>`;
         if (!profileDirect && b.einsteiger_worked_example) {
           card.innerHTML += `<details class="unit-we" open><summary>Durchgerechnetes Beispiel zuerst</summary><p>${escapeHtml(b.einsteiger_worked_example)}</p></details>`;
         } else if (b.einsteiger_worked_example) {
@@ -90,39 +106,44 @@ export async function renderUnit(mount, unitId, ctx) {
         break;
       }
       case 'worked_example':
-        card.innerHTML = `<div class="unit-tag">Beispiel</div><div>${b.html}</div>`; break;
+        card.innerHTML = `${marke('icon-fach-doku', 'Durchgerechnet')}<div>${b.html}</div>`; break;
       case 'concept':
-        card.innerHTML = `<div>${b.html}</div>`; break;
+        card.innerHTML = `${marke('icon-fach-paragraph', 'Grundlage')}<div>${b.html}</div>`; break;
       case 'merkbild':
         // Beschriftet wie jeder andere Blocktyp. Vorher trug allein ein Emoji im
         // Fließtext die Kennzeichnung — in einem Produkt mit eigenem Icon-Set.
         card.classList.add('unit-merkbild');
-        card.innerHTML = `<div class="unit-tag">Merkbild</div><div>${b.html}</div>`; break;
+        card.innerHTML = `${marke('icon-fach-siegel', 'Merkbild')}<div>${b.html}</div>`; break;
       case 'beispiel': {
         // Fixed didactic intent, profile-variable dressing. If the profile carries a
         // dressing for this slot, it replaces the generic text.
         const eink = (ctx?.profile?.personalisierung?.beispiel_einkleidungen ?? []).find(e => e.intent_id === b.intent_id);
         card.classList.add('unit-beispiel');
-        card.innerHTML = `<div class="unit-tag">Beispiel${eink ? ' · auf dein Profil zugeschnitten' : ''}</div>
+        card.innerHTML = `${marke('icon-fach-behoerde', `Beispiel${eink ? ' · auf dein Profil zugeschnitten' : ''}`)}
           <p>${escapeHtml(eink?.text ?? b.generisch)}</p>`;
         break;
       }
       case 'erwg':
         card.classList.add('unit-erwg');
         card.setAttribute('data-hilfsmittel', '');
-        card.innerHTML = `<div class="unit-tag">Auslegung · ErwG ${escapeHtml(String(b.nr))}</div><p>${escapeHtml(b.text)}</p>`; break;
+        card.innerHTML = `${marke('icon-fach-waage', `Auslegung · ErwG ${escapeHtml(String(b.nr))}`)}<p>${escapeHtml(b.text)}</p>`; break;
       case 'quelle':
         card.classList.add('unit-quelle');
         card.setAttribute('data-hilfsmittel', '');
         // "Verbatim text" only for real quotations; structural commentary is labelled
         // honestly as such.
+        // Als einziger Baustein trug die Quellen-Box keine Marke — sie begann mit
+        // ihrem Aufklapper. Und die Fundstelle in der Aufschrift stand im
+        // Fliesstext-Schnitt, waehrend jede andere Fundstelle Monospace traegt.
         card.innerHTML = b.kind === 'einordnung'
-          ? `<details><summary>Systematik-Einordnung ${escapeHtml(b.ref)}</summary><p>${escapeHtml(b.text)}</p></details>`
-          : `<details><summary>Originaltext ${escapeHtml(b.ref)}${b.changed_by_omnibus ? ' <span class="legal-status-warn">· geändert durch VO 2026/1744</span>' : ''}</summary><blockquote class="mono">${escapeHtml(b.text)}</blockquote></details>`;
+          ? `${marke('icon-fach-doku', 'Systematik')}
+             <details><summary>Einordnung <span class="mono">${escapeHtml(b.ref)}</span></summary><p>${escapeHtml(b.text)}</p></details>`
+          : `${marke('icon-fach-paragraph', 'Originaltext')}
+             <details><summary>Wortlaut <span class="mono">${escapeHtml(b.ref)}</span>${b.changed_by_omnibus ? ' <span class="legal-status-warn">· geändert durch VO 2026/1744</span>' : ''}</summary><blockquote class="mono">${escapeHtml(b.text)}</blockquote></details>`;
         break;
       case 'check': {
         checkCount++;
-        card.innerHTML = `<div class="unit-tag">Check</div>`;
+        card.innerHTML = marke('icon-nav-pruefung', 'Check');
         const qmount = doc.createElement('div');
         card.appendChild(qmount);
         renderQuestion(qmount, b.question, {
@@ -151,13 +172,28 @@ export async function renderUnit(mount, unitId, ctx) {
         break;
       }
       case 'widget': {
-        card.innerHTML = `<div class="unit-tag">Interaktiv</div>`;
+        // „Interaktiv" sagte weder, WAS hier steht, noch was zu tun ist — und
+        // trug als einzige Marke kein Zeichen. Jedes Werkzeug bekommt seinen
+        // Namen, sein Zeichen und einen Satz Anleitung.
+        const WERKZEUG = {
+          assignment: ['icon-fach-pyramide', 'Zuordnen', 'Zieh jede Aussage in die Stufe, zu der sie gehört. Falsch abgelegt kostet nichts — du siehst sofort, ob es passt.'],
+          timeline: ['icon-fach-timeline', 'Fristen-Achse', 'Die Stufen der Verordnung auf der Zeitachse. Ein Punkt zeigt, was ab wann gilt.'],
+          annex3: ['icon-fach-doku', 'Anhang III', 'Die acht Einsatzbereiche aus Anhang III — aufklappen zeigt, was jeweils dazugehört.'],
+          roleswitch: ['icon-fach-rollen', 'Rollenweiche', 'Vier Fälle aus Art. 25: Wann aus einem Betreiber ein Anbieter wird.'],
+          'erwg-explorer': ['icon-fach-waage', 'Erwägungsgründe', 'Die Auslegungsargumente, nach Thema durchsuchbar.'],
+        };
+        const [wIcon, wName, wSatz] = WERKZEUG[b.widget] ?? ['icon-act-play', 'Interaktiv', ''];
+        card.innerHTML = marke(wIcon, wName) + (wSatz ? `<p class="werkzeug-satz">${wSatz}</p>` : '');
         const wmount = doc.createElement('div');
         card.appendChild(wmount);
         if (b.widget === 'timeline') {
           fetch('content/fristen.json').then(r => r.json()).then(m => {
             renderTimeline(wmount, m.geltungsstufen.map(g => ({
+              // Der Titel des Punktes trug bisher denselben gekuerzten Text wie die
+              // Beschriftung — beim Ueberfahren stand dort noch einmal „Kapitel I
+              // und II (Allgemei…". Die volle Angabe geht als `detail` mit.
               id: g.id, date: g.applies_from, label: g.was.slice(0, 26) + (g.was.length > 26 ? '…' : ''),
+              detail: `${g.was} · ab ${new Date(g.applies_from).toLocaleDateString('de-AT', { day: 'numeric', month: 'long', year: 'numeric' })}`,
               changed_by_omnibus: /1744|verschoben|NEU/i.test(g.basis + g.status)
             })));
           });
@@ -201,11 +237,16 @@ export async function renderUnit(mount, unitId, ctx) {
   const notesBox = doc.createElement('div');
   notesBox.className = 'card unit-notes';
   const savedNote = ctx.state.notes?.[unit.id] ?? '';
-  notesBox.innerHTML = `<h4>Meine Notizen</h4>
+  // Kopf mit Symbol wie jede andere Karte, Hilfszeile unter dem Feld, und genau
+  // ein Hauptknopf: vorher standen zwei gleich aussehende Knoepfe nebeneinander,
+  // und nichts sagte, wohin eine Notiz geht.
+  notesBox.innerHTML = `<div class="chead"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-act-notiz"/></svg></span>
+      <span class="t"><h3>Meine Notizen</h3><span class="sub">Selbst formuliert bleibt besser haften als gelesen.</span></span></div>
     <textarea class="q-freetext" rows="3" placeholder="Eigene Merksätze, offene Fragen …">${savedNote.replace(/</g, '&lt;')}</textarea>
-    <div style="display:flex;gap:8px;margin-top:6px">
-      <button class="btn" data-act="save">Notiz speichern</button>
-      <button class="btn" data-act="card">Als eigene Karte in die Wiederholung</button>
+    <span class="feld-hilfe">Bleibt in deinem Lernstand auf diesem Rechner. Ein Merksatz kann direkt als Karte in die Wiederholung gehen — dann fragt sie dich später danach.</span>
+    <div class="formular-fuss">
+      <button class="btn" data-act="card">Als Karte in die Wiederholung</button>
+      <button class="btn-primary" data-act="save">Notiz speichern</button>
     </div><span class="dim" data-role="msg"></span>`;
   notesBox.addEventListener('click', ev => {
     const act = ev.target.dataset?.act;

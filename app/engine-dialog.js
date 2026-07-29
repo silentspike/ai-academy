@@ -165,11 +165,17 @@ export function renderAssessmentCard(mount, assessment) {
   const doc = mount.ownerDocument;
   const card = doc.createElement('div');
   card.className = 'card dlg-assessment';
-  card.innerHTML = `<h3>Bewertung des Fachgesprächs</h3>` +
+  // Die Gespraechsziele trugen die Textzeichen ✓ und ○ und standen ohne Zaehlung
+  // da — man musste sie abzaehlen, um zu wissen, wie es ausgegangen ist.
+  const getroffen = assessment.goals.filter(g => g.hit).length;
+  const zeichen = hit => `<svg class="dlg-goal-sym" aria-hidden="true"><use href="assets/icons/sprite.svg#${hit ? 'icon-st-check' : 'icon-st-x'}"/></svg>`;
+  card.innerHTML = `<div class="chead"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-fach-waage"/></svg></span>
+      <span class="t"><h3>So lief das Gespräch</h3>
+      <span class="sub"><b>${getroffen}</b> von <b>${assessment.goals.length}</b> Gesprächszielen getroffen</span></span></div>` +
     assessment.goals.map(g =>
-      `<div class="dlg-goal ${g.hit ? 'hit' : 'miss'}">${g.hit ? '✓' : '○'} ${g.text} <span class="mono">${g.competency}</span></div>`
+      `<div class="dlg-goal ${g.hit ? 'hit' : 'miss'}">${zeichen(g.hit)}<span>${g.text}</span></div>`
     ).join('') +
-    (assessment.feedback ? `<p>${assessment.feedback}</p>` : '');
+    (assessment.feedback ? `<p class="dlg-feedback">${assessment.feedback}</p>` : '');
   mount.appendChild(card);
   return card;
 }

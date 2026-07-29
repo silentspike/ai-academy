@@ -121,7 +121,7 @@ test.describe('lifecycle', () => {
     await warteAufAnsicht(page);
 
     const text = await page.evaluate(() => document.getElementById('view').innerText);
-    expect(text, 'the record does not name the legal baseline').toMatch(/2026-07-27/);
+    expect(text, 'the record does not name the legal baseline').toMatch(/2026-07-27|27\.7\.2026|27\. Juli 2026/);
     expect(text, 'the record carries no disclaimer').toMatch(/unbeaufsichtigt/i);
     // A finished course must show a result. "No exam passed yet" next to 9/9
     // chapter tests is a state no learner can actually reach.
