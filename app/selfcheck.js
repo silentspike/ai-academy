@@ -21,6 +21,9 @@ async function ladeMiniGold(fetchImpl = fetch) {
   return { question: m.question, rubric: m.rubric, modelAnswer: m.model_answer, answer: m.answer, expect: m.expect };
 }
 
+// Millisekunden sind eine Maschinenangabe; gelesen wird in Sekunden.
+const sek = ms => ms < 1000 ? `${ms} ms` : `${(ms / 1000).toFixed(1).replace('.', ',')} Sekunden`;
+
 export async function runSelfCheck({ llm, storage }) {
   const checks = [];
   const add = (id, label, status, detail) => { checks.push({ id, label, status, detail }); return status; };
@@ -31,13 +34,15 @@ export async function runSelfCheck({ llm, storage }) {
     health = await llm.refreshHealth();
     add('bridge', 'Bridge-Verbindung', 'ok', `${health.name} · Prompts ${health.promptsVersion}`);
   } catch (e) {
-    add('bridge', 'Bridge-Verbindung', 'fail', String(e.message));
+    // 'Failed to fetch' ist die Meldung des Browsers, nicht die Lage des Nutzers.
+    add('bridge', 'Bridge-Verbindung', 'fail',
+      'keine Antwort — läuft die Bridge noch? Starte sie neu (node bridge/bridge.mjs) und prüfe erneut');
     return finish(checks, llm);
   }
 
   // 2) frontier gate (hard lock on summative functions for unsupported models)
   const gate = llm.evaluateGate();
-  add('gate', 'Frontier-Gate (Claude/ChatGPT)', gate.frontier ? 'ok' : 'blocked', gate.reason);
+  add('gate', 'Unterstütztes KI-Modell', gate.frontier ? 'ok' : 'blocked', gate.reason);
 
   // 3) model round trip plus the miniature calibration (only when the gate is open)
   if (gate.frontier) {
@@ -48,17 +53,17 @@ export async function runSelfCheck({ llm, storage }) {
       const ms = Math.round(performance.now() - t0);
       const schemaOk = result && typeof result.verdict === 'string' && typeof result.score === 'number';
       const goldOk = result.verdict === mini.expect.verdict && result.score === mini.expect.score;
-      add('roundtrip', 'Probe-Bewertung (Mini-Gold-Set)',
+      add('roundtrip', 'Probe-Bewertung',
         schemaOk && goldOk ? 'ok' : schemaOk ? 'warn' : 'fail',
         schemaOk
-          ? `technisch kompatibel · ${result.verdict} ${result.score}/${result.max} · ${ms} ms` + (goldOk ? '' : ' · Soll-Abweichung!')
+          ? `technisch kompatibel · ${result.verdict} ${result.score}/${result.max} · ${sek(ms)}` + (goldOk ? '' : ' · weicht vom Sollwert ab!')
           : 'Antwort entspricht nicht dem JSON-Schema');
-      add('latency', 'Latenz', ms < 60000 ? 'ok' : 'warn', ms + ' ms für eine Bewertung');
+      add('latency', 'Antwortzeit', ms < 60000 ? 'ok' : 'warn', `${sek(ms)} für eine Bewertung`);
     } catch (e) {
-      add('roundtrip', 'Probe-Bewertung (Mini-Gold-Set)', 'fail', String(e.message));
+      add('roundtrip', 'Probe-Bewertung', 'fail', String(e.message));
     }
   } else {
-    add('roundtrip', 'Probe-Bewertung', 'skipped', 'übersprungen — Gate geschlossen');
+    add('roundtrip', 'Probe-Bewertung', 'skipped', 'übersprungen — das verbundene Modell wird nicht unterstützt');
   }
 
   // 4) Speicher-Roundtrip

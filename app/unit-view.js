@@ -3,6 +3,7 @@
 // mnemonics and embedded widgets. Answers feed spaced repetition and competency events.
 
 import { renderQuestion } from './engine-quiz.js';
+import { kompetenzName, stufenName, ladeKompetenzen, phasenName } from './competency.js';
 import { renderTimeline, renderAssignment, renderErwgExplorer, renderAnnexExplorer, renderRoleSwitch } from './engine-widgets.js';
 import { applyEvent, ceremony, CEREMONY } from './gamification.js';
 import { LlmAdapter } from './llm-adapter.js';
@@ -58,6 +59,7 @@ import { newCard } from './engine-leitner.js';
 import { escapeHtml } from './engine-quiz.js';
 
 export async function renderUnit(mount, unitId, ctx) {
+  await ladeKompetenzen();   // Klarnamen fuer die Unterzeile
   const doc = mount.ownerDocument;
   const res = await fetch(`content/units/${unitId}.json`);
   if (!res.ok) { mount.innerHTML = `<div class="card"><p class="dim">Einheit ${escapeHtml(unitId)} nicht gefunden.</p></div>`; return null; }
@@ -68,7 +70,7 @@ export async function renderUnit(mount, unitId, ctx) {
   wrap.className = 'unit';
   wrap.innerHTML = `<div class="card unit-head">
       <div class="chead"><span class="csym"><svg aria-hidden="true"><use href="assets/icons/sprite.svg#icon-nav-lernen"/></svg></span><span class="t"><h3>${escapeHtml(unit.title)}</h3>
-      <span class="sub">${unit.phase.toUpperCase()} · ${unit.competency} · Stufe ${unit.level} · <span class="mono legal-ref">${escapeHtml(unit.legal_basis[0]?.ref ?? '')}</span></span></span>
+      <span class="sub">${phasenName(unit.phase)} · ${kompetenzName(unit.competency)} · ${stufenName(unit.level)} · <span class="mono legal-ref">${escapeHtml(unit.legal_basis[0]?.ref ?? '')}</span></span></span>
       <span class="actions"><span class="pill mono" style="height:26px;padding:0 .5rem" title="Rechtsstand">${unit.legal_status === 'konsolidiert-2026-07-27' ? 'RS 27.7.2026' : `<svg class="ut-sym" aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-warn"/></svg>${escapeHtml(unit.legal_status)}`}</span></span></div></div>`;
 
 

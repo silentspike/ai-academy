@@ -561,13 +561,18 @@ details[open] > summary::before { transform:rotate(45deg); }
 .such-leer { padding:12px; font-size:.78rem; color:var(--faint); }
 
 .tb-menu-anker { position:relative; }
-.tb-menu { position:absolute; top:calc(100% + 6px); right:0; width:max(240px, 100%);
+/* 240 px reichten fuer die kurzen Eintraege, aber „4 Karten im Kern — Pflicht
+   vor neuem Stoff" wurde am rechten Rand abgeschnitten: `nowrap` plus
+   `overflow:hidden` schnitten den Satz mitten im Wort ab (im Bild gesehen). */
+.tb-menu { position:absolute; top:calc(100% + 6px); right:0; width:max(300px, 100%);
   background:var(--panel-2, #121826); border:1px solid var(--line); border-radius:12px;
   box-shadow:0 18px 40px rgba(0,0,0,.5); overflow:hidden; z-index:60; }
 .menu-kopf { padding:9px 12px 5px; font-size:.62rem; text-transform:uppercase; letter-spacing:.07em;
   color:var(--faint); }
-.menu-eintrag { display:block; padding:8px 12px; font-size:.78rem; text-decoration:none; color:inherit;
-  border-top:1px solid var(--line); white-space:nowrap; }
+.menu-eintrag { display:flex; align-items:flex-start; gap:10px; padding:9px 12px; font-size:.78rem;
+  text-decoration:none; color:inherit; border-top:1px solid var(--line); line-height:1.45; }
+.menu-eintrag .ut-sym { margin-top:.12rem; color:var(--faint); }
+.menu-eintrag:hover .ut-sym { color:var(--violet,#b6a5ff); }
 .menu-eintrag:hover { background:rgba(138,112,239,.12); }
 .menu-eintrag b { font-family:var(--font-num); }
 

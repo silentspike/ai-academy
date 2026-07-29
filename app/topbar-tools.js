@@ -145,6 +145,20 @@ export function verdrahteTopbar(ctx, { doc = document } = {}) {
   const liste = doc.getElementById('tb-suche-treffer');
   const suchbox = doc.getElementById('tb-suche');
 
+  // Drei Werkzeuge, drei Fenster — und keines wusste vom anderen: im Bild lagen
+  // Trefferliste und Profil-Menue uebereinander. Wer eines oeffnet, schliesst
+  // die anderen.
+  const andereZu = (ausser) => {
+    for (const id of ['tb-suche-treffer', 'tb-faellig-menu', 'tb-profil-menu']) {
+      if (id === ausser) continue;
+      const el = doc.getElementById(id);
+      if (el && !el.hidden) {
+        el.hidden = true;
+        if (id === 'tb-suche-treffer') doc.getElementById('tb-suche')?.classList.remove('offen');
+      }
+    }
+  };
+
   if (feld && liste) {
     let aktuell = [];
     let markiert = 0;
@@ -153,13 +167,17 @@ export function verdrahteTopbar(ctx, { doc = document } = {}) {
     const lauf = async () => {
       if (pruefungLaeuft(doc)) {
         liste.hidden = false;
-        liste.innerHTML = '<div class="such-leer">Während einer Prüfung ohne Hilfsmittel ist die Suche aus.</div>';
+        // Ohne Zeichen: alle anderen Sperren im Werkzeug tragen ein Schloss.
+        liste.innerHTML = '<div class="such-leer">'
+          + '<svg class="ut-sym" aria-hidden="true"><use href="assets/icons/sprite.svg#icon-st-lock"/></svg>'
+          + '<span>Während einer Prüfung ohne Hilfsmittel ist die Suche aus — genau darum geht es.</span></div>';
         return;
       }
       const idx = await sucheIndex();
       aktuell = suche(idx, feld.value);
       markiert = 0;
       if (!feld.value.trim() || feld.value.trim().length < 2) { schliessen(); return; }
+      andereZu('tb-suche-treffer');
       liste.hidden = false;
       suchbox?.classList.add('offen');
       zeichneTreffer(liste, aktuell, feld.value.trim());
@@ -198,6 +216,7 @@ export function verdrahteTopbar(ctx, { doc = document } = {}) {
     glocke.addEventListener('click', async (e) => {
       e.preventDefault();
       if (!glockenmenu.hidden) { glockenmenu.hidden = true; return; }
+      andereZu('tb-faellig-menu');
       const [{ splitQueues, planAufhol }, { weekProgress }] = await module;
       const q = splitQueues(ctx.state.cards ?? [], Date.now());
       const heute = planAufhol(q.aufholMeta, { perDay: 15 }).today;
@@ -238,6 +257,7 @@ export function verdrahteTopbar(ctx, { doc = document } = {}) {
   if (profil && profilmenu) {
     profil.addEventListener('click', (e) => {
       e.preventDefault();
+      if (profilmenu.hidden) andereZu('tb-profil-menu');
       profilmenu.hidden = !profilmenu.hidden;
     });
     profilmenu.addEventListener('click', async (e) => {

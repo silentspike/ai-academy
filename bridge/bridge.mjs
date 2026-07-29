@@ -320,9 +320,9 @@ function logPrompt(kind, prompt) {
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.woff2': 'font/woff2', '.pdf': 'application/pdf' };
 const CSP = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'";
 
-function send(res, code, body, type = 'application/json; charset=utf-8') {
+function send(res, code, body, type = 'application/json; charset=utf-8', cache = 'no-store') {
   const buf = typeof body === 'string' || Buffer.isBuffer(body) ? body : JSON.stringify(body);
-  res.writeHead(code, { 'Content-Type': type, 'Content-Security-Policy': CSP, 'X-Content-Type-Options': 'nosniff', 'Cache-Control': 'no-store' });
+  res.writeHead(code, { 'Content-Type': type, 'Content-Security-Policy': CSP, 'X-Content-Type-Options': 'nosniff', 'Cache-Control': cache });
   res.end(buf);
 }
 
@@ -538,7 +538,12 @@ const server = http.createServer(async (req, res) => {
     if (path === '/' || extname(fp) === '.html') {
       data = Buffer.from(data.toString('utf-8').replaceAll('__BRIDGE_TOKEN__', TOKEN));
     }
-    return send(res, 200, data, MIME[extname(fp)] || 'application/octet-stream');
+    // Zeichen, Schriften und Bilder aendern sich nicht zwischen zwei Aufrufen.
+    // Mit 'no-store' holt der Browser den Zeichensatz fuer JEDES <use> neu — faellt
+    // die Bridge waehrend einer offenen Seite aus, verschwinden schlagartig alle
+    // Symbole, obwohl sie eben noch da waren.
+    const cache = path.startsWith('/assets/') ? 'public, max-age=3600' : 'no-store';
+    return send(res, 200, data, MIME[extname(fp)] || 'application/octet-stream', cache);
   } catch (e) {
     // A prompt builder rejecting an incomplete payload is a client error, not an
     // internal one. Without this mapping the caller sees 500 "internal" and has

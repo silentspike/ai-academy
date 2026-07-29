@@ -8,7 +8,7 @@ import {
   blockCheck, marathonWarning, rotationHint, wrapupCard,
 } from './session.js';
 import { splitQueues } from './engine-leitner.js';
-import { aggregateCompetencies, weakestCompetencies } from './competency.js';
+import { aggregateCompetencies, weakestCompetencies, kompetenzName, stufenName, setKompetenzen } from './competency.js';
 import { driftCheck, stoffUmfang } from './pacing.js';
 import { renderQuestion } from './engine-quiz.js';
 import { applyEvent, zaehleHoch } from './gamification.js';
@@ -119,6 +119,7 @@ route('drill', async (view, ctx) => {
   let weakNamen = weak.join(' · ');
   try {
     const kk = (await fetch('content/competencies.json').then(r => r.json())).kompetenzen ?? [];
+    setKompetenzen(kk);
     const namen = weak.map(id => kk.find(k => k.id === id)?.name).filter(Boolean);
     if (namen.length) weakNamen = namen.slice(0, 2).join(', ') + (namen.length > 2 ? ' u. a.' : '');
   } catch { /* Namen sind Zusatz — im Zweifel bleiben die Kuerzel */ }
@@ -156,7 +157,7 @@ route('drill', async (view, ctx) => {
     // the question in none, so the two read as unrelated blocks of different width.
     const box = card(`<div class="q-fortschritt" role="img" aria-label="Frage ${i + 1} von ${questions.length}"><i style="width:${Math.round((i + 1) / questions.length * 100)}%"></i></div>
       <div class="q-meta"><span class="q-zaehler">Frage ${i + 1}<i>/${questions.length}</i></span>
-      <span class="q-marken"><span class="q-marke">${q.competency}</span><span class="q-marke">Stufe ${q.level}</span>${q.variant_of ? '<span class="q-marke variante" title="Aus der Fakten-DB erzeugt — nie in Prüfungen">Variante</span>' : ''}</span></div>`);
+      <span class="q-marken"><span class="q-marke">${kompetenzName(q.competency)}</span><span class="q-marke">${stufenName(q.level)}</span>${q.variant_of ? '<span class="q-marke variante" title="Aus der Fakten-DB erzeugt — nie in Prüfungen">Variante</span>' : ''}</span></div>`);
     mount.appendChild(box);
     const qm = document.createElement('div'); box.appendChild(qm);
     renderQuestion(qm, q, {
