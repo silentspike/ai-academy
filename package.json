@@ -34,6 +34,6 @@
     "test:fuzz": "node tools/fuzz-extract-json.mjs"
   },
   "devDependencies": {
-    "@playwright/test": "^1.62.0"
+    "@playwright/test": "^1.62.1"
   }
 }
