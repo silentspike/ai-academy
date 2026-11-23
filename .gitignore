@@ -28,6 +28,7 @@ test-results/
 playwright-report/
 blob-report/
 .tmp-e2e-store/
+/.tmp-probe-store/
 tests/e2e/__screenshots__/*/actual/
 tests/e2e/__screenshots__/*/diff/
 
